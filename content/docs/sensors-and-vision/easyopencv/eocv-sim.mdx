@@ -1,324 +1,65 @@
 ---
-title: EOCV-Sim Testing
-description: Test vision pipelines offline with EOCV-Sim simulator
+title: VisionBench (formerly EOCV-Sim)
+description: Test an EasyOpenCV pipeline on your computer before using the robot
 icon: Monitor
 ---
 
-## What is EOCV-Sim?
+## What is VisionBench?
 
-EOCV-Sim is an offline simulator that lets you develop and test OpenCV pipelines without needing a robot or camera. It's essential for rapid development and iteration.
+**VisionBench** is the current name of EOCV-Sim. It runs vision code on your computer using a saved image, video, or webcam as the input. This lets you inspect and tune a pipeline without repeatedly installing robot code.
 
-**Benefits:**
-- Test pipelines with images or live webcam
-- Instant feedback on parameter changes
-- No robot hardware required
-- Tune color thresholds visually
-- Save hours of testing time
-- **See pixel measurements on screen** - Visualize detected objects with pixel sizes directly on your computer without loading up the FTC Driver Hub
-- Test different lighting conditions quickly
+![A test loop: choose an image, run the pipeline in VisionBench, inspect its output, change one setting, and test again.](/guides/visionbench-loop.svg)
 
-## Installation
+It simulates the vision parts of the FTC SDK; it is **not** a full robot simulator. You still need to test camera exposure, lighting, speed, and robot behavior on the real robot.
 
-### For Java Users
+## 1. Install it
 
-1. **Download EOCV-Sim**
-   - Visit [EOCV-Sim Releases](https://github.com/deltacv/EOCV-Sim/releases)
-   - Download the latest `.jar` file
+1. Follow the [official VisionBench download instructions](https://docs.deltacv.org/visionbench/downloading-visionbench). The current release requires **Java 25 or newer**. Check with `java -version` before launching it.
+2. Download the file for your operating system from the linked release page.
+3. Launch the downloaded JAR. If double-clicking does nothing, open a terminal in the download folder and run `java -jar` followed by the **actual filename** you downloaded.
 
-2. **Run the Simulator**
-   ```bash
-   java -jar EOCV-Sim-X.X.X-all.jar
-   ```
+The Java version needed to **run VisionBench on your computer** is separate from the Java and Android Gradle settings used to build your FTC Robot Controller app.
 
-3. **Add Your Pipeline Code**
-   - Place your pipeline `.java` files in the simulator's workspace
-   - Or use File → Open Workspace to select your project
+## 2. Make a small Java pipeline
 
-### For Kotlin Users
-
-<Callout type="warn">
-**Important:** EOCV-Sim does not natively support Kotlin from JAR file. You must clone the project and run it in IntelliJ IDEA.
-</Callout>
-
-1. **Install Prerequisites**
-   - Install [IntelliJ IDEA](https://www.jetbrains.com/idea/download/) (Community Edition is free)
-   - Install JDK 11 or higher
-   - Install Git
-
-2. **Clone EOCV-Sim**
-   ```bash
-   git clone https://github.com/deltacv/EOCV-Sim.git
-   cd EOCV-Sim
-   ```
-
-3. **Open in IntelliJ**
-   - Open IntelliJ IDEA
-   - Select **File → Open**
-   - Navigate to the cloned EOCV-Sim folder
-   - Wait for Gradle sync to complete
-
-4. **Add Your Kotlin Pipelines**
-   - Create a new package in `TeamCode/src/main/kotlin/`
-   - Add your pipeline `.kt` files there
-
-5. **Run the Simulator**
-   - Find the `Main.kt` file
-   - Click the green play button or right-click → Run 'Main'
-
-## Using EOCV-Sim
-
-### Import Pipeline
-
-**Java:**
-1. Click **Pipelines → Import Class**
-2. Navigate to your `.java` file
-3. Select your pipeline class
-
-**Kotlin (IntelliJ):**
-1. Your pipelines are automatically detected
-2. Select from the pipeline dropdown
-
-### Select Input Source
-
-Choose what the simulator should process:
-
-- **Images** - Load test images from your computer
-- **Camera** - Use your laptop's webcam
-- **Video** - Process video files
-
-Click **Input Source** and choose your option.
-
-### Tune Parameters
-
-EOCV-Sim can show sliders for tunable variables in your pipeline. This lets you adjust color thresholds and other parameters in real-time without restarting!
-
-**For Java (using Workspaces):**
-
-Simply declare public fields in your pipeline:
+For a first test, use a saved photo of a field object. Create a Java workspace through **Workspace → External → Create Gradle Workspace**. Open that folder in VS Code or IntelliJ, then add `PassThroughPipeline.java` under `src/main/java`:
 
 ```java
-public class TunablePipeline extends OpenCvPipeline {
-    
-    public int minHue = 0;
-    public int maxHue = 10;
-    public int minSat = 100;
-    public double minArea = 100.0;
-    
+import org.opencv.core.Mat;
+import org.openftc.easyopencv.OpenCvPipeline;
+
+public class PassThroughPipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
-        Scalar lower = new Scalar(minHue, minSat, 100);
-        Scalar upper = new Scalar(maxHue, 255, 255);
-        // Use these tunable values
         return input;
     }
 }
 ```
 
-**For Kotlin (building from source):**
+`processFrame` receives one image frame. Returning `input` shows the frame without changing it. Once this works, try the [one-color pipeline lesson](./writing-pipelines).
 
-Use `@JvmField` annotation to expose variables:
+The [official workspace guide](https://docs.deltacv.org/visionbench/workspaces/vscode-and-intellij) shows the current menu and file locations. If the pipeline does not appear, read the build error in VisionBench and check that the Java filename matches the class name.
 
-```kotlin
-class TunablePipeline : OpenCvPipeline() {
-    
-    @JvmField var minHue = 0.0
-    @JvmField var maxHue = 10.0
-    @JvmField var minSat = 100.0
-    @JvmField var minArea = 100.0
-    
-    override fun processFrame(input: Mat): Mat {
-        val lower = Scalar(minHue, minSat, 100.0)
-        val upper = Scalar(maxHue, 255.0, 255.0)
-        // Use these tunable values
-        return input
-    }
-}
-```
+## 3. Test and tune
 
-Sliders will appear automatically in the EOCV-Sim interface!
+1. Choose an **image input source** and open your test photo.
+2. Select **PassThroughPipeline** in the pipeline list. The preview should show the same photo.
+3. Change one part of the pipeline, save the file, and compare the new preview with the original.
+4. When you add thresholds, expose supported **public, non-final Java fields** to adjust them in the [variable tuner](https://docs.deltacv.org/eocv-sim/features/variable-tuner-1). Record the values you choose in your code.
 
-### Save Tuned Values
+Use several photos, including different lighting and object positions. A color range that works on one image may fail on another.
 
-Once you've found good parameters:
-1. Note the values from the UI
-2. Update your code with these values
-3. Deploy to your robot
+## Using an existing robot pipeline
 
-## Workflow: Sim to Robot
+VisionBench can load a folder of pipeline classes from an Android Studio project, but those classes should not depend on motor or other unsupported robot hardware APIs. Follow its [Android Studio workspace guide](https://docs.deltacv.org/visionbench/workspaces/android-studio) to select only the vision package.
 
-### Step 1: Develop in Simulator
+Java workspaces are the simplest supported route. The [pipeline guide](https://docs.deltacv.org/visionbench/introduction/pipelines/how-it-works) says Kotlin and other JVM languages require building VisionBench from source, so do not expect a `.kt` file placed in a Java workspace to appear automatically.
 
-Use public fields (Java) or `@JvmField` (Kotlin) for any values you want to tune:
+## Next step
 
-```kotlin
-class DetectionPipeline : OpenCvPipeline() {
-    
-    @JvmField var minArea = 100.0
-    @JvmField var hueMin = 0.0
-    @JvmField var hueMax = 10.0
-    
-    // ... rest of pipeline
-}
-```
+After the computer test works, move the pipeline into your FTC project, connect it to [EasyOpenCV on the robot](./easyopencv-basics), and test with the robot's camera. Keep your first robot test slow and simple.
 
-Test with various images and adjust sliders until detection is reliable.
+## Official references
 
-### Step 2: Copy Values to Robot Code
-
-Once tuned, note the values from the sliders and update your robot code:
-
-```kotlin
-class DetectionPipeline : OpenCvPipeline() {
-    
-    // Values tuned in EOCV-Sim:
-    private val minArea = 250.5  //  From slider
-    private val hueMin = 5.0      // From slider
-    private val hueMax = 12.0     // From slider
-    
-    // ... rest of pipeline
-}
-```
-
-You can remove `@JvmField` when deploying to robot if you want values to be fixed.
-
-### Step 3: Test on Robot
-
-Deploy to your robot and test with real conditions:
-- Different lighting
-- Camera angle
-- Movement
-
-### Step 4: Fine-tune with Dashboard
-
-Use FTC Dashboard for final adjustments in real conditions.
-
-## Collecting Test Images
-
-### From Robot Camera
-
-1. **Enable Camera Stream**
-   ```java
-   webcam.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
-   ```
-
-2. **Use FTC Dashboard**
-   - Connect to `http://192.168.43.1:8080/dash` (RC device IP)
-   - View camera feed
-   - Take screenshots
-
-3. **Transfer Images**
-   - Copy screenshots to your computer
-   - Use in EOCV-Sim for testing
-
-### From Competition Field
-
-Take reference photos of:
-- Game elements in good lighting
-- Game elements in poor lighting
-- Different angles and distances
-- Edge cases (partially visible, occluded)
-
-Build a test image library for comprehensive testing.
-
-## Common Simulator Issues
-
-### Pipeline Not Detected
-
-**Problem:** Your pipeline doesn't appear in the dropdown
-
-**Solutions:**
-- Ensure it extends `OpenCvPipeline`
-- Check for compilation errors
-- Refresh the workspace (File → Reload Workspace)
-- For Kotlin: Ensure project built successfully in IntelliJ
-
-### Performance Warnings
-
-**Problem:** Processing is slow, warnings about frame drops
-
-**Solutions:**
-- Reduce input resolution
-- Optimize your pipeline code
-- Simplify operations
-- Use smaller test images
-
-### Color Differences from Robot
-
-**Problem:** Colors look different in simulator vs robot
-
-**Causes:**
-- Different camera hardware
-- Lighting conditions vary
-- Color space conversions
-
-**Solutions:**
-- Test with images taken from robot camera
-- Add tolerance to thresholds
-- Use adaptive thresholding techniques
-
-## Advanced Features
-
-### Multiple Pipeline Comparison
-
-Run multiple pipelines side-by-side:
-1. Create variants of your pipeline
-2. Switch between them quickly
-3. Compare results visually
-
-### Video Recording
-
-Record your pipeline's output:
-1. Enable recording in settings
-2. Process video or live feed
-3. Review frame-by-frame
-
-### Custom Input Sources
-
-Load specific test scenarios:
-- Create image sets for different conditions
-- Test edge cases systematically
-- Validate across multiple frames
-
-## Tips for Effective Testing
-
-### 1. Build a Test Library
-
-Collect images covering:
-- ✅ Normal conditions
-- ✅ Poor lighting (dark, bright, shadows)
-- ✅ Different distances
-- ✅ Partial occlusion
-- ✅ Similar colored objects nearby
-
-### 2. Test Extremes
-
-Don't just test ideal conditions:
-- Very close and very far
-- Extreme angles
-- Object at image edges
-- Multiple objects in frame
-
-### 3. Document Your Values
-
-Keep notes on tuned parameters:
-```
-Red Detection:
-- HSV Min: (0, 120, 100)
-- HSV Max: (10, 255, 255)
-- Min Area: 250px
-- Tested on: 640x360 resolution
-```
-
-### 4. Version Control
-
-Commit working pipeline versions to git. If changes break detection, you can revert.
-
-### 5. Validate on Robot Early
-
-Don't tune exclusively in simulator. Test on real hardware frequently to catch issues early.
-
-## Next Steps
-
-- Return to [Writing Pipelines](./writing-pipelines) with testing knowledge
-- Learn about [VisionPortal](./vision-portal) for structured approach
-- Explore [Integration Patterns](./vision-integration) for robot code
+- [VisionBench repository and releases](https://github.com/deltacv/VisionBench)
+- [VisionBench documentation](https://docs.deltacv.org/visionbench/)

@@ -1,144 +1,46 @@
 ---
-title: Introduction
-description: Keep your code clean and collaborative
-icon: BookOpen
+title: Overview
+description: Write robot code that your teammates can read, test, and improve
+icon: Code
 ---
 
-## What is Code Etiquette?
+## Code is a team tool
 
-**Code etiquette** refers to the conventions, patterns, and practices that make your robot code readable, maintainable, and team-friendly. Good code isn't just code that works—it's code that your teammates can understand, modify, and build upon.
+Robot code is read by more than the person who wrote it. A teammate may need to fix it between matches, change it for a new mechanism, or explain it to a new student. Clear code makes those jobs easier.
 
-In FTC, you're working on a team where multiple programmers may touch the same codebase throughout the season. Clean code practices ensure everyone can contribute effectively without confusion or conflicts.
+You do not need a large architecture to start. For your first OpMode, focus on three habits:
 
-## Why It Matters
+1. **Name things for what they do.** `leftDriveMotor` tells more than `motor1`.
+2. **Keep each step easy to find.** Map hardware, wait for START, then run the control loop.
+3. **Explain unusual decisions.** A short comment can record why a motor is reversed or why a power limit exists.
 
-**Poor code practices lead to:**
-- Teammates unable to understand your code
-- Bugs introduced when modifying existing features
-- Wasted time debugging unclear logic
-- Merge conflicts and lost work
-- Difficulty onboarding new programmers
+## A small example
 
-**Good code practices enable:**
-- Quick understanding of what code does
-- Safe modifications and feature additions
-- Efficient debugging and testing
-- Smooth collaboration across team members
-- Knowledge transfer to next season's team
+This fragment shows the idea. It belongs **inside** an OpMode after `leftDriveMotor` has been mapped and START has been pressed:
 
-## Core Principles
-
-### 1. Readability Over Cleverness
-
-Write code that's easy to read, not code that shows off how smart you are.
-
-**Bad:**
 ```java
-// What does this do?
-double v = (e < 0 ? -1 : 1) * Math.min(Math.abs(e * 0.05), 1);
+double forward = -gamepad1.left_stick_y;
+double safePower = forward * 0.25;
+leftDriveMotor.setPower(safePower);
 ```
 
-**Good:**
-```java
-// Calculate motor power with proportional control
-double error = targetPosition - currentPosition;
-double power = error * KP;
-power = Math.max(-1.0, Math.min(1.0, power)); // Clamp to [-1, 1]
-```
+The names say what the values mean. The `0.25` limit makes the first drive test slower. If that limit is temporary, explain when the team should change it.
 
-### 2. Consistency Across Codebase
+## Keep changes understandable
 
-Pick conventions and stick to them throughout your entire project.
+- Change one behavior at a time when testing a new robot.
+- Build the project, then test the changed behavior on the real robot with a safe setup.
+- Review `git diff` before committing so unrelated changes do not slip in.
+- Record configuration names and important measurements where teammates can find them.
 
-**Bad (mixed styles):**
-```java
-public class robot_code {
-    private DcMotor Left_Motor;
-    private dcmotor rightmotor;
-    private DcMotor ArmMotor;
-}
-```
+## Choose a focused guide
 
-**Good (consistent):**
-```java
-public class RobotHardware {
-    private DcMotor leftDrive;
-    private DcMotor rightDrive;
-    private DcMotor armMotor;
-}
-```
+| If you need to… | Read… |
+| --- | --- |
+| Pick names for motors, values, and classes | [Naming conventions](./naming-conventions) |
+| Decide where code belongs | [Code organization](./code-organization) |
+| Make code easier to scan | [Formatting](./formatting) |
+| Explain a choice in code | [Comments and documentation](./comments) |
+| Share and review changes | [Team collaboration](./team-collaboration) |
 
-### 3. Clear Intent Through Names
-
-Variable and function names should explain what they represent or do.
-
-**Bad:**
-```java
-double x = s.getDistance(DistanceUnit.INCH);
-if (x < 10) m.setPower(0);
-```
-
-**Good:**
-```java
-double distanceToWall = frontSensor.getDistance(DistanceUnit.INCH);
-if (distanceToWall < 10) {
-    driveMotor.setPower(0); // Stop before hitting wall
-}
-```
-
-### 4. Modularity and Abstraction
-
-Break complex operations into smaller, reusable functions.
-
-**Bad:**
-```java
-// 50 lines of drivetrain control in one method
-public void teleopLoop() {
-    double y = -gamepad1.left_stick_y;
-    double x = gamepad1.left_stick_x;
-    double rx = gamepad1.right_stick_x;
-    // ... 40 more lines
-}
-```
-
-**Good:**
-```java
-public void teleopLoop() {
-    updateDrivetrain();
-    updateArm();
-    updateIntake();
-}
-
-private void updateDrivetrain() {
-    // Clean, focused logic for just drivetrain
-}
-```
-
-## What You'll Learn
-
-This section covers practical guidelines for writing clean FTC code:
-
-1. **[Naming Conventions](/docs/cegp/naming-conventions)** - How to name classes, methods, and variables
-2. **[Code Organization](/docs/cegp/code-organization)** - Structuring your project and files
-3. **[Comments and Documentation](/docs/cegp/comments)** - When and how to document your code
-4. **[Team Collaboration](/docs/cegp/team-collaboration)** - Git, code reviews, and working together
-
-## Quick Tips
-
-**Do:**
-- Use descriptive names (`frontLeftMotor` not `m1`)
-- Comment WHY, not WHAT
-- Keep functions short and focused
-- Test your code before committing
-- Ask for code reviews
-
-**Don't:**
-- Copy-paste code without understanding it
-- Leave debug statements in production code
-- Use magic numbers (use named constants instead)
-- Commit broken code to main branch
-- Ignore compiler warnings
-
-## Next Steps
-
-Start with **[Naming Conventions](/docs/cegp/naming-conventions)** to learn how to choose clear, consistent names throughout your codebase.
+Start with the guide that solves a problem your team has today. Return to the others as your robot project grows.

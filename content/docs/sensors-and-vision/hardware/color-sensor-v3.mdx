@@ -1,680 +1,184 @@
 ---
 title: REV Color Sensor V3
-description: Detect colors and measure distances with the REV Color Sensor V3
+description: Configure the sensor, read its color values, and test a simple decision
 icon: Palette
 ---
 
-## Overview
+# Read color from an object close to the robot
 
-The REV Color Sensor V3 (REV-31-1557) is a dual-purpose sensor featuring a Broadcom APDS-9151 chip that can:
+The REV Color Sensor V3 is a small I²C sensor for **nearby objects**. It measures red, green, blue, and clear-light values and also has an infrared proximity detector. It is not a camera: its useful color range is very short. REV recommends collecting color data within about **2 cm** of the target for the strongest differentiation. Its proximity reading is rough and depends on target reflectivity and lighting; it is not a precise distance sensor.
 
-- **Detect Colors** - Measure red, green, blue, and ambient light intensity (0-255 each)
-- **Measure Distance** - Detect objects up to ~10cm away using time-of-flight technology
+This lesson will first display the sensor values. Only after you see how your own sensor behaves should you write code that labels an object “red,” “blue,” or something else.
 
-<Callout type="warn">
-**Hardware Version:** The REV Color Sensor V3 is different from the older "REV Color/Range Sensor" (V1/V2). Make sure to select "**REV Color Sensor V3**" in your robot configuration, not "REV Color/Range Sensor"!
-</Callout>
+## Step 1: Configure the physical sensor
 
-<Callout type="info">
-**Dual Functionality:** This sensor implements both `ColorSensor` and `DistanceSensor` interfaces, so you declare it twice in code using the same hardware map name!
-</Callout>
+Connect the sensor to a Hub I²C port. In the Robot Controller configuration, add **REV Color Sensor V3** to that port and name it `color`. Do not select the older “REV Color/Range Sensor” configuration for a V3.
 
-## Hardware Configuration
+The V3 and REV's 2m Distance Sensor share an I²C address; REV says they cannot share the same I²C bus. Check bus assignments if the Control Hub reports an address conflict.
 
-### In the Robot Configuration
+## Step 2: Map the device in Java
 
-1. Connect the sensor to an I2C port on your Control Hub or Expansion Hub
-2. In the Driver Station, go to **Configure Robot**
-3. Select the I2C Bus your sensor is connected to (typically **I2C Bus 0** on the Control Hub)
-4. On the desired port (typically Port 0), select **"REV Color Sensor V3"** (not "REV Color/Range Sensor")
-5. Name it `"sensor_color"` (or your preferred name, but avoid spaces)
-6. Save the configuration
-
-<Callout type="info">
-**Configuration Name:** Unlike older V1/V2 sensors configured as "REV Color/Range Sensor", the V3 has its own dedicated configuration option: "REV Color Sensor V3"
-</Callout>
-
-## Basic Setup
-
-### Initializing the Sensor
-
-Since the sensor acts as both a color and distance sensor, you need to declare it twice:
+For color readings, ask the FTC SDK for a `NormalizedColorSensor`:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
-```java
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-public class RobotHardware {
-    private ColorSensor colorSensor;
-    private DistanceSensor distanceSensor;
-    private NormalizedColorSensor normalizedColorSensor;
-    
-    public void init(HardwareMap hwMap) {
-        // Same name for all - the sensor implements multiple interfaces
-        colorSensor = hwMap.get(ColorSensor.class, "sensor_color");
-        distanceSensor = hwMap.get(DistanceSensor.class, "sensor_color");
-        normalizedColorSensor = hwMap.get(NormalizedColorSensor.class, "sensor_color");
-        
-        // Optional: Set the gain for different lighting conditions
-        // Higher gain = more sensitive (better for dim lighting)
-        // Lower gain = less sensitive (better for bright lighting)
-        if (normalizedColorSensor != null) {
-            normalizedColorSensor.setGain(2);  // Values typically 1-16
-        }
-    }
+```java
+private NormalizedColorSensor colorSensor;
+
+@Override
+public void init() {
+    colorSensor = hardwareMap.get(NormalizedColorSensor.class, "color");
 }
 ```
+
 </Tab>
 <Tab value="Kotlin">
-```kotlin
-import com.qualcomm.robotcore.hardware.ColorSensor
-import com.qualcomm.robotcore.hardware.DistanceSensor
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor
-import com.qualcomm.robotcore.hardware.NormalizedRGBA
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 
-class RobotHardware {
-    private lateinit var colorSensor: ColorSensor
-    private lateinit var distanceSensor: DistanceSensor
-    private lateinit var normalizedColorSensor: NormalizedColorSensor
-    
-    fun init(hwMap: HardwareMap) {
-        // Same name for all - the sensor implements multiple interfaces
-        colorSensor = hwMap.get(ColorSensor::class.java, "sensor_color")
-        distanceSensor = hwMap.get(DistanceSensor::class.java, "sensor_color")
-        normalizedColorSensor = hwMap.get(NormalizedColorSensor::class.java, "sensor_color")
-        
-        // Optional: Set the gain for different lighting conditions
-        normalizedColorSensor.gain = 2f  // Values typically 1-16
-    }
+```kotlin
+private lateinit var colorSensor: NormalizedColorSensor
+
+override fun init() {
+    colorSensor = hardwareMap.get(NormalizedColorSensor::class.java, "color")
 }
 ```
+
 </Tab>
 </Tabs>
 
-## Reading Color Values
+`hardwareMap.get` connects your Java variable to the device with configuration name `color`. If the name or configured device type differs, initialization fails.
 
-### RGB Values
+You do not need three separate hardware objects just to read three color channels. One normalized sensor object gives you red, green, blue, and alpha/clear-light measurements.
 
-The color sensor returns separate values for red, green, and blue light intensity:
+## Step 3: Display measurements before classifying anything
+
+Read a sample and show each channel in telemetry:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
-```java
-// Get individual color channels (0-255)
-int red = colorSensor.red();
-int green = colorSensor.green();
-int blue = colorSensor.blue();
-int alpha = colorSensor.alpha();  // Ambient light/brightness
 
-// Display to driver station
-telemetry.addData("Red", red);
-telemetry.addData("Green", green);
-telemetry.addData("Blue", blue);
-telemetry.addData("Alpha (brightness)", alpha);
+```java
+NormalizedRGBA sample = colorSensor.getNormalizedColors();
+
+telemetry.addData("Red", "%.3f", sample.red);
+telemetry.addData("Green", "%.3f", sample.green);
+telemetry.addData("Blue", "%.3f", sample.blue);
+telemetry.addData("Clear light", "%.3f", sample.alpha);
+telemetry.update();
 ```
+
 </Tab>
 <Tab value="Kotlin">
-```kotlin
-// Get individual color channels (0-255)
-val red = colorSensor.red()
-val green = colorSensor.green()
-val blue = colorSensor.blue()
-val alpha = colorSensor.alpha()  // Ambient light/brightness
 
-// Display to driver station
-telemetry.addData("Red", red)
-telemetry.addData("Green", green)
-telemetry.addData("Blue", blue)
-telemetry.addData("Alpha (brightness)", alpha)
+```kotlin
+val sample = colorSensor.normalizedColors
+
+telemetry.addData("Red", "%.3f", sample.red)
+telemetry.addData("Green", "%.3f", sample.green)
+telemetry.addData("Blue", "%.3f", sample.blue)
+telemetry.addData("Clear light", "%.3f", sample.alpha)
+telemetry.update()
 ```
+
 </Tab>
 </Tabs>
 
-### Normalized Colors (Recommended)
+The channels are normalized values, not calibrated physical color coordinates. Hold a matte red, green, blue, white, and black object at the same close distance. Record how the four readings change. Keep the sensor orientation and built-in LED switch in the same state during your tests.
 
-The V3 supports normalized colors which automatically adjust for lighting conditions:
+## Step 4: Make a small, measured color rule
+
+A first rule can compare which channel is largest, but that rule is only a starting exercise. It can mislabel white, gray, reflections, or colors that produce similar channel values.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
+
 ```java
-// Get normalized colors (0.0 - 1.0 range)
-NormalizedRGBA colors = normalizedColorSensor.getNormalizedColors();
+String colorGuess = "uncertain";
 
-telemetry.addLine()
-    .addData("Red", "%.3f", colors.red)
-    .addData("Green", "%.3f", colors.green)
-    .addData("Blue", "%.3f", colors.blue);
-telemetry.addData("Alpha", "%.3f", colors.alpha);
+if (sample.red > sample.green && sample.red > sample.blue) {
+    colorGuess = "red-like reading";
+} else if (sample.green > sample.red && sample.green > sample.blue) {
+    colorGuess = "green-like reading";
+} else if (sample.blue > sample.red && sample.blue > sample.green) {
+    colorGuess = "blue-like reading";
+}
 
-// Convert to Android color for display
-int color = colors.toColor();
+telemetry.addData("Simple channel comparison", colorGuess);
 ```
+
 </Tab>
 <Tab value="Kotlin">
+
 ```kotlin
-// Get normalized colors (0.0 - 1.0 range)
-val colors = normalizedColorSensor.normalizedColors
+var colorGuess = "uncertain"
 
-telemetry.addLine()
-    .addData("Red", "%.3f", colors.red)
-    .addData("Green", "%.3f", colors.green)
-    .addData("Blue", "%.3f", colors.blue)
-telemetry.addData("Alpha", "%.3f", colors.alpha)
+if (sample.red > sample.green && sample.red > sample.blue) {
+    colorGuess = "red-like reading"
+} else if (sample.green > sample.red && sample.green > sample.blue) {
+    colorGuess = "green-like reading"
+} else if (sample.blue > sample.red && sample.blue > sample.green) {
+    colorGuess = "blue-like reading"
+}
 
-// Convert to Android color for display
-val color = colors.toColor()
+telemetry.addData("Simple channel comparison", colorGuess)
 ```
+
 </Tab>
 </Tabs>
 
-### Adjusting Gain for Lighting Conditions
+The labels say “-like reading” on purpose: this is not a reliable general-purpose color classifier. Improve it only after logging samples from the actual game objects, target distance, room lighting, and LED setting. Add thresholds and an “unknown” case for overlapping or dim readings. Never assume thresholds from another robot transfer to yours.
 
-The V3's Broadcom chip allows adjusting sensitivity via gain:
+## Optional: use the proximity reading as a nearby/not-nearby hint
+
+If the SDK exposes this configured device as a `DistanceSensor`, you can display its rough proximity estimate:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
+
 ```java
-// Adjust gain based on lighting
-// Lower values (1-2): Bright competition lighting
-// Medium values (4-8): Normal indoor lighting  
-// Higher values (12-16): Dim lighting
-
-normalizedColorSensor.setGain(4);  // Adjust as needed
-
-// Get current gain
-float currentGain = normalizedColorSensor.getGain();
-telemetry.addData("Sensor Gain", currentGain);
+DistanceSensor proximity = hardwareMap.get(DistanceSensor.class, "color");
+double estimatedDistanceCm = proximity.getDistance(DistanceUnit.CM);
+telemetry.addData("Rough proximity (cm)", "%.1f", estimatedDistanceCm);
 ```
+
 </Tab>
 <Tab value="Kotlin">
-```kotlin
-// Adjust gain based on lighting
-normalizedColorSensor.gain = 4f  // Adjust as needed
 
-// Get current gain
-val currentGain = normalizedColorSensor.gain
-telemetry.addData("Sensor Gain", currentGain)
+```kotlin
+val proximity = hardwareMap.get(DistanceSensor::class.java, "color")
+val estimatedDistanceCm = proximity.getDistance(DistanceUnit.CM)
+telemetry.addData("Rough proximity (cm)", "%.1f", estimatedDistanceCm)
 ```
+
 </Tab>
 </Tabs>
 
-### ARGB Format
+Treat this as a rough proximity cue, not a precision measurement. REV notes that reflectivity affects the result and recommends a separate distance sensor for accurate range. Test the actual object and mounting distance before using a threshold.
 
-You can also get all color data as a single integer:
+## Step 5: Test the rule like a small experiment
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-// Get color as a single integer (#aarrggbb)
-int argb = colorSensor.argb();
+1. Place one known object at the sensor's intended distance.
+2. Record several readings without moving the robot.
+3. Repeat with each object color your robot needs to distinguish.
+4. Repeat under the lighting expected on the field.
+5. Try a gap, a dark object, and a shiny object. Decide when the program should return “unknown.”
+6. Only then connect the classified result to a mechanism or autonomous decision.
 
-// Extract individual channels
-int alpha = (argb >> 24) & 0xFF;
-int red = (argb >> 16) & 0xFF;
-int green = (argb >> 8) & 0xFF;
-int blue = argb & 0xFF;
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-// Get color as a single integer (#aarrggbb)
-val argb = colorSensor.argb()
-
-// Extract individual channels
-val alpha = (argb shr 24) and 0xFF
-val red = (argb shr 16) and 0xFF
-val green = (argb shr 8) and 0xFF
-val blue = argb and 0xFF
-```
-</Tab>
-</Tabs>
-
-### ColorSensor Methods
-
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `red()` | `int` (0-255) | Amount of red light detected |
-| `green()` | `int` (0-255) | Amount of green light detected |
-| `blue()` | `int` (0-255) | Amount of blue light detected |
-| `alpha()` | `int` (0-255) | Ambient light level (brightness)  |
-| `argb()` | `int` | Color in `#aarrggbb` format |
-| `getNormalizedColors()` | `NormalizedRGBA` | Normalized color values (0.0-1.0) |
-| `setGain(float)` | `void` | Set sensor sensitivity (1-16) |
-| `getGain()` | `float` | Get current sensor gain |
-
-## Reading Distance
-
-### DistanceUnit Class
-
-The SDK provides a `DistanceUnit` enum to handle unit conversions automatically:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-// Get distance in different units
-double distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
-double distanceInch = distanceSensor.getDistance(DistanceUnit.INCH);
-double distanceMm = distanceSensor.getDistance(DistanceUnit.MM);
-
-telemetry.addData("Distance (cm)", "%.2f", distanceCm);
-telemetry.addData("Distance (in)", "%.2f", distanceInch);
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-// Get distance in different units
-val distanceCm = distanceSensor.getDistance(DistanceUnit.CM)
-val distanceInch = distanceSensor.getDistance(DistanceUnit.INCH)
-val distanceMm = distanceSensor.getDistance(DistanceUnit.MM)
-
-telemetry.addData("Distance (cm)", "%.2f", distanceCm)
-telemetry.addData("Distance (in)", "%.2f", distanceInch)
-```
-</Tab>
-</Tabs>
-
-### Available Distance Units
-
-| DistanceUnit | Description |
-|--------------|-------------|
-| `DistanceUnit.MM` | Millimeters |
-| `DistanceUnit.CM` | Centimeters (recommended) |
-| `DistanceUnit.INCH` | Inches |
-| `DistanceUnit.METER` | Meters |
-
-<Callout type="info">
-**Unit Conversion:** Store distances internally in one unit (typically CM) and use `DistanceUnit` methods like `toCm()` and `fromCm()` to convert as needed. This prevents unit conversion errors!
-</Callout>
-
-## Complete Example
-
-Here's a full OpMode demonstrating both color and distance sensing with the V3:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-package org.firstinspires.ftc.teamcode;
-
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
-@TeleOp(name = "Color Sensor V3 Demo")
-public class ColorSensorV3Demo extends OpMode {
-    private ColorSensor colorSensor;
-    private DistanceSensor distanceSensor;
-    private NormalizedColorSensor normalizedColorSensor;
-    
-    @Override
-    public void init() {
-        colorSensor = hardwareMap.get(ColorSensor.class, "sensor_color");
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "sensor_color");
-        normalizedColorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
-        
-        // Set gain for your lighting conditions
-        normalizedColorSensor.setGain(2);
-        
-        telemetry.addLine("Color Sensor V3 initialized!");
-        telemetry.addData("Gain", normalizedColorSensor.getGain());
-    }
-    
-    @Override
-    public void loop() {
-        // Read normalized colors (recommended)
-        NormalizedRGBA colors = normalizedColorSensor.getNormalizedColors();
-        
-        // Read raw color values
-        int red = colorSensor.red();
-        int green = colorSensor.green();
-        int blue = colorSensor.blue();
-        int alpha = colorSensor.alpha();
-        
-        // Read distance
-        double distanceCm = distanceSensor.getDistance(DistanceUnit.CM);
-        
-        // Display normalized colors
-        telemetry.addLine("=== Normalized Colors (0.0-1.0) ===");
-        telemetry.addData("Red", "%.3f", colors.red);
-        telemetry.addData("Green", "%.3f", colors.green);
-        telemetry.addData("Blue", "%.3f", colors.blue);
-        telemetry.addData("Alpha", "%.3f", colors.alpha);
-        
-        // Display raw values
-        telemetry.addLine("\n=== Raw Values (0-255) ===");
-        telemetry.addData("Red", red);
-        telemetry.addData("Green", green);
-        telemetry.addData("Blue", blue);
-        telemetry.addData("Alpha", alpha);
-        
-        // Display distance
-        telemetry.addLine("\n=== Distance ===");
-        telemetry.addData("Distance (cm)", "%.2f", distanceCm);
-        
-
-        // Detect primary color
-        String detectedColor = "Unknown";
-        if (red > green && red > blue) {
-            detectedColor = "Red";
-        } else if (green > red && green > blue) {
-            detectedColor = "Green";
-        } else if (blue > red && blue > green) {
-            detectedColor = "Blue";
-        }
-        
-        telemetry.addLine("\n=== Detection ===");
-        telemetry.addData("Detected Color", detectedColor);
-        telemetry.addData("Object Nearby", distanceCm < 5);
-    }
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-package org.firstinspires.ftc.teamcode
-
-import com.qualcomm.robotcore.eventloop.opmode.OpMode
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.ColorSensor
-import com.qualcomm.robotcore.hardware.DistanceSensor
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
-
-@TeleOp(name = "Color Sensor V3 Demo")
-class ColorSensorV3Demo : OpMode() {
-    private lateinit var colorSensor: ColorSensor
-    private lateinit var distanceSensor: DistanceSensor
-    private lateinit var normalizedColorSensor: NormalizedColorSensor
-    
-    override fun init() {
-        colorSensor = hardwareMap.get(ColorSensor::class.java, "sensor_color")
-        distanceSensor = hardwareMap.get(DistanceSensor::class.java, "sensor_color")
-        normalizedColorSensor = hardwareMap.get(NormalizedColorSensor::class.java, "sensor_color")
-        
-        // Set gain for your lighting conditions
-        normalizedColorSensor.gain = 2f
-        
-        telemetry.addLine("Color Sensor V3 initialized!")
-        telemetry.addData("Gain", normalizedColorSensor.gain)
-    }
-    
-    override fun loop() {
-        // Read normalized colors (recommended)
-        val colors = normalizedColorSensor.normalizedColors
-        
-        // Read raw color values
-        val red = colorSensor.red()
-        val green = colorSensor.green()
-        val blue = colorSensor.blue()
-        val alpha = colorSensor.alpha()
-        
-        // Read distance
-        val distanceCm = distanceSensor.getDistance(DistanceUnit.CM)
-        
-        // Display normalized colors
-        telemetry.addLine("=== Normalized Colors (0.0-1.0) ===")
-        telemetry.addData("Red", "%.3f", colors.red)
-        telemetry.addData("Green", "%.3f", colors.green)
-        telemetry.addData("Blue", "%.3f", colors.blue)
-        telemetry.addData("Alpha", "%.3f", colors.alpha)
-        
-        // Display raw values
-        telemetry.addLine("\n=== Raw Values (0-255) ===")
-        telemetry.addData("Red", red)
-        telemetry.addData("Green", green)
-        telemetry.addData("Blue", blue)
-        telemetry.addData("Alpha", alpha)
-        
-        // Display distance
-        telemetry.addLine("\n=== Distance ===")
-        telemetry.addData("Distance (cm)", "%.2f", distanceCm)
-        
-        // Detect primary color
-        val detectedColor = when {
-            red > green && red > blue -> "Red"
-            green > red && green > blue -> "Green"
-            blue > red && blue > green -> "Blue"
-            else -> "Unknown"
-        }
-        
-        telemetry.addLine("\n=== Detection ===")
-        telemetry.addData("Detected Color", detectedColor)
-        telemetry.addData("Object Nearby", distanceCm < 5)
-    }
-}
-```
-</Tab>
-</Tabs>
-
-## Practical Applications
-
-### Game Element Detection
-
-Detect colored game pieces (ARTIFACTS in DECODE):
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-public enum ArtifactColor {
-    PURPLE,
-    GREEN,
-    UNKNOWN
-}
-
-public ArtifactColor detectArtifact() {
-    // Use normalized colors for better accuracy
-    NormalizedRGBA colors = normalizedColorSensor.getNormalizedColors();
-    
-    // Check if object is close enough
-    if (distanceSensor.getDistance(DistanceUnit.CM) > 5) {
-        return ArtifactColor.UNKNOWN;
-    }
-    
-    // Purple has high red and blue, low green
-    if (colors.red > 0.4 && colors.blue > 0.4 && colors.green < 0.3) {
-        return ArtifactColor.PURPLE;
-    }
-    
-    // Green has high green, lower red and blue
-    if (colors.green > 0.4 && colors.red < 0.3 && colors.blue < 0.3) {
-        return ArtifactColor.GREEN;
-    }
-    
-    return ArtifactColor.UNKNOWN;
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-enum class ArtifactColor {
-    PURPLE,
-    GREEN,
-    UNKNOWN
-}
-
-fun detectArtifact(): ArtifactColor {
-    // Use normalized colors for better accuracy
-    val colors = normalizedColorSensor.normalizedColors
-    
-    // Check if object is close enough
-    if (distanceSensor.getDistance(DistanceUnit.CM) > 5) {
-        return ArtifactColor.UNKNOWN
-    }
-    
-    // Purple has high red and blue, low green
-    if (colors.red > 0.4 && colors.blue > 0.4 && colors.green < 0.3) {
-        return ArtifactColor.PURPLE
-    }
-    
-    // Green has high green, lower red and blue
-    if (colors.green > 0.4 && colors.red < 0.3 && colors.blue < 0.3) {
-        return ArtifactColor.GREEN
-    }
-    
-    return ArtifactColor.UNKNOWN
-}
-```
-</Tab>
-</Tabs>
-
-### Proximity-Based Motor Control
-
-Control motor speed based on distance:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-public void updateMotorBasedOnDistance() {
-    double distance = distanceSensor.getDistance(DistanceUnit.CM);
-    
-    if (distance < 10) {
-        // Object very close - stop motor
-        motor.setPower(0);
-    } else if (distance < 20) {
-        // Object nearby - slow down
-        motor.setPower(0.5);
-    } else {
-        // Clear path - full speed
-        motor.setPower(1.0);
-    }
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-fun updateMotorBasedOnDistance() {
-    val distance = distanceSensor.getDistance(DistanceUnit.CM)
-    
-    when {
-        distance < 10 -> {
-            // Object very close - stop motor
-            motor.power = 0.0
-        }
-        distance < 20 -> {
-            // Object nearby - slow down
-            motor.power = 0.5
-        }
-        else -> {
-            // Clear path - full speed
-            motor.power = 1.0
-        }
-    }
-}
-```
-</Tab>
-</Tabs>
-
-### Alliance Color Detection
-
-Detect red vs blue alliance colors:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-public boolean isRedAlliance() {
-    NormalizedRGBA colors = normalizedColorSensor.getNormalizedColors();
-    
-    // Red > Blue indicates red alliance
-    return colors.red > colors.blue;
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-fun isRedAlliance(): Boolean {
-    val colors = normalizedColorSensor.normalizedColors
-    
-    // Red > Blue indicates red alliance
-    return colors.red > colors.blue
-}
-```
-</Tab>
-</Tabs>
-
-## Tips and Best Practices
-
-### Lighting Conditions and Gain
-
-<Callout type="warn">
-**Ambient Light:** The V3's Broadcom chip performs better in varying lighting conditions than older sensors, but you should still test under competition lighting and adjust the gain as needed!
-</Callout>
-
-- White LED on the sensor provides consistent illumination
-- **Adjust gain** based on competition venue (bright=lower gain, dim=higher gain)
-- Use normalized colors (`getNormalizedColors()`) instead of raw values when possible
-- Shield sensor from direct overhead lights if possible
-- Calibrate color thresholds during practice matches
-
-### Distance Limitations
-
-- **Effective Range:** 0-10cm (0-4 inches)
-- **Accuracy:** Less accurate than dedicated REV 2M Distance Sensor
-- **Best Use:** Close-range detection (intake sensors, game piece verification)
-- Time-of-flight technology works best with solid, non-reflective surfaces
-
-### Performance Tips
-
-1. **Use Normalized Colors:** `getNormalizedColors()` provides better consistency across lighting conditions
-2. **Set Appropriate Gain:** Lower gain for bright environments (1-2), higher for dim (12-16)
-3. **Read Only What You Need:** Don't call `red()`, `green()`, `blue()` every loop if you only need distance
-4. **Alpha Channel for Brightness:** Use `alpha()` or `colors.alpha` to monitor ambient light
-5. **Threshold Testing:** Find reliable color thresholds experimentally - don't guess!
-6. **Physical Mounting:** Mount sensor 1-3cm from expected object position for best detection
-
-### V3-Specific Features
-
-The Broadcom APDS-9151 chipset in the V3 offers:
-- **Better normalization** of color values
-- **Improved alpha channel** calculation (ambient brightness)
-- **Configurable resolution** and measurement rate
-- **No IR interference** (older sensors had issues with this)
+This process shows whether the sensor can answer your robot's question at all. The V3's short color range may make a camera or a different sensor a better fit for a farther-away object.
 
 ## Troubleshooting
 
-### "Sensor Not Found"
+| What happens | What to check |
+| --- | --- |
+| Hardware map cannot find `color` | Configured name, I²C port, configured device type, and wiring. |
+| Readings are similar for every object | Move the target closer, aim the sensor squarely, and check LED state and reflections. |
+| Color changes when the object moves slightly | Fix the sensor and target distance; test a larger area of the object. |
+| Proximity varies between objects | Reflectivity affects the estimate; use it only as a rough nearby cue. |
+| V3 values differ from V1/V2 values | V3 uses a different sensor chip; recalibrate instead of reusing old thresholds. |
 
-- Check I2C bus number in configuration (typically Bus 0 on Control Hub)
-- Verify you selected "REV Color Sensor V3", not "REV Color/Range Sensor"
-- Verify cable connections (4-wire JST PH connector)
-- Ensure sensor name matches exactly in code and config
+## Official references
 
-### Inconsistent Color Readings
-
-- **Check gain setting:** Too high = oversaturated, too low = insufficient sensitivity
-- **Use normalized colors:** More reliable than raw values
-- Check mounting position - sensor should be 1-3cm from objects
-- Verify lighting conditions are consistent
-- Average multiple readings to reduce noise (3-5 samples)
-- Ensure sensor white LED is not blocked
-
-### Distance Always Returns 0 or Max
-
-- Object may be outside 10cm range
-- Check that you're using `DistanceSensor` interface, not just `ColorSensor`
-- Verify sensor has clear line of sight  
-- Highly reflective or transparent objects may not read correctly
-- Very dark objects may not reflect enough light
-
-### Colors Seem Washed Out or Too Dark
-
-- **Adjust gain:** `normalizedColorSensor.setGain(value)`
-- Start with gain of 2-4 and adjust based on your environment
-- Higher gain for darker lighting, lower for brighter lighting
-- Monitor the alpha channel to verify brightness levels
-
-## Additional Resources
-
-- [REV Color Sensor V3 Product Page](https://www.revrobotics.com/rev-31-1557/)
-- [REV Hardware Client (for firmware updates)](https://docs.revrobotics.com/rev-hardware-client/)
-- [FTC SDK ColorSensor Documentation](https://javadoc.io/doc/org.firstinspires.ftc)
-- [FTC SDK NormalizedColorSensor Documentation](https://javadoc.io/doc/org.firstinspires.ftc)
-- [Official FTC Docs: Color Sensors](https://ftc-docs.firstinspires.org)
+- [REV Color Sensor V3 overview](https://docs.revrobotics.com/rev-crossover-products/sensors/color-sensor)
+- [REV Color Sensor V3 programming and application notes](https://docs.revrobotics.com/rev-crossover-products/sensors/color-sensor/application-examples)
+- [REV I²C configuration and bus notes](https://docs.revrobotics.com/duo-control/sensors/i2c)
+- [FTC sensor overview](https://ftc-docs.firstinspires.org/en/latest/control_hard_compon/rc_components/sensors/sensors.html)

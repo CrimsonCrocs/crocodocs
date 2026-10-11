@@ -1,61 +1,39 @@
 ---
 title: Vision Overview
-description: Introduction to computer vision in FTC robotics
+description: Choose and use camera-based vision tools in FTC
 icon: ScanEye
 ---
 
-## What is Computer Vision?
+## What computer vision does
 
-Computer vision allows your robot to "see" and understand its environment using cameras. In FTC, vision processing is crucial for:
+Computer vision turns camera images into information a robot program can use, such as a detected tag ID, a color region, or an estimated pose. Results depend on camera calibration, lighting, image quality, processing load, and how the robot uses the measurements.
 
-- **Autonomous navigation** - Detecting and aligning with game elements
-- **Object detection** - Identifying game pieces, signals, and team props
-- **Localization** - Using AprilTags to determine robot position
-- **Color recognition** - Distinguishing between alliance colors and zones
+## FTC vision options
 
-## Vision Approaches in FTC
+### VisionPortal
 
-FTC provides two main frameworks for vision processing:
+VisionPortal is the FTC SDK camera and processor interface. It manages camera selection, initialization, previews, and processors. Current SDK resources document AprilTag processing and the FTC color processors for color sensing and blob location. Use the SDK sample OpModes and current FTC Docs for APIs matching your installed SDK.
 
-### EasyOpenCV (Legacy)
+### EasyOpenCV
 
-EasyOpenCV is a simplified wrapper around OpenCV, the industry-standard computer vision library. It provides direct access to powerful image processing functions.
+EasyOpenCV is a community library built around OpenCV. It is useful when a team needs custom image processing or an existing OpenCV pipeline. It is not the same API as VisionPortal, and the two should not be mixed without following the integration guidance for the libraries involved.
 
-**Best for:**
-- Teams familiar with OpenCV
-- Custom image processing algorithms
-- Complex color detection pipelines
-- Full control over processing
+## A practical workflow
 
-### VisionPortal (Modern)
+1. Choose the simplest processor that answers the robot's actual question.
+2. Test camera access and image quality before writing detection logic.
+3. Validate detections under the lighting and distances the robot will encounter.
+4. Check confidence, visibility, calibration, and stale results before acting on a measurement.
+5. Test processor load and control-loop timing on the Robot Controller.
 
-VisionPortal is the newer, structured approach introduced by FTC. It provides a standardized interface with built-in processors.
+AprilTag IDs, cluster layouts, and scoring elements can be season-specific. Do not hardcode an old season's IDs or colors into a current robot without checking the current Competition Manual and FTC SDK tag library.
 
-**Best for:**
-- Teams new to vision processing
-- Quick implementation of common tasks
-- Built-in AprilTag detection
-- ColorBlobLocatorProcessor for simple detection
-- Managing multiple vision processors
+## Continue learning
 
-## Typical Workflow
-
-1. **Development** - Write and test your vision pipeline locally using EOCV-Sim
-2. **Integration** - Add the pipeline to your robot code
-3. **Tuning** - Adjust parameters using FTC Dashboard while testing
-4. **Competition** - Use processed data for autonomous routines
-
-## What You'll Learn
-
-This section covers:
-- Setting up EasyOpenCV and writing custom pipelines
-- Using EOCV-Sim to test vision code offline
-- Implementing VisionPortal with built-in processors
-- AprilTag detection for localization
-- Creating custom VisionProcessors
-- Migrating between different approaches
-- Advanced techniques and troubleshooting
-
-<Callout type="info">
-**Starting Point:** If you're new to vision, start with [EasyOpenCV Basics](./easyopencv-basics) to understand core concepts. If you want quick results, jump to [VisionPortal](./vision-portal) for the modern approach.
-</Callout>
+- [VisionPortal](./visionportal/vision-portal)
+- [AprilTag detection](./visionportal/apriltag-detection)
+- [FTC color processing](https://ftc-docs.firstinspires.org/en/latest/color_processing/index.html)
+- [FTC VisionPortal overview](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_overview/visionportal-overview.html)
+- [FTC programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
+- [EasyOpenCV basics](./easyopencv/easyopencv-basics)
+- [EOCV-Sim](./easyopencv/eocv-sim)

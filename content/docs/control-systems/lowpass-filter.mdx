@@ -1,106 +1,68 @@
 ---
 title: Low-Pass Filter
-description: Simple and effective sensor smoothing technique
+description: Smooth noisy sensor readings while understanding the delay you add
 icon: Waves
 ---
 
-## What is a Low-Pass Filter?
+# Smooth a noisy sensor reading
 
-A **low-pass filter** is a simple smoothing algorithm that reduces high-frequency noise while allowing slow changes to pass through. It's called "low-pass" because it lets **low-frequency signals** (slow changes) pass through while blocking **high-frequency signals** (rapid noise).
+Suppose a distance sensor says `10.0`, `9.4`, `10.3`, and `9.7 cm` while the robot is not moving. The target is steady, but the readings wobble. A low-pass filter smooths those quick changes so code can pay more attention to the general trend.
 
-Think of it like dampening: imagine watching a bouncing ball through frosted glass - you can still see the general motion, but the rapid vibrations are smoothed out.
+A filter also adds delay. If you smooth too much, the reported value takes longer to catch up when the target really moves. Use it only when noise is causing a real problem, and compare the filtered result with the raw reading.
 
-## Why Use a Low-Pass Filter in FTC?
+## What the filter does
 
-**Common Problems:**
-- Encoder readings jump around due to vibrations
-- Distance sensors give noisy measurements
-- Color sensor values fluctuate
-- IMU has small random variations
+An exponential moving average blends the newest reading with the previous filtered value:
 
-**Low-Pass Filter Benefits:**
-- Dead simple to implement (1-2 lines of code)
-- Very low computational cost
-- No tuning required for basic use
-- Effective for most FTC applications
-- Predictable behavior
-
-## How It Works
-
-The low-pass filter calculates a weighted average between the previous filtered value and the new measurement:
-
-```
-Filtered Value = (α × New Measurement) + ((1 - α) × Previous Filtered Value)
+```text
+filtered = alpha × new reading + (1 - alpha) × previous filtered value
 ```
 
-Where **α (alpha)** is the **smoothing factor** between 0 and 1:
-- **α = 1.0**: No filtering (instant response)
-- **α = 0.5**: Equal weight to old and new
-- **α = 0.1**: Heavy smoothing (slow response)
+`alpha` is between 0 and 1:
 
-### Visual Example
+- `alpha` close to 1 follows changes quickly and smooths less.
+- `alpha` close to 0 smooths more but responds more slowly.
 
-Raw sensor data (very noisy):
-```
-Time:     0    1    2    3    4    5    6    7    8
-Sensor: [100, 95, 105, 98, 102, 97, 103, 99, 101]
-```
+![A low-pass filter smooths fast sensor jitter while following the slower trend.](/guides/low-pass-filter.svg)
 
-With α = 0.3 (moderate filtering):
-```
-Filter: [100, 98, 100, 99, 100, 99, 100, 99, 100]
-         ↑    ↑    ↑    ↑    ↑    ↑    ↑    ↑    ↑
-      Smooth, stable, tracks general trend
-```
+## Step 1: Store the filter's state
 
-With α = 0.8 (light filtering):
-```
-Filter: [100, 96, 102, 99, 101, 98, 101, 99, 100]
-         ↑    ↑    ↑    ↑    ↑    ↑    ↑    ↑    ↑
-      Follows closer, less smooth
-```
-
-## Basic Implementation
-
-### Simple Low-Pass Filter Class
+The filter must remember its last output. For the first reading, use the reading itself; otherwise a starting value of zero can create a fake jump.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-public class LowPassFilter {
-    private double alpha;
-    private double filteredValue;
-    private boolean initialized;
-    
-    /**
-     * @param alpha Smoothing factor (0-1)
-     *              Higher = faster response, less smoothing
-     *              Lower = slower response, more smoothing
-     */
-    public LowPassFilter(double alpha) {
-        this.alpha = alpha;
-        this.initialized = false;
+private boolean hasReading = false;
+private double filteredDistance;
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+private var hasReading = false
+private var filteredDistance = 0.0
+```
+
+</Tab>
+</Tabs>
+
+## Step 2: Update it every time you read the sensor
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+private double filter(double newDistance, double alpha) {
+    if (!hasReading) {
+        filteredDistance = newDistance;
+        hasReading = true;
+    } else {
+        filteredDistance = alpha * newDistance
+            + (1.0 - alpha) * filteredDistance;
     }
-    
-    public double update(double measurement) {
-        if (!initialized) {
-            filteredValue = measurement;
-            initialized = true;
-            return filteredValue;
-        }
-        
-        filteredValue = alpha * measurement + (1 - alpha) * filteredValue;
-        return filteredValue;
-    }
-    
-    public double getValue() {
-        return filteredValue;
-    }
-    
-    public void reset() {
-        initialized = false;
-    }
+    return filteredDistance;
 }
 ```
 
@@ -108,555 +70,64 @@ public class LowPassFilter {
 <Tab value="Kotlin">
 
 ```kotlin
-class LowPassFilter(private val alpha: Double) {
-    private var filteredValue: Double = 0.0
-    private var initialized: Boolean = false
-    
-    /**
-     * @param alpha Smoothing factor (0-1)
-     *              Higher = faster response, less smoothing
-     *              Lower = slower response, more smoothing
-     */
-    
-    fun update(measurement: Double): Double {
-        if (!initialized) {
-            filteredValue = measurement
-            initialized = true
-            return filteredValue
-        }
-        
-        filteredValue = alpha * measurement + (1 - alpha) * filteredValue
-        return filteredValue
+private fun filter(newDistance: Double, alpha: Double): Double {
+    if (!hasReading) {
+        filteredDistance = newDistance
+        hasReading = true
+    } else {
+        filteredDistance = alpha * newDistance + (1.0 - alpha) * filteredDistance
     }
-    
-    fun getValue(): Double = filteredValue
-    
-    fun reset() {
-        initialized = false
-    }
+    return filteredDistance
 }
 ```
 
 </Tab>
 </Tabs>
 
-### Ultra-Simple One-Line Version
+The first call initializes the filter. Each later call combines the new measurement with the last filtered output. Call it with one stream of measurements from one sensor; don't reuse the same state for unrelated signals.
+
+## Step 3: Compare raw and filtered values
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-// In your class
-private double filteredValue = 0;
+double rawCm = distanceSensor.getDistance(DistanceUnit.CM);
+double smoothCm = filter(rawCm, 0.25);
 
-// In your loop
-public void loop() {
-    double rawValue = sensor.getValue();
-    
-    // One-line low-pass filter!
-    filteredValue = 0.3 * rawValue + 0.7 * filteredValue;
-    
-    telemetry.addData("Filtered", filteredValue);
-}
+telemetry.addData("Raw cm", "%.1f", rawCm);
+telemetry.addData("Filtered cm", "%.1f", smoothCm);
+telemetry.update();
 ```
 
 </Tab>
 <Tab value="Kotlin">
 
 ```kotlin
-// In your class
-private var filteredValue = 0.0
+val rawCm = distanceSensor.getDistance(DistanceUnit.CM)
+val smoothCm = filter(rawCm, 0.25)
 
-// In your loop
-override fun loop() {
-    val rawValue = sensor.value
-    
-    // One-line low-pass filter!
-    filteredValue = 0.3 * rawValue + 0.7 * filteredValue
-    
-    telemetry.addData("Filtered", filteredValue)
-}
+telemetry.addData("Raw cm", "%.1f", rawCm)
+telemetry.addData("Filtered cm", "%.1f", smoothCm)
+telemetry.update()
 ```
 
 </Tab>
 </Tabs>
 
-## Using the Filter
+`0.25` is an example starting point, not a universally correct setting. Run the sensor without moving the target, then move it deliberately. Reduce `alpha` only if the jitter is troublesome and the added lag is acceptable.
 
-### Example: Smooth Distance Sensor
+## When it helps—and when it does not
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
+A low-pass filter can help with noisy distance, color, or encoder-derived signals. It does not correct sensor bias, bad calibration, a loose mount, or an incorrect unit conversion. Fix those causes first.
 
-```java
-@TeleOp(name = "Low-Pass Example")
-public class LowPassExample extends LinearOpMode {
-    private DistanceSensor distanceSensor;
-    private LowPassFilter filter;
-    
-    @Override
-    public void runOpMode() {
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "distance");
-        
-        // α = 0.2 means 20% new data, 80% old data
-        filter = new LowPassFilter(0.2);
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            // Get noisy distance reading
-            double rawDistance = distanceSensor.getDistance(DistanceUnit.INCH);
-            
-            // Filter it
-            double smoothDistance = filter.update(rawDistance);
-            
-            telemetry.addData("Raw Distance", "%.1f in", rawDistance);
-            telemetry.addData("Smooth Distance", "%.1f in", smoothDistance);
-            telemetry.update();
-        }
-    }
-}
-```
+Avoid blindly filtering heading angles around the wrap boundary. For example, averaging `179°` and `-179°` as ordinary numbers gives `0°`, even though the headings are nearly the same. Use angle-aware math for wrapped values.
 
-</Tab>
-<Tab value="Kotlin">
+## Practice
 
-```kotlin
-@TeleOp(name = "Low-Pass Example")
-class LowPassExample : LinearOpMode() {
-    private lateinit var distanceSensor: DistanceSensor
-    private lateinit var filter: LowPassFilter
-    
-    override fun runOpMode() {
-        distanceSensor = hardwareMap.get(DistanceSensor::class.java, "distance")
-        
-        // α = 0.2 means 20% new data, 80% old data
-        filter = LowPassFilter(0.2)
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            // Get noisy distance reading
-            val rawDistance = distanceSensor.getDistance(DistanceUnit.INCH)
-            
-            // Filter it
-            val smoothDistance = filter.update(rawDistance)
-            
-            telemetry.addData("Raw Distance", "%.1f in", rawDistance)
-            telemetry.addData("Smooth Distance", "%.1f in", smoothDistance)
-            telemetry.update()
-        }
-    }
-}
-```
+1. Hold a stationary target and record raw readings for a few seconds.
+2. Add the filter and show raw and filtered values together.
+3. Move the target once. Notice how long the filtered value takes to follow.
+4. Try a slightly higher and lower `alpha`. Choose the least smoothing that removes the jitter affecting your decision.
 
-</Tab>
-</Tabs>
-
-## Choosing the Alpha Value
-
-The **alpha (α)** value controls the trade-off between responsiveness and smoothness:
-
-| Alpha (α) | Response | Smoothness | Use Case |
-|-----------|----------|------------|----------|
-| **0.9 - 1.0** | Very fast | Minimal | Light noise, need quick response |
-| **0.5 - 0.8** | Fast | Moderate | Moderate noise, balanced needs |
-| **0.2 - 0.4** | Medium | Good | Noisy sensors, stable readings wanted |
-| **0.05 - 0.15** | Slow | Very smooth | Very noisy, don't need fast response |
-
-### How to Choose
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// For clean sensors (encoders, IMU)
-filter = new LowPassFilter(0.7);  // Light smoothing
-
-// For moderate noise (distance sensors)
-filter = new LowPassFilter(0.3);  // Medium smoothing
-
-// For very noisy sensors (cheap ultrasonic)
-filter = new LowPassFilter(0.1);  // Heavy smoothing
-
-// For display-only values (telemetry)
-filter = new LowPassFilter(0.15); // Extra smooth for readability
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// For clean sensors (encoders, IMU)
-val filter = LowPassFilter(0.7)  // Light smoothing
-
-// For moderate noise (distance sensors)
-val filter = LowPassFilter(0.3)  // Medium smoothing
-
-// For very noisy sensors (cheap ultrasonic)
-val filter = LowPassFilter(0.1)  // Heavy smoothing
-
-// For display-only values (telemetry)
-val filter = LowPassFilter(0.15) // Extra smooth for readability
-```
-
-</Tab>
-</Tabs>
-
-## Real-World Examples
-
-### Example 1: Smooth Encoder Velocity
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-public class SmoothVelocity {
-    private DcMotorEx motor;
-    private LowPassFilter velocityFilter;
-    
-    public SmoothVelocity(HardwareMap hardwareMap) {
-        motor = hardwareMap.get(DcMotorEx.class, "motor");
-        velocityFilter = new LowPassFilter(0.4);
-    }
-    
-    public double getSmoothedVelocity() {
-        double rawVelocity = motor.getVelocity();
-        return velocityFilter.update(rawVelocity);
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-class SmoothVelocity(hardwareMap: HardwareMap) {
-    private val motor: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "motor")
-    private val velocityFilter = LowPassFilter(0.4)
-    
-    fun getSmoothedVelocity(): Double {
-        val rawVelocity = motor.velocity
-        return velocityFilter.update(rawVelocity)
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-### Example 2: Smooth Color Sensor for Line Following
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-@Autonomous(name = "Line Follow with Filter")
-public class LineFollower extends LinearOpMode {
-    private ColorSensor colorSensor;
-    private LowPassFilter redFilter, blueFilter;
-    private DcMotor leftMotor, rightMotor;
-    
-    @Override
-    public void runOpMode() {
-        colorSensor = hardwareMap.get(ColorSensor.class, "color");
-        leftMotor = hardwareMap.get(DcMotor.class, "left");
-        rightMotor = hardwareMap.get(DcMotor.class, "right");
-        
-        // Color sensors can be noisy
-        redFilter = new LowPassFilter(0.3);
-        blueFilter = new LowPassFilter(0.3);
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            // Get raw color values
-            int rawRed = colorSensor.red();
-            int rawBlue = colorSensor.blue();
-            
-            // Smooth them
-            double smoothRed = redFilter.update(rawRed);
-            double smoothBlue = blueFilter.update(rawBlue);
-            
-            // Use smoothed values for more stable line following
-            double error = smoothRed - smoothBlue;
-            double correction = error * 0.01;
-            
-            leftMotor.setPower(0.5 + correction);
-            rightMotor.setPower(0.5 - correction);
-            
-            telemetry.addData("Raw Red", rawRed);
-            telemetry.addData("Smooth Red", "%.0f", smoothRed);
-            telemetry.update();
-        }
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-@Autonomous(name = "Line Follow with Filter")
-class LineFollower : LinearOpMode() {
-    private lateinit var colorSensor: ColorSensor
-    private lateinit var redFilter: LowPassFilter
-    private lateinit var blueFilter: LowPassFilter
-    private lateinit var leftMotor: DcMotor
-    private lateinit var rightMotor: DcMotor
-    
-    override fun runOpMode() {
-        colorSensor = hardwareMap.get(ColorSensor::class.java, "color")
-        leftMotor = hardwareMap.get(DcMotor::class.java, "left")
-        rightMotor = hardwareMap.get(DcMotor::class.java, "right")
-        
-        // Color sensors can be noisy
-        redFilter = LowPassFilter(0.3)
-        blueFilter = LowPassFilter(0.3)
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            // Get raw color values
-            val rawRed = colorSensor.red()
-            val rawBlue = colorSensor.blue()
-            
-            // Smooth them
-            val smoothRed = redFilter.update(rawRed.toDouble())
-            val smoothBlue = blueFilter.update(rawBlue.toDouble())
-            
-            // Use smoothed values for more stable line following
-            val error = smoothRed - smoothBlue
-            val correction = error * 0.01
-            
-            leftMotor.power = 0.5 + correction
-            rightMotor.power = 0.5 - correction
-            
-            telemetry.addData("Raw Red", rawRed)
-            telemetry.addData("Smooth Red", "%.0f", smoothRed)
-            telemetry.update()
-        }
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-### Example 3: Multiple Filters for Drivetrain
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-public class FilteredDrivetrain {
-    private DcMotorEx frontLeft, frontRight, backLeft, backRight;
-    private LowPassFilter flFilter, frFilter, blFilter, brFilter;
-    
-    public FilteredDrivetrain(HardwareMap hardwareMap) {
-        frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
-        frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
-        backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
-        backRight = hardwareMap.get(DcMotorEx.class, "backRight");
-        
-        // Create filter for each motor velocity
-        double alpha = 0.5;
-        flFilter = new LowPassFilter(alpha);
-        frFilter = new LowPassFilter(alpha);
-        blFilter = new LowPassFilter(alpha);
-        brFilter = new LowPassFilter(alpha);
-    }
-    
-    public double[] getSmoothedVelocities() {
-        return new double[] {
-            flFilter.update(frontLeft.getVelocity()),
-            frFilter.update(frontRight.getVelocity()),
-            blFilter.update(backLeft.getVelocity()),
-            brFilter.update(backRight.getVelocity())
-        };
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-class FilteredDrivetrain(hardwareMap: HardwareMap) {
-    private val frontLeft: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "frontLeft")
-    private val frontRight: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "frontRight")
-    private val backLeft: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "backLeft")
-    private val backRight: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "backRight")
-    
-    // Create filter for each motor velocity
-    private val alpha = 0.5
-    private val flFilter = LowPassFilter(alpha)
-    private val frFilter = LowPassFilter(alpha)
-    private val blFilter = LowPassFilter(alpha)
-    private val brFilter = LowPassFilter(alpha)
-    
-    fun getSmoothedVelocities(): DoubleArray {
-        return doubleArrayOf(
-            flFilter.update(frontLeft.velocity),
-            frFilter.update(frontRight.velocity),
-            blFilter.update(backLeft.velocity),
-            brFilter.update(backRight.velocity)
-        )
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-## Advanced: Time-Based Alpha
-
-For more consistent behavior regardless of loop frequency:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-public class TimeBasedLowPassFilter {
-    private double timeConstant;  // In seconds (e.g., 0.1 = 100ms)
-    private double filteredValue;
-    private long lastTime;
-    private boolean initialized;
-    
-    public TimeBasedLowPassFilter(double timeConstant) {
-        this.timeConstant = timeConstant;
-        this.initialized = false;
-    }
-    
-    public double update(double measurement) {
-        long currentTime = System.nanoTime();
-        
-        if (!initialized) {
-            filteredValue = measurement;
-            lastTime = currentTime;
-            initialized = true;
-            return filteredValue;
-        }
-        
-        double dt = (currentTime - lastTime) / 1e9;  // Convert to seconds
-        double alpha = dt / (timeConstant + dt);
-        
-        filteredValue = alpha * measurement + (1 - alpha) * filteredValue;
-        lastTime = currentTime;
-        
-        return filteredValue;
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-class TimeBasedLowPassFilter(private val timeConstant: Double) {
-    // timeConstant in seconds (e.g., 0.1 = 100ms)
-    private var filteredValue: Double = 0.0
-    private var lastTime: Long = 0
-    private var initialized: Boolean = false
-    
-    fun update(measurement: Double): Double {
-        val currentTime = System.nanoTime()
-        
-        if (!initialized) {
-            filteredValue = measurement
-            lastTime = currentTime
-            initialized = true
-            return filteredValue
-        }
-        
-        val dt = (currentTime - lastTime) / 1e9  // Convert to seconds
-        val alpha = dt / (timeConstant + dt)
-        
-        filteredValue = alpha * measurement + (1 - alpha) * filteredValue
-        lastTime = currentTime
-        
-        return filteredValue
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-## When to Use vs. Not Use
-
-**Use Low-Pass Filter when:**
-- Sensor has random noise
-- You need simple, fast smoothing
-- Computational resources are limited
-- Delayed response is acceptable
-- Displaying values to drivers
-
-**Don't use Low-Pass Filter when:**
-- Need instant response (use raw data)
-- Sensor has systematic drift (use calibration)
-- Need predictive capabilities (use Kalman filter)
-- Combining multiple sensors (use sensor fusion)
-
-## Comparison: Low-Pass vs. Kalman vs. Moving Average
-
-| Feature | Low-Pass | Kalman | Moving Average |
-|---------|----------|--------|----------------|
-| **Complexity** | Very simple | Complex | Simple |
-| **CPU Usage** | Minimal | Moderate | Low |
-| **Memory** | 1 value | Multiple values | Window of values |
-| **Lag** | Moderate | Low | High |
-| **Adaptability** | Fixed | Adaptive | Fixed |
-| **Best For** | General smoothing | Optimal filtering | Display values |
-
-## Tips for Success
-
-1. **Start with α = 0.3:** Good default for most cases
-2. **Test in Motion:** Filter behaves differently when robot moves
-3. **Log Data:** Compare raw vs. filtered to see the effect
-4. **Don't Over-Filter:** Too much smoothing = too much lag
-5. **One Filter Per Sensor:** Don't share filters between sensors
-6. **Reset When Needed:** Call `reset()` when starting new movements
-
-## Common Mistakes
-
-❌ **Using same filter instance for different sensors**
-```java
-// WRONG - filters will mix data
-filter.update(sensor1.getValue());
-filter.update(sensor2.getValue());
-```
-
-✅ **Create separate filter for each sensor**
-```java
-// CORRECT
-filter1.update(sensor1.getValue());
-filter2.update(sensor2.getValue());
-```
-
-❌ **Alpha value outside 0-1 range**
-```java
-// WRONG
-filter = new LowPassFilter(1.5);  // Invalid!
-```
-
-✅ **Keep alpha between 0 and 1**
-```java
-// CORRECT
-filter = new LowPassFilter(0.3);  // Valid
-```
-
-## Resources
-
-- **CTRL ALT FTC:** [Signal processing guide](https://www.ctrlaltftc.com/)
-- **Wikipedia:** [Low-pass filter](https://en.wikipedia.org/wiki/Low-pass_filter)
-- **Game Manual 0:** [Software filtering](https://gm0.org/en/latest/)
-
-## Next Steps
-
-1. Implement the basic filter class
-2. Test with a noisy sensor
-3. Experiment with different alpha values
-4. Compare with raw readings using telemetry
-5. Apply to your robot's sensors
-6. Consider Kalman filter for more advanced needs
+A filter setting is a tradeoff between smoothness and response time. Test it at the same loop rate and sensor conditions where your robot will use it.

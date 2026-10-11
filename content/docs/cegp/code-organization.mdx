@@ -1,666 +1,73 @@
 ---
 title: Code Organization
-description: Structure your FTC project for clarity
+description: Keep an FTC project easy to navigate as the robot grows
 icon: FolderTree
 ---
 
-## File Structure
+## Begin with TeamCode
 
-A well-organized FTC project makes it easy to find code and understand the robot's architecture.
+In the [official FTC Android Studio project](https://github.com/FIRST-Tech-Challenge/FtcRobotController), your team's Java files belong under:
 
-### Basic Project Structure
-
-```
-TeamCode/
-├── OpModes/
-│   ├── TeleOp/
-│   │   ├── MainTeleOp.java
-│   │   └── TestTeleOp.java
-│   └── Autonomous/
-│       ├── AutoRedLeft.java
-│       ├── AutoRedRight.java
-│       ├── AutoBlueLeft.java
-│       └── AutoBlueRight.java
-├── Subsystems/
-│   ├── Drivetrain.java
-│   ├── Arm.java
-│   ├── Intake.java
-│   └── Shooter.java
-├── Utilities/
-│   ├── PIDController.java
-│   ├── Odometry.java
-│   └── Constants.java
-└── Hardware/
-    └── RobotHardware.java
+```text
+TeamCode/src/main/java/org/firstinspires/ftc/teamcode/
 ```
 
-### Package Organization
+One working OpMode in that folder is enough to begin. You do not need separate classes for every motor on day one.
 
-Use packages to group related code:
+As the robot grows, group related files in packages. For example:
+
+```text
+teamcode/
+├── MainTeleOp.java       ← reads gamepads
+├── PracticeAuto.java     ← runs an autonomous routine
+└── mechanisms/
+    └── Arm.java          ← handles the arm motor
+```
+
+The diagram is a **possible team layout**, not an extra folder structure required by the SDK. A file in `mechanisms/` needs a matching package declaration, such as `package org.firstinspires.ftc.teamcode.mechanisms;`.
+
+## Give each file a clear job
+
+The OpMode should decide **when** an action happens. A mechanism class can decide **how** to control its hardware. For example, the OpMode reads a button and asks the arm to move; the arm class owns the motor and its power limit.
+
+Here is a small mechanism class. Save it as `mechanisms/Arm.java`:
 
 ```java
-package org.firstinspires.ftc.teamcode.opmodes.teleop;
-package org.firstinspires.ftc.teamcode.opmodes.autonomous;
-package org.firstinspires.ftc.teamcode.subsystems;
-package org.firstinspires.ftc.teamcode.utilities;
-```
-
-## Subsystem Pattern
-
-Separate hardware control into focused subsystem classes:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-// Subsystems/Drivetrain.java
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.mechanisms;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class Drivetrain {
-    private DcMotor frontLeft;
-    private DcMotor frontRight;
-    private DcMotor backLeft;
-    private DcMotor backRight;
-    
-    public Drivetrain(HardwareMap hardwareMap) {
-        frontLeft = hardwareMap.get(DcMotor.class, "front_left_drive");
-        frontRight = hardwareMap.get(DcMotor.class, "front_right_drive");
-        backLeft = hardwareMap.get(DcMotor.class, "back_left_drive");
-        backRight = hardwareMap.get(DcMotor.class, "back_right_drive");
-        
-        // Configure motors
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
-        
-        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
-    
-    public void drive(double forward, double strafe, double turn) {
-        double frontLeftPower = forward + strafe + turn;
-        double frontRightPower = forward - strafe - turn;
-        double backLeftPower = forward - strafe + turn;
-        double backRightPower = forward + strafe - turn;
-        
-        // Normalize powers
-        double maxPower = Math.max(1.0, Math.max(
-            Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
-            Math.max(Math.abs(backLeftPower), Math.abs(backRightPower))
-        ));
-        
-        frontLeft.setPower(frontLeftPower / maxPower);
-        frontRight.setPower(frontRightPower / maxPower);
-        backLeft.setPower(backLeftPower / maxPower);
-        backRight.setPower(backRightPower / maxPower);
-    }
-    
-    public void stop() {
-        frontLeft.setPower(0);
-        frontRight.setPower(0);
-        backLeft.setPower(0);
-        backRight.setPower(0);
-    }
-    
-    private void setMode(DcMotor.RunMode mode) {
-        frontLeft.setMode(mode);
-        frontRight.setMode(mode);
-        backLeft.setMode(mode);
-        backRight.setMode(mode);
-    }
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-// Subsystems/Drivetrain.kt
-package org.firstinspires.ftc.teamcode.subsystems
-
-import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.HardwareMap
-import kotlin.math.abs
-import kotlin.math.max
-
-class Drivetrain(hardwareMap: HardwareMap) {
-    private val frontLeft = hardwareMap.get(DcMotor::class.java, "front_left_drive")
-    private val frontRight = hardwareMap.get(DcMotor::class.java, "front_right_drive")
-    private val backLeft = hardwareMap.get(DcMotor::class.java, "back_left_drive")
-    private val backRight = hardwareMap.get(DcMotor::class.java, "back_right_drive")
-    
-    init {
-        frontLeft.direction = DcMotor.Direction.REVERSE
-        backLeft.direction = DcMotor.Direction.REVERSE
-        
-        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
-    }
-    
-    fun drive(forward: Double, strafe: Double, turn: Double) {
-        val frontLeftPower = forward + strafe + turn
-        val frontRightPower = forward - strafe - turn
-        val backLeftPower = forward - strafe + turn
-        val backRightPower = forward + strafe - turn
-        
-        val maxPower = max(1.0, max(
-            max(abs(frontLeftPower), abs(frontRightPower)),
-            max(abs(backLeftPower), abs(backRightPower))
-        ))
-        
-        frontLeft.power = frontLeftPower / maxPower
-        frontRight.power = frontRightPower / maxPower
-        backLeft.power = backLeftPower / maxPower
-        backRight.power = backRightPower / maxPower
-    }
-    
-    fun stop() {
-        frontLeft.power = 0.0
-        frontRight.power = 0.0
-        backLeft.power = 0.0
-        backRight.power = 0.0
-    }
-    
-    private fun setMode(mode: DcMotor.RunMode) {
-        frontLeft.mode = mode
-        frontRight.mode = mode
-        backLeft.mode = mode
-        backRight.mode = mode
-    }
-}
-```
-</Tab>
-</Tabs>
-
-## Constants File
-
-Centralize magic numbers in a Constants class:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-// Utilities/Constants.java
-package org.firstinspires.ftc.teamcode.utilities;
-
-public class Constants {
-    // Drivetrain
-    public static final double DRIVE_SPEED = 0.8;
-    public static final double TURN_SPEED = 0.6;
-    public static final double SLOW_MODE_MULTIPLIER = 0.4;
-    
-    // Arm
-    public static final double ARM_POWER = 0.6;
-    public static final int ARM_MIN_POSITION = 0;
-    public static final int ARM_MAX_POSITION = 2000;
-    public static final int ARM_SAFE_ZONE = 100;
-    
-    // Intake
-    public static final double INTAKE_COLLECT_POWER = 1.0;
-    public static final double INTAKE_EJECT_POWER = -0.8;
-    
-    // Autonomous
-    public static final double AUTO_DRIVE_SPEED = 0.5;
-    public static final double AUTO_TURN_SPEED = 0.4;
-    public static final int ENCODER_TICKS_PER_INCH = 50;
-    
-    // Physical measurements
-    public static final double WHEEL_DIAMETER_INCHES = 4.0;
-    public static final double TRACK_WIDTH_INCHES = 14.5;
-    public static final double ROBOT_WIDTH_INCHES = 18.0;
-    public static final double ROBOT_LENGTH_INCHES = 18.0;
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-// Utilities/Constants.kt
-package org.firstinspires.ftc.teamcode.utilities
-
-object Constants {
-    // Drivetrain
-    const val DRIVE_SPEED = 0.8
-    const val TURN_SPEED = 0.6
-    const val SLOW_MODE_MULTIPLIER = 0.4
-    
-    // Arm
-    const val ARM_POWER = 0.6
-    const val ARM_MIN_POSITION = 0
-    const val ARM_MAX_POSITION = 2000
-    const val ARM_SAFE_ZONE = 100
-    
-    // Intake
-    const val INTAKE_COLLECT_POWER = 1.0
-    const val INTAKE_EJECT_POWER = -0.8
-    
-    // Autonomous
-    const val AUTO_DRIVE_SPEED = 0.5
-    const val AUTO_TURN_SPEED = 0.4
-    const val ENCODER_TICKS_PER_INCH = 50
-    
-    // Physical measurements
-    const val WHEEL_DIAMETER_INCHES = 4.0
-    const val TRACK_WIDTH_INCHES = 14.5
-    const val ROBOT_WIDTH_INCHES = 18.0
-    const val ROBOT_LENGTH_INCHES = 18.0
-}
-```
-</Tab>
-</Tabs>
-
-## Clean OpMode Structure
-
-Keep OpModes focused on game logic, delegate hardware control to subsystems:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-// OpModes/TeleOp/MainTeleOp.java
-package org.firstinspires.ftc.teamcode.opmodes.teleop;
-
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.Arm;
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.utilities.Constants;
-
-@TeleOp(name = "Drive: Main TeleOp")
-public class MainTeleOp extends LinearOpMode {
-    private Drivetrain drivetrain;
-    private Arm arm;
-    private Intake intake;
-    
-    @Override
-    public void runOpMode() {
-        // Initialize subsystems
-        drivetrain = new Drivetrain(hardwareMap);
-        arm = new Arm(hardwareMap);
-        intake = new Intake(hardwareMap);
-        
-        telemetry.addLine("Robot initialized. Ready to start.");
-        telemetry.update();
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            updateDrivetrain();
-            updateArm();
-            updateIntake();
-            updateTelemetry();
-        }
-    }
-    
-    private void updateDrivetrain() {
-        double forward = -gamepad1.left_stick_y;
-        double strafe = gamepad1.left_stick_x;
-        double turn = gamepad1.right_stick_x;
-        
-        double speedMultiplier = gamepad1.left_bumper ? 
-            Constants.SLOW_MODE_MULTIPLIER : 1.0;
-        
-        drivetrain.drive(
-            forward * speedMultiplier,
-            strafe * speedMultiplier,
-            turn * speedMultiplier
-        );
-    }
-    
-    private void updateArm() {
-        if (gamepad2.dpad_up) {
-            arm.moveUp();
-        } else if (gamepad2.dpad_down) {
-            arm.moveDown();
-        } else {
-            arm.hold();
-        }
-    }
-    
-    private void updateIntake() {
-        if (gamepad2.right_bumper) {
-            intake.collect();
-        } else if (gamepad2.left_bumper) {
-            intake.eject();
-        } else {
-            intake.stop();
-        }
-    }
-    
-    private void updateTelemetry() {
-        telemetry.addData("Arm Position", arm.getPosition());
-        telemetry.addData("Has Game Piece", intake.hasGamePiece());
-        telemetry.update();
-    }
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-// OpModes/TeleOp/MainTeleOp.kt
-package org.firstinspires.ftc.teamcode.opmodes.teleop
-
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.subsystems.Drivetrain
-import org.firstinspires.ftc.teamcode.subsystems.Arm
-import org.firstinspires.ftc.teamcode.subsystems.Intake
-import org.firstinspires.ftc.teamcode.utilities.Constants
-
-@TeleOp(name = "Drive: Main TeleOp")
-class MainTeleOp : LinearOpMode() {
-    private lateinit var drivetrain: Drivetrain
-    private lateinit var arm: Arm
-    private lateinit var intake: Intake
-    
-    override fun runOpMode() {
-        // Initialize subsystems
-        drivetrain = Drivetrain(hardwareMap)
-        arm = Arm(hardwareMap)
-        intake = Intake(hardwareMap)
-        
-        telemetry.addLine("Robot initialized. Ready to start.")
-        telemetry.update()
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            updateDrivetrain()
-            updateArm()
-            updateIntake()
-            updateTelemetry()
-        }
-    }
-    
-    private fun updateDrivetrain() {
-        val forward = -gamepad1.left_stick_y.toDouble()
-        val strafe = gamepad1.left_stick_x.toDouble()
-        val turn = gamepad1.right_stick_x.toDouble()
-        
-        val speedMultiplier = if (gamepad1.left_bumper) {
-            Constants.SLOW_MODE_MULTIPLIER
-        } else {
-            1.0
-        }
-        
-        drivetrain.drive(
-            forward * speedMultiplier,
-            strafe * speedMultiplier,
-            turn * speedMultiplier
-        )
-    }
-    
-    private fun updateArm() {
-        when {
-            gamepad2.dpad_up -> arm.moveUp()
-            gamepad2.dpad_down -> arm.moveDown()
-            else -> arm.hold()
-        }
-    }
-    
-    private fun updateIntake() {
-        when {
-            gamepad2.right_bumper -> intake.collect()
-            gamepad2.left_bumper -> intake.eject()
-            else -> intake.stop()
-        }
-    }
-    
-    private fun updateTelemetry() {
-        telemetry.addData("Arm Position", arm.position)
-        telemetry.addData("Has Game Piece", intake.hasGamePiece())
-        telemetry.update()
-    }
-}
-```
-</Tab>
-</Tabs>
-
-## Method Organization
-
-Order methods logically within a class:
-
-```java
 public class Arm {
-    // 1. Constants
-    private static final double ARM_POWER = 0.6;
-    private static final int MAX_POSITION = 2000;
-    
-    // 2. Instance variables
-    private DcMotor armMotor;
-    private int targetPosition;
-    
-    // 3. Constructor
+    private final DcMotor motor;
+
     public Arm(HardwareMap hardwareMap) {
-        armMotor = hardwareMap.get(DcMotor.class, "arm_motor");
-        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motor = hardwareMap.get(DcMotor.class, "arm_motor");
     }
-    
-    // 4. Public interface methods (what others call)
-    public void moveUp() {
-        setPosition(targetPosition + 100);
-    }
-    
-    public void moveDown() {
-        setPosition(targetPosition - 100);
-    }
-    
-    public void hold() {
-        setPosition(targetPosition);
-    }
-    
-    public int getPosition() {
-        return armMotor.getCurrentPosition();
-    }
-    
-    public boolean isAtTarget() {
-        return Math.abs(armMotor.getCurrentPosition() - targetPosition) < 10;
-    }
-    
-    // 5. Private helper methods
-    private void setPosition(int position) {
-        targetPosition = Math.max(0, Math.min(MAX_POSITION, position));
-        armMotor.setTargetPosition(targetPosition);
-        armMotor.setPower(ARM_POWER);
+
+    public void move(double requestedPower) {
+        double safePower = Math.max(-0.25, Math.min(0.25, requestedPower));
+        motor.setPower(safePower);
     }
 }
 ```
 
-## Avoid Code Duplication
+Inside an OpMode in the `teamcode` package, import `Arm`, construct it **before** `waitForStart()`, then call `arm.move(...)` in the active loop. This is a pattern for separating jobs; it still needs the usual OpMode setup and a matching `arm_motor` configuration.
 
-Use helper methods to eliminate repeated code:
+## Split only when it helps
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-// Bad - repeated code
-public void driveForward(double inches) {
-    int targetTicks = (int)(inches * ENCODER_TICKS_PER_INCH);
-    frontLeft.setTargetPosition(frontLeft.getCurrentPosition() + targetTicks);
-    frontRight.setTargetPosition(frontRight.getCurrentPosition() + targetTicks);
-    backLeft.setTargetPosition(backLeft.getCurrentPosition() + targetTicks);
-    backRight.setTargetPosition(backRight.getCurrentPosition() + targetTicks);
-    // ... 10 more lines
-}
+Move code into a new method or class when you can give it a clear name and use it without copying the same logic. Examples:
 
-public void driveBackward(double inches) {
-    int targetTicks = (int)(-inches * ENCODER_TICKS_PER_INCH);
-    frontLeft.setTargetPosition(frontLeft.getCurrentPosition() + targetTicks);
-    frontRight.setTargetPosition(frontRight.getCurrentPosition() + targetTicks);
-    backLeft.setTargetPosition(backLeft.getCurrentPosition() + targetTicks);
-    backRight.setTargetPosition(backRight.getCurrentPosition() + targetTicks);
-    // ... 10 more lines (same as above)
-}
+- A `stopDrive()` method makes a safety action easy to find.
+- An `Arm` class can keep arm limits together when several OpModes use the arm.
+- A `RobotConfig` class can hold shared, measured constants such as encoder counts per revolution.
 
-// Good - reusable helper
-public void driveForward(double inches) {
-    driveDistance(inches);
-}
+Keep season-specific scoring decisions in the autonomous or match logic, so a reusable motor helper does not silently depend on one game.
 
-public void driveBackward(double inches) {
-    driveDistance(-inches);
-}
+## Check the result
 
-private void driveDistance(double inches) {
-    int targetTicks = (int)(inches * ENCODER_TICKS_PER_INCH);
-    setTargetPosition(targetTicks, targetTicks, targetTicks, targetTicks);
-    runToPosition(0.5);
-    waitForMotors();
-}
+Can a new teammate find the code that controls a motor in under a minute? Can they see where its configuration name and power limit live? If yes, the structure is doing its job. Build after moving files; package and import mistakes show up immediately.
 
-private void setTargetPosition(int fl, int fr, int bl, int br) {
-    frontLeft.setTargetPosition(frontLeft.getCurrentPosition() + fl);
-    frontRight.setTargetPosition(frontRight.getCurrentPosition() + fr);
-    backLeft.setTargetPosition(backLeft.getCurrentPosition() + bl);
-    backRight.setTargetPosition(backRight.getCurrentPosition() + br);
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-// Good - reusable helper
-fun driveForward(inches: Double) = driveDistance(inches)
+## Continue
 
-fun driveBackward(inches: Double) = driveDistance(-inches)
-
-private fun driveDistance(inches: Double) {
-    val targetTicks = (inches * ENCODER_TICKS_PER_INCH).toInt()
-    setTargetPosition(targetTicks, targetTicks, targetTicks, targetTicks)
-    runToPosition(0.5)
-    waitForMotors()
-}
-
-private fun setTargetPosition(fl: Int, fr: Int, bl: Int, br: Int) {
-    frontLeft.targetPosition = frontLeft.currentPosition + fl
-    frontRight.targetPosition = frontRight.currentPosition + fr
-    backLeft.targetPosition = backLeft.currentPosition + bl
-    backRight.targetPosition = backRight.currentPosition + br
-}
-```
-</Tab>
-</Tabs>
-
-## Single Responsibility Principle
-
-Each class should have one clear purpose:
-
-```java
-// Bad - RobotController does everything
-public class RobotController {
-    // Drivetrain hardware
-    DcMotor fl, fr, bl, br;
-    // Arm hardware
-    DcMotor armMotor;
-    // Intake hardware
-    CRServo intakeServo;
-    // Vision
-    VisionPortal visionPortal;
-    
-    // 500 lines of mixed drivetrain, arm, intake, and vision code
-}
-
-// Good - separate concerns
-public class Drivetrain { /* Only drivetrain logic */ }
-public class Arm { /* Only arm logic */ }
-public class Intake { /* Only intake logic */ }
-public class VisionProcessor { /* Only vision logic */ }
-```
-
-## Import Organization
-
-Group imports logically:
-
-```java
-// FTC SDK imports
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-
-// Team code imports
-import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.Arm;
-import org.firstinspires.ftc.teamcode.utilities.Constants;
-
-// Java standard library
-import java.util.ArrayList;
-import java.util.List;
-```
-
-## Line Length and Formatting
-
-Keep lines readable (80-120 characters max):
-
-```java
-// Bad - too long
-public void calculateAndSetDrivetrainPowerBasedOnGamepadInputWithFieldCentricTransformationAndOptionalSlowMode(double x, double y, double rotation, boolean slowMode) {
-    // Hard to read
-}
-
-// Good - readable
-public void setFieldCentricDrive(
-    double x, 
-    double y, 
-    double rotation, 
-    boolean slowMode
-) {
-    // Clear structure
-}
-```
-
-## Common Organizational Mistakes
-
-**Mixing concerns:**
-```java
-// Bad - TeleOp has all the hardware control logic
-@TeleOp
-public class MainTeleOp extends LinearOpMode {
-    public void runOpMode() {
-        DcMotor fl = hardwareMap.get(DcMotor.class, "fl");
-        // 300 lines of motor control, servo control, sensor reading...
-    }
-}
-```
-
-**No separation of autonomous modes:**
-```java
-// Bad - one giant autonomous file
-public class Autonomous {
-    // If statements for red/blue, left/right all mixed together
-}
-
-// Good - separate files
-AutoRedLeft.java
-AutoRedRight.java
-AutoBlueLeft.java
-AutoBlueRight.java
-```
-
-**Constants scattered everywhere:**
-```java
-// Bad
-motor.setPower(0.8); // Magic number
-servo.setPosition(0.25); // Magic number
-
-// Good
-motor.setPower(Constants.ARM_POWER);
-servo.setPosition(Constants.CLAW_OPEN_POSITION);
-```
-
-## Quick Checklist
-
-**Good organization has:**
-- One class per file
-- Clear package structure
-- Subsystems separated from OpModes
-- Constants in a dedicated file
-- Helper methods to avoid duplication
-- Logical method ordering
-- Short, focused methods (< 30 lines each)
-
-**Avoid:**
-- God classes that do everything
-- Copy-pasted code blocks
-- Magic numbers scattered in code
-- 500+ line files
-- Mixing hardware control with game logic
-
-## Next Steps
-
-Learn when and how to document your code in **[Comments and Documentation](/docs/cegp/comments)**.
+Use [naming conventions](./naming-conventions) to make the files readable and [comments](./comments) to explain decisions that names cannot show.

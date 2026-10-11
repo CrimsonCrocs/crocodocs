@@ -1,7 +1,14 @@
 ---
-title: REV Color Sensor V3
-description: See colors like never before! 🔴
+title: Color Sensor and Camera Color Detection
+description: Choose between a close-range REV sensor and camera-based color processing
 icon: Palette
 ---
 
-# 🎨 Color Sensor
+## Two tools with similar names
+
+FTC projects have two different ways to measure color:
+
+- A **REV Color Sensor V3** is a physical sensor. It reads reflected light from a nearby surface; follow the [hardware guide](./hardware/color-sensor-v3) for wiring, range, and testing.
+- The FTC SDK **ColorProcessor** analyzes a region of a camera image. It is part of camera vision and does not use the REV sensor's I2C connection. Start with the [VisionPortal guide](./visionportal/vision-portal).
+
+Choose the physical sensor when an object can be brought close to the sensor. Choose camera processing when you need to inspect a wider image or locate a region in the frame. Both need tests under the lighting and distance where your robot will actually use them.

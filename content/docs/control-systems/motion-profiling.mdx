@@ -1,235 +1,126 @@
 ---
 title: Motion Profiling
-description: Smooth, controlled autonomous movement with trapezoidal profiles
+description: Plan a robot's speed before asking it to move to a target
 icon: ChartLine
 ---
 
-## What is Motion Profiling?
+Imagine telling a robot to move forward 48 inches. If the code immediately asks for full motor power, the wheels may slip at the start and the robot may overshoot at the end. A **motion profile** gives the robot a speed target for each moment: speed up, cruise if there is room, then slow down before reaching the target.
 
-**Motion profiling** is a technique that creates smooth, controlled movement by planning velocity and acceleration over time. Instead of instantly jumping to full speed, motion profiles gradually accelerate, maintain a constant velocity, then decelerate smoothly to the target position.
+This page first works through a trapezoidal profile, then samples it in Java and uses the sampled target in a simple encoder feedback loop. The distance and gains are examples: measure your encoder scale and tune on your robot before driving on a field.
 
-Think of it like driving a car: you don't instantly go from 0 to 60 mph - you gradually press the accelerator, cruise at highway speed, then brake smoothly before your destination.
+![A trapezoidal profile ramps speed up, cruises, then ramps it down.](/trapezoid_motion.png)
 
-## Why Use Motion Profiling?
+## First, separate the two jobs
 
-**Problems Without Motion Profiling:**
-- Robot jerks violently when starting/stopping
-- Wheels slip due to sudden acceleration
-- Mechanisms break from impact forces
-- Inconsistent autonomous movements
-- Overshooting targets
+The **profile** answers: “Where should the robot be, and how fast should it be moving, right now?” A **controller** compares that target with encoder measurements and adjusts motor power.
 
-**Motion Profiling Benefits:**
-- Smooth, predictable movement
-- Reduced mechanical stress
-- Better traction (no wheel slip)
-- Consistent autonomous performance
-- Professional-looking robot behavior
-- Accurate position control
+The profile does not know whether the wheels slipped or the robot hit an obstacle. Feedback from encoders is what lets the controller correct some of those differences.
 
-## Trapezoidal Motion Profile
+## Step 1: Pick units and limits
 
-The most common motion profile is the **trapezoidal velocity profile**, which has three distinct phases:
+Choose one distance unit and use it everywhere. This example uses inches and seconds:
 
-![Trapezoidal Motion Profile](/trapezoid_motion.png)
+- Target distance: `48 in`
+- Maximum speed: `24 in/s`
+- Maximum acceleration: `24 in/s²`
 
-### Three Phases
+These are easy numbers for the example, not recommended values for your robot. Start with a low speed and acceleration in a clear area, then measure what the robot can do without wheel slip.
 
-1. **Acceleration Phase:** Robot accelerates from rest at constant acceleration until reaching max velocity
-2. **Cruise Phase:** Robot maintains constant max velocity
-3. **Deceleration Phase:** Robot decelerates at constant rate until stopping at target
+## Step 2: Work out whether there is room to cruise
 
-The velocity vs. time graph forms a trapezoid shape - hence the name.
-
-### Why Trapezoidal?
-
-- Simple to implement and understand
-- Computationally efficient
-- Smooth enough for most FTC applications
-- Easy to tune (only 2 parameters)
-- Predictable behavior
-
-## How It Works
-
-### Key Parameters
-
-**Max Velocity (v_max):** The fastest speed the robot can travel during the cruise phase
-
-**Max Acceleration (a_max):** How quickly the robot speeds up and slows down
-
-### Position, Velocity, and Acceleration
-
-At any point in time, the motion profile calculates:
-
-- **Target Position:** Where the robot should be
-- **Target Velocity:** How fast it should be moving
-- **Target Acceleration:** Whether speeding up, cruising, or slowing down
-
-These targets are fed into a PID controller or feedforward controller to generate motor powers.
-
-### The Math
-
-For a move distance $d$ with max velocity $v_\text{max}$ and max acceleration $a_\text{max}$:
-
-**Time to accelerate to max velocity:**
+At constant acceleration, speed and distance are related by:
 
 ```math
-t_{\text{accel}} = \frac{v_{\text{max}}}{a_{\text{max}}}
+t_\text{accel} = \frac{v_\text{max}}{a_\text{max}}, \qquad
+d_\text{accel} = \frac{v_\text{max}^2}{2a_\text{max}}
 ```
 
-**Distance covered during acceleration:**
+For the example, reaching `24 in/s` at `24 in/s²` takes `1 second` and `12 inches`. The robot also needs `12 inches` to slow down. That leaves `48 - 12 - 12 = 24 inches` to cruise.
 
-```math
-d_{\text{accel}} = \frac{1}{2} a_{\text{max}} t_{\text{accel}}^2 = \frac{v_{\text{max}}^2}{2 a_{\text{max}}}
-```
+The whole move is therefore:
 
-**Cruise distance:**
+| Part | Time | Distance | What the robot does |
+| --- | ---: | ---: | --- |
+| Accelerate | 1 s | 12 in | Speed increases from 0 to 24 in/s |
+| Cruise | 1 s | 24 in | Speed stays at 24 in/s |
+| Decelerate | 1 s | 12 in | Speed decreases to 0 at the target |
 
-```math
-d_{\text{cruise}} = d - 2d_{\text{accel}}
-```
+The velocity graph has a flat top, making a trapezoid.
 
-**Total time:**
+## Step 3: Know what happens on a short move
 
-```math
-t_{\text{total}} = 2t_{\text{accel}} + \frac{d_{\text{cruise}}}{v_{\text{max}}}
-```
+A short move may not leave enough distance to reach maximum speed. For example, an 8-inch move with the same acceleration limit cannot spend 12 inches speeding up and another 12 slowing down.
 
-**If distance allows full trapezoid (d ≥ 2d_accel):**
-- Acceleration phase: 0 ≤ t < t_accel
-- Cruise phase: t_accel ≤ t < t_total - t_accel
-- Deceleration phase: t_total - t_accel ≤ t ≤ t_total
+Instead, the robot speeds up to a lower peak and immediately slows down. The graph looks like a triangle. A correct profile generator must handle this case; simply using the maximum speed for every move can produce impossible targets and overshoot.
 
-**If distance too short (triangular profile, d < 2d_accel):**
-- No cruise phase
-- Peak velocity: v_peak = √(d · a_max)
-- Accelerate to peak velocity < v_max
-- Immediately decelerate
+## Step 4: Generate a target for each moment
 
-### Kinematic Equations for Each Phase
-
-**Acceleration Phase** (0 ≤ t < t_accel):
-
-```math
-v(t) = a_{\text{max}} \cdot t
-```
-
-```math
-x(t) = \frac{1}{2} a_{\text{max}} \cdot t^2
-```
-
-**Cruise Phase** (t_accel ≤ t < t_total - t_accel):
-
-```math
-v(t) = v_{\text{max}}
-```
-
-```math
-x(t) = d_{\text{accel}} + v_{\text{max}} \cdot (t - t_{\text{accel}})
-```
-
-**Deceleration Phase** (t_total - t_accel ≤ t ≤ t_total):
-
-Let t_d = t - (t_total - t_accel)
-
-```math
-v(t) = v_{\text{max}} - a_{\text{max}} \cdot t_d
-```
-
-```math
-x(t) = d_{\text{accel}} + d_{\text{cruise}} + v_{\text{max}} \cdot t_d - \frac{1}{2} a_{\text{max}} \cdot t_d^2
-```
-
-## Basic Implementation
-
-### Simple Motion Profile Class
+The helper below creates a profile for a move that starts and ends at rest. It automatically makes a triangular profile for short moves and a trapezoid when there is room to cruise. Position is measured from the move's starting point, in inches; velocity is inches per second.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-public class TrapezoidalProfile {
-    private double maxVelocity;
-    private double maxAcceleration;
-    private double startPosition;
-    private double targetPosition;
-    private double startTime;
-    
-    public TrapezoidalProfile(double maxVel, double maxAccel) {
-        this.maxVelocity = maxVel;
-        this.maxAcceleration = maxAccel;
+class ProfileState {
+    final double position;
+    final double velocity;
+
+    ProfileState(double position, double velocity) {
+        this.position = position;
+        this.velocity = velocity;
     }
-    
-    public void setTarget(double current, double target) {
-        this.startPosition = current;
-        this.targetPosition = target;
-        this.startTime = System.nanoTime() / 1e9;
-    }
-    
-    public State calculate(double currentTime) {
-        double dt = currentTime - startTime;
-        double distance = Math.abs(targetPosition - startPosition);
-        int direction = (targetPosition > startPosition) ? 1 : -1;
-        
-        // Time to reach max velocity
-        double accelTime = maxVelocity / maxAcceleration;
-        
-        // Distance covered during acceleration
-        double accelDist = 0.5 * maxAcceleration * accelTime * accelTime;
-        
-        // Check if we can reach max velocity
-        double cruiseDist = distance - 2 * accelDist;
-        
-        if (cruiseDist < 0) {
-            // Triangular profile - can't reach max velocity
-            double peakVel = Math.sqrt(distance * maxAcceleration);
-            accelTime = peakVel / maxAcceleration;
-            accelDist = distance / 2;
-            cruiseDist = 0;
-        }
-        
-        double cruiseTime = cruiseDist / maxVelocity;
-        double decelTime = accelTime;
-        double totalTime = accelTime + cruiseTime + decelTime;
-        
-        double position, velocity;
-        
-        if (dt < accelTime) {
-            // Acceleration phase
-            velocity = maxAcceleration * dt;
-            position = 0.5 * maxAcceleration * dt * dt;
-        } else if (dt < accelTime + cruiseTime) {
-            // Cruise phase
-            velocity = maxVelocity;
-            double cruiseElapsed = dt - accelTime;
-            position = accelDist + maxVelocity * cruiseElapsed;
-        } else if (dt < totalTime) {
-            // Deceleration phase
-            double decelElapsed = dt - accelTime - cruiseTime;
-            velocity = maxVelocity - maxAcceleration * decelElapsed;
-            position = accelDist + cruiseDist + 
-                      maxVelocity * decelElapsed - 
-                      0.5 * maxAcceleration * decelElapsed * decelElapsed;
+}
+
+class TrapezoidProfile {
+    private final double distance;
+    private final double acceleration;
+    private final double peakVelocity;
+    private final double accelerationTime;
+    private final double cruiseTime;
+    private final double totalTime;
+
+    TrapezoidProfile(double distance, double maxVelocity, double maxAcceleration) {
+        this.distance = Math.abs(distance);
+        this.acceleration = maxAcceleration;
+
+        double timeToMaxVelocity = maxVelocity / maxAcceleration;
+        double distanceToMaxVelocity = 0.5 * maxAcceleration * timeToMaxVelocity * timeToMaxVelocity;
+        if (2.0 * distanceToMaxVelocity >= this.distance) {
+            // Short move: speed up, then immediately slow down (triangle).
+            this.peakVelocity = Math.sqrt(this.distance * maxAcceleration);
+            this.accelerationTime = peakVelocity / maxAcceleration;
+            this.cruiseTime = 0.0;
         } else {
-            // Finished
-            velocity = 0;
-            position = distance;
+            // Longer move: speed up, cruise, then slow down (trapezoid).
+            this.peakVelocity = maxVelocity;
+            this.accelerationTime = timeToMaxVelocity;
+            double cruiseDistance = this.distance - 2.0 * distanceToMaxVelocity;
+            this.cruiseTime = cruiseDistance / peakVelocity;
         }
-        
-        return new State(
-            startPosition + direction * position,
-            direction * velocity
+        this.totalTime = 2.0 * accelerationTime + cruiseTime;
+    }
+
+    ProfileState sample(double seconds) {
+        double t = Math.max(0.0, Math.min(seconds, totalTime));
+        double accelerationDistance = 0.5 * acceleration * accelerationTime * accelerationTime;
+
+        if (t < accelerationTime) {
+            return new ProfileState(0.5 * acceleration * t * t, acceleration * t);
+        }
+        if (t < accelerationTime + cruiseTime) {
+            double cruiseElapsed = t - accelerationTime;
+            return new ProfileState(accelerationDistance + peakVelocity * cruiseElapsed, peakVelocity);
+        }
+
+        double decelerationRemaining = totalTime - t;
+        return new ProfileState(
+            distance - 0.5 * acceleration * decelerationRemaining * decelerationRemaining,
+            acceleration * decelerationRemaining
         );
     }
-    
-    public static class State {
-        public double position;
-        public double velocity;
-        
-        public State(double pos, double vel) {
-            this.position = pos;
-            this.velocity = vel;
-        }
+
+    double totalTime() {
+        return totalTime;
     }
 }
 ```
@@ -238,737 +129,173 @@ public class TrapezoidalProfile {
 <Tab value="Kotlin">
 
 ```kotlin
-class TrapezoidalProfile(
-    private val maxVelocity: Double,
-    private val maxAcceleration: Double
-) {
-    private var startPosition = 0.0
-    private var targetPosition = 0.0
-    private var startTime = 0.0
-    
-    fun setTarget(current: Double, target: Double) {
-        startPosition = current
-        targetPosition = target
-        startTime = System.nanoTime() / 1e9
+data class ProfileState(val position: Double, val velocity: Double)
+
+class TrapezoidProfile(distance: Double, maxVelocity: Double, maxAcceleration: Double) {
+    private val distance = abs(distance)
+    private val acceleration = maxAcceleration
+    private val peakVelocity: Double
+    private val accelerationTime: Double
+    private val cruiseTime: Double
+    private val totalTime: Double
+
+    init {
+        val timeToMaxVelocity = maxVelocity / maxAcceleration
+        val distanceToMaxVelocity = 0.5 * maxAcceleration * timeToMaxVelocity * timeToMaxVelocity
+        if (2.0 * distanceToMaxVelocity >= this.distance) {
+            peakVelocity = sqrt(this.distance * maxAcceleration)
+            accelerationTime = peakVelocity / maxAcceleration
+            cruiseTime = 0.0
+        } else {
+            peakVelocity = maxVelocity
+            accelerationTime = timeToMaxVelocity
+            val cruiseDistance = this.distance - 2.0 * distanceToMaxVelocity
+            cruiseTime = cruiseDistance / peakVelocity
+        }
+        totalTime = 2.0 * accelerationTime + cruiseTime
     }
-    
-    fun calculate(currentTime: Double): State {
-        val dt = currentTime - startTime
-        val distance = abs(targetPosition - startPosition)
-        val direction = if (targetPosition > startPosition) 1 else -1
-        
-        // Time to reach max velocity
-        var accelTime = maxVelocity / maxAcceleration
-        
-        // Distance covered during acceleration
-        var accelDist = 0.5 * maxAcceleration * accelTime * accelTime
-        
-        // Check if we can reach max velocity
-        var cruiseDist = distance - 2 * accelDist
-        
-        if (cruiseDist < 0) {
-            // Triangular profile - can't reach max velocity
-            val peakVel = sqrt(distance * maxAcceleration)
-            accelTime = peakVel / maxAcceleration
-            accelDist = distance / 2
-            cruiseDist = 0.0
+
+    fun sample(seconds: Double): ProfileState {
+        val t = max(0.0, min(seconds, totalTime))
+        val accelerationDistance = 0.5 * acceleration * accelerationTime * accelerationTime
+        if (t < accelerationTime) {
+            return ProfileState(0.5 * acceleration * t * t, acceleration * t)
         }
-        
-        val cruiseTime = cruiseDist / maxVelocity
-        val decelTime = accelTime
-        val totalTime = accelTime + cruiseTime + decelTime
-        
-        val (position, velocity) = when {
-            dt < accelTime -> {
-                // Acceleration phase
-                val vel = maxAcceleration * dt
-                val pos = 0.5 * maxAcceleration * dt * dt
-                Pair(pos, vel)
-            }
-            dt < accelTime + cruiseTime -> {
-                // Cruise phase
-                val cruiseElapsed = dt - accelTime
-                val pos = accelDist + maxVelocity * cruiseElapsed
-                Pair(pos, maxVelocity)
-            }
-            dt < totalTime -> {
-                // Deceleration phase
-                val decelElapsed = dt - accelTime - cruiseTime
-                val vel = maxVelocity - maxAcceleration * decelElapsed
-                val pos = accelDist + cruiseDist + 
-                         maxVelocity * decelElapsed - 
-                         0.5 * maxAcceleration * decelElapsed * decelElapsed
-                Pair(pos, vel)
-            }
-            else -> {
-                // Finished
-                Pair(distance, 0.0)
-            }
+        if (t < accelerationTime + cruiseTime) {
+            val cruiseElapsed = t - accelerationTime
+            return ProfileState(accelerationDistance + peakVelocity * cruiseElapsed, peakVelocity)
         }
-        
-        return State(
-            startPosition + direction * position,
-            direction * velocity
+
+        val decelerationRemaining = totalTime - t
+        return ProfileState(
+            distance - 0.5 * acceleration * decelerationRemaining * decelerationRemaining,
+            acceleration * decelerationRemaining
         )
     }
-    
-    data class State(
-        val position: Double,
-        val velocity: Double
-    )
+
+    fun totalTime() = totalTime
 }
 ```
 
 </Tab>
 </Tabs>
 
-## Using Motion Profiles
+Read the constructor from top to bottom: it first checks whether there is enough distance to reach the maximum speed. `sample()` then returns the position and speed the mechanism should have at a given elapsed time. The profile is mathematical; it does not read an encoder or move a motor by itself.
 
-### Example: Profiled Autonomous Drive
+## Step 5: Follow the target with an encoder
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-@Autonomous(name = "Profiled Drive")
-public class ProfiledDrive extends LinearOpMode {
-    private TrapezoidalProfile profile;
-    private PIDController controller;
-    private DcMotor leftMotor, rightMotor;
-    
-    @Override
-    public void runOpMode() {
-        leftMotor = hardwareMap.get(DcMotor.class, "left");
-        rightMotor = hardwareMap.get(DcMotor.class, "right");
-        
-        // Create motion profile
-        // Max velocity: 2000 ticks/sec, Max acceleration: 1000 ticks/sec²
-        profile = new TrapezoidalProfile(2000, 1000);
-        
-        // PID controller to follow the profile
-        controller = new PIDController(0.001, 0.0, 0.0);
-        
-        waitForStart();
-        
-        // Move 4800 ticks forward (4 feet)
-        int startPos = leftMotor.getCurrentPosition();
-        int targetPos = startPos + 4800;
-        
-        profile.setTarget(startPos, targetPos);
-        
-        while (opModeIsActive()) {
-            double currentTime = getRuntime();
-            int currentPos = leftMotor.getCurrentPosition();
-            
-            // Get target state from profile
-            TrapezoidalProfile.State target = profile.calculate(currentTime);
-            
-            // Use PID to follow the profile
-            double power = controller.calculate(currentPos, target.position);
-            
-            leftMotor.setPower(power);
-            rightMotor.setPower(power);
-            
-            // Stop when reached target
-            if (Math.abs(currentPos - targetPos) < 10) {
-                break;
-            }
-            
-            telemetry.addData("Current", currentPos);
-            telemetry.addData("Target Pos", target.position);
-            telemetry.addData("Target Vel", target.velocity);
-            telemetry.update();
-        }
-        
-        leftMotor.setPower(0);
-        rightMotor.setPower(0);
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-@Autonomous(name = "Profiled Drive")
-class ProfiledDrive : LinearOpMode() {
-    private lateinit var profile: TrapezoidalProfile
-    private lateinit var controller: PIDController
-    private lateinit var leftMotor: DcMotor
-    private lateinit var rightMotor: DcMotor
-    
-    override fun runOpMode() {
-        leftMotor = hardwareMap.get(DcMotor::class.java, "left")
-        rightMotor = hardwareMap.get(DcMotor::class.java, "right")
-        
-        // Create motion profile
-        // Max velocity: 2000 ticks/sec, Max acceleration: 1000 ticks/sec²
-        profile = TrapezoidalProfile(2000.0, 1000.0)
-        
-        // PID controller to follow the profile
-        controller = PIDController(0.001, 0.0, 0.0)
-        
-        waitForStart()
-        
-        // Move 4800 ticks forward (4 feet)
-        val startPos = leftMotor.currentPosition.toDouble()
-        val targetPos = startPos + 4800
-        
-        profile.setTarget(startPos, targetPos)
-        
-        while (opModeIsActive()) {
-            val currentTime = runtime
-            val currentPos = leftMotor.currentPosition.toDouble()
-            
-            // Get target state from profile
-            val target = profile.calculate(currentTime)
-            
-            // Use PID to follow the profile
-            val power = controller.calculate(currentPos, target.position)
-            
-            leftMotor.power = power
-            rightMotor.power = power
-            
-            // Stop when reached target
-            if (abs(currentPos - targetPos) < 10) {
-                break
-            }
-            
-            telemetry.addData("Current", currentPos)
-            telemetry.addData("Target Pos", target.position)
-            telemetry.addData("Target Vel", target.velocity)
-            telemetry.update()
-        }
-        
-        leftMotor.power = 0.0
-        rightMotor.power = 0.0
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-## Using with FTC SDK
-
-Integrate motion profiling with standard FTC SDK control loops:
+Here is how a single motor can follow the profile. This is a learning example for an encoder-equipped linear mechanism. Set `COUNTS_PER_INCH` from a measured move. `kP` turns position error into power; `kV` adds power for the profile's requested speed. Both gains are robot-specific.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-@TeleOp(name = "Profiled Arm Control")
-public class ProfiledArmControl extends LinearOpMode {
-    private TrapezoidalProfile profile;
-    private PIDController pidController;
-    private DcMotorEx armMotor;
-    private ElapsedTime timer;
-    
-    // Arm positions
-    private static final int REST = 0;
-    private static final int INTAKE = 200;
-    private static final int SCORE = 1500;
-    
-    @Override
-    public void runOpMode() {
-        armMotor = hardwareMap.get(DcMotorEx.class, "arm");
-        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        
-        // Create profile and PID controller
-        profile = new TrapezoidalProfile(1000.0, 500.0);
-        pidController = new PIDController(0.002, 0.0, 0.0);
-        timer = new ElapsedTime();
-        
-        waitForStart();
-        
-        // Start at rest position
-        profile.setTarget(0, REST);
-        timer.reset();
-        
-        while (opModeIsActive()) {
-            // Button controls
-            if (gamepad1.a) {
-                int current = armMotor.getCurrentPosition();
-                profile.setTarget(current, INTAKE);
-                timer.reset();
-            } else if (gamepad1.y) {
-                int current = armMotor.getCurrentPosition();
-                profile.setTarget(current, SCORE);
-                timer.reset();
-            } else if (gamepad1.b) {
-                int current = armMotor.getCurrentPosition();
-                profile.setTarget(current, REST);
-                timer.reset();
-            }
-            
-            // Calculate profiled target
-            TrapezoidalProfile.State target = profile.calculate(timer.seconds());
-            
-            // Use PID to follow the profile
-            int currentPos = armMotor.getCurrentPosition();
-            double power = pidController.calculate(currentPos, target.position);
-            
-            armMotor.setPower(power);
-            
-            telemetry.addData("Current", currentPos);
-            telemetry.addData("Target Pos", target.position);
-            telemetry.addData("Target Vel", target.velocity);
-            telemetry.update();
-        }
-    }
-}
-```
+private static final double COUNTS_PER_INCH = 100.0; // Measure on your robot
+private static final double MAX_POWER = 0.25;        // Start with a safe limit
+private static final double KP = 0.04;               // Power per inch; tune slowly
+private static final double KV = 0.01;               // Power per inch/second; tune slowly
 
-</Tab>
-<Tab value="Kotlin">
+// In runOpMode(), after configuring `slide` and confirming it is at the move's start:
+TrapezoidProfile profile = new TrapezoidProfile(8.0, 4.0, 8.0);
+long startTime = System.nanoTime();
+slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-```kotlin
-@TeleOp(name = "Profiled Arm Control")
-class ProfiledArmControl : LinearOpMode() {
-    private lateinit var profile: TrapezoidalProfile
-    private lateinit var pidController: PIDController
-    private lateinit var armMotor: DcMotorEx
-    private lateinit var timer: ElapsedTime
-    
-    // Arm positions
-    companion object {
-        const val REST = 0
-        const val INTAKE = 200
-        const val SCORE = 1500
-    }
-    
-    override fun runOpMode() {
-        armMotor = hardwareMap.get(DcMotorEx::class.java, "arm")
-        armMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        armMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        
-        // Create profile and PID controller
-        profile = TrapezoidalProfile(1000.0, 500.0)
-        pidController = PIDController(0.002, 0.0, 0.0)
-        timer = ElapsedTime()
-        
-        waitForStart()
-        
-        // Start at rest position
-        profile.setTarget(0.0, REST.toDouble())
-        timer.reset()
-        
-        while (opModeIsActive()) {
-            // Button controls
-            when {
-                gamepad1.a -> {
-                    val current = armMotor.currentPosition.toDouble()
-                    profile.setTarget(current, INTAKE.toDouble())
-                    timer.reset()
-                }
-                gamepad1.y -> {
-                    val current = armMotor.currentPosition.toDouble()
-                    profile.setTarget(current, SCORE.toDouble())
-                    timer.reset()
-                }
-                gamepad1.b -> {
-                    val current = armMotor.currentPosition.toDouble()
-                    profile.setTarget(current, REST.toDouble())
-                    timer.reset()
-                }
-            }
-            
-            // Calculate profiled target
-            val target = profile.calculate(timer.seconds())
-            
-            // Use PID to follow the profile
-            val currentPos = armMotor.currentPosition.toDouble()
-            val power = pidController.calculate(currentPos, target.position)
-            
-            armMotor.power = power
-            
-            telemetry.addData("Current", currentPos)
-            telemetry.addData("Target Pos", target.position)
-            telemetry.addData("Target Vel", target.velocity)
-            telemetry.update()
-        }
-    }
-}
-```
+while (opModeIsActive()) {
+    double elapsed = (System.nanoTime() - startTime) / 1_000_000_000.0;
+    ProfileState target = profile.sample(elapsed);
+    double measuredInches = slide.getCurrentPosition() / COUNTS_PER_INCH;
+    double error = target.position - measuredInches;
 
-</Tab>
-</Tabs>
+    // This mechanism example only moves in the positive direction.
+    double power = KP * error + KV * target.velocity;
+    power = Math.max(0.0, Math.min(MAX_POWER, power));
+    slide.setPower(power);
 
-This approach combines the motion profile from earlier with PID control for smooth, predictable arm movement.
+    telemetry.addData("Target inches", "%.2f", target.position);
+    telemetry.addData("Measured inches", "%.2f", measuredInches);
+    telemetry.addData("Target speed", "%.2f in/s", target.velocity);
+    telemetry.addData("Motor power", "%.2f", power);
+    telemetry.update();
 
-## Tuning Parameters
-
-### Max Velocity
-
-Start with your robot's actual maximum speed:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Find max velocity experimentally
-@TeleOp(name = "Find Max Velocity")
-public class FindMaxVelocity extends LinearOpMode {
-    @Override
-    public void runOpMode() {
-        DcMotorEx motor = hardwareMap.get(DcMotorEx.class, "motor");
-        
-        waitForStart();
-        
-        motor.setPower(1.0);
-        sleep(2000);  // Let it stabilize
-        
-        double maxVel = motor.getVelocity();
-        
-        telemetry.addData("Max Velocity", maxVel);
+    if (elapsed >= profile.totalTime() && Math.abs(error) < 0.25) break;
+    if (elapsed >= profile.totalTime() + 2.0) {
+        telemetry.addLine("Move timed out; check encoder direction and tuning.");
         telemetry.update();
-        
-        while (opModeIsActive()) {
-            // Keep displaying
-        }
+        break;
     }
+    idle();
 }
+slide.setPower(0.0);
 ```
 
 </Tab>
 <Tab value="Kotlin">
 
 ```kotlin
-// Find max velocity experimentally
-@TeleOp(name = "Find Max Velocity")
-class FindMaxVelocity : LinearOpMode() {
-    override fun runOpMode() {
-        val motor = hardwareMap.get(DcMotorEx::class.java, "motor")
-        
-        waitForStart()
-        
-        motor.power = 1.0
-        sleep(2000)  // Let it stabilize
-        
-        val maxVel = motor.velocity
-        
-        telemetry.addData("Max Velocity", maxVel)
+private const val COUNTS_PER_INCH = 100.0 // Measure on your robot
+private const val MAX_POWER = 0.25        // Start with a safe limit
+private const val KP = 0.04               // Power per inch; tune slowly
+private const val KV = 0.01               // Power per inch/second; tune slowly
+
+// In runOpMode(), after configuring `slide` and confirming it is at the move's start:
+val profile = TrapezoidProfile(8.0, 4.0, 8.0)
+val startTime = System.nanoTime()
+slide.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+
+while (opModeIsActive()) {
+    val elapsed = (System.nanoTime() - startTime) / 1_000_000_000.0
+    val target = profile.sample(elapsed)
+    val measuredInches = slide.currentPosition / COUNTS_PER_INCH
+    val error = target.position - measuredInches
+
+    // This mechanism example only moves in the positive direction.
+    val power = max(0.0, min(MAX_POWER, KP * error + KV * target.velocity))
+    slide.power = power
+
+    telemetry.addData("Target inches", "%.2f", target.position)
+    telemetry.addData("Measured inches", "%.2f", measuredInches)
+    telemetry.addData("Target speed", "%.2f in/s", target.velocity)
+    telemetry.addData("Motor power", "%.2f", power)
+    telemetry.update()
+
+    if (elapsed >= profile.totalTime() && abs(error) < 0.25) break
+    if (elapsed >= profile.totalTime() + 2.0) {
+        telemetry.addLine("Move timed out; check encoder direction and tuning.")
         telemetry.update()
-        
-        while (opModeIsActive()) {
-            // Keep displaying
-        }
+        break
     }
+    idle()
 }
+slide.power = 0.0
 ```
 
 </Tab>
 </Tabs>
 
-Use 70-80% of measured max velocity for your profile to leave headroom.
+The loop asks the profile for the target **position and velocity**, compares target position with the encoder reading, and combines the position correction with a speed-based term. The power clamp protects the test from an unexpectedly large request; it does not make an unsafe mechanism safe. Use a `try/finally` or equivalent stop cleanup in a full OpMode so the motor is set to zero when the OpMode is stopped.
 
-### Max Acceleration
+The example moves one mechanism in one direction. A drivetrain needs a pose estimate and a way to turn field-relative target motion into wheel powers. For that job, use the [Pedro Pathing guide](../libraries/pedro-pathing) or [Road Runner's official Quickstart](https://rr.brott.dev/), rather than treating this one-axis example as a complete path follower.
 
-Start conservative and increase:
+## Step 6: Test the profile before raising the limits
 
-| Value | Effect |
-|-------|--------|
-| **Too Low** | Slow, takes forever to reach target |
-| **Good** | Smooth, no wheel slip, consistent |
-| **Too High** | Wheels slip, jerky, overshoots |
+1. Lift the robot so its wheels can turn safely, or test a mechanism with a clear stop and no pinch hazards.
+2. Display elapsed time, target position, measured position, target velocity, and motor power in telemetry.
+3. Confirm that the target position starts at the measured position, increases smoothly, and ends at the destination.
+4. Put the robot on the floor and run a short, slow move. Check for wheel slip and overshoot.
+5. Increase acceleration or speed a little at a time. If it slips, reduce acceleration; if it stops short or drifts, inspect encoder direction and controller tuning before changing the profile.
 
-**Starting point:** Use `maxAcceleration = maxVelocity / 2`
+## How a profile differs from a path
 
-**Tuning process:**
-1. Test the profile
-2. If smooth but slow → increase acceleration
-3. If wheels slip → decrease acceleration
-4. If overshoots → decrease acceleration or tune PID
+A one-dimensional motion profile describes progress along one move. A path describes where the robot should travel on the field. A path follower may use a profile to limit speed along that path, but the ideas are not interchangeable: a profile alone does not plan turns or avoid obstacles.
 
-## Real-World Applications
+For field navigation, see [Motion Planning](../autonomous/motion-planning) and the [Pedro Pathing guide](../libraries/pedro-pathing). Use those libraries' current setup instructions for your project version.
 
-### 1. Profiled Elevator
+## Common mistakes
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
+- **Mixing units:** inches, encoder ticks, and meters cannot be combined without conversion.
+- **Setting aggressive limits from theory alone:** traction and robot weight determine what works on the field.
+- **Ignoring short moves:** the profile must support a triangular shape when there is no cruise phase.
+- **Assuming the profile corrects disturbances:** encoder feedback and a controller are still needed.
+- **Letting code continue after stop:** all movement loops need to respect the OpMode stop state and leave motors safe.
 
-```java
-public class ProfiledElevator {
-    private TrapezoidalProfile profile;
-    private PIDController pid;
-    private DcMotorEx elevator;
-    
-    // Elevator positions (in ticks)
-    private static final int GROUND = 0;
-    private static final int LOW = 500;
-    private static final int MID = 1000;
-    private static final int HIGH = 1500;
-    
-    public ProfiledElevator(HardwareMap hardwareMap) {
-        elevator = hardwareMap.get(DcMotorEx.class, "elevator");
-        profile = new TrapezoidalProfile(800, 400);  // Conservative speeds
-        pid = new PIDController(0.002, 0.0, 0.0);
-    }
-    
-    public void goToHeight(int targetHeight) {
-        int current = elevator.getCurrentPosition();
-        profile.setTarget(current, targetHeight);
-    }
-    
-    public void update() {
-        double time = System.nanoTime() / 1e9;
-        int current = elevator.getCurrentPosition();
-        
-        TrapezoidalProfile.State target = profile.calculate(time);
-        double power = pid.calculate(current, target.position);
-        
-        elevator.setPower(power);
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-class ProfiledElevator(hardwareMap: HardwareMap) {
-    private val elevator: DcMotorEx = hardwareMap.get(DcMotorEx::class.java, "elevator")
-    private val profile = TrapezoidalProfile(800.0, 400.0)  // Conservative speeds
-    private val pid = PIDController(0.002, 0.0, 0.0)
-    
-    // Elevator positions (in ticks)
-    companion object {
-        const val GROUND = 0
-        const val LOW = 500
-        const val MID = 1000
-        const val HIGH = 1500
-    }
-    
-    fun goToHeight(targetHeight: Int) {
-        val current = elevator.currentPosition.toDouble()
-        profile.setTarget(current, targetHeight.toDouble())
-    }
-    
-    fun update() {
-        val time = System.nanoTime() / 1e9
-        val current = elevator.currentPosition.toDouble()
-        
-        val target = profile.calculate(time)
-        val power = pid.calculate(current, target.position)
-        
-        elevator.power = power
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-### 2. Profiled Autonomous Sequence
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-@Autonomous(name = "Profiled Auto")
-public class ProfiledAuto extends LinearOpMode {
-    
-    private void driveToPosition(int target) {
-        TrapezoidalProfile profile = new TrapezoidalProfile(2000, 1000);
-        PIDController pid = new PIDController(0.001, 0.0, 0.0);
-        
-        int start = leftMotor.getCurrentPosition();
-        profile.setTarget(start, target);
-        
-        ElapsedTime timer = new ElapsedTime();
-        
-        while (opModeIsActive()) {
-            int current = leftMotor.getCurrentPosition();
-            TrapezoidalProfile.State state = profile.calculate(timer.seconds());
-            
-            double power = pid.calculate(current, state.position);
-            drive.setPower(power);
-            
-            if (Math.abs(current - target) < 10) break;
-        }
-        
-        drive.setPower(0);
-    }
-    
-    @Override
-    public void runOpMode() {
-        // Initialize hardware
-        
-        waitForStart();
-        
-        // Smooth autonomous sequence
-        driveToPosition(2400);  // Drive 2 feet forward
-        sleep(500);
-        
-        driveToPosition(0);     // Return to start
-        sleep(500);
-        
-        driveToPosition(-1200); // Back up 1 foot
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-@Autonomous(name = "Profiled Auto")
-class ProfiledAuto : LinearOpMode() {
-    
-    private fun driveToPosition(target: Int) {
-        val profile = TrapezoidalProfile(2000.0, 1000.0)
-        val pid = PIDController(0.001, 0.0, 0.0)
-        
-        val start = leftMotor.currentPosition.toDouble()
-        profile.setTarget(start, target.toDouble())
-        
-        val timer = ElapsedTime()
-        
-        while (opModeIsActive()) {
-            val current = leftMotor.currentPosition.toDouble()
-            val state = profile.calculate(timer.seconds())
-            
-            val power = pid.calculate(current, state.position)
-            drive.power = power
-            
-            if (abs(current - target) < 10) break
-        }
-        
-        drive.power = 0.0
-    }
-    
-    override fun runOpMode() {
-        // Initialize hardware
-        
-        waitForStart()
-        
-        // Smooth autonomous sequence
-        driveToPosition(2400)  // Drive 2 feet forward
-        sleep(500)
-        
-        driveToPosition(0)     // Return to start
-        sleep(500)
-        
-        driveToPosition(-1200) // Back up 1 foot
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-## Advanced: Feedforward with Profiles
-
-Combine motion profiles with feedforward control for even better tracking:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Calculate feedforward term
-double kV = 0.0005;  // Velocity feedforward constant
-double kA = 0.0001;  // Acceleration feedforward constant
-
-TrapezoidalProfile.State target = profile.calculate(time);
-
-// Feedforward helps predict needed power
-double feedforward = kV * target.velocity + kA * target.acceleration;
-
-// PID corrects any errors
-double pidOutput = pid.calculate(currentPosition, target.position);
-
-// Combine both
-double totalPower = feedforward + pidOutput;
-motor.setPower(totalPower);
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Calculate feedforward term
-val kV = 0.0005  // Velocity feedforward constant
-val kA = 0.0001  // Acceleration feedforward constant
-
-val target = profile.calculate(time)
-
-// Feedforward helps predict needed power
-val feedforward = kV * target.velocity + kA * target.acceleration
-
-// PID corrects any errors
-val pidOutput = pid.calculate(currentPosition, target.position)
-
-// Combine both
-val totalPower = feedforward + pidOutput
-motor.power = totalPower
-```
-
-</Tab>
-</Tabs>
-
-## Troubleshooting
-
-### Profile Too Slow
-
-- Increase max velocity (but stay under 80% of hardware limit)
-- Check if using triangular profile (distance too short for full trapezoid)
-- Verify motors aren't hitting power limits
-
-### Overshoots Target
-
-- Decrease max acceleration
-- Tune PID controller (reduce P gain)
-- Add deceleration margin (stop profile slightly before target)
-
-### Jerky Movement
-
-- Max acceleration too high
-- PID D term causing oscillation
-- Motor deadband issues (add small offset)
-
-### Wheels Slipping
-
-- Max acceleration too aggressive for traction
-- Robot too heavy for current acceleration
-- Floor surface too slippery
-
-## Motion Profiling vs Path Following
-
-| Feature | Motion Profiling | Path Following |
-|---------|------------------|----------------|
-| **What it controls** | Position along straight line | Position in 2D space |
-| **Complexity** | Simple | Complex |
-| **Use Case** | Elevators, arms, straight drives | Curved autonomous paths |
-| **Libraries** | DIY implementation | Pedro Pathing, Road Runner |
-
-Motion profiling is often used **within** path following systems to control individual motor movements.
-
-## Tips for Success
-
-1. **Test at Low Speed First:** Start with low max velocity, verify it works
-2. **Measure Real Values:** Don't guess max velocity - measure it
-3. **Log Everything:** Graph position, velocity, target vs. actual
-4. **Account for Units:** Ticks, inches, or degrees? Be consistent
-5. **Add Safety Limits:** Check position bounds, velocity sanity
-6. **Consider Momentum:** Heavy mechanisms need gentler acceleration
-
-## Resources
-
-- **CTRL ALT FTC:** [Control Theory Guide](https://www.ctrlaltftc.com/)
-- **WPILib:** [Trajectory Generation](https://docs.wpilib.org/en/stable/docs/software/advanced-controls/trajectories/index.html)
-- **Game Manual 0:** [Motion Planning](https://gm0.org/en/latest/)
-
-## Next Steps
-
-1. Implement basic trapezoidal profile class
-2. Test with simple straight-line drive
-3. Measure your robot's max velocity
-4. Tune max acceleration for smooth movement
-5. Apply to elevator/arm mechanisms
-6. Combine with PID for precise control
-7. Explore advanced path following libraries
-
-<Callout>
-**Pro Tip:** Motion profiling transforms jerky, inconsistent autonomous into smooth, professional movement. It's worth the initial setup time!
-</Callout>
+Next, learn how feedback terms work in the [PID arm guide](./pid-control), or smooth noisy readings with a [low-pass filter](./lowpass-filter).

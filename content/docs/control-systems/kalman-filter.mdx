@@ -1,132 +1,109 @@
 ---
 title: Kalman Filter
-description: Reduce sensor noise and improve accuracy with Kalman filtering
+description: Understand how a model and a noisy measurement form one estimate
 icon: Activity
 ---
 
-## What is a Kalman Filter?
+A Kalman filter combines a **prediction** with a **measurement**. It is useful when you have a model of what should happen and a sensor that gives noisy readings. The filter weighs each source according to how uncertain it is.
 
-A **Kalman filter** is a mathematical algorithm that combines noisy sensor measurements with predictions to produce more accurate estimates. It's widely used in robotics, navigation systems, and autonomous vehicles to smooth out sensor data and reject noise.
+This page starts with a deliberately small example: estimating a nearly stationary distance. It is not a complete robot-localization filter. A moving robot needs a motion model, correctly timed measurements, and consistent coordinate frames.
 
-Think of it like this: if you're reading a position sensor that jumps around (50, 48, 52, 49, 51), the Kalman filter can smooth this out to give you a more stable reading (49.8, 49.9, 50.0, 50.1).
+## Start with the problem
 
-## Why Use a Kalman Filter in FTC?
+Imagine the robot is not moving, but a distance sensor reports `50`, `48`, `52`, and `49 cm`. Averaging or filtering can reduce the wobble, but a Kalman filter also keeps track of its uncertainty and can include a prediction model.
 
-**Common Problems:**
-- IMU readings drift over time
-- Encoders have noise from vibrations
-- Distance sensors give inconsistent readings
-- Vision processing has measurement uncertainty
+For this simple example, assume the distance should stay about the same between readings. That assumption is wrong if the robot or target is moving quickly; then the model must include motion.
 
-**Kalman Filter Benefits:**
-- Smooths noisy sensor data
-- Combines multiple sensors (sensor fusion)
-- Predicts future states
-- Adapts to changing conditions
-- Proven mathematical foundation
+## Step 1: Make a prediction
 
-## How It Works
+Keep two values:
 
-The Kalman filter operates in two steps that repeat continuously:
+- `estimate`: the current best distance estimate;
+- `P`: how uncertain that estimate is. A larger `P` means less confidence.
 
-### 1. Prediction Step
-Uses your robot's motion model to predict where it should be:
+For a stationary target, the predicted distance stays the same. Increase uncertainty by a process-noise value `Q`, because the world may have changed a little since the last reading:
+
+```text
+predicted estimate = previous estimate
+predicted uncertainty = previous uncertainty + Q
+```
+
+`Q` is about changes the model does not capture. It is not a magic smoothing strength.
+
+## Step 2: Compare a new sensor reading
+
+Let `z` be the new measurement and `R` describe measurement uncertainty. The Kalman gain decides how far to move the prediction toward that measurement:
 
 ```math
-\hat{x}_k^- = F \hat{x}_{k-1} + B u_k
+K = \frac{P_\text{predicted}}{P_\text{predicted} + R}
 ```
+
+Then update the estimate:
 
 ```math
-P_k^- = F P_{k-1} F^T + Q
+estimate_\text{new} = estimate_\text{predicted} + K(z - estimate_\text{predicted})
 ```
 
-For simple position estimation:
+If the sensor is noisy (large `R`), `K` is smaller and the estimate stays closer to the prediction. If the prediction is uncertain (large `P`), `K` is larger and the new reading has more influence.
 
-```math
-\text{Predicted Position} = \text{Previous Position} + (\text{Velocity} \times \Delta t)
-```
+## Step 3: Work one update by hand
 
-### 2. Update Step
-Combines the prediction with new sensor measurements:
+Suppose the previous estimate was `50 cm`, its uncertainty was `4`, and this update adds process noise `Q = 1`. The next sensor reading is `54 cm`, with measurement uncertainty `R = 4`.
 
-```math
-K_k = \frac{P_k^-}{P_k^- + R}
-```
+1. Predicted estimate: `50 cm`.
+2. Predicted uncertainty: `4 + 1 = 5`.
+3. Kalman gain: `5 / (5 + 4) = 0.56` (approximately).
+4. Estimate: `50 + 0.56 × (54 - 50) = 52.24 cm`.
 
-```math
-\hat{x}_k = \hat{x}_k^- + K_k (z_k - \hat{x}_k^-)
-```
+The result moves toward `54 cm` but does not jump all the way there. After the update, uncertainty decreases because the filter has used another measurement.
 
-```math
-P_k = (1 - K_k) P_k^-
-```
+![A number line showing the prediction at 50 cm, the updated estimate at 52.24 cm, and the sensor reading at 54 cm.](/guides/kalman-one-update.png)
 
-Simplified:
+## Step 4: Test the assumptions before using it
 
-```math
-\text{New Estimate} = \text{Prediction} + K (\text{Measurement} - \text{Prediction})
-```
+1. Log raw sensor values while the target is still.
+2. Estimate how much those readings vary; use that to reason about measurement noise.
+3. Move the target slowly and check whether the stationary-target model follows too slowly.
+4. If the real system moves, add a motion model instead of just increasing or decreasing a constant until the output looks smooth.
+5. Compare raw readings, predicted values, and filtered estimates in telemetry.
 
-The **Kalman Gain** ($K$) automatically balances:
-- How much to trust the prediction (process noise $Q$)
-- How much to trust the sensor (measurement noise $R$)
+Do not claim the filter fixes sensor bias, incorrect units, a loose mount, or a bad model. Correct those problems first.
 
-Where:
-- $\hat{x}_k$ = State estimate at time $k$
-- $P_k$ = Error covariance (uncertainty)
-- $Q$ = Process noise covariance
-- $R$ = Measurement noise covariance
-- $K_k$ = Kalman gain
-- $z_k$ = Measurement
+## Step 5: Put the scalar filter in Java
 
-### Visual Example
-
-Without Kalman Filter:
-```
-Sensor:  [50, 48, 52, 49, 51, 47, 53, 50]  ← Noisy!
-```
-
-With Kalman Filter:
-```
-Output:  [49.8, 49.9, 50.0, 50.1, 50.1, 50.0, 50.2, 50.1]  ← Smooth!
-```
-
-## Basic Implementation
-
-### Simple 1D Kalman Filter
+This small class implements the same predict-and-correct steps for one distance value. `estimate` is measured in centimeters. `uncertainty`, `processNoise`, and `measurementNoise` are variances, so their units are square centimeters. The starting numbers below are examples; estimate them from repeated sensor readings.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-public class SimpleKalmanFilter {
-    private double estimate;      // Current estimate
-    private double errorCovariance;  // Uncertainty in estimate
-    
-    private double processNoise;     // Q - How much we trust prediction
-    private double measurementNoise; // R - How much we trust sensor
-    
-    public SimpleKalmanFilter(double processNoise, double measurementNoise) {
+public final class ScalarKalmanFilter {
+    private double estimate;
+    private double uncertainty;
+    private final double processNoise;
+    private final double measurementNoise;
+    private boolean initialized;
+
+    public ScalarKalmanFilter(double processNoise, double measurementNoise) {
         this.processNoise = processNoise;
         this.measurementNoise = measurementNoise;
-        this.estimate = 0;
-        this.errorCovariance = 1;
     }
-    
+
     public double update(double measurement) {
-        // Prediction step (we assume no change)
-        double predictedEstimate = estimate;
-        double predictedError = errorCovariance + processNoise;
-        
-        // Update step
-        double kalmanGain = predictedError / (predictedError + measurementNoise);
-        estimate = predictedEstimate + kalmanGain * (measurement - predictedEstimate);
-        errorCovariance = (1 - kalmanGain) * predictedError;
-        
-        return estimate;
-    }
-    
-    public double getEstimate() {
+        if (!initialized) {
+            estimate = measurement;
+            uncertainty = measurementNoise;
+            initialized = true;
+            return estimate;
+        }
+
+        // Predict: this model expects distance to stay nearly constant.
+        uncertainty += processNoise;
+
+        // Correct: move the prediction toward the new reading.
+        double gain = uncertainty / (uncertainty + measurementNoise);
+        estimate += gain * (measurement - estimate);
+        uncertainty *= (1.0 - gain);
         return estimate;
     }
 }
@@ -136,66 +113,58 @@ public class SimpleKalmanFilter {
 <Tab value="Kotlin">
 
 ```kotlin
-class SimpleKalmanFilter(
-    private val processNoise: Double,      // Q - How much we trust prediction
-    private val measurementNoise: Double   // R - How much we trust sensor
+class ScalarKalmanFilter(
+    private val processNoise: Double,
+    private val measurementNoise: Double
 ) {
-    private var estimate: Double = 0.0
-    private var errorCovariance: Double = 1.0
-    
+    private var estimate = 0.0
+    private var uncertainty = 0.0
+    private var initialized = false
+
     fun update(measurement: Double): Double {
-        // Prediction step (we assume no change)
-        val predictedEstimate = estimate
-        val predictedError = errorCovariance + processNoise
-        
-        // Update step
-        val kalmanGain = predictedError / (predictedError + measurementNoise)
-        estimate = predictedEstimate + kalmanGain * (measurement - predictedEstimate)
-        errorCovariance = (1 - kalmanGain) * predictedError
-        
+        if (!initialized) {
+            estimate = measurement
+            uncertainty = measurementNoise
+            initialized = true
+            return estimate
+        }
+
+        // Predict: this model expects distance to stay nearly constant.
+        uncertainty += processNoise
+
+        // Correct: move the prediction toward the new reading.
+        val gain = uncertainty / (uncertainty + measurementNoise)
+        estimate += gain * (measurement - estimate)
+        uncertainty *= 1.0 - gain
         return estimate
     }
-    
-    fun getEstimate(): Double = estimate
 }
 ```
 
 </Tab>
 </Tabs>
 
-### Using the Filter
+The first valid measurement initializes the estimate. On later calls, `uncertainty += processNoise` says the stationary-distance prediction becomes a little less certain; the gain then decides how much to trust the new reading.
+
+Use it in an OpMode after mapping a distance sensor named `frontDistance`:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-@TeleOp(name = "Kalman Filter Example")
-public class KalmanExample extends LinearOpMode {
-    private SimpleKalmanFilter filter;
-    private DcMotor motor;
-    
-    @Override
-    public void runOpMode() {
-        motor = hardwareMap.get(DcMotor.class, "motor");
-        
-        // Lower process noise = trust prediction more
-        // Lower measurement noise = trust sensor more
-        filter = new SimpleKalmanFilter(0.01, 0.1);
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            // Get noisy encoder reading
-            int rawPosition = motor.getCurrentPosition();
-            
-            // Filter it
-            double filteredPosition = filter.update(rawPosition);
-            
-            telemetry.addData("Raw Position", rawPosition);
-            telemetry.addData("Filtered Position", "%.1f", filteredPosition);
-            telemetry.update();
-        }
+ScalarKalmanFilter filter = new ScalarKalmanFilter(0.2, 4.0); // Variance examples
+
+while (opModeIsActive()) {
+    double rawCm = frontDistance.getDistance(DistanceUnit.CM);
+    if (Double.isFinite(rawCm)) {
+        double filteredCm = filter.update(rawCm);
+        telemetry.addData("Raw (cm)", "%.1f", rawCm);
+        telemetry.addData("Filtered (cm)", "%.1f", filteredCm);
+    } else {
+        telemetry.addLine("Distance reading is invalid");
     }
+    telemetry.update();
+    idle();
 }
 ```
 
@@ -203,259 +172,39 @@ public class KalmanExample extends LinearOpMode {
 <Tab value="Kotlin">
 
 ```kotlin
-@TeleOp(name = "Kalman Filter Example")
-class KalmanExample : LinearOpMode() {
-    private lateinit var filter: SimpleKalmanFilter
-    private lateinit var motor: DcMotor
-    
-    override fun runOpMode() {
-        motor = hardwareMap.get(DcMotor::class.java, "motor")
-        
-        // Lower process noise = trust prediction more
-        // Lower measurement noise = trust sensor more
-        filter = SimpleKalmanFilter(0.01, 0.1)
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            // Get noisy encoder reading
-            val rawPosition = motor.currentPosition
-            
-            // Filter it
-            val filteredPosition = filter.update(rawPosition.toDouble())
-            
-            telemetry.addData("Raw Position", rawPosition)
-            telemetry.addData("Filtered Position", "%.1f", filteredPosition)
-            telemetry.update()
-        }
+val filter = ScalarKalmanFilter(0.2, 4.0) // Variance examples
+
+while (opModeIsActive()) {
+    val rawCm = frontDistance.getDistance(DistanceUnit.CM)
+    if (rawCm.isFinite()) {
+        val filteredCm = filter.update(rawCm)
+        telemetry.addData("Raw (cm)", "%.1f", rawCm)
+        telemetry.addData("Filtered (cm)", "%.1f", filteredCm)
+    } else {
+        telemetry.addLine("Distance reading is invalid")
     }
+    telemetry.update()
+    idle()
 }
 ```
 
 </Tab>
 </Tabs>
 
-## Tuning the Filter
+This is a one-value stationary-target filter, not a moving-robot localization filter. If the measured object moves, increase the model to represent that motion or use a filter designed for the state you are estimating. The filter also does not replace checking whether the sensor reading is in range or physically plausible.
 
-### Process Noise (Q)
-**What it represents:** Uncertainty in your prediction model
+## Why heading needs special handling
 
-- **High value (0.5-1.0):** "I don't trust my predictions"
-  - Filter responds quickly to changes
-  - Less smoothing
-  - Good when robot motion is unpredictable
-  
-- **Low value (0.001-0.01):** "I trust my predictions"
-  - Filter responds slowly
-  - More smoothing
-  - Good when robot motion is predictable
+Angles wrap around. `179°` and `-179°` are only `2°` apart, but their ordinary numeric average is `0°`. A simple scalar filter can therefore produce a heading on the opposite side of the field. Use an angle-aware method or a localization library that handles wrapped heading values. Also check whether the IMU has been initialized and mounted according to the FTC SDK instructions.
 
-### Measurement Noise (R)
-**What it represents:** Uncertainty in your sensor
+## Using NextFTC's current control module
 
-- **High value (0.5-1.0):** "I don't trust my sensor"
-  - Filter smooths more aggressively
-  - Slower response to actual changes
-  - Good for very noisy sensors
-  
-- **Low value (0.001-0.01):** "I trust my sensor"
-  - Filter follows measurements closely
-  - Less smoothing
-  - Good for accurate sensors
+NextFTC v2's `control` module does include a model-based `KalmanFilter`. Its current API takes a `LinearModel`, state and measurement standard-deviation vectors, and an optional timestep; it exposes separate `predict(inputs)` and `correct(inputs, outputs)` operations. It is not a one-line `posKalman(q, r)` filter.
 
-### Finding Good Values
+That API expects a state-space model, so first understand what the state represents and how your measurements map to it. A one-value stationary filter like the Java example above is a better first implementation when you only need to smooth one sensor. Use the current [NextFTC KalmanFilter API reference](https://kdoc.nextftc.dev/control/dev.nextftc.control.filters/-kalman-filter/index.html) and [Control module overview](https://nextftc.dev/control/) for exact types and setup. Confirm the docs match the module version installed in your robot project.
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
+## When should an FTC team use one?
 
-```java
-// Start with these ratios and adjust:
+A Kalman filter can be useful when you have a measured noise problem and a model that predicts how the system changes. For a single jittery sensor reading with no motion model, an exponential moving average or median filter may be easier to tune and explain. For robot pose, use a localization system designed for the sensors, timing, and geometry you have.
 
-// Very noisy sensor (cheap distance sensor)
-filter = new SimpleKalmanFilter(0.01, 1.0);
-
-// Moderately noisy (encoders)
-filter = new SimpleKalmanFilter(0.01, 0.1);
-
-// Clean sensor (good IMU)
-filter = new SimpleKalmanFilter(0.1, 0.01);
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Start with these ratios and adjust:
-
-// Very noisy sensor (cheap distance sensor)
-val filter = SimpleKalmanFilter(0.01, 1.0)
-
-// Moderately noisy (encoders)
-val filter = SimpleKalmanFilter(0.01, 0.1)
-
-// Clean sensor (good IMU)
-val filter = SimpleKalmanFilter(0.1, 0.01)
-```
-
-</Tab>
-</Tabs>
-
-## Using NextControl's Kalman Filter
-
-NextControl provides a built-in Kalman filter:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// In NextControl
-ControlSystem controller = ControlSystemKt.controlSystem(builder -> {
-    builder.feedback(fb -> fb.pid(0.05, 0.01, 0.004));
-    builder.posFilter(filter -> filter.kalman(0.01, 0.1));
-    return null;
-});
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// In NextControl
-val controller = controlSystem {
-    posPid(0.05, 0.01, 0.004)
-    posKalman(0.01, 0.1)  // Process noise, measurement noise
-}
-```
-
-</Tab>
-</Tabs>
-
-## Real-World Example: IMU Filtering
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-@TeleOp(name = "IMU Kalman Filter")
-public class IMUKalmanExample extends LinearOpMode {
-    private IMU imu;
-    private SimpleKalmanFilter headingFilter;
-    
-    @Override
-    public void runOpMode() {
-        imu = hardwareMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(
-            new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
-            )
-        );
-        imu.initialize(parameters);
-        
-        // IMU is pretty accurate, so low measurement noise
-        headingFilter = new SimpleKalmanFilter(0.1, 0.01);
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            // Get raw heading
-            double rawHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-            
-            // Filter it
-            double filteredHeading = headingFilter.update(rawHeading);
-            
-            telemetry.addData("Raw Heading", "%.2f°", rawHeading);
-            telemetry.addData("Filtered Heading", "%.2f°", filteredHeading);
-            telemetry.update();
-        }
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-@TeleOp(name = "IMU Kalman Filter")
-class IMUKalmanExample : LinearOpMode() {
-    private lateinit var imu: IMU
-    private lateinit var headingFilter: SimpleKalmanFilter
-    
-    override fun runOpMode() {
-        imu = hardwareMap.get(IMU::class.java, "imu")
-        val parameters = IMU.Parameters(
-            RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
-            )
-        )
-        imu.initialize(parameters)
-        
-        // IMU is pretty accurate, so low measurement noise
-        headingFilter = SimpleKalmanFilter(0.1, 0.01)
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            // Get raw heading
-            val rawHeading = imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES)
-            
-            // Filter it
-            val filteredHeading = headingFilter.update(rawHeading)
-            
-            telemetry.addData("Raw Heading", "%.2f°", rawHeading)
-            telemetry.addData("Filtered Heading", "%.2f°", filteredHeading)
-            telemetry.update()
-        }
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-## When to Use vs. Not Use
-
-**Use Kalman Filter when:**
-- Sensor readings are noisy but generally accurate
-- You have a good prediction model
-- You need smooth, stable readings
-- Combining multiple sensors (sensor fusion)
-
-**Don't use Kalman Filter when:**
-- Sensor has systematic bias (use calibration instead)
-- Need instant response to changes (use raw data)
-- Sensor already has clean readings
-- You don't understand the noise characteristics
-
-## Comparison with Other Filters
-
-| Filter Type | Pros | Cons | Best For |
-|-------------|------|------|----------|
-| **Kalman** | Optimal for Gaussian noise, adapts to changes | More complex, needs tuning | General purpose, sensor fusion |
-| **Low-Pass** | Simple, easy to tune | Fixed lag, not adaptive | Quick smoothing, simple cases |
-| **Moving Average** | Very simple | Fixed window, lags | Basic smoothing |
-| **Complementary** | Great for combining sensors | Requires two sensors | IMU + encoder fusion |
-
-## Tips for Success
-
-1. **Start Simple:** Begin with the 1D filter, then expand
-2. **Log Data:** Record raw vs. filtered to visualize improvement
-3. **Tune Iteratively:** Adjust one noise parameter at a time
-4. **Test in Motion:** Filters behave differently when robot is moving
-5. **Know Your Sensor:** Understand what kind of noise you're dealing with
-
-## Resources
-
-- **CTRL ALT FTC:** [Control theory guide](https://www.ctrlaltftc.com/)
-- **Wikipedia:** [Kalman Filter](https://en.wikipedia.org/wiki/Kalman_filter)
-- **Video:** Search "Kalman Filter Explained" on YouTube
-
-## Next Steps
-
-1. Implement the simple 1D filter
-2. Test with encoder data
-3. Compare raw vs. filtered readings
-4. Try different noise values
-5. Expand to 2D for position tracking
-6. Explore sensor fusion (IMU + encoders)
+Learn the simpler [Low-Pass Filter](./lowpass-filter) first, or read [Sensor Fusion](../autonomous/sensor-fusion) for the difference between combining robot measurements and merely smoothing one signal.

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 460" role="img" aria-labelledby="title desc">
+  <title id="title">What a low-pass filter does to sensor readings</title>
+  <desc id="desc">The raw signal varies quickly around a steady value. The filtered signal follows the same general level with smaller, slower changes. This smoothing also makes it respond later to a real change.</desc>
+  <defs>
+    <style>
+      .axis{stroke:#47616a;stroke-width:2}
+      .grid{stroke:#dce6e8;stroke-width:1.5}
+      .raw{fill:none;stroke:#c75d42;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+      .smooth{fill:none;stroke:#16718a;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+      .label{font:17px system-ui,sans-serif;fill:#334e56}
+      .title{font:700 23px system-ui,sans-serif;fill:#173943}
+      .note{font:16px system-ui,sans-serif;fill:#52666d}
+    </style>
+  </defs>
+  <rect width="860" height="460" rx="24" fill="#fff"/>
+  <text class="title" x="430" y="43" text-anchor="middle">Smoothing removes quick jitter, but adds some lag</text>
+  <path d="M96 94h42" class="raw"/><text class="label" x="148" y="100">Raw sensor readings</text>
+  <path d="M370 94h42" class="smooth"/><text class="label" x="422" y="100">Low-pass filtered</text>
+  <g transform="translate(106 126)">
+    <path class="grid" d="M0 45H660M0 105H660M0 165H660M0 225H660"/>
+    <path class="axis" d="M0 0V270H670"/>
+    <path class="raw" d="M0 145L32 110L64 168L96 125L128 157L160 108L192 165L224 126L256 151L288 111L320 169L352 128L384 154L416 112L448 165L480 127L512 151L544 109L576 167L608 126L640 152L660 137"/>
+    <path class="smooth" d="M0 145C28 141 43 137 64 141S101 145 128 141S154 137 192 141S218 145 256 141S282 137 320 141S346 145 384 141S410 137 448 141S474 145 512 141S538 137 576 141S602 145 640 141L660 140"/>
+    <text class="label" x="330" y="316" text-anchor="middle">Time →</text>
+    <text class="label" transform="translate(-58 136) rotate(-90)" text-anchor="middle">Sensor reading</text>
+  </g>
+  <rect x="105" y="424" width="650" height="1" fill="#e4eaeb"/>
+  <text class="note" x="430" y="448" text-anchor="middle">A stronger filter smooths more noise, but reacts more slowly when the reading really changes.</text>
+</svg>

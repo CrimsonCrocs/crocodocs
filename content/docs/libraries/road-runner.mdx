@@ -1,0 +1,113 @@
+---
+title: Road Runner
+description: Build a first Road Runner 1.0 action with the official FTC Quickstart
+icon: Route
+---
+
+Road Runner is an FTC motion-planning library. Its FTC Quickstart gives you a drive class, localization, tuning OpModes, and path builders for a specific drivetrain. Start from the matching project instead of copying a Road Runner 0.5.x example: version 1.0 has an incompatible API.
+
+## Step 1: Set up and tune the Quickstart
+
+Open the [official Road Runner Quickstart](https://github.com/acmerobotics/road-runner-quickstart) in Android Studio, select its `MecanumDrive` or `TankDrive`, and complete the official [tuning sequence](https://rr.brott.dev/docs/v1-0/tuning/). Tuning checks the robot's encoder scale, feedforward, and localization. A path can be valid code and still drive the wrong way if these values are wrong.
+
+## Step 2: Choose a start pose
+
+A pose stores a position and a heading. This practice route starts at `(12, 12)` facing 0 radians. Use the coordinate frame and units of the Quickstart drive class you installed; the numbers below are only for learning.
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+Pose2d start = new Pose2d(12, 12, 0);
+MecanumDrive drive = new MecanumDrive(hardwareMap, start);
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+val start = Pose2d(12.0, 12.0, 0.0)
+val drive = MecanumDrive(hardwareMap, start)
+```
+
+</Tab>
+</Tabs>
+
+`MecanumDrive` comes from the Quickstart files. Its constructor configures your robot hardware and localizer; it is not a generic class supplied by Road Runner.
+
+## Step 3: Add one movement at a time
+
+The first segment moves to `(36, 12)`. Then the robot turns 90 degrees and strafes to `(36, 30)`. `strafeTo` changes position while keeping the current heading; after the turn, the robot is still facing 90 degrees during the final segment.
+
+![A practice route showing the first drive, a 90 degree turn, and a final strafe to the endpoint.](/guides/road-runner-first-route.png)
+
+Start with just the first line, then add the turn, then add the final strafe. The completed builder looks like this:
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+Action route = drive.actionBuilder(start)
+    .strafeTo(new Vector2d(36, 12))
+    .turn(Math.toRadians(90))
+    .strafeTo(new Vector2d(36, 30))
+    .build();
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+val route: Action = drive.actionBuilder(start)
+    .strafeTo(Vector2d(36.0, 12.0))
+    .turn(Math.toRadians(90.0))
+    .strafeTo(Vector2d(36.0, 30.0))
+    .build()
+```
+
+</Tab>
+</Tabs>
+
+Each builder call adds the next movement. `build()` packages them as one `Action`; it does not start the robot moving yet.
+
+## Step 4: Start only after checking the robot
+
+Before running the action, show a reminder in telemetry so you can check the physical starting position and the space around the robot. After Start, `Actions.runBlocking` keeps updating the action until it completes or the OpMode is stopped.
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+telemetry.addLine("Check the start pose and clear the route.");
+telemetry.update();
+waitForStart();
+if (isStopRequested()) return;
+
+Actions.runBlocking(route);
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+telemetry.addLine("Check the start pose and clear the route.")
+telemetry.update()
+waitForStart()
+if (isStopRequested) return
+
+Actions.runBlocking(route)
+```
+
+</Tab>
+</Tabs>
+
+Run the robot on blocks first to confirm the motors respond in the expected direction. Then try the short route at low speed in an empty area. Compare the reported endpoint with the real one, and correct localization or tuning errors before extending the path.
+
+The coordinates are examples, not a route for a specific season field. Check the current field, alliance, robot footprint, and starting pose before using a route in a match.
+
+## References
+
+- [Road Runner 1.0 installation and Quickstart](https://rr.brott.dev/docs/v1-0/installation/)
+- [Road Runner 1.0 Actions](https://rr.brott.dev/docs/v1-0/actions/)
+- [Road Runner tuning](https://rr.brott.dev/docs/v1-0/tuning/)
+- [Road Runner 1.0 API](https://rr.brott.dev/docs/v1-0/api-docs/)

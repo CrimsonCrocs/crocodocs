@@ -1,421 +1,476 @@
 ---
 title: Motion Planning
-description: Choose the right path for your robot to navigate the field
+description: Turn an autonomous goal into safe, testable robot movements
 icon: Route
 ---
 
-## What is Motion Planning?
+# Plan one reliable route
 
-**Motion planning** is the process of deciding **what path your robot should take** to reach its destination. It's the difference between blindly driving forward and intelligently navigating the field, optimizing speed, and coordinating with game strategy.
+Motion planning is deciding **which places the robot must visit, and in what order**. It is separate from localization, which estimates where the robot is, and control, which moves it toward its next target.
 
-Think of it like GPS navigation for your car — it doesn't just go in a straight line, it plans the best route considering roads, traffic, and turns.
+This lesson starts with a simple route: drive forward to a scoring location, operate a claw, then back away to a parking location. We will implement those actions with encoder-based moves and a small Java helper. This is a beginner foundation for a tank drivetrain; a field-ready curved path also needs a calibrated localizer and a path-following library.
 
-## Why Motion Planning Matters
+![Plan an autonomous route as a sequence of start, score, and park goals.](/guides/autonomous-route.svg)
 
-Without motion planning:
-- Robot crashes into field elements
-- Takes inefficient paths (wastes time)
-- Movements look jerky and unprofessional
+## Step 1: Write the route before writing code
 
-With motion planning:
-- Smooth, efficient paths
-- Optimized for speed and precision
-- Looks professional and controlled
+Describe the route in plain language first:
 
-## Types of Motion Planning
+1. Start at the marked starting pose.
+2. Move forward to the scoring area.
+3. Open the claw and give the game piece time to release.
+4. Back away to the parking area.
 
-### 1. Waypoint-Based Planning
+This list is an **action sequence**. Each movement should have a distance or target pose, a speed limit, and a condition that says when it is done. Keep the first route short enough to test on blocks and in a clear practice area.
 
-The robot follows a sequence of **waypoints** (specific coordinates) to reach the goal.
+## Step 2: Measure how encoder ticks map to distance
 
-**How it works:**
-1. Define key positions on the field
-2. Robot navigates to each waypoint in sequence
-3. Uses odometry to track progress
+The code needs `COUNTS_PER_INCH` for the actual drivetrain. Measure it by driving a known distance slowly, reading the encoder change, and dividing ticks by inches. Do not copy another robot's number: gearing, wheel size, and load change the result.
+
+The example below expects both drive encoders to increase when the robot moves forward. Fix motor direction or encoder sign during a low-power check if that is not true.
+
+## Step 3: Make one movement complete before the next starts
+
+This first implementation uses `RUN_TO_POSITION`. The motors handle the encoder target; the OpMode checks whether both sides finished before starting the next action. `RUN_TO_POSITION` is useful for simple straight moves, but it does not know the robot's field pose and wheel slip can still change where the robot ends up.
+
+Add this helper inside your `LinearOpMode` class. The timeout is a safeguard; adjust it only after measuring a safe expected move time.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
+
 ```java
-@Autonomous(name = "Waypoint Example")
-public class WaypointAuto extends LinearOpMode {
-    
-    @Override
-    public void runOpMode() {
-        Odometry odometry = new Odometry(/* setup */);
-        
-        // Define waypoints (x, y, heading)
-        Pose2D[] waypoints = {
-            new Pose2D(0, 0, 0),      // Start
-            new Pose2D(24, 12, 45),   // Intermediate point
-            new Pose2D(48, 24, 90),   // Scoring position
-            new Pose2D(60, 36, 180)   // Park
-        };
-        
-        waitForStart();
-        
-        for (Pose2D waypoint : waypoints) {
-            goToWaypoint(waypoint, odometry);
-        }
+private static final double COUNTS_PER_INCH = 50.0; // Measure on your robot
+private DcMotor leftDrive;
+private DcMotor rightDrive;
+
+private boolean driveInches(double inches, double power) {
+    int leftTarget = leftDrive.getCurrentPosition()
+        + (int) Math.round(inches * COUNTS_PER_INCH);
+    int rightTarget = rightDrive.getCurrentPosition()
+        + (int) Math.round(inches * COUNTS_PER_INCH);
+
+    leftDrive.setTargetPosition(leftTarget);
+    rightDrive.setTargetPosition(rightTarget);
+    leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    leftDrive.setPower(Math.abs(power));
+    rightDrive.setPower(Math.abs(power));
+
+    ElapsedTime timer = new ElapsedTime();
+    while (opModeIsActive()
+            && (leftDrive.isBusy() || rightDrive.isBusy())
+            && timer.seconds() < 4.0) {
+        telemetry.addData("Left ticks", leftDrive.getCurrentPosition());
+        telemetry.addData("Right ticks", rightDrive.getCurrentPosition());
+        telemetry.update();
+        idle();
     }
-    
-    private void goToWaypoint(Pose2D target, Odometry odom) {
-        while (opModeIsActive()) {
-            odom.update();
-            
-            double errorX = target.x - odom.getX();
-            double errorY = target.y - odom.getY();
-            double distance = Math.hypot(errorX, errorY);
-            
-            if (distance < 2.0) break; // Close enough
-            
-            // Drive toward waypoint
-            double angleToTarget = Math.atan2(errorY, errorX);
-            double forward = Math.cos(angleToTarget - odom.getHeading()) * 0.5;
-            double strafe = Math.sin(angleToTarget - odom.getHeading()) * 0.5;
-            
-            drivetrain.drive(forward, strafe, 0);
-        }
-        drivetrain.stop();
-    }
+
+    boolean reachedTarget = !leftDrive.isBusy() && !rightDrive.isBusy();
+    leftDrive.setPower(0.0);
+    rightDrive.setPower(0.0);
+    leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    return opModeIsActive() && reachedTarget;
 }
 ```
+
 </Tab>
 <Tab value="Kotlin">
+
 ```kotlin
-@Autonomous(name = "Waypoint Example")
-class WaypointAuto : LinearOpMode() {
-    
-    override fun runOpMode() {
-        val odometry = Odometry(/* setup */)
-        
-        // Define waypoints (x, y, heading)
-        val waypoints = listOf(
-            Pose2D(0.0, 0.0, 0.0),      // Start
-            Pose2D(24.0, 12.0, 45.0),   // Intermediate point
-            Pose2D(48.0, 24.0, 90.0),   // Scoring position
-            Pose2D(60.0, 36.0, 180.0)   // Park
-        )
-        
-        waitForStart()
-        
-        for (waypoint in waypoints) {
-            goToWaypoint(waypoint, odometry)
-        }
+private const val COUNTS_PER_INCH = 50.0 // Measure on your robot
+private lateinit var leftDrive: DcMotor
+private lateinit var rightDrive: DcMotor
+
+private fun driveInches(inches: Double, power: Double): Boolean {
+    val leftTarget = leftDrive.currentPosition + (inches * COUNTS_PER_INCH).roundToInt()
+    val rightTarget = rightDrive.currentPosition + (inches * COUNTS_PER_INCH).roundToInt()
+
+    leftDrive.targetPosition = leftTarget
+    rightDrive.targetPosition = rightTarget
+    leftDrive.mode = DcMotor.RunMode.RUN_TO_POSITION
+    rightDrive.mode = DcMotor.RunMode.RUN_TO_POSITION
+    leftDrive.power = abs(power)
+    rightDrive.power = abs(power)
+
+    val timer = ElapsedTime()
+    while (opModeIsActive() && (leftDrive.isBusy || rightDrive.isBusy) && timer.seconds() < 4.0) {
+        telemetry.addData("Left ticks", leftDrive.currentPosition)
+        telemetry.addData("Right ticks", rightDrive.currentPosition)
+        telemetry.update()
+        idle()
     }
-    
-    private fun goToWaypoint(target: Pose2D, odom: Odometry) {
-        while (opModeIsActive()) {
-            odom.update()
-            
-            val errorX = target.x - odom.x
-            val errorY = target.y - odom.y
-            val distance = hypot(errorX, errorY)
-            
-            if (distance < 2.0) return // Close enough
-            
-            // Drive toward waypoint
-            val angleToTarget = atan2(errorY, errorX)
-            val forward = cos(angleToTarget - odom.heading) * 0.5
-            val strafe = sin(angleToTarget - odom.heading) * 0.5
-            
-            drivetrain.drive(forward, strafe, 0.0)
-        }
-        drivetrain.stop()
-    }
+
+    val reachedTarget = !leftDrive.isBusy && !rightDrive.isBusy
+    leftDrive.power = 0.0
+    rightDrive.power = 0.0
+    leftDrive.mode = DcMotor.RunMode.RUN_USING_ENCODER
+    rightDrive.mode = DcMotor.RunMode.RUN_USING_ENCODER
+    return opModeIsActive() && reachedTarget
 }
 ```
+
 </Tab>
 </Tabs>
 
-**Pros:**
-- Simple to understand
-- Easy to debug (telemetry shows current waypoint)
-- Works with any drivetrain type
+Read the helper in four parts: calculate targets from the current counts, ask the motors to run to those targets, keep the OpMode responsive while they move, and stop/restore the motors before returning. Passing a negative distance makes both targets lower than their current counts, so the robot backs up. Your motor directions and encoder signs must be verified for that to mean physical reverse.
 
-**Cons:**
-- Robot stops at each waypoint (inefficient)
-- Sharp turns between points
-- Not optimized for speed
+## Step 4: Connect the route to a real OpMode
 
-**Best for:** Beginner teams, simple autonomous routines
-
-### 2. Spline-Based Planning (Bézier Curves)
-
-Uses **Bézier curves** to create smooth, continuous paths without stopping at waypoints.
-
-**How it works:**
-1. Define control points that shape the curve
-2. Generate a smooth path through those points
-3. Robot follows the curve continuously
-
-Libraries like **Pedro Pathing** and **Road Runner** use this approach.
-
-**Example using Pedro Pathing:**
+This example assumes configured hardware names `leftDrive`, `rightDrive`, and `claw`. Change them to match Robot Configuration. Set each motor direction for your drivetrain; the direction shown is only an example.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
+
 ```java
-@Autonomous(name = "Spline Example")
-public class SplineAuto extends LinearOpMode {
-    
+@Autonomous(name = "Plan: Score and Park")
+public class ScoreAndParkAuto extends LinearOpMode {
+    private static final double COUNTS_PER_INCH = 50.0; // Measure on your robot
+    private DcMotor leftDrive;
+    private DcMotor rightDrive;
+    private Servo claw;
+
     @Override
     public void runOpMode() {
-        Follower follower = new Follower(hardwareMap);
-        
-        // Create smooth path with Bézier curves
-        Path scoringPath = new Path(
-            new BezierLine(
-                new Point(0, 0, Point.CARTESIAN),
-                new Point(48, 24, Point.CARTESIAN)
-            )
-        );
-        scoringPath.setConstantHeadingInterpolation(Math.toRadians(90));
-        
+        leftDrive = hardwareMap.get(DcMotor.class, "leftDrive");
+        rightDrive = hardwareMap.get(DcMotor.class, "rightDrive");
+        claw = hardwareMap.get(Servo.class, "claw");
+
+        leftDrive.setDirection(DcMotorSimple.Direction.REVERSE); // Verify on blocks
+        rightDrive.setDirection(DcMotorSimple.Direction.FORWARD); // Verify on blocks
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        telemetry.addLine("Check the robot is at its marked start pose.");
+        telemetry.update();
         waitForStart();
-        
-        follower.followPath(scoringPath);
-        
-        while (opModeIsActive() && follower.isBusy()) {
-            follower.update();
-        }
+        if (!opModeIsActive()) return;
+
+        // Route action 1: travel to the scoring area.
+        if (!driveInches(24.0, 0.30)) return;
+
+        // Route action 2: release the game piece.
+        claw.setPosition(0.75); // Measure safe claw positions for your linkage.
+        sleep(300);
+
+        // Route action 3: back away toward the parking area.
+        driveInches(-12.0, 0.25);
     }
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-@Autonomous(name = "Spline Example")
-class SplineAuto : LinearOpMode() {
-    
-    override fun runOpMode() {
-        val follower = Follower(hardwareMap)
-        
-        // Create smooth path with Bézier curves
-        val scoringPath = Path(
-            BezierLine(
-                Point(0.0, 0.0, Point.CARTESIAN),
-                Point(48.0, 24.0, Point.CARTESIAN)
-            )
-        ).apply {
-            setConstantHeadingInterpolation(Math.toRadians(90.0))
-        }
-        
-        waitForStart()
-        
-        follower.followPath(scoringPath)
-        
-        while (opModeIsActive() && follower.isBusy()) {
-            follower.update()
-        }
-    }
-}
-```
-</Tab>
-</Tabs>
 
-**Pros:**
-- Smooth, continuous movement
-- No stopping between waypoints
-- Professional-looking paths
-- Faster autonomous times
+    private boolean driveInches(double inches, double power) {
+        int leftTarget = leftDrive.getCurrentPosition()
+            + (int) Math.round(inches * COUNTS_PER_INCH);
+        int rightTarget = rightDrive.getCurrentPosition()
+            + (int) Math.round(inches * COUNTS_PER_INCH);
 
-**Cons:**
-- More complex to tune
-- Requires path following library
-- Harder to debug
+        leftDrive.setTargetPosition(leftTarget);
+        rightDrive.setTargetPosition(rightTarget);
+        leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftDrive.setPower(Math.abs(power));
+        rightDrive.setPower(Math.abs(power));
 
-**Best for:** Competitive teams, speed-optimized autonomous
-
-### 3. Pure Pursuit
-
-A **path following algorithm** that "chases" a look-ahead point on the path. See the dedicated **[Pure Pursuit](/docs/autonomous/pure-pursuit)** page for details.
-
-**Best for:** Smooth curved paths, mecanum/X-drive robots
-
-### 4. State Machine Planning
-
-Combines **decision-making** with path planning. Robot changes behavior based on game state or sensor feedback.
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-public enum AutoState {
-    DETECT_MOTIF,
-    DRIVE_TO_OBELISK,
-    SCORE_ARTIFACT,
-    PARK
-}
-
-@Autonomous(name = "State Machine Auto")
-public class StateMachineAuto extends LinearOpMode {
-    private AutoState currentState = AutoState.DETECT_MOTIF;
-    
-    @Override
-    public void runOpMode() {
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            switch (currentState) {
-                case DETECT_MOTIF:
-                    if (detectMotifWithVision()) {
-                        currentState = AutoState.DRIVE_TO_OBELISK;
-                    }
-                    break;
-                    
-                case DRIVE_TO_OBELISK:
-                    if (driveToPosition(24, 36)) {
-                        currentState = AutoState.SCORE_ARTIFACT;
-                    }
-                    break;
-                    
-                case SCORE_ARTIFACT:
-                    if (scoreArtifact()) {
-                        currentState = AutoState.PARK;
-                    }
-                    break;
-                    
-                case PARK:
-                    driveToPosition(60, 60);
-                    break;
-            }
-            
-            telemetry.addData("State", currentState);
+        ElapsedTime timer = new ElapsedTime();
+        while (opModeIsActive()
+                && (leftDrive.isBusy() || rightDrive.isBusy())
+                && timer.seconds() < 4.0) {
+            telemetry.addData("Target inches", "%.1f", inches);
+            telemetry.addData("Left ticks", leftDrive.getCurrentPosition());
+            telemetry.addData("Right ticks", rightDrive.getCurrentPosition());
             telemetry.update();
+            idle();
         }
+
+        boolean reachedTarget = !leftDrive.isBusy() && !rightDrive.isBusy();
+        leftDrive.setPower(0.0);
+        rightDrive.setPower(0.0);
+        leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        return opModeIsActive() && reachedTarget;
     }
 }
 ```
+
 </Tab>
 <Tab value="Kotlin">
-```kotlin
-enum class AutoState {
-    DETECT_MOTIF,
-    DRIVE_TO_OBELISK,
-    SCORE_ARTIFACT,
-    PARK
-}
 
-@Autonomous(name = "State Machine Auto")
-class StateMachineAuto : LinearOpMode() {
-    private var currentState = AutoState.DETECT_MOTIF
-    
+```kotlin
+@Autonomous(name = "Plan: Score and Park")
+class ScoreAndParkAuto : LinearOpMode() {
+    companion object { private const val COUNTS_PER_INCH = 50.0 }
+
+    private lateinit var leftDrive: DcMotor
+    private lateinit var rightDrive: DcMotor
+    private lateinit var claw: Servo
+
     override fun runOpMode() {
+        leftDrive = hardwareMap.get(DcMotor::class.java, "leftDrive")
+        rightDrive = hardwareMap.get(DcMotor::class.java, "rightDrive")
+        claw = hardwareMap.get(Servo::class.java, "claw")
+
+        leftDrive.direction = DcMotorSimple.Direction.REVERSE // Verify on blocks
+        rightDrive.direction = DcMotorSimple.Direction.FORWARD // Verify on blocks
+        leftDrive.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        rightDrive.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        leftDrive.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        rightDrive.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        leftDrive.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        rightDrive.mode = DcMotor.RunMode.RUN_USING_ENCODER
+
+        telemetry.addLine("Check the robot is at its marked start pose.")
+        telemetry.update()
         waitForStart()
-        
-        while (opModeIsActive()) {
-            when (currentState) {
-                AutoState.DETECT_MOTIF -> {
-                    if (detectMotifWithVision()) {
-                        currentState = AutoState.DRIVE_TO_OBELISK
-                    }
-                }
-                
-                AutoState.DRIVE_TO_OBELISK -> {
-                    if (driveToPosition(24.0, 36.0)) {
-                        currentState = AutoState.SCORE_ARTIFACT
-                    }
-                }
-                
-                AutoState.SCORE_ARTIFACT -> {
-                    if (scoreArtifact()) {
-                        currentState = AutoState.PARK
-                    }
-                }
-                
-                AutoState.PARK -> {
-                    driveToPosition(60.0, 60.0)
-                }
-            }
-            
-            telemetry.addData("State", currentState)
+        if (!opModeIsActive()) return
+
+        if (!driveInches(24.0, 0.30)) return
+        claw.position = 0.75 // Measure safe claw positions for your linkage.
+        sleep(300)
+        driveInches(-12.0, 0.25)
+    }
+
+    private fun driveInches(inches: Double, power: Double): Boolean {
+        val leftTarget = leftDrive.currentPosition + (inches * COUNTS_PER_INCH).roundToInt()
+        val rightTarget = rightDrive.currentPosition + (inches * COUNTS_PER_INCH).roundToInt()
+        leftDrive.targetPosition = leftTarget
+        rightDrive.targetPosition = rightTarget
+        leftDrive.mode = DcMotor.RunMode.RUN_TO_POSITION
+        rightDrive.mode = DcMotor.RunMode.RUN_TO_POSITION
+        leftDrive.power = abs(power)
+        rightDrive.power = abs(power)
+
+        val timer = ElapsedTime()
+        while (opModeIsActive() && (leftDrive.isBusy || rightDrive.isBusy) && timer.seconds() < 4.0) {
+            telemetry.addData("Target inches", "%.1f", inches)
+            telemetry.addData("Left ticks", leftDrive.currentPosition)
+            telemetry.addData("Right ticks", rightDrive.currentPosition)
             telemetry.update()
+            idle()
         }
+
+        val reachedTarget = !leftDrive.isBusy && !rightDrive.isBusy
+        leftDrive.power = 0.0
+        rightDrive.power = 0.0
+        leftDrive.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        rightDrive.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        return opModeIsActive() && reachedTarget
     }
 }
 ```
+
 </Tab>
 </Tabs>
 
-**Pros:**
-- Clear structure (easy to understand)
-- Handles complex decision trees
-- Easy to modify and debug
-- Adapts to sensor feedback
+If a move times out, `driveInches` returns `false`; the route stops instead of blindly starting its next step. For competition code, also put motor shutdown in `finally` so outputs are set to zero if the OpMode exits unexpectedly. Check the FTC SDK's `DcMotor` sample for API details in your installed SDK version.
 
-**Cons:**
-- Can get complex with many states
-- Requires careful state transition logic
+## Step 5: Add turns and curves with the right tool
 
-**Best for:** Complex autonomous with vision, sensor-driven decisions
+The example only drives straight. To add a turn, measure the robot's heading with an IMU and close the loop on a target angle, or calibrate an encoder turn carefully. Do not pretend that two straight encoder moves create an accurate field path: wheel slip makes the position estimate drift.
 
-## Path Planning Tips
+For smooth curves or routes defined in field coordinates, first calibrate localization, then use a maintained library such as [Pedro Pathing](../libraries/pedro-pathing) or [Road Runner](https://rr.brott.dev/). Those libraries take poses and paths and update a follower each loop. Their current setup steps are version-specific; use the matching official Quickstart rather than copying old examples.
 
-### 1. Start Simple
+## Why teams use states for larger routes
 
-Don't jump to complex splines on day one:
-- **Week 1-2:** Drive straight, turn, drive straight
-- **Week 3-4:** Waypoint-based navigation
-- **Week 5+:** Splines and advanced following
+The example above waits for each straight move to finish. That is easy to read, but it also blocks other work while driving. A larger routine can instead use a **state machine**: each loop performs a small amount of work, then changes to the next state when its condition is met. This lets the robot drive while an intake or arm runs at the same time.
 
-### 2. Visualize Your Paths
+To see the difference, here is the same drive, release, and park routine written as a non-blocking encoder state machine. `beginDriveInches()` starts a move and returns immediately. Each pass through the loop checks whether that move finished, so the OpMode can also read sensors or update an arm while the robot is driving.
 
-Use **FTC Dashboard** or **Pedro Pathing GUI** to draw paths on a field overlay:
-- See where robot will go
-- Catch path errors before running code
-- Tune curves visually
+Add these fields and helpers to the `LinearOpMode` class from Step 4. They use the same motors and `COUNTS_PER_INCH` value:
 
-### 3. Account for Robot Size
-
-Your robot has **width and length** — plan paths that keep the robot fully inside legal zones!
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
 
 ```java
-// Bad: drives too close to wall
-goToPoint(72, 36); // Robot will hit wall!
+private final ElapsedTime moveTimer = new ElapsedTime();
+private boolean moveTimedOut;
 
-// Good: accounts for 18" robot width
-goToPoint(63, 36); // 9" clearance from wall
+private void beginDriveInches(double inches, double power) {
+    int leftTarget = leftDrive.getCurrentPosition()
+        + (int) Math.round(inches * COUNTS_PER_INCH);
+    int rightTarget = rightDrive.getCurrentPosition()
+        + (int) Math.round(inches * COUNTS_PER_INCH);
+
+    leftDrive.setTargetPosition(leftTarget);
+    rightDrive.setTargetPosition(rightTarget);
+    leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    leftDrive.setPower(Math.abs(power));
+    rightDrive.setPower(Math.abs(power));
+    moveTimedOut = false;
+    moveTimer.reset();
+}
+
+private boolean driveMoveFinished() {
+    boolean atTarget = !leftDrive.isBusy() && !rightDrive.isBusy();
+    if (!atTarget && moveTimer.seconds() < 4.0) return false;
+
+    moveTimedOut = !atTarget;
+    stopDrive();
+    return true;
+}
+
+private void stopDrive() {
+    leftDrive.setPower(0.0);
+    rightDrive.setPower(0.0);
+    leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+}
 ```
 
-### 4. Optimize for Time
+</Tab>
+<Tab value="Kotlin">
 
-**Fastest path ≠ shortest path**
+```kotlin
+private val moveTimer = ElapsedTime()
+private var moveTimedOut = false
 
-Consider:
-- Acceleration/deceleration time
-- Sharp turns slow you down
-- Smooth curves maintain speed
+private fun beginDriveInches(inches: Double, power: Double) {
+    val leftTarget = leftDrive.currentPosition + (inches * COUNTS_PER_INCH).roundToInt()
+    val rightTarget = rightDrive.currentPosition + (inches * COUNTS_PER_INCH).roundToInt()
+    leftDrive.targetPosition = leftTarget
+    rightDrive.targetPosition = rightTarget
+    leftDrive.mode = DcMotor.RunMode.RUN_TO_POSITION
+    rightDrive.mode = DcMotor.RunMode.RUN_TO_POSITION
+    leftDrive.power = abs(power)
+    rightDrive.power = abs(power)
+    moveTimedOut = false
+    moveTimer.reset()
+}
 
-### 5. Plan for Failure
+private fun driveMoveFinished(): Boolean {
+    val atTarget = !leftDrive.isBusy && !rightDrive.isBusy
+    if (!atTarget && moveTimer.seconds() < 4.0) return false
+    moveTimedOut = !atTarget
+    stopDrive()
+    return true
+}
 
-Always have a **backup plan**:
-- If vision fails, use encoder-based fallback
-- If path is blocked, switch to alternate route
-- If mechanism jams, skip task and continue
+private fun stopDrive() {
+    leftDrive.power = 0.0
+    rightDrive.power = 0.0
+    leftDrive.mode = DcMotor.RunMode.RUN_USING_ENCODER
+    rightDrive.mode = DcMotor.RunMode.RUN_USING_ENCODER
+}
+```
 
-## Comparison of Planning Methods
+</Tab>
+</Tabs>
 
-| Method | Speed | Complexity | Accuracy | Best Use Case |
-|--------|-------|------------|----------|---------------|
-| **Waypoints** | ⭐⭐ | ⭐ | ⭐⭐⭐ | Simple autonomous, beginners |
-| **Splines** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Competitive teams, fast cycles |
-| **Pure Pursuit** | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | Curved paths, mecanum drive |
-| **State Machine** | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Complex logic, vision-based |
+Then replace the blocking route after `waitForStart()` with this loop:
 
-## Common Mistakes
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
 
-**Planning paths without testing** — Always test on actual field  
-**Ignoring robot dimensions** — Account for bumpers and mechanisms  
-**No backup routes** — Vision/sensor failure should have fallback  
-**Over-optimizing early season** — Get reliable first, then optimize  
-**Forgetting alliance color** — Red and blue sides need different paths  
+```java
+enum AutoStep { DRIVE_TO_SCORE, RELEASE, DRIVE_TO_PARK, DONE }
+AutoStep step = AutoStep.DRIVE_TO_SCORE;
+ElapsedTime stateTimer = new ElapsedTime();
 
-## Next Steps
+beginDriveInches(24.0, 0.30); // Start the first movement once.
 
-Ready to implement smooth path following? Learn **[Pure Pursuit](/docs/autonomous/pure-pursuit)** for curved paths, or explore **[Sensor Fusion](/docs/autonomous/sensor-fusion)** to improve localization accuracy!
+while (opModeIsActive() && step != AutoStep.DONE) {
+    switch (step) {
+        case DRIVE_TO_SCORE:
+            if (driveMoveFinished()) {
+                if (moveTimedOut) {
+                    telemetry.addLine("Score movement timed out; ending route.");
+                    step = AutoStep.DONE;
+                } else {
+                    claw.setPosition(0.75);
+                    stateTimer.reset();
+                    step = AutoStep.RELEASE;
+                }
+            }
+            break;
 
-## Additional Resources
+        case RELEASE:
+            if (stateTimer.seconds() >= 0.30) {
+                beginDriveInches(-12.0, 0.25);
+                step = AutoStep.DRIVE_TO_PARK;
+            }
+            break;
 
-- [Pedro Pathing Documentation](https://pedropathing.com)
-- [Road Runner Documentation](https://acme-robotics.gitbook.io/road-runner/)
-- [gm0: Motion Planning](https://gm0.org/en/latest/docs/software/concepts/control-loops.html)
-- [FTC Dashboard for Path Visualization](https://acmerobotics.github.io/ftc-dashboard/)
+        case DRIVE_TO_PARK:
+            if (driveMoveFinished()) {
+                if (moveTimedOut) telemetry.addLine("Park movement timed out.");
+                step = AutoStep.DONE;
+            }
+            break;
+
+        case DONE:
+            break;
+    }
+
+    telemetry.addData("Step", step);
+    telemetry.addData("Move time", "%.1f s", moveTimer.seconds());
+    telemetry.update();
+    idle();
+}
+stopDrive();
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+enum class AutoStep { DRIVE_TO_SCORE, RELEASE, DRIVE_TO_PARK, DONE }
+var step = AutoStep.DRIVE_TO_SCORE
+val stateTimer = ElapsedTime()
+
+beginDriveInches(24.0, 0.30) // Start the first movement once.
+while (opModeIsActive() && step != AutoStep.DONE) {
+    when (step) {
+        AutoStep.DRIVE_TO_SCORE -> if (driveMoveFinished()) {
+            if (moveTimedOut) {
+                telemetry.addLine("Score movement timed out; ending route.")
+                step = AutoStep.DONE
+            } else {
+                claw.position = 0.75
+                stateTimer.reset()
+                step = AutoStep.RELEASE
+            }
+        }
+        AutoStep.RELEASE -> if (stateTimer.seconds() >= 0.30) {
+            beginDriveInches(-12.0, 0.25)
+            step = AutoStep.DRIVE_TO_PARK
+        }
+        AutoStep.DRIVE_TO_PARK -> if (driveMoveFinished()) {
+            if (moveTimedOut) telemetry.addLine("Park movement timed out.")
+            step = AutoStep.DONE
+        }
+        AutoStep.DONE -> Unit
+    }
+
+    telemetry.addData("Step", step)
+    telemetry.addData("Move time", "%.1f s", moveTimer.seconds())
+    telemetry.update()
+    idle()
+}
+stopDrive()
+```
+
+</Tab>
+</Tabs>
+
+Follow the flow: start a move once, check it on each loop, start the claw timer when the move ends, then start the next move when that timer expires. The four-second timeout is only a cautious example and must be chosen for your robot. Test each distance and timeout at low power. Because the loop keeps running during a move, you can add other small updates there, such as reading an arm encoder; do not start the same drive command again on every loop. For curved field paths, the [Pedro Pathing guide](../libraries/pedro-pathing) shows a maintained library follower that also updates continuously.
+
+## Test the plan in stages
+
+1. Run the route with the robot raised and verify each wheel turns in the expected direction.
+2. On the floor, test only the first short movement at low power.
+3. Measure the actual distance and calibrate `COUNTS_PER_INCH`.
+4. Add one route action at a time and verify the robot really reached the intended location.
+5. Repeat the whole route from the marked start with a charged battery and the expected game-piece load.
+
+An encoder reaching its target does not prove the robot arrived at the right field coordinate. Check the physical endpoint, localization drift, and whether the route leaves enough room for the robot's full size.
+
+## Further reading
+
+- [Odometry](./odometry) — estimate field position from movement.
+- [Pure Pursuit](./pure-pursuit) — understand one path-following approach.
+- [Pedro Pathing](../libraries/pedro-pathing) — implement paths with a current FTC library.
+- [FTC Dashboard](../libraries/ftc-dashboard) — inspect telemetry while tuning.

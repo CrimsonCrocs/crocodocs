@@ -1,144 +1,63 @@
 ---
 title: FTC Dashboard
-description: Real-time telemetry, configuration, and debugging tool
+description: Official FTC Dashboard features, setup, and version notes
 icon: ChartLine
 ---
 
-## What is FTC Dashboard?
+## What it does
 
-**FTC Dashboard** is a real-time debugging and configuration tool that runs in your web browser. It lets you see telemetry data, adjust variables on-the-fly, send commands to your robot, and even view camera streams — all without touching your phone or Driver Station.
+[FTC Dashboard](https://acmerobotics.github.io/ftc-dashboard/) is a web dashboard for FTC robot development. The official project lists live telemetry, plots and field graphics, live configuration variables, camera streaming, custom layouts, and telemetry CSV export. Browser gamepad support is described by the project as volatile because it depends on browser APIs.
 
-Think of it like Chrome DevTools, but for your FTC robot.
+## Install the current release
 
-## Why Use FTC Dashboard?
-
-**Real-Time Debugging:**
-- See all telemetry in a clean web interface
-- No squinting at tiny phone screens
-- Graphs for visualizing sensor data
-- Save telemetry logs for later analysis
-
-**Live Tuning:**
-- Adjust PID constants without redeploying code
-- Change autonomous positions on the fly
-- Test different configurations instantly
-- No more "compile, deploy, test, repeat"
-
-**Camera View:**
-- Stream camera feed to browser
-- See exactly what your vision pipeline detects
-- Debug AprilTag and color detection
-- Draw debug information on the camera feed
-
-**Field View:**
-- Visualize robot position on a field map
-- See path planning in real-time
-- Perfect for autonomous debugging
-
-## Installation
-
-### Step 1: Add the Dependency
-
-In your `build.gradle` (Module: TeamCode):
+Follow the official [installation instructions](https://github.com/acmerobotics/ftc-dashboard#installation) and use the repository and dependency version listed there. At the time this page was reviewed, the project README showed `com.acmerobotics.dashboard:dashboard:0.6.0` from `https://maven.brott.dev/`; confirm the release page before updating because dashboard releases track FTC SDK changes.
 
 ```groovy
+repositories {
+    maven { url = 'https://maven.brott.dev/' }
+}
+
 dependencies {
-    implementation 'com.acmerobotics.dashboard:dashboard:0.4.15'
-    // Check GitHub for latest version
+    implementation 'com.acmerobotics.dashboard:dashboard:0.6.0'
 }
 ```
 
-### Step 2: Sync Project
+If your SDK project already has this repository, do not add a duplicate. Some non-standard SDK setups need a different dependency declaration; use the official instructions for those projects.
 
-Click "Sync Now" in Android Studio.
+## Send telemetry
 
-### Step 3: Connect to Dashboard
-
-1. Make sure your computer and Control Hub are on the same network
-2. Open a web browser
-3. Go to: `http://192.168.43.1:8080/dash` (or your Control Hub's IP address)
-
-That's it! Dashboard is now running.
-
-## Basic Usage
-
-### Sending Telemetry
+A `TelemetryPacket` lets an OpMode send key/value data to the dashboard. The official README and examples are the reference for the exact API in your installed release.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-
-@TeleOp(name = "Dashboard Example")
-public class DashboardExample extends LinearOpMode {
-    @Override
-    public void runOpMode() {
-        FtcDashboard dashboard = FtcDashboard.getInstance();
-        DcMotor motor = hardwareMap.get(DcMotor.class, "motor");
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            TelemetryPacket packet = new TelemetryPacket();
-            
-            // Add data to dashboard
-            packet.put("Motor Power", motor.getPower());
-            packet.put("Motor Position", motor.getCurrentPosition());
-            packet.put("Loop Time", getRuntime());
-            
-            // Send to dashboard
-            dashboard.sendTelemetryPacket(packet);
-            
-            // Also show on Driver Station
-            telemetry.addData("Motor Power", motor.getPower());
-            telemetry.update();
-        }
-    }
-}
+FtcDashboard dashboard = FtcDashboard.getInstance();
+TelemetryPacket packet = new TelemetryPacket();
+packet.put("arm position", armMotor.getCurrentPosition());
+dashboard.sendTelemetryPacket(packet);
 ```
 
 </Tab>
 <Tab value="Kotlin">
 
 ```kotlin
-import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-
-@TeleOp(name = "Dashboard Example")
-class DashboardExample : LinearOpMode() {
-    override fun runOpMode() {
-        val dashboard = FtcDashboard.getInstance()
-        val motor = hardwareMap.get(DcMotor::class.java, "motor")
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            val packet = TelemetryPacket()
-            
-            // Add data to dashboard
-            packet.put("Motor Power", motor.power)
-            packet.put("Motor Position", motor.currentPosition)
-            packet.put("Loop Time", runtime)
-            
-            // Send to dashboard
-            dashboard.sendTelemetryPacket(packet)
-            
-            // Also show on Driver Station
-            telemetry.addData("Motor Power", motor.power)
-            telemetry.update()
-        }
-    }
-}
+val dashboard = FtcDashboard.getInstance()
+val packet = TelemetryPacket()
+packet.put("arm position", armMotor.currentPosition)
+dashboard.sendTelemetryPacket(packet)
 ```
 
 </Tab>
 </Tabs>
 
-## Configuration Variables
+You can continue sending essential information to Driver Station telemetry as well. Avoid sending unnecessary data every loop; test loop timing on the robot.
 
-Use `@Config` to make variables adjustable from the dashboard:
+## Tune a value while the OpMode runs
+
+The dashboard's `@Config` annotation exposes mutable `public static` Java fields. Read the field where you use it if you want the latest value to take effect immediately. If you copy a value into another variable during initialization, that copy will not automatically change when you edit the dashboard field.
+
+Create a constants class:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
@@ -147,35 +66,9 @@ Use `@Config` to make variables adjustable from the dashboard:
 import com.acmerobotics.dashboard.config.Config;
 
 @Config
-@TeleOp(name = "PID Tuning")
-public class PIDTuning extends LinearOpMode {
-    // These can be adjusted in the dashboard!
-    public static double kP = 0.05;
-    public static double kI = 0.01;
-    public static double kD = 0.004;
-    
-    public static int targetPosition = 1000;
-    
-    @Override
-    public void runOpMode() {
-        DcMotor armMotor = hardwareMap.get(DcMotor.class, "arm");
-        PIDController pid = new PIDController(kP, kI, kD);
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            // Update PID with dashboard values
-            pid.setCoefficients(kP, kI, kD);
-            
-            double power = pid.calculate(targetPosition, armMotor.getCurrentPosition());
-            armMotor.setPower(power);
-            
-            telemetry.addData("Position", armMotor.getCurrentPosition());
-            telemetry.addData("Target", targetPosition);
-            telemetry.addData("Power", power);
-            telemetry.update();
-        }
-    }
+public class ArmTuning {
+    public static double KP = 0.003;
+    public static double TARGET_DEGREES = 30.0;
 }
 ```
 
@@ -186,409 +79,71 @@ public class PIDTuning extends LinearOpMode {
 import com.acmerobotics.dashboard.config.Config
 
 @Config
-@TeleOp(name = "PID Tuning")
-class PIDTuning : LinearOpMode() {
-    companion object {
-        // These can be adjusted in the dashboard!
-        @JvmField var kP = 0.05
-        @JvmField var kI = 0.01
-        @JvmField var kD = 0.004
-        
-        @JvmField var targetPosition = 1000
-    }
-    
-    override fun runOpMode() {
-        val armMotor = hardwareMap.get(DcMotor::class.java, "arm")
-        val pid = PIDController(kP, kI, kD)
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            // Update PID with dashboard values
-            pid.setCoefficients(kP, kI, kD)
-            
-            val power = pid.calculate(targetPosition.toDouble(), armMotor.currentPosition.toDouble())
-            armMotor.power = power
-            
-            telemetry.addData("Position", armMotor.currentPosition)
-            telemetry.addData("Target", targetPosition)
-            telemetry.addData("Power", power)
-            telemetry.update()
-        }
-    }
+object ArmTuning {
+    @JvmField var KP = 0.003
+    @JvmField var TARGET_DEGREES = 30.0
 }
 ```
 
 </Tab>
 </Tabs>
 
-Now you can tune PID values in real-time from your browser!
-
-## Field Overlay
-
-Draw robot position and paths on a field diagram:
+Then read those fields in the control loop and send what the robot is doing:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.canvas.Canvas;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+double currentDegrees = arm.getCurrentPosition() / COUNTS_PER_DEGREE;
+double error = ArmTuning.TARGET_DEGREES - currentDegrees;
+double power = Math.max(-0.25, Math.min(0.25, ArmTuning.KP * error));
+arm.setPower(power);
 
-@Autonomous(name = "Field Overlay")
-public class FieldOverlay extends LinearOpMode {
-    @Override
-    public void runOpMode() {
-        FtcDashboard dashboard = FtcDashboard.getInstance();
-        
-        waitForStart();
-        
-        double x = 0, y = 0, heading = 0;
-        
-        while (opModeIsActive()) {
-            // Update robot position (from odometry/localization)
-            x += 0.5;  // Example: moving forward
-            
-            TelemetryPacket packet = new TelemetryPacket();
-            Canvas canvas = packet.fieldOverlay();
-            
-            // Draw robot position
-            canvas.setStroke("#3F51B5");  // Blue
-            canvas.strokeCircle(x, y, 9);  // Robot as a circle
-            
-            // Draw heading line
-            double headingX = x + 9 * Math.cos(heading);
-            double headingY = y + 9 * Math.sin(heading);
-            canvas.strokeLine(x, y, headingX, headingY);
-            
-            // Draw target position
-            canvas.setStroke("#FF5722");  // Red
-            canvas.strokeCircle(48, 48, 5);
-            
-            packet.put("X", x);
-            packet.put("Y", y);
-            packet.put("Heading", Math.toDegrees(heading));
-            
-            dashboard.sendTelemetryPacket(packet);
-        }
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.canvas.Canvas
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-
-@Autonomous(name = "Field Overlay")
-class FieldOverlay : LinearOpMode() {
-    override fun runOpMode() {
-        val dashboard = FtcDashboard.getInstance()
-        
-        waitForStart()
-        
-        var x = 0.0
-        var y = 0.0
-        var heading = 0.0
-        
-        while (opModeIsActive()) {
-            // Update robot position (from odometry/localization)
-            x += 0.5  // Example: moving forward
-            
-            val packet = TelemetryPacket()
-            val canvas = packet.fieldOverlay()
-            
-            // Draw robot position
-            canvas.setStroke("#3F51B5")  // Blue
-            canvas.strokeCircle(x, y, 9.0)  // Robot as a circle
-            
-            // Draw heading line
-            val headingX = x + 9 * Math.cos(heading)
-            val headingY = y + 9 * Math.sin(heading)
-            canvas.strokeLine(x, y, headingX, headingY)
-            
-            // Draw target position
-            canvas.setStroke("#FF5722")  // Red
-            canvas.strokeCircle(48.0, 48.0, 5.0)
-            
-            packet.put("X", x)
-            packet.put("Y", y)
-            packet.put("Heading", Math.toDegrees(heading))
-            
-            dashboard.sendTelemetryPacket(packet)
-        }
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-## Camera Streaming
-
-Stream camera feed to the dashboard:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-import com.acmerobotics.dashboard.FtcDashboard;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-
-@TeleOp(name = "Camera Stream")
-public class CameraStream extends LinearOpMode {
-    @Override
-    public void runOpMode() {
-        FtcDashboard dashboard = FtcDashboard.getInstance();
-        
-        // Set up camera
-        int cameraMonitorViewId = hardwareMap.appContext.getResources()
-            .getIdentifier("cameraMonitorViewId", "id", 
-                hardwareMap.appContext.getPackageName());
-        
-        WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
-        OpenCvCamera camera = OpenCvCameraFactory.getInstance()
-            .createWebcam(webcamName, cameraMonitorViewId);
-        
-        // Start streaming to dashboard
-        dashboard.startCameraStream(camera, 30);  // 30 FPS
-        
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                camera.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
-            }
-            
-            @Override
-            public void onError(int errorCode) {
-                telemetry.addData("Camera Error", errorCode);
-                telemetry.update();
-            }
-        });
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            // Your code here
-            sleep(50);
-        }
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-import com.acmerobotics.dashboard.FtcDashboard
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
-import org.openftc.easyopencv.OpenCvCamera
-import org.openftc.easyopencv.OpenCvCameraFactory
-import org.openftc.easyopencv.OpenCvCameraRotation
-
-@TeleOp(name = "Camera Stream")
-class CameraStream : LinearOpMode() {
-    override fun runOpMode() {
-        val dashboard = FtcDashboard.getInstance()
-        
-        // Set up camera
-        val cameraMonitorViewId = hardwareMap.appContext.resources
-            .getIdentifier("cameraMonitorViewId", "id", 
-                hardwareMap.appContext.packageName)
-        
-        val webcamName = hardwareMap.get(WebcamName::class.java, "Webcam 1")
-        val camera = OpenCvCameraFactory.getInstance()
-            .createWebcam(webcamName, cameraMonitorViewId)
-        
-        // Start streaming to dashboard
-        dashboard.startCameraStream(camera, 30.0)  // 30 FPS
-        
-        camera.openCameraDeviceAsync(object : OpenCvCamera.AsyncCameraOpenListener {
-            override fun onOpened() {
-                camera.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT)
-            }
-            
-            override fun onError(errorCode: Int) {
-                telemetry.addData("Camera Error", errorCode)
-                telemetry.update()
-            }
-        })
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            // Your code here
-            sleep(50)
-        }
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-## Graphing Data
-
-Create live graphs for sensor data:
-
-```java
 TelemetryPacket packet = new TelemetryPacket();
-
-// Add data points to create a graph
-packet.put("Motor Velocity", motor.getVelocity());
-packet.put("Target Velocity", targetVelocity);
-packet.put("Voltage", hardwareMap.voltageSensor.get("Control Hub").getVoltage());
-
+packet.put("target deg", ArmTuning.TARGET_DEGREES);
+packet.put("measured deg", currentDegrees);
+packet.put("error deg", error);
+packet.put("power", power);
 dashboard.sendTelemetryPacket(packet);
 ```
 
-The dashboard automatically creates graphs for numeric values over time!
+</Tab>
+<Tab value="Kotlin">
 
-## OpMode Selection
+```kotlin
+val currentDegrees = arm.currentPosition / COUNTS_PER_DEGREE
+val error = ArmTuning.TARGET_DEGREES - currentDegrees
+val power = max(-0.25, min(0.25, ArmTuning.KP * error))
+arm.power = power
 
-You can start/stop OpModes from the dashboard:
-
-1. Open the dashboard in your browser
-2. Navigate to the "Op Mode" tab
-3. Select and run OpModes without touching your phone
-4. Perfect for testing on the practice field
-
-## Tips for Maximum Effectiveness
-
-### 1. Organize Your Telemetry
-
-```java
-// Use prefixes to group related data
-packet.put("Drive/FrontLeft", frontLeft.getPower());
-packet.put("Drive/FrontRight", frontRight.getPower());
-packet.put("Arm/Position", armMotor.getCurrentPosition());
-packet.put("Arm/Target", armTarget);
+val packet = TelemetryPacket()
+packet.put("target deg", ArmTuning.TARGET_DEGREES)
+packet.put("measured deg", currentDegrees)
+packet.put("error deg", error)
+packet.put("power", power)
+dashboard.sendTelemetryPacket(packet)
 ```
 
-### 2. Use @Config for Everything You Might Tune
+</Tab>
+</Tabs>
 
-```java
-@Config
-public class RobotConstants {
-    public static double DRIVE_SPEED = 0.8;
-    public static double TURN_SPEED = 0.6;
-    public static double ARM_SPEED = 0.5;
-    
-    public static double ARM_HIGH = 1000;
-    public static double ARM_MID = 500;
-    public static double ARM_LOW = 100;
-}
-```
+This is the useful tuning cycle: change `KP` on the dashboard, observe the error and power, and record a stable value back into your source code. Keep the power limit while tuning and use the [PID guide](../control-systems/pid-control) for a careful gain adjustment sequence.
 
-### 3. Add Visual Indicators
+## Live configuration
 
-```java
-// Use canvas to draw debug information
-Canvas canvas = packet.fieldOverlay();
-canvas.setStroke("#4CAF50");  // Green for success
-canvas.fillCircle(detectionX, detectionY, 3);
-```
+The dashboard can expose supported configuration fields so you can tune values during testing. Mark only values that need to be changed at runtime, understand when the code reads them, and copy validated values back into version-controlled constants. A live edit is not automatically a permanent source-code change.
 
-### 4. Log Important Events
+## Field view, graphs, and cameras
 
-```java
-if (gamepad1.a) {
-    packet.put("Event", "Button A Pressed");
-    packet.put("Timestamp", getRuntime());
-}
-```
+Use the field view to draw robot-relative or field-relative debugging information when your code supplies the matching coordinates. Graphs can make response trends easier to inspect. Camera streaming can help check what a vision pipeline receives, but the stream itself does not validate detection accuracy. See the official [field view](https://acmerobotics.github.io/ftc-dashboard/fieldview) and [camera](https://acmerobotics.github.io/ftc-dashboard/features.html) documentation for current details.
 
-## Common Use Cases
+## Network access
 
-**PID Tuning:**
-- Adjust kP, kI, kD in real-time
-- See response curves on graphs
-- Save working values to code
+Open the dashboard from a browser on the robot network using the address and port configured by your project. The common default shown in FTC Dashboard examples is `http://192.168.43.1:8080/dash`, but the Control Hub address, network mode, or project configuration can differ. Do not use a public Wi-Fi network for robot control.
 
-**Vision Debugging:**
-- Stream camera to see what robot sees
-- Draw detection boxes on overlay
-- Verify color thresholds
+## Official references
 
-**Autonomous Development:**
-- Visualize path on field overlay
-- Track position errors
-- Fine-tune waypoint coordinates
-
-**Performance Monitoring:**
-- Track loop times
-- Monitor battery voltage
-- Check motor temperatures
-
-## Pros and Cons
-
-**Advantages:**
-- ✅ Real-time debugging without code changes
-- ✅ Clean web interface accessible from any device
-- ✅ Essential for PID tuning
-- ✅ Camera streaming is incredibly useful
-- ✅ Field visualization helps with autonomous
-- ✅ Industry-standard tool
-
-**Disadvantages:**
-- ❌ Requires network connection to Control Hub
-- ❌ Slight performance overhead
-- ❌ Another tool to learn
-- ❌ Can be overwhelming with too much data
-
-## When to Use FTC Dashboard
-
-**Always use it for:**
-- PID tuning
-- Autonomous debugging
-- Vision pipeline development
-- Performance optimization
-
-**Consider skipping for:**
-- Simple drive practice (Driver Station is fine)
-- Competition matches (it's just for testing)
-
-## Resources
-
-- **GitHub:** [FTC Dashboard Repository](https://github.com/acmerobotics/ftc-dashboard)
-- **Documentation:** README and examples on GitHub
-- **Community:** r/FTC subreddit and Discord
-
-## Best Practices
-
-1. **Keep It Running:** Start dashboard at beginning of practice
-2. **Organize Data:** Use clear naming and grouping
-3. **Graph Sparingly:** Too many graphs slow things down
-4. **Save Configs:** Document working @Config values
-5. **Use During Testing:** Not during competition matches
-
-## Example Project Structure
-
-```
-TeamCode/
-  config/
-    RobotConstants.java      (@Config for all tunable values)
-  opmodes/
-    TeleOpMain.java          (Basic driving)
-    PIDTuning.java           (Use dashboard for tuning)
-    VisionTest.java          (Camera streaming)
-  subsystems/
-    Drive.java               (Send drive telemetry)
-    Arm.java                 (Send arm position)
-```
-
-## Next Steps
-
-1. Add FTC Dashboard dependency
-2. Convert telemetry to use TelemetryPacket
-3. Add @Config to tunable variables
-4. Test PID tuning with live graphs
-5. Set up camera streaming
-6. Create field overlay for autonomous!
+- [FTC Dashboard documentation](https://acmerobotics.github.io/ftc-dashboard/)
+- [Repository and installation guide](https://github.com/acmerobotics/ftc-dashboard)
+- [Releases](https://github.com/acmerobotics/ftc-dashboard/releases)
+- [Field view](https://acmerobotics.github.io/ftc-dashboard/fieldview)

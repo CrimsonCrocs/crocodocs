@@ -1,146 +1,46 @@
 ---
 title: Mercurial
-description: Command-based robotics framework by Dairy Foundation
+description: Command-based FTC framework from Dairy Foundation
 icon: Terminal
 ---
 
 ## What is Mercurial?
 
-**Mercurial** is a command-based framework for FTC developed by [Dairy Foundation](https://dairy.foundation/). It provides a clean, modern way to organize robot code using commands, subsystems, and scheduled operations - similar to WPILib's command framework but designed specifically for FTC with reduced boilerplate.
+Mercurial is a command-based FTC framework from [Dairy Foundation](https://dairy.foundation/). Its command API models actions with lifecycle methods, requirements, and run states; command groups and a scheduler coordinate those actions. The ecosystem also includes libraries such as Core, Util, and Pasteurized, but the modules and setup depend on the release and project template.
 
-Mercurial is part of the larger Dairy Foundation ecosystem, which includes:
-- **Core:** Runtime and lifecycle management
-- **Util:** Type-safe units and utilities
-- **Pasteurized:** Advanced gamepad handling
-- **Mercurial:** Command-based framework (this library)
+## Version and installation
 
-## Why Choose Mercurial?
+Dairy maintains more than one line of development and publishes Gradle tooling for FTC libraries. This page is a conceptual introduction, not a pinned installation recipe. Use the current [Mercurial documentation](https://docs.dairy.foundation/Mercurial/) and [Dairy FTC plugins and templates](https://github.com/Dairy-Foundation/Plugins) to choose a compatible release and dependency set. Avoid combining v1 examples with the newer `MercurialFTC` artifact or beta APIs without following the corresponding migration guidance.
 
-**Traditional FTC Code Problems:**
-- All logic mixed in OpMode classes
-- Hard to reuse code between OpModes
-- Difficult to test individual components
-- Complex state management
+## Core concepts
 
-**Mercurial Solutions:**
-- Separation of concerns (commands vs subsystems)
-- Reusable command compositions
-- Unit-tested scheduler
-- Lambda-based command creation
-- Reduced boilerplate vs other frameworks
-- Modern Kotlin-friendly design
+- **Commands** describe setup, repeated execution, completion, and cleanup behavior.
+- **Requirements** identify resources a command needs so the scheduler can handle conflicting commands.
+- **Run states** control when a command may be scheduled, such as initialization or active OpMode.
+- **Command groups** combine actions sequentially, in parallel, or conditionally.
+- **Subsystems** organize the hardware and behavior owned by a robot mechanism.
 
-## Installation
+The exact method names and command-group APIs are version-sensitive. Use the official language-specific examples for the version in your Gradle project.
 
-Add to your `build.gradle` (Module: TeamCode):
+## Build a command that runs for one second
 
-<Tabs items={['Gradle (Groovy)', 'Gradle (Kotlin)']}>
-<Tab value="Gradle (Groovy)">
+The example sets a motor to low power, keeps it there for one second, then writes zero. First map the motor in your OpMode so the command has a real device to control.
 
-```groovy
-dependencies {
-    // Mercurial (includes bundled dependencies)
-    implementation "dev.frozenmilk.mercurial:Mercurial:1.0.0"
-    
-    // Required dependencies (if not auto-included)
-    implementation "dev.frozenmilk.dairy:Core:1.0.0"
-    implementation "dev.frozenmilk.dairy:Util:1.0.1"
-}
-```
-
-</Tab>
-<Tab value="Gradle (Kotlin)">
-
-```kotlin
-dependencies {
-    // Mercurial (includes bundled dependencies)
-    implementation("dev.frozenmilk.mercurial:Mercurial:1.0.0")
-    
-    // Required dependencies (if not auto-included)
-    implementation("dev.frozenmilk.dairy:Core:1.0.0")
-    implementation("dev.frozenmilk.dairy:Util:1.0.1")
-}
-```
-
-</Tab>
-</Tabs>
-
-## Core Concepts
-
-### 1. Commands
-
-**Commands** represent actions your robot performs:
-- Move arm to position
-- Drive forward for distance
-- Intake game element
-- Wait for time
-
-Commands can be:
-- **Sequential:** Run one after another
-- **Parallel:** Run at the same time
-- **Conditional:** Run based on conditions
-- **Lambda-based:** Quick inline definitions
-
-### 2. Subsystems
-
-**Subsystems** represent robot mechanisms:
-- Drivetrain
-- Arm
-- Intake
-- Shooter
-
-Each subsystem:
-- Owns specific hardware
-- Prevents conflicting commands
-- Provides methods for commands to use
-
-### 3. Scheduler
-
-The **Scheduler** manages command execution:
-- Runs commands at the right time
-- Handles interruptions
-- Manages subsystem requirements
-- Provides lifecycle management
-
-## Basic Usage
-
-### Creating a Subsystem
+### Step 1: Map the motor
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-import dev.frozenmilk.mercurial.subsystems.Subsystem;
+private DcMotor motor;
+private final ElapsedTime timer = new ElapsedTime();
+private final Object motorRequirement = new Object();
+private Lambda runMotor;
 
-public class ArmSubsystem implements Subsystem {
-    private DcMotor armMotor;
-    private double targetPosition;
-    
-    public ArmSubsystem(HardwareMap hardwareMap) {
-        armMotor = hardwareMap.get(DcMotor.class, "arm");
-        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    }
-    
-    @Override
-    public void periodic() {
-        // Called every loop - update telemetry, read sensors, etc.
-        armMotor.setTargetPosition((int) targetPosition);
-        armMotor.setPower(0.8);
-    }
-    
-    // Command-callable methods
-    public void setPosition(double position) {
-        this.targetPosition = position;
-    }
-    
-    public boolean atTarget() {
-        return Math.abs(armMotor.getCurrentPosition() - targetPosition) < 10;
-    }
-    
-    public void stop() {
-        armMotor.setPower(0);
-    }
+@Override
+public void init() {
+    motor = hardwareMap.get(DcMotor.class, "testMotor");
+    motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 }
 ```
 
@@ -148,448 +48,76 @@ public class ArmSubsystem implements Subsystem {
 <Tab value="Kotlin">
 
 ```kotlin
-import dev.frozenmilk.mercurial.subsystems.Subsystem
+private lateinit var motor: DcMotor
+private val timer = ElapsedTime()
+private val motorRequirement = Any()
+private lateinit var runMotor: Lambda
 
-class ArmSubsystem(hardwareMap: HardwareMap) : Subsystem {
-    private val armMotor: DcMotor = hardwareMap.get(DcMotor::class.java, "arm")
-    private var targetPosition: Double = 0.0
-    
-    init {
-        armMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        armMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-    }
-    
-    override fun periodic() {
-        // Called every loop - update telemetry, read sensors, etc.
-        armMotor.targetPosition = targetPosition.toInt()
-        armMotor.power = 0.8
-    }
-    
-    // Command-callable methods
-    fun setPosition(position: Double) {
-        targetPosition = position
-    }
-    
-    fun atTarget(): Boolean {
-        return Math.abs(armMotor.currentPosition - targetPosition) < 10
-    }
-    
-    fun stop() {
-        armMotor.power = 0.0
-    }
+override fun init() {
+    motor = hardwareMap.get(DcMotor::class.java, "testMotor")
+    motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 }
 ```
 
 </Tab>
 </Tabs>
 
-### Creating Commands
+The hardware name must match Robot Configuration. The requirement is a marker that says which resource this command owns; reuse the same marker for other commands that control this motor.
+
+### Step 2: Describe the command's four jobs
+
+A `Lambda` command has actions for setup, repeated work, a finish condition, and cleanup. This one resets a timer, repeatedly requests 0.15 power, finishes after one second, and always writes zero when it ends:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-import dev.frozenmilk.mercurial.commands.Command;
-import dev.frozenmilk.mercurial.commands.util.Wait;
-
-public class ArmCommands {
-    private ArmSubsystem arm;
-    
-    public ArmCommands(ArmSubsystem arm) {
-        this.arm = arm;
-    }
-    
-    // Lambda-based instant command
-    public Command moveToHigh() {
-        return Command.once(() -> arm.setPosition(1000))
-                     .requires(arm);
-    }
-    
-    // Command that waits until arm reaches target
-    public Command moveToHighAndWait() {
-        return Command.once(() -> arm.setPosition(1000))
-                     .andThen(Command.waitUntil(() -> arm.atTarget()))
-                     .requires(arm);
-    }
-    
-    // Sequential command chain
-    public Command scoreSample() {
-        return moveToHighAndWait()
-                .andThen(Command.wait(0.5))  // Wait to settle
-                .andThen(openClaw())
-                .andThen(Command.wait(0.3))
-                .andThen(moveToLow());
-    }
-    
-    // Parallel commands
-    public Command intakeAndDrive() {
-        return Command.parallel(
-            startIntake(),
-            driveForward(24)
-        );
-    }
-}
+runMotor = new Lambda("Run motor briefly")
+    .setInit(timer::reset)
+    .setExecute(() -> motor.setPower(0.15))
+    .setFinish(() -> timer.seconds() >= 1.0)
+    .setEnd(interrupted -> motor.setPower(0.0))
+    .setRequirements(motorRequirement);
 ```
 
 </Tab>
 <Tab value="Kotlin">
 
 ```kotlin
-import dev.frozenmilk.mercurial.commands.Command
-import dev.frozenmilk.mercurial.commands.util.Wait
-
-class ArmCommands(private val arm: ArmSubsystem) {
-    
-    // Lambda-based instant command
-    fun moveToHigh(): Command {
-        return Command.once { arm.setPosition(1000.0) }
-            .requires(arm)
-    }
-    
-    // Command that waits until arm reaches target
-    fun moveToHighAndWait(): Command {
-        return Command.once { arm.setPosition(1000.0) }
-            .andThen(Command.waitUntil { arm.atTarget() })
-            .requires(arm)
-    }
-    
-    // Sequential command chain
-    fun scoreSample(): Command {
-        return moveToHighAndWait()
-            .andThen(Command.wait(0.5))  // Wait to settle
-            .andThen(openClaw())
-            .andThen(Command.wait(0.3))
-            .andThen(moveToLow())
-    }
-    
-    // Parallel commands
-    fun intakeAndDrive(): Command {
-        return Command.parallel(
-            startIntake(),
-            driveForward(24.0)
-        )
-    }
-}
+runMotor = Lambda("Run motor briefly")
+    .setInit { timer.reset() }
+    .setExecute { motor.power = 0.15 }
+    .setFinish { timer.seconds() >= 1.0 }
+    .setEnd { _: Boolean -> motor.power = 0.0 }
+    .setRequirements(motorRequirement)
 ```
 
 </Tab>
 </Tabs>
 
-### Using Commands in OpMode
+`init` runs once when the command starts. `execute` runs repeatedly. `finish` is checked while it runs. `end` runs when it finishes or is interrupted, so it is where this example removes motor power.
+
+### Step 3: Schedule it when the OpMode starts
+
+Attach Mercurial to the OpMode and schedule the command in `start()`. Mercurial's scheduler handles the command lifecycle while the OpMode is active.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import dev.frozenmilk.mercurial.Mercurial;
-import dev.frozenmilk.mercurial.commands.Command;
+@Autonomous(name = "Mercurial: Timed Motor Test")
+@Mercurial.Attach
+public class MercurialMotorTest extends OpMode {
+    // Keep the motor, timer, and command fields from Steps 1 and 2.
 
-@TeleOp(name = "Mercurial TeleOp")
-public class MercurialTeleOp extends OpMode {
-    private ArmSubsystem arm;
-    private ArmCommands armCommands;
-    private DriveSubsystem drive;
-    
     @Override
-    public void init() {
-        // Initialize subsystems
-        arm = new ArmSubsystem(hardwareMap);
-        drive = new DriveSubsystem(hardwareMap);
-        
-        // Initialize commands
-        armCommands = new ArmCommands(arm);
-        
-        // Register subsystems with Mercurial
-        Mercurial.register(arm);
-        Mercurial.register(drive);
+    public void start() {
+        runMotor.schedule();
     }
-    
+
     @Override
     public void loop() {
-        // Manual drive control
-        double drive = -gamepad1.left_stick_y;
-        double turn = gamepad1.right_stick_x;
-        this.drive.drive(drive, turn);
-        
-        // Bind commands to buttons
-        if (gamepad1.a) {
-            // Schedule command - runs until complete
-            Mercurial.schedule(armCommands.moveToHigh());
-        }
-        
-        if (gamepad1.b) {
-            Mercurial.schedule(armCommands.moveToLow());
-        }
-        
-        if (gamepad1.x) {
-            // Schedule complex command sequence
-            Mercurial.schedule(armCommands.scoreSample());
-        }
-        
-        // Mercurial automatically calls subsystem.periodic() and runs commands
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.eventloop.opmode.OpMode
-import dev.frozenmilk.mercurial.Mercurial
-import dev.frozenmilk.mercurial.commands.Command
-
-@TeleOp(name = "Mercurial TeleOp")
-class MercurialTeleOp : OpMode() {
-    private lateinit var arm: ArmSubsystem
-    private lateinit var armCommands: ArmCommands
-    private lateinit var drive: DriveSubsystem
-    
-    override fun init() {
-        // Initialize subsystems
-        arm = ArmSubsystem(hardwareMap)
-        drive = DriveSubsystem(hardwareMap)
-        
-        // Initialize commands
-        armCommands = ArmCommands(arm)
-        
-        // Register subsystems with Mercurial
-        Mercurial.register(arm)
-        Mercurial.register(drive)
-    }
-    
-    override fun loop() {
-        // Manual drive control
-        val driveValue = -gamepad1.left_stick_y.toDouble()
-        val turn = gamepad1.right_stick_x.toDouble()
-        drive.drive(driveValue, turn)
-        
-        // Bind commands to buttons
-        if (gamepad1.a) {
-            // Schedule command - runs until complete
-            Mercurial.schedule(armCommands.moveToHigh())
-        }
-        
-        if (gamepad1.b) {
-            Mercurial.schedule(armCommands.moveToLow())
-        }
-        
-        if (gamepad1.x) {
-            // Schedule complex command sequence
-            Mercurial.schedule(armCommands.scoreSample())
-        }
-        
-        // Mercurial automatically calls subsystem.periodic() and runs commands
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-## Advanced Features
-
-### Conditional Commands
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Run different commands based on condition
-public Command smartScore() {
-    return Command.select(
-        () -> arm.getCurrentPosition() > 500,  // Condition
-        moveToHigh(),      // If true
-        moveToMid()        // If false
-    );
-}
-
-// Run command only if condition is true
-public Command safeScore() {
-    return Command.waitUntil(() -> sensor.isReady())
-                 .andThen(score());
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Run different commands based on condition
-fun smartScore(): Command {
-    return Command.select(
-        { arm.currentPosition > 500 },  // Condition
-        moveToHigh(),      // If true
-        moveToMid()        // If false
-    )
-}
-
-// Run command only if condition is true
-fun safeScore(): Command {
-    return Command.waitUntil { sensor.isReady() }
-        .andThen(score())
-}
-```
-
-</Tab>
-</Tabs>
-
-### Parallel Racing and Deadlines
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Run commands in parallel, end when first finishes
-public Command raceIntake() {
-    return Command.race(
-        spinIntake(),           // Spin forever
-        Command.wait(2.0)       // Timeout after 2 seconds
-    );
-}
-
-// Run commands in parallel, end when specific one finishes
-public Command driveWithTimeout() {
-    return Command.deadline(
-        driveForward(48),       // Main command (determines when to stop)
-        updateTelemetry(),      // Side effect (runs while main runs)
-        monitorSensors()        // Another side effect
-    );
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Run commands in parallel, end when first finishes
-fun raceIntake(): Command {
-    return Command.race(
-        spinIntake(),           // Spin forever
-        Command.wait(2.0)       // Timeout after 2 seconds
-    )
-}
-
-// Run commands in parallel, end when specific one finishes
-fun driveWithTimeout(): Command {
-    return Command.deadline(
-        driveForward(48.0),     // Main command (determines when to stop)
-        updateTelemetry(),      // Side effect (runs while main runs)
-        monitorSensors()        // Another side effect
-    )
-}
-```
-
-</Tab>
-</Tabs>
-
-### Command Decorators
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Run command repeatedly
-Command repeatIntake = spinIntake().repeatedly();
-
-// Run with timeout
-Command timedDrive = driveForward(24).withTimeout(3.0);
-
-// Run until condition
-Command driveToLine = driveForward(100)
-    .until(() -> colorSensor.red() > 200);
-
-// Add action before/after
-Command scoringSequence = moveToHigh()
-    .beforeStarting(() -> telemetry.speak("Scoring"))
-    .andThen(() -> telemetry.speak("Complete"));
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Run command repeatedly
-val repeatIntake = spinIntake().repeatedly()
-
-// Run with timeout
-val timedDrive = driveForward(24.0).withTimeout(3.0)
-
-// Run until condition
-val driveToLine = driveForward(100.0)
-    .until { colorSensor.red() > 200 }
-
-// Add action before/after
-val scoringSequence = moveToHigh()
-    .beforeStarting { telemetry.speak("Scoring") }
-    .andThen { telemetry.speak("Complete") }
-```
-
-</Tab>
-</Tabs>
-
-## Autonomous Example
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-@Autonomous(name = "Mercurial Auto")
-public class MercurialAuto extends OpMode {
-    private DriveSubsystem drive;
-    private ArmSubsystem arm;
-    private IntakeSubsystem intake;
-    
-    @Override
-    public void init() {
-        drive = new DriveSubsystem(hardwareMap);
-        arm = new ArmSubsystem(hardwareMap);
-        intake = new IntakeSubsystem(hardwareMap);
-        
-        Mercurial.register(drive);
-        Mercurial.register(arm);
-        Mercurial.register(intake);
-        
-        // Build autonomous sequence
-        Command auto = Command.sequential(
-            // Score preload
-            arm.moveToHigh(),
-            Command.wait(1.0),
-            intake.outtake(),
-            Command.wait(0.5),
-            arm.moveToGround(),
-            
-            // Get sample 1
-            drive.driveForward(24),
-            Command.parallel(
-                intake.intake(),
-                arm.moveToIntake()
-            ),
-            Command.wait(1.0),
-            
-            // Score sample 1
-            drive.driveBackward(24),
-            arm.moveToHigh(),
-            Command.wait(1.0),
-            intake.outtake(),
-            
-            // Park
-            arm.moveToTravel(),
-            drive.strafeRight(36),
-            drive.driveForward(12)
-        );
-        
-        // Schedule it to run when OpMode starts
-        Mercurial.schedule(auto);
-    }
-    
-    @Override
-    public void loop() {
-        // Mercurial handles everything automatically
-        telemetry.addData("Status", "Running autonomous");
+        telemetry.addData("Elapsed seconds", "%.2f", timer.seconds());
         telemetry.update();
     }
 }
@@ -599,57 +127,17 @@ public class MercurialAuto extends OpMode {
 <Tab value="Kotlin">
 
 ```kotlin
-@Autonomous(name = "Mercurial Auto")
-class MercurialAuto : OpMode() {
-    private lateinit var drive: DriveSubsystem
-    private lateinit var arm: ArmSubsystem
-    private lateinit var intake: IntakeSubsystem
-    
-    override fun init() {
-        drive = DriveSubsystem(hardwareMap)
-        arm = ArmSubsystem(hardwareMap)
-        intake = IntakeSubsystem(hardwareMap)
-        
-        Mercurial.register(drive)
-        Mercurial.register(arm)
-        Mercurial.register(intake)
-        
-        // Build autonomous sequence
-        val auto = Command.sequential(
-            // Score preload
-            arm.moveToHigh(),
-            Command.wait(1.0),
-            intake.outtake(),
-            Command.wait(0.5),
-            arm.moveToGround(),
-            
-            // Get sample 1
-            drive.driveForward(24.0),
-            Command.parallel(
-                intake.intake(),
-                arm.moveToIntake()
-            ),
-            Command.wait(1.0),
-            
-            // Score sample 1
-            drive.driveBackward(24.0),
-            arm.moveToHigh(),
-            Command.wait(1.0),
-            intake.outtake(),
-            
-            // Park
-            arm.moveToTravel(),
-            drive.strafeRight(36.0),
-            drive.driveForward(12.0)
-        )
-        
-        // Schedule it to run when OpMode starts
-        Mercurial.schedule(auto)
+@Autonomous(name = "Mercurial: Timed Motor Test")
+@Mercurial.Attach
+class MercurialMotorTest : OpMode() {
+    // Keep the motor, timer, and command fields from Steps 1 and 2.
+
+    override fun start() {
+        runMotor.schedule()
     }
-    
+
     override fun loop() {
-        // Mercurial handles everything automatically
-        telemetry.addData("Status", "Running autonomous")
+        telemetry.addData("Elapsed seconds", "%.2f", timer.seconds())
         telemetry.update()
     }
 }
@@ -658,139 +146,16 @@ class MercurialAuto : OpMode() {
 </Tab>
 </Tabs>
 
-## Mercurial vs Other Frameworks
+The snippets belong together inside the same OpMode, with the imports from your selected Mercurial release. Test with the mechanism unloaded at low power. Mercurial's v2 FTC bindings are marked beta in the project documentation, so confirm the imports and lifecycle rules against the [current Lambda guide](https://docs.dairy.foundation/Mercurial/commands/lambda) and [FTC usage guide](https://docs.dairy.foundation/Mercurial/usage); older v1 `Command.once(...)` examples use a different API.
 
-| Feature | Mercurial | NextFTC | FTCLib Commands |
-|---------|-----------|---------|-----------------|
-| **Learning Curve** | Moderate | Low | Moderate |
-| **Boilerplate** | Minimal | Medium | Higher |
-| **Lambda Commands** | ✅ Yes | ✅ Yes | Limited |
-| **Kotlin Support** | ✅ Excellent | ✅ Good | ⚠️ Java-focused |
-| **Command Composition** | ✅ Rich | ✅ Good | ✅ Rich |
-| **Ecosystem** | Dairy Foundation | Standalone | FTCLib Suite |
-| **Documentation** | Growing | Extensive | Extensive |
-| **Community** | Small | Growing | Large |
+## Choosing Mercurial
 
-## When to Choose Mercurial
+A command framework can make shared behaviors and autonomous sequences easier to compose, but it adds concepts and dependencies. Compare the framework with your team's experience, the current project template, and the level of support available before adopting it. A small robot can also be programmed directly with FTC SDK OpModes.
 
-**Choose Mercurial if:**
-- You want modern, low-boilerplate code
-- You prefer Kotlin or Kotlin-friendly Java
-- You like lambda-based command definitions
-- You value clean, composable command structures
-- You're interested in the Dairy Foundation ecosystem
+## Official references
 
-**Choose something else if:**
-- You want the largest community (use FTCLib)
-- You want the most documentation (use NextFTC)
-- You prefer imperative programming (use plain OpModes)
-- Your team is unfamiliar with functional concepts
-
-## Tips for Success
-
-1. **Start Simple:** Begin with one subsystem and a few commands
-2. **Think in Actions:** Break robot behavior into discrete commands
-3. **Compose Commands:** Build complex sequences from simple ones
-4. **Use Lambda Commands:** Quick inline definitions reduce code
-5. **Test Subsystems:** Test each subsystem independently first
-6. **Read Dairy Docs:** Check [docs.dairy.foundation](https://docs.dairy.foundation/) for updates
-
-## Common Patterns
-
-### Button Binding with Edge Detection
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-public class TeleOp extends OpMode {
-    private boolean lastA = false;
-    
-    @Override
-    public void loop() {
-        // Edge detection - only trigger on button press, not hold
-        boolean currentA = gamepad1.a;
-        if (currentA && !lastA) {
-            Mercurial.schedule(armCommands.moveToHigh());
-        }
-        lastA = currentA;
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-class TeleOp : OpMode() {
-    private var lastA = false
-    
-    override fun loop() {
-        // Edge detection - only trigger on button press, not hold
-        val currentA = gamepad1.a
-        if (currentA && !lastA) {
-            Mercurial.schedule(armCommands.moveToHigh())
-        }
-        lastA = currentA
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-### Default Commands for Subsystems
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-@Override
-public void init() {
-    arm = new ArmSubsystem(hardwareMap);
-    
-    // Set default command - runs when no other command uses this subsystem
-    arm.setDefaultCommand(
-        Command.repeating(() -> {
-            double power = -gamepad2.left_stick_y;
-            arm.manualControl(power);
-        }).requires(arm)
-    );
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-override fun init() {
-    arm = ArmSubsystem(hardwareMap)
-    
-    // Set default command - runs when no other command uses this subsystem
-    arm.setDefaultCommand(
-        Command.repeating {
-            val power = -gamepad2.left_stick_y.toDouble()
-            arm.manualControl(power)
-        }.requires(arm)
-    )
-}
-```
-
-</Tab>
-</Tabs>
-
-## Resources
-
-- **Official Docs:** [docs.dairy.foundation](https://docs.dairy.foundation/)
-- **GitHub:** [Dairy Foundation GitHub](https://github.com/Dairy-Foundation)
-- **Maven Repository:** [Maven Central](https://central.sonatype.com/artifact/dev.frozenmilk.mercurial/Mercurial)
-
-## Next Steps
-
-1. Add Mercurial to your `build.gradle`
-2. Create a simple subsystem (arm or intake)
-3. Write basic commands for it
-4. Test in a TeleOp OpMode
-5. Build command sequences for autonomous
-6. Explore Pasteurized for advanced gamepad handling
-7. Check Dairy Foundation docs for updates
+- [Mercurial documentation](https://docs.dairy.foundation/Mercurial/)
+- [Command overview](https://docs.dairy.foundation/Mercurial/commands/overview)
+- [Dairy Foundation source](https://github.com/Dairy-Foundation/Dairy)
+- [Dairy FTC Gradle plugins](https://github.com/Dairy-Foundation/Plugins)
+- [Dairy project templates](https://github.com/Dairy-Foundation/Templates)

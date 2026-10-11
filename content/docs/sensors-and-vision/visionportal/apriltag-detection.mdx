@@ -1,621 +1,237 @@
 ---
 title: AprilTag Detection
-description: Use AprilTags for precise robot localization and navigation
+description: Read FTC AprilTag detections safely, including SDK 12 clusters
 icon: QrCode
 ---
 
-## What are AprilTags?
+# Use a printed tag as a camera measurement
 
-AprilTags are fiducial markers similar to QR codes, designed for robotic vision applications. In FTC, AprilTags are placed on the field to help robots:
+An **AprilTag** is a high-contrast printed marker with a machine-readable pattern. The FTC SDK can identify tags and estimate their pose relative to a camera. That estimate can help localization, but it is still a measurement: a blurry tag, a wrong tag size, poor camera calibration, or confusing the camera pose with the robot pose can lead to a bad decision.
 
-- **Localize** - Determine exact robot position and orientation
-- **Navigate** - Align with scoring positions
-- **Detect** - Identify field elements and zones
+![Official BIOBUZZ HIVE CELL field element with its four AprilTags attached underneath.](/guides/biobuzz-apriltag-cell.jpg)
 
-<Callout type="info">
-**FTC Integration:** AprilTag detection is built directly into VisionPortal, making it incredibly easy to use!
-</Callout>
+*Official FTC field illustration from [AprilTag Clusters](https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html), Figure 1.*
 
-## How AprilTags Work
+## First check which SDK version the robot project uses
 
-Each AprilTag has a unique ID and encodes its position on the field. When your camera sees a tag, the AprilTagProcessor:
+The code that reads detections changed in **FTC SDK 12.0**. This matters especially for the current **BIOBUZZ** season: the official FTC documentation says BIOBUZZ has four AprilTag clusters and no standalone tags.
 
-1. Detects the tag in the image
-2. Identifies the tag's ID
-3. Calculates the tag's position relative to the camera
-4. Provides X, Y, Z coordinates and rotation angles
+In SDK 12.0 and later, `getDetections()` can return either:
 
-## Basic Setup
+- `AprilTagSingleDetection`, which has an `id` field; or
+- `AprilTagClusterDetection`, which has cluster metadata and a cluster name, but no `.id` field.
 
-### Easy Setup with Defaults
+The common parent type is `AprilTagDetection`. Pose fields such as `ftcPose` are on that parent and can be read for either type. Do not copy older code that reads `detection.id` directly from every result.
 
-The fastest way to get started is using `easyCreateWithDefaults()`:
+## Step 1: Create the AprilTag processor
+
+Make the processor before building VisionPortal. This convenience method uses the FTC SDK defaults:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
+
 ```java
-// Create processor with default settings
 AprilTagProcessor aprilTag = AprilTagProcessor.easyCreateWithDefaults();
-
-// Create VisionPortal with webcam
-VisionPortal visionPortal = VisionPortal.easyCreateWithDefaults(
-    hardwareMap.get(WebcamName.class, "Webcam 1"), aprilTag);
-
-// Or use phone camera instead
-VisionPortal visionPortal = VisionPortal.easyCreateWithDefaults(
-    BuiltinCameraDirection.BACK, aprilTag);
 ```
+
 </Tab>
 <Tab value="Kotlin">
+
 ```kotlin
-// Create processor with default settings
 val aprilTag = AprilTagProcessor.easyCreateWithDefaults()
-
-// Create VisionPortal with webcam
-val visionPortal = VisionPortal.easyCreateWithDefaults(
-    hardwareMap.get(WebcamName::class.java, "Webcam 1"), aprilTag)
-
-// Or use phone camera instead
-val visionPortal = VisionPortal.easyCreateWithDefaults(
-    BuiltinCameraDirection.BACK, aprilTag)
 ```
+
 </Tab>
 </Tabs>
 
-<Callout type="info">
-**Defaults include:** Current season's AprilTag library, standard annotations (tag outline, ID display), and automatic camera calibration for common webcams.
-</Callout>
+The default game library is supplied by the FTC SDK. If you need custom tags or processor settings, use the current FTC sample and Builder documentation rather than adding old-season IDs by hand.
 
-### Custom Configuration
-
-For more control, use the Builder pattern:
+## Step 2: Attach it to the camera
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
-```java
-AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
-    .setDrawAxes(true)        // Draw 3D axes on detected tags
-    .setDrawCubeProjection(true)  // Draw 3D cube projection
-    .setDrawTagOutline(true)   // Draw tag outline
-    .build();
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-val aprilTagProcessor = AprilTagProcessor.Builder()
-    .setDrawAxes(true)
-    .setDrawCubeProjection(true)
-    .setDrawTagOutline(true)
-    .build()
-```
-</Tab>
-</Tabs>
 
-Create the VisionPortal:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
 ```java
-visionPortal = new VisionPortal.Builder()
+VisionPortal portal = new VisionPortal.Builder()
     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-    .addProcessor(aprilTagProcessor)
+    .addProcessor(aprilTag)
     .build();
 ```
+
 </Tab>
 <Tab value="Kotlin">
+
 ```kotlin
-visionPortal = VisionPortal.Builder()
+val portal = VisionPortal.Builder()
     .setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
-    .addProcessor(aprilTagProcessor)
+    .addProcessor(aprilTag)
     .build()
 ```
+
 </Tab>
 </Tabs>
 
-### Getting Detections
+As with any VisionPortal setup, `Webcam 1` must match the configured hardware name. Keep the preview open during INIT so you can see whether a marker is being detected before the robot moves.
+
+## What the camera sees
+
+The Driver Hub preview below shows the processor finding BIOBUZZ AprilTag clusters in a real camera image. The colored boxes and labels are the detections overlaid on the frame. In the next step, you will read each detection from code.
+
+![FTC's AprilTag cluster example shown in a Driver Hub camera view with cluster detections overlaid.](/guides/biobuzz-apriltag-pose.jpg)
+
+*This is a real FTC camera preview with the detected BIOBUZZ clusters labeled. The labels show recognition; the telemetry example above is how your OpMode reads the measurements. Use your own live preview to verify detections before the robot acts.*
+
+
+## Step 3: Loop through detections and check their type
+
+The SDK gives you a list because the camera can see more than one detection at a time. In SDK 12, check whether each result is a single tag or a cluster before reading type-specific information:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
+List<AprilTagDetection> detections = aprilTag.getDetections();
 
 for (AprilTagDetection detection : detections) {
-    int tagId = detection.id;
-    
-    // Position relative to camera (inches or mm depending on library units)
-    double x = detection.ftcPose.x;
-    double y = detection.ftcPose.y;
-    double z = detection.ftcPose.z;
-    
-    // Rotation angles (degrees)
-    double yaw = detection.ftcPose.yaw;
-    double pitch = detection.ftcPose.pitch;
-    double roll = detection.ftcPose.roll;
-    
-    // Bearing and range for navigation
-    double bearing = detection.ftcPose.bearing;
-    double range = detection.ftcPose.range;
-    double elevation = detection.ftcPose.elevation;
+    if (detection instanceof AprilTagSingleDetection) {
+        AprilTagSingleDetection single = (AprilTagSingleDetection) detection;
+        telemetry.addData("Single tag ID", single.id);
+        if (single.metadata != null) {
+            telemetry.addData("Tag name", single.metadata.name);
+        }
+    } else if (detection instanceof AprilTagClusterDetection) {
+        AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
+        telemetry.addData("Cluster", cluster.metadata.name);
+        telemetry.addData("Visible cluster", "%d%%", cluster.percentClusterFound);
+    }
+
+    if (detection.ftcPose != null) {
+        telemetry.addData("XYZ (in)", "%.1f, %.1f, %.1f",
+            detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z);
+        telemetry.addData("Pitch / Roll / Yaw (deg)", "%.1f / %.1f / %.1f",
+            detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw);
+        telemetry.addData("Range (in)", "%.1f", detection.ftcPose.range);
+        telemetry.addData("Bearing (deg)", "%.1f", detection.ftcPose.bearing);
+        telemetry.addData("Elevation (deg)", "%.1f", detection.ftcPose.elevation);
+    }
 }
 ```
+
 </Tab>
 <Tab value="Kotlin">
+
 ```kotlin
-val detections = aprilTagProcessor.detections
+val detections: List<AprilTagDetection> = aprilTag.detections
 
 for (detection in detections) {
-    val tagId = detection.id
-    
-    // Position relative to camera
-    val x = detection.ftcPose.x
-    val y = detection.ftcPose.y
-    val z = detection.ftcPose.z
-    
-    // Rotation angles (degrees)
-    val yaw = detection.ftcPose.yaw
-    val pitch = detection.ftcPose.pitch
-    val roll = detection.ftcPose.roll
-    
-    // Bearing and range for navigation
-    val bearing = detection.ftcPose.bearing
-    val range = detection.ftcPose.range
-    val elevation = detection.ftcPose.elevation
+    when (detection) {
+        is AprilTagSingleDetection -> {
+            telemetry.addData("Single tag ID", detection.id)
+            detection.metadata?.let { telemetry.addData("Tag name", it.name) }
+        }
+        is AprilTagClusterDetection -> {
+            telemetry.addData("Cluster", detection.metadata.name)
+            telemetry.addData("Visible cluster", "%d%%", detection.percentClusterFound)
+        }
+    }
+
+    detection.ftcPose?.let { pose ->
+        telemetry.addData("XYZ (in)", "%.1f, %.1f, %.1f", pose.x, pose.y, pose.z)
+        telemetry.addData("Pitch / Roll / Yaw (deg)", "%.1f / %.1f / %.1f",
+            pose.pitch, pose.roll, pose.yaw)
+        telemetry.addData("Range (in)", "%.1f", pose.range)
+        telemetry.addData("Bearing (deg)", "%.1f", pose.bearing)
+        telemetry.addData("Elevation (deg)", "%.1f", pose.elevation)
+    }
 }
 ```
+
 </Tab>
 </Tabs>
 
-## Complete Example
+Add these imports when using the example in a Java OpMode:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-package org.firstinspires.ftc.teamcode;
-
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
-
-@Autonomous(name = "AprilTag Navigation")
-public class AprilTagAuto extends LinearOpMode {
-    
-    private VisionPortal visionPortal;
-    private AprilTagProcessor aprilTagProcessor;
-    
-    @Override
-    public void runOpMode() {
-        
-        // Create AprilTag processor
-        aprilTagProcessor = new AprilTagProcessor.Builder()
-            .setDrawAxes(true)
-            .setDrawCubeProjection(true)
-            .setDrawTagOutline(true)
-            .build();
-        
-        // Create VisionPortal
-        visionPortal = new VisionPortal.Builder()
-            .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-            .addProcessor(aprilTagProcessor)
-            .build();
-        
-        telemetry.addLine("AprilTag detection ready!");
-        telemetry.update();
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
-            
-            telemetry.addData("Tags Detected", detections.size());
-            
-            // Process each detected tag
-            for (AprilTagDetection detection : detections) {
-                telemetry.addLine("\n--- Tag " + detection.id + " ---");
-                telemetry.addData("Range", "%.2f inches", detection.ftcPose.range);
-                telemetry.addData("Bearing", "%.1f degrees", detection.ftcPose.bearing);
-                telemetry.addData("Elevation", "%.1f degrees", detection.ftcPose.elevation);
-                telemetry.addData("X", "%.2f inches", detection.ftcPose.x);
-                telemetry.addData("Y", "%.2f inches", detection.ftcPose.y);
-                telemetry.addData("Yaw", "%.1f degrees", detection.ftcPose.yaw);
-                
-                // Example: Navigate to tag
-                if (detection.id == 5) {  // Target a specific tag
-                    navigateToTag(detection);
-                }
-            }
-            
-            telemetry.update();
-            sleep(50);
-        }
-        
-        visionPortal.close();
-    }
-    
-    private void navigateToTag(AprilTagDetection detection) {
-        double range = detection.ftcPose.range;
-        double bearing = detection.ftcPose.bearing;
-        
-        // Example navigation logic
-        if (range > 12) {
-            telemetry.addLine("Moving forward toward tag...");
-            // Drive forward
-        } else if (Math.abs(bearing) > 5) {
-            telemetry.addLine("Turning to align...");
-            // Turn toward tag
-        } else {
-            telemetry.addLine("Aligned! Ready to score.");
-            // Aligned and in position
-        }
-    }
-}
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 ```
+
 </Tab>
 <Tab value="Kotlin">
-```kotlin
-package org.firstinspires.ftc.teamcode
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
-import org.firstinspires.ftc.vision.VisionPortal
+```kotlin
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor
-import kotlin.math.abs
-
-@Autonomous(name = "AprilTag Navigation")
-class AprilTagAuto : LinearOpMode() {
-    
-    private lateinit var visionPortal: VisionPortal
-    private lateinit var aprilTagProcessor: AprilTagProcessor
-    
-    override fun runOpMode() {
-        
-        // Create AprilTag processor
-        aprilTagProcessor = AprilTagProcessor.Builder()
-            .setDrawAxes(true)
-            .setDrawCubeProjection(true)
-            .setDrawTagOutline(true)
-            .build()
-        
-        // Create VisionPortal
-        visionPortal = VisionPortal.Builder()
-            .setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
-            .addProcessor(aprilTagProcessor)
-            .build()
-        
-        telemetry.addLine("AprilTag detection ready!")
-        telemetry.update()
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            val detections = aprilTagProcessor.detections
-            
-            telemetry.addData("Tags Detected", detections.size)
-            
-            // Process each detected tag
-            for (detection in detections) {
-                telemetry.addLine("\n--- Tag ${detection.id} ---")
-                telemetry.addData("Range", "%.2f inches", detection.ftcPose.range)
-                telemetry.addData("Bearing", "%.1f degrees", detection.ftcPose.bearing)
-                telemetry.addData("Elevation", "%.1f degrees", detection.ftcPose.elevation)
-                telemetry.addData("X", "%.2f inches", detection.ftcPose.x)
-                telemetry.addData("Y", "%.2f inches", detection.ftcPose.y)
-                telemetry.addData("Yaw", "%.1f degrees", detection.ftcPose.yaw)
-                
-                // Example: Navigate to tag
-                if (detection.id == 5) {  // Target a specific tag
-                    navigateToTag(detection)
-                }
-            }
-            
-            telemetry.update()
-            sleep(50)
-        }
-        
-        visionPortal.close()
-    }
-    
-    private fun navigateToTag(detection: AprilTagDetection) {
-        val range = detection.ftcPose.range
-        val bearing = detection.ftcPose.bearing
-        
-        // Example navigation logic
-        when {
-            range > 12 -> {
-                telemetry.addLine("Moving forward toward tag...")
-                // Drive forward
-            }
-            abs(bearing) > 5 -> {
-                telemetry.addLine("Turning to align...")
-                // Turn toward tag
-            }
-            else -> {
-                telemetry.addLine("Aligned! Ready to score.")
-                // Aligned and in position
-            }
-        }
-    }
-}
+import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection
+import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection
 ```
+
 </Tab>
 </Tabs>
 
-## Understanding Pose Data
+The code has a reason for each check:
 
-### FTC Pose Coordinates
+1. `getDetections()` obtains the processor's current list.
+2. `instanceof` tells Java which kind of detection it is handling.
+3. A single-tag ID is read only after casting to `AprilTagSingleDetection`.
+4. Cluster name and visibility are read only after casting to `AprilTagClusterDetection`.
+5. Pose is read from the parent result type because both kinds of detection can have `ftcPose`.
 
-The `ftcPose` gives you robot-friendly coordinates:
+If your project uses SDK 11 or earlier, this code will not compile because the cluster classes do not exist in that version. Use the samples and API docs that match your project's FTC SDK version.
 
-- **x** - Distance to the right (positive) or left (negative)
-- **y** - Distance forward (positive) or backward (negative)
-- **z** - Distance up (positive) or down (negative)
+## Step 4: Understand what the pose means
 
-<Callout type="info">
-**Coordinate System:** In the FTC frame of reference, **x is side-to-side** (horizontal), **y is forward** (outward from the camera), and **z is upward** (vertical). This matches the Robot Coordinate System used for IMU navigation when the camera is mounted upright and forward-facing.
-</Callout>
+`ftcPose` describes the detected target relative to the **camera lens**. In the FTC frame, **Y points forward out of the lens, X points right, and Z points up**. If a tag is left of the camera centerline, its X value is negative. Those numbers are distances in the tag library's distance unit (normally inches for FTC field tags). The rotations are in degrees with the processor's default settings; their signs follow the FTC axes and right-hand rule.
 
-All distances are in your chosen units (typically inches).
+The names are easy to mix up, so connect each value to a question:
 
-### Navigation Coordinates
+| Telemetry value | Meaning in the FTC camera frame | Beginner check |
+| --- | --- | --- |
+| `x` | Side-to-side offset; positive is to camera-right. | Move the tag left: X should become negative. |
+| `y` | Forward distance from the lens to the tag plane. | Move the tag farther away: Y should grow. |
+| `z` | Vertical offset; positive is above the lens. | Put the tag below the lens: Z should be negative. |
+| `pitch` | Tag rotation about the FTC X axis. | Tilt the tag up/down and observe this value. |
+| `roll` | Tag rotation about the FTC Y axis. | Rotate the tag clockwise/counterclockwise in its image plane. |
+| `yaw` | Tag rotation about the FTC Z axis (vertical). | Turn the tag left/right; this is not the same as bearing. |
+| `range` | Horizontal distance from camera to tag center, derived from X and Y. | A sideways tag can have a large range even when Y is unchanged. |
+| `bearing` | Horizontal angle from the camera's forward direction to the tag. | Use this to aim toward the tag, after checking the sign. |
+| `elevation` | Vertical angle from forward to the tag center. | A tag above or below the lens changes this angle. |
 
-Simplified for driving:
+Pitch, roll, and yaw names are the FTC SDK's mapping to its camera axes; do not assume another robotics library uses the same frame or angle naming. Bearing answers “which way should I turn to point at the center?” Yaw answers “how is the tag face rotated?” A tag can have near-zero bearing but nonzero yaw when it is centered in the image but turned sideways.
 
-- **range** - Straight-line distance to the tag
-- **bearing** - Angle to turn (+ = right, - = left)
-- **elevation** - Angle to look up/down
+A cluster can report a target point placed somewhere useful in its group layout, rather than at the center of any printed marker. The official BIOBUZZ cluster guidance explains that the HIVE CELL cluster pose is designed to point toward the CELL opening. Do not substitute the center of one visible tag for the cluster pose.
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-// Simple alignment logic
-if (Math.abs(detection.ftcPose.bearing) > 5) {
-    // Turn toward tag
-    turnDegrees(detection.ftcPose.bearing);
-}
+Pose quality depends on the tag size and camera calibration. Check the current field tag layout and game manual before assuming a location or meaning. Do not use a stale detection after the camera no longer sees the target.
 
-if (detection.ftcPose.range > 12) {
-    // Drive forward
-    driveInches(detection.ftcPose.range - 12);
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-// Simple alignment logic
-if (abs(detection.ftcPose.bearing) > 5) {
-    // Turn toward tag
-    turnDegrees(detection.ftcPose.bearing)
-}
+## Step 5: Test without moving the robot
 
-if (detection.ftcPose.range > 12) {
-    // Drive forward
-    driveInches(detection.ftcPose.range - 12)
-}
-```
-</Tab>
-</Tabs>
+1. Put the robot on blocks or leave the drivetrain disabled.
+2. Run the SDK's `ConceptAprilTag` sample that matches your SDK version.
+3. Keep the OpMode in INIT and open Camera Stream.
+4. Move a printed tag or cluster through the image and watch the detection name, range, and bearing.
+5. Hide the target. Confirm your program handles an empty detection list.
+6. Test the actual robot camera placement and real field lighting before using measurements for localization.
 
-### Rotation Angles
+## Common mistakes
 
-- **yaw** - Rotation around vertical axis (turning left/right)
-- **pitch** - Rotation around horizontal axis (tilting up/down)
-- **roll** - Rotation around forward axis (rolling side to side)
+| Mistake | Why it fails | Better check |
+| --- | --- | --- |
+| Reading `.id` on every `AprilTagDetection` | Cluster detections do not have a single-tag ID. | Check `instanceof AprilTagSingleDetection` first. |
+| Assuming every season uses single tags | SDK 12 added cluster detections; BIOBUZZ uses clusters. | Inspect the current game library and matching sample. |
+| Treating camera pose as robot pose | The camera can be offset and rotated on the robot. | Apply the camera-to-robot transform or use the SDK's robot-pose support when configured. |
+| Trusting a pose with unknown tag size or calibration | Scale and orientation estimates can be wrong. | Verify tag metadata and camera calibration for the selected resolution. |
+| Acting on an empty or stale result | The target may be outside the view or no longer visible. | Require a fresh detection and define a safe fallback. |
 
-## Advanced Configuration
+## Current FTC references
 
-### Tag Library
-
-Configure which tags exist and their locations:
-
-```java
-AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
-    .setTagLibrary(AprilTagGameDatabase.getCurrentGameTagLibrary())
-    .build();
-```
-
-The tag library includes:
-- Tag IDs used in the current season
-- Physical size of tags
-- Known positions on the field
-
-### Camera Calibration
-
-For improved accuracy, calibrate your camera:
-
-```java
-AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
-    .setLensIntrinsics(fx, fy, cx, cy)
-    .build();
-```
-
-Parameters:
-- **fx, fy** - Focal length in pixels
-- **cx, cy** - Principal point (image center)
-
-Most teams can skip this and use default values.
-
-### Detection Decimation
-
-Trade accuracy for speed:
-
-```java
-AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder()
-    .setDecimation(2)  // Process every 2nd pixel (2x faster)
-    .build();
-```
-
-Values: 1 (best quality), 2 (good balance), 3 (fastest)
-
-## Real-World Usage Patterns
-
-### Pattern 1: Precise Alignment
-
-```java
-private boolean alignToTag(int targetId, double targetRange, double tolerance) {
-    List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
-    
-    for (AprilTagDetection detection : detections) {
-        if (detection.id == targetId) {
-            double range = detection.ftcPose.range;
-            double bearing = detection.ftcPose.bearing;
-            
-            // Check if aligned
-            if (Math.abs(range - targetRange) < tolerance && 
-                Math.abs(bearing) < 2) {
-                return true;  // Aligned!
-            }
-            
-            // Align
-            if (Math.abs(bearing) > 2) {
-                turnTowards(bearing);
-            } else if (range > targetRange + tolerance) {
-                driveForward();
-            } else if (range < targetRange - tolerance) {
-                driveBackward();
-            }
-        }
-    }
-    
-    return false;  // Tag not found or not aligned
-}
-```
-
-### Pattern 2: Localization
-
-```java
-private void updateRobotPose() {
-    List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
-    
-    if (!detections.isEmpty()) {
-        AprilTagDetection detection = detections.get(0);
-        
-        // Get tag's known field position from tag library
-        double tagFieldX = getTagFieldX(detection.id);
-        double tagFieldY = getTagFieldY(detection.id);
-        
-        // Calculate robot position
-        double robotX = tagFieldX - detection.ftcPose.x;
-        double robotY = tagFieldY - detection.ftcPose.y;
-        double robotHeading = detection.ftcPose.yaw;
-        
-        // Update odometry with this information
-        updateOdometry(robotX, robotY, robotHeading);
-    }
-}
-```
-
-### Pattern 3: Multi-Tag Triangulation
-
-```java
-private void triangulatePosition() {
-    List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
-    
-    if (detections.size() >= 2) {
-        // Use multiple tags for better accuracy
-        double sumX = 0, sumY = 0;
-        int count = 0;
-        
-        for (AprilTagDetection detection : detections) {
-            double tagX = getTagFieldX(detection.id);
-            double tagY = getTagFieldY(detection.id);
-            
-            sumX += tagX - detection.ftcPose.x;
-            sumY += tagY - detection.ftcPose.y;
-            count++;
-        }
-        
-        // Average position from all visible tags
-        double robotX = sumX / count;
-        double robotY = sumY / count;
-        
-        telemetry.addData("Robot Position", 
-            "X: %.1f, Y: %.1f", robotX, robotY);
-    }
-}
-```
-
-## Combining with Other Processors
-
-Run AprilTag and color detection simultaneously:
-
-```java
-AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder().build();
-ColorBlobLocatorProcessor colorProcessor = new ColorBlobLocatorProcessor.Builder()
-    .setTargetColorRange(ColorRange.BLUE)
-    .build();
-
-visionPortal = new VisionPortal.Builder()
-    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-    .addProcessor(aprilTagProcessor)    // Localize with AprilTags
-    .addProcessor(colorProcessor)       // Detect game elements
-    .build();
-```
-
-Use AprilTags for navigation, color detection for game pieces!
-
-## Troubleshooting
-
-### Tags Not Detected
-
-**Causes:**
-- Tags too far away or at extreme angle
-- Poor lighting
-- Motion blur
-- Wrong tag library
-
-**Solutions:**
-- Move closer to tags (within 3-4 feet works best)
-- Ensure good lighting on tags
-- Reduce robot movement speed
-- Verify tag library matches current game
-
-### Inaccurate Pose
-
-**Causes:**
-- Camera not calibrated
-- Tags viewed at steep angle
-- Rolling shutter effect
-
-**Solutions:**
-- View tags head-on when possible
-- Use multiple tags for triangulation
-- Calibrate camera (advanced)
-
-### Performance Issues
-
-**Causes:**
-- High resolution
-- Low decimation
-- Running too many processors
-
-**Solutions:**
-- Increase decimation (2 or 3)
-- Reduce camera resolution
-- Disable unused processors
-
-## Best Practices
-
-1. **Use Multiple Tags** - More tags = better accuracy
-2. **View Head-On** - Best detection at 0-30 degree angles
-3. **Proper Distance** - 1-4 feet optimal for most cameras
-4. **Good Lighting** - Avoid shadows and glare on tags
-5. **Disable When Done** - Save CPU during TeleOp
-
-```java
-// After autonomous alignment
-visionPortal.setProcessorEnabled(aprilTagProcessor, false);
-```
-
-## Next Steps
-
-- Create [Custom VisionProcessors](./custom-processors) for unique needs
-- Learn [Integration Patterns](./vision-integration) for subsystems
-- See [Migration Guide](./migration-guide) from EasyOpenCV
-- Explore [Advanced Techniques](./advanced-vision)
+- [FTC AprilTag ID codes and SDK 12 results](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_id_code/apriltag-id-code.html)
+- [FTC AprilTag clusters, including BIOBUZZ](https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html)
+- [FTC AprilTag pose](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_pose/apriltag-pose.html)
+- [FTC AprilTag reference frame](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_reference_frame/apriltag-reference-frame.html)
+- [FTC explanation of detection values](https://ftc-docs.firstinspires.org/en/latest/apriltag/understanding_apriltag_detection_values/understanding-apriltag-detection-values.html)
+- [FTC camera calibration](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_webcams/visionportal-webcams.html)
+- [Current season game resources](https://ftc-resources.firstinspires.org/ftc/game)

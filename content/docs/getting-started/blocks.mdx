@@ -1,25 +1,31 @@
 ---
-title: JavaBlocks
-description: Drag, drop, and code! 🎨
-icon: Package
+title: Blocks
+description: Create FTC OpModes with the browser-based visual programming tool
+icon: Blocks
 ---
 
-JavaBlocks (often just called **Blocks**) is a super fun visual programming language! 🌟
-It's designed for FTC and FGC teams and runs right on your REV Control Hub. Just connect
-to the hub's Wi-Fi, open a browser, and you're ready to go — no installation needed! 🚀
+## What is Blocks?
 
-Blocks works by letting you drag and drop puzzle-like pieces of code instead of writing text. This makes it beginner-friendly and perfect for those who are new to coding or just want to quickly test ideas without worrying about syntax errors.
+FTC Blocks is a visual programming tool served by the Robot Controller. You use a browser on a computer or compatible device to create, edit, save, and build OpModes with connected blocks. No separate editor installation is needed; the Robot Controller and browser must be connected through the robot's Program & Manage network.
 
-With Blocks, you can:
-- Control motors and servos
-- Read sensors like distance sensors, color sensors, and gyros
-- Make decisions using logic
-- Build full autonomous and driver-controlled programs
+FIRST recommends Blocks as the starting tool, including for teams that expect to use Java later. Blocks programs are saved and run on the Robot Controller. Keep a downloaded copy of your `.blk` files with the team's source and backups.
 
-Under the hood, Blocks is actually generating Java code. This means it's a great way to learn programming fundamentals and transition smoothly to OnBot Java or Android Studio Java/Kotlin later on.
+## First steps
 
-It's not just for beginners, though: plenty of experienced teams use Blocks to build competitive bots. It's fast, reliable, and gets the job done.
+1. Configure the robot's devices in the Robot Controller app.
+2. Connect your browser to the Program & Manage address shown on the Robot Controller.
+3. Open the **Blocks** programming tool and create a sample OpMode.
+4. Read the FTC tutorial for setup, building, running, and saving Blocks programs.
 
-## How to Write Blocks
+The address depends on the Robot Controller device and network configuration. Use the address shown on the device rather than assuming an IP address.
 
-<TBA />
+## Learn more
+
+- [Official Blocks Programming Tutorial](https://ftc-docs.firstinspires.org/en/latest/programming_resources/blocks/Blocks-Tutorial.html)
+- [Creating an OpMode with Blocks](https://ftc-docs.firstinspires.org/en/latest/programming_resources/tutorial_specific/blocks/creating_op_modes/Writing-an-Op-Mode-with-FTC-Blocks.html)
+- [Managing, downloading, and uploading Blocks OpModes](https://ftc-docs.firstinspires.org/en/latest/programming_resources/tutorial_specific/blocks/managing_opmodes/managing-opmodes.html)
+- [Official programming tool comparison](https://ftc-docs.firstinspires.org/en/latest/programming_resources/shared/choosing_program_lang/choosing-program-lang.html)
+
+## Moving to text-based code
+
+Blocks is its own visual programming environment. It can help you learn sequencing, conditions, loops, and hardware control, but it does not automatically make a Java project for Android Studio. When you move to text, learn the Java syntax and FTC SDK APIs using the official [OnBot Java](./onbot-java) or [Android Studio](./android-studio) guides.

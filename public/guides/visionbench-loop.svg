@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 210" role="img" aria-labelledby="title desc">
+  <title id="title">VisionBench test loop</title>
+  <desc id="desc">A saved image enters a pipeline, which produces a preview. Inspecting the preview helps you change one setting and rerun the pipeline.</desc>
+  <rect width="800" height="210" rx="18" fill="#f1f5f9"/>
+  <g font-family="Arial, sans-serif" text-anchor="middle">
+    <g fill="#ffffff" stroke="#0891b2" stroke-width="2">
+      <rect x="32" y="34" width="170" height="78" rx="12"/>
+      <rect x="255" y="34" width="170" height="78" rx="12"/>
+      <rect x="478" y="34" width="170" height="78" rx="12"/>
+      <rect x="319" y="144" width="260" height="48" rx="12"/>
+    </g>
+    <g fill="#0f172a" font-size="17" font-weight="bold">
+      <text x="117" y="66">1. Choose</text><text x="340" y="66">2. Run</text><text x="563" y="66">3. Inspect</text>
+      <text x="449" y="174">4. Change one setting</text>
+    </g>
+    <g fill="#334155" font-size="14">
+      <text x="117" y="88">a test photo</text><text x="340" y="88">your pipeline</text><text x="563" y="88">the preview</text>
+    </g>
+  </g>
+  <g fill="none" stroke="#0891b2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M207 73h38m-8-8 8 8-8 8"/>
+    <path d="M430 73h38m-8-8 8 8-8 8"/>
+    <path d="M563 118v17m-8-8 8 8 8-8"/>
+    <path d="M319 168H230V124h110v-12m-8 8 8-8 8 8"/>
+  </g>
+</svg>

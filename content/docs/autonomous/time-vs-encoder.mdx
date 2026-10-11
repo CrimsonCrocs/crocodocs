@@ -1,327 +1,261 @@
 ---
 title: Time vs Encoder-Based Movement
-description: Understanding the two fundamental approaches to autonomous robot movement
+description: Make a timed move, then improve it with measured encoder feedback
 icon: Clock
 ---
 
-## Overview
+# Two ways to tell a robot to move
 
-When starting autonomous programming, you have two fundamental approaches to move your robot: **time-based** and **encoder-based**. Understanding both is critical before moving to advanced techniques like odometry and path following.
+A **time-based move** runs a motor for a chosen duration. An **encoder-based move** sets a target wheel rotation and checks when the motor reaches it. The first is quick to try; the second gives the program feedback about wheel rotation. Neither one tells the robot its exact field position if its wheels slip.
 
-## Time-Based Movement
+![A timed move stops after a clock interval even if the wheel has not reached a distance; an encoder move checks wheel rotation and stops when its tick target is reached.](/guides/time-vs-encoder.svg)
 
-**Time-based movement** uses timers to control how long motors run. The robot moves forward for a set duration, then stops.
+The clock measures **how long power was applied**. An encoder measures **how far the motor shaft turned**. Try one method at a time so you can compare its result on the same robot.
 
-### How It Works
+## Try a timed move first
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-@Autonomous(name = "Time-Based Auto")
-public class TimeBasedAuto extends LinearOpMode {
-    
-    @Override
-    public void runOpMode() {
-        DcMotor leftMotor = hardwareMap.get(DcMotor.class, "left_motor");
-        DcMotor rightMotor = hardwareMap.get(DcMotor.class, "right_motor");
-        
-        waitForStart();
-        
-        // Drive forward for 2 seconds
-        leftMotor.setPower(0.5);
-        rightMotor.setPower(0.5);
-        sleep(2000); // milliseconds
-        
-        // Stop
-        leftMotor.setPower(0);
-        rightMotor.setPower(0);
-    }
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-@Autonomous(name = "Time-Based Auto")
-class TimeBasedAuto : LinearOpMode() {
-    
-    override fun runOpMode() {
-        val leftMotor = hardwareMap.get(DcMotor::class.java, "left_motor")
-        val rightMotor = hardwareMap.get(DcMotor::class.java, "right_motor")
-        
-        waitForStart()
-        
-        // Drive forward for 2 seconds
-        leftMotor.power = 0.5
-        rightMotor.power = 0.5
-        sleep(2000) // milliseconds
-        
-        // Stop
-        leftMotor.power = 0.0
-        rightMotor.power = 0.0
-    }
-}
-```
-</Tab>
-</Tabs>
-
-### Pros of Time-Based
-
-**Simple to understand** — Easy for beginners to grasp  
-**No encoder setup required** — Works immediately  
-**Fast to prototype** — Try different timings quickly  
-**Good for early testing** — Validate basic drivetrain functionality
-
-### Cons of Time-Based
-
-**Inconsistent** — Battery voltage affects motor speed  
-**Unreliable** — Different field surfaces (tile vs carpet) change movement  
-**No feedback** — Robot doesn't know if it actually moved  
-**Wheel slippage** — If wheels slip, robot has no idea  
-**Not competition-ready** — Too unreliable for serious matches
-
-### When to Use Time-Based
-
-- **First-time autonomous programmers** learning the basics
-- **Initial drivetrain testing** to verify motors work correctly
-- **Prototyping ideas** before implementing proper control
-- **Dead simple backup** if all encoders fail (rarely)
-
-## Encoder-Based Movement
-
-**Encoder-based movement** uses motor encoders to track wheel rotation. The robot moves until encoders report a specific distance traveled.
-
-### What Are Encoders?
-
-Encoders are sensors built into FTC motors that count **ticks** as the motor shaft rotates. Each tick represents a small fraction of a wheel rotation.
-
-**Common FTC Motor Encoder Values:**
-- **HD Hex Motor:** 28 ticks per revolution (gearbox multiplies this)
-- **Core Hex Motor:** 288 ticks per revolution
-- **REV HD Hex Motor (after gearbox):** ~560 ticks per revolution
-- **goBILDA Yellow Jacket (various ratios):** 383.6–1425.1 ticks per revolution
-
-### How It Works
+This short `LinearOpMode` example drives two motors forward for one second. Replace the hardware names and direction settings to match your robot:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
+
 ```java
-@Autonomous(name = "Encoder-Based Auto")
-public class EncoderBasedAuto extends LinearOpMode {
-    
-    private static final double COUNTS_PER_INCH = 50; // Calibrate this!
-    
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+@Autonomous(name = "Timed Drive Test")
+public class TimedDriveTest extends LinearOpMode {
     @Override
     public void runOpMode() {
-        DcMotor leftMotor = hardwareMap.get(DcMotor.class, "left_motor");
-        DcMotor rightMotor = hardwareMap.get(DcMotor.class, "right_motor");
-        
-        // Enable encoder mode
-        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        
+        DcMotor left = hardwareMap.get(DcMotor.class, "left_drive");
+        DcMotor right = hardwareMap.get(DcMotor.class, "right_drive");
+        left.setDirection(DcMotorSimple.Direction.REVERSE); // Example; verify on blocks.
+        right.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        telemetry.addLine("Raise the robot and verify both wheels turn forward.");
+        telemetry.update();
         waitForStart();
-        
-        // Drive forward 24 inches
-        driveDistance(24, leftMotor, rightMotor);
-    }
-    
-    private void driveDistance(double inches, DcMotor left, DcMotor right) {
-        int targetTicks = (int)(inches * COUNTS_PER_INCH);
-        
-        // Reset encoders
-        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        
-        // Set target position
-        left.setTargetPosition(targetTicks);
-        right.setTargetPosition(targetTicks);
-        
-        // Run to position
-        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        
-        left.setPower(0.5);
-        right.setPower(0.5);
-        
-        // Wait until target reached
-        while (opModeIsActive() && (left.isBusy() || right.isBusy())) {
-            telemetry.addData("Left", left.getCurrentPosition());
-            telemetry.addData("Right", right.getCurrentPosition());
-            telemetry.update();
-        }
-        
-        // Stop
-        left.setPower(0);
-        right.setPower(0);
+        if (!opModeIsActive()) return;
+
+        left.setPower(0.25);
+        right.setPower(0.25);
+        sleep(1000); // milliseconds
+        left.setPower(0.0);
+        right.setPower(0.0);
     }
 }
 ```
+
 </Tab>
 <Tab value="Kotlin">
+
 ```kotlin
-@Autonomous(name = "Encoder-Based Auto")
-class EncoderBasedAuto : LinearOpMode() {
-    
-    companion object {
-        const val COUNTS_PER_INCH = 50.0 // Calibrate this!
-    }
-    
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.util.ElapsedTime
+import kotlin.math.abs
+import kotlin.math.roundToInt
+
+@Autonomous(name = "Timed Drive Test")
+class TimedDriveTest : LinearOpMode() {
     override fun runOpMode() {
-        val leftMotor = hardwareMap.get(DcMotor::class.java, "left_motor")
-        val rightMotor = hardwareMap.get(DcMotor::class.java, "right_motor")
-        
-        // Enable encoder mode
-        leftMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        rightMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        
-        leftMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
-        rightMotor.mode = DcMotor.RunMode.RUN_USING_ENCODER
-        
+        val left = hardwareMap.get(DcMotor::class.java, "left_drive")
+        val right = hardwareMap.get(DcMotor::class.java, "right_drive")
+        left.direction = DcMotorSimple.Direction.REVERSE // Example; verify on blocks.
+        right.direction = DcMotorSimple.Direction.FORWARD
+
+        telemetry.addLine("Raise the robot and verify both wheels turn forward.")
+        telemetry.update()
         waitForStart()
-        
-        // Drive forward 24 inches
-        driveDistance(24.0, leftMotor, rightMotor)
-    }
-    
-    private fun driveDistance(inches: Double, left: DcMotor, right: DcMotor) {
-        val targetTicks = (inches * COUNTS_PER_INCH).toInt()
-        
-        // Reset encoders
-        left.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        right.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        
-        // Set target position
-        left.targetPosition = targetTicks
-        right.targetPosition = targetTicks
-        
-        // Run to position
-        left.mode = DcMotor.RunMode.RUN_TO_POSITION
-        right.mode = DcMotor.RunMode.RUN_TO_POSITION
-        
-        left.power = 0.5
-        right.power = 0.5
-        
-        // Wait until target reached
-        while (opModeIsActive() && (left.isBusy || right.isBusy)) {
-            telemetry.addData("Left", left.currentPosition)
-            telemetry.addData("Right", right.currentPosition)
-            telemetry.update()
-        }
-        
-        // Stop
+        if (!opModeIsActive()) return
+
+        left.power = 0.25
+        right.power = 0.25
+        sleep(1000) // milliseconds
         left.power = 0.0
         right.power = 0.0
     }
 }
 ```
+
 </Tab>
 </Tabs>
 
-### Calibrating Encoders
+`0.25` is motor power and `1000` is milliseconds. Measure the distance the robot actually moved, then repeat with a different battery or surface. The result can change because of battery voltage, friction, wheel slip, and load. Use timed movement to test direction or prototype an idea; do not assume one duration always means one distance.
 
-To find your `COUNTS_PER_INCH` value:
+## What an encoder measures
 
-1. **Run a test:** Drive robot exactly 48 inches using time
-2. **Read encoders:** Check how many ticks the motors counted
-3. **Calculate:** `COUNTS_PER_INCH = total_ticks / 48`
-4. **Verify:** Drive 24 inches and measure to confirm accuracy
+An encoder reports motor or wheel rotation as counts, often called ticks. To convert those counts into a wheel-distance estimate, calibrate **your assembled drivetrain**:
 
-<Callout type="warn">
-**Calibration Tip:** Different wheel sizes, gear ratios, and drivetrains will have different values. Always calibrate for YOUR robot!
-</Callout>
+1. Mark a start line and reset the drive encoders.
+2. Drive a measured distance slowly, such as 24 inches.
+3. Record the average absolute encoder change from the two drive sides.
+4. Divide that count by the measured distance.
 
-### Pros of Encoder-Based
+```text
+counts per inch = encoder count change ÷ measured inches
+target counts   = desired inches × counts per inch
+```
 
-**Consistent** — Same distance every time (mostly)  
-**Feedback-driven** — Robot knows how far it's moved  
-**Handles battery variance** — Low battery doesn't affect distance  
-**Competition-ready** — Reliable enough for matches  
-**Foundation for odometry** — First step toward position tracking
+The value depends on the motor encoder, gear reduction, wheel diameter, and how the motor is connected. A motor's published counts-per-motor-revolution is only one part of this calculation; do not copy a generic motor value as `COUNTS_PER_INCH`.
 
-### Cons of Encoder-Based
+## Drive to an encoder target
 
-**Still no absolute position** — Robot doesn't know WHERE on the field it is  
-**Wheel slip still problematic** — Encoders count rotation, not actual movement  
-**Turning is complex** — Rotation requires careful calibration  
-**Drift over time** — Small errors accumulate in long routines
+`RUN_TO_POSITION` asks the FTC motor controller to move its encoder to a target count. Start with a short distance and low power. The values below are examples; measure your own `COUNTS_PER_INCH` and verify encoder signs before enabling a long move.
 
-### When to Use Encoder-Based
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
 
-- **Standard autonomous routines** for most teams
-- **Precise straight-line movements**
-- **Consistent scoring positions**
-- **Foundation before implementing odometry**
+```java
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-## Motor Run Modes Explained
+@Autonomous(name = "Encoder Drive Test")
+public class EncoderDriveTest extends LinearOpMode {
+    private static final double COUNTS_PER_INCH = 50.0; // Replace with your measurement
 
-FTC motors support several encoder modes:
+    @Override
+    public void runOpMode() {
+        DcMotor left = hardwareMap.get(DcMotor.class, "left_drive");
+        DcMotor right = hardwareMap.get(DcMotor.class, "right_drive");
+        left.setDirection(DcMotorSimple.Direction.REVERSE); // Example; verify on blocks.
+        right.setDirection(DcMotorSimple.Direction.FORWARD);
+        left.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-### `RUN_WITHOUT_ENCODER`
-- Motors ignore encoder feedback entirely
-- Used in time-based control
-- Fastest motor response
+        left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-### `RUN_USING_ENCODER`
-- Motors use encoders for **velocity control** (PID internally)
-- You set power, motor adjusts to maintain consistent speed
-- Good for driver control
+        telemetry.addLine("Confirm the robot has clear space ahead.");
+        telemetry.update();
+        waitForStart();
+        if (!opModeIsActive()) return;
 
-### `RUN_TO_POSITION`
-- Motors automatically drive to a **target encoder position**
-- Built-in PID controller handles movement
-- Easiest for encoder-based autonomous
+        if (!driveInches(12.0, 0.25, left, right)) return;
+        left.setPower(0.0);
+        right.setPower(0.0);
+    }
 
-### `STOP_AND_RESET_ENCODER`
-- Resets encoder count to zero
-- Use before starting a new movement
-- Essential for accurate position tracking
+    private boolean driveInches(double inches, double power, DcMotor left, DcMotor right) {
+        int leftTarget = left.getCurrentPosition()
+            + (int) Math.round(inches * COUNTS_PER_INCH);
+        int rightTarget = right.getCurrentPosition()
+            + (int) Math.round(inches * COUNTS_PER_INCH);
+        left.setTargetPosition(leftTarget);
+        right.setTargetPosition(rightTarget);
+        left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        left.setPower(Math.abs(power));
+        right.setPower(Math.abs(power));
 
-## Comparison Table
+        ElapsedTime timeout = new ElapsedTime();
+        while (opModeIsActive()
+                && (left.isBusy() || right.isBusy())
+                && timeout.seconds() < 3.0) {
+            telemetry.addData("Left ticks", left.getCurrentPosition());
+            telemetry.addData("Right ticks", right.getCurrentPosition());
+            telemetry.update();
+            idle();
+        }
 
-| Feature | Time-Based | Encoder-Based |
-|---------|-----------|---------------|
-| **Setup Difficulty** | Very Easy | Moderate |
-| **Consistency** | Poor | Good |
-| **Accuracy** | ±30% | ±5-10% |
-| **Battery Tolerance** | No | Yes |
-| **Position Awareness** | None | Relative (distance only) |
-| **Competition Viability** | No | Yes |
-| **Learning Curve** | Minutes | Hours |
-| **Code Complexity** | Minimal | Moderate |
+        boolean reachedTarget = !left.isBusy() && !right.isBusy();
+        left.setPower(0.0);
+        right.setPower(0.0);
+        left.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        right.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        return reachedTarget && opModeIsActive();
+    }
+}
+```
 
-## Progression Path
+</Tab>
+<Tab value="Kotlin">
 
-Most teams follow this learning path:
+```kotlin
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.util.ElapsedTime
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
-1. **Time-Based** (Week 1-2)
-   - Learn basic autonomous structure
-   - Test drivetrain functionality
-   - Build confidence with robot movement
+@Autonomous(name = "Encoder Drive Test")
+class EncoderDriveTest : LinearOpMode() {
+    companion object { private const val COUNTS_PER_INCH = 50.0 }
 
-2. **Encoder-Based** (Week 3-6)
-   - Implement encoder-driven movements
-   - Calibrate for accurate distances
-   - Build reliable autonomous scoring routines
+    override fun runOpMode() {
+        val left = hardwareMap.get(DcMotor::class.java, "left_drive")
+        val right = hardwareMap.get(DcMotor::class.java, "right_drive")
+        left.direction = DcMotorSimple.Direction.REVERSE // Example; verify on blocks.
+        right.direction = DcMotorSimple.Direction.FORWARD
+        left.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        right.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
-3. **Odometry** (Week 7+)
-   - Add position tracking (x, y, heading)
-   - Know exact location on field
-   - Enable advanced path following
+        left.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        right.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        left.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        right.mode = DcMotor.RunMode.RUN_USING_ENCODER
 
-4. **Path Following** (Advanced)
-   - Pure Pursuit, Road Runner, Pedro Pathing
-   - Smooth curved paths
-   - Professional-level autonomous
+        telemetry.addLine("Confirm the robot has clear space ahead.")
+        telemetry.update()
+        waitForStart()
+        if (!opModeIsActive()) return
 
-## Next Steps
+        if (!driveInches(12.0, 0.25, left, right)) return
+        left.power = 0.0
+        right.power = 0.0
+    }
 
-Once you're comfortable with encoder-based movement, progress to **[Odometry](/docs/autonomous/odometry)** to track your robot's absolute position on the field!
+    private fun driveInches(inches: Double, power: Double, left: DcMotor, right: DcMotor): Boolean {
+        val leftTarget = left.currentPosition + (inches * COUNTS_PER_INCH).roundToInt()
+        val rightTarget = right.currentPosition + (inches * COUNTS_PER_INCH).roundToInt()
+        left.targetPosition = leftTarget
+        right.targetPosition = rightTarget
+        left.mode = DcMotor.RunMode.RUN_TO_POSITION
+        right.mode = DcMotor.RunMode.RUN_TO_POSITION
+        left.power = abs(power)
+        right.power = abs(power)
 
-## Additional Resources
+        val timeout = ElapsedTime()
+        while (opModeIsActive() && (left.isBusy || right.isBusy) && timeout.seconds() < 3.0) {
+            telemetry.addData("Left ticks", left.currentPosition)
+            telemetry.addData("Right ticks", right.currentPosition)
+            telemetry.update()
+            idle()
+        }
 
-- [FTC SDK Motor Documentation](https://javadoc.io/doc/org.firstinspires.ftc)
-- [Game Manual 1: Hardware & Encoders](https://www.firstinspires.org/resource-library/ftc/game-and-season-info)
-- [Control Systems: PID Control](/docs/control-systems/pid-control)
+        val reachedTarget = !left.isBusy && !right.isBusy
+        left.power = 0.0
+        right.power = 0.0
+        left.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        right.mode = DcMotor.RunMode.RUN_USING_ENCODER
+        return reachedTarget && opModeIsActive()
+    }
+}
+```
+
+</Tab>
+</Tabs>
+
+Follow the example in stages: convert 12 inches to target counts, give both motors those targets, and wait while either side is still moving. The timeout prevents the OpMode from waiting forever if a motor cannot reach its target. If `driveInches` returns `false`, stop the route instead of starting the next movement.
+
+The example sets motor power to a positive magnitude because the FTC `RUN_TO_POSITION` mode chooses direction from the target error. For a reverse move, use a negative `inches` value to make a lower target. Verify both logical encoder readings change in the expected direction on blocks before trying it on the floor.
+
+## What encoders can and cannot tell you
+
+Encoders measure rotation, not ground travel. They improve a straight distance move, but wheel slip or a collision can make the robot stop at a different field position than expected. Long routes also accumulate small scale errors. For field pose, heading correction, or curves, continue to [Odometry](./odometry), [Sensor Fusion](./sensor-fusion), and [Motion Planning](./motion-planning).
+
+## References
+
+- [FTC SDK programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
+- [Game Manual 0: Encoders](https://gm0.org/en/latest/docs/software/getting-started/common-hardware-components.html#encoders)

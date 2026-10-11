@@ -1,102 +1,40 @@
 ---
-title: Introduction
-description: Learn to create reliable autonomous routines using path planning, localization, and sensor-driven decision-making
+title: Autonomous Programming
+description: Build and test routines that run without driver input
 icon: BookOpen
 ---
 
-## What is Autonomous Programming?
+## What is autonomous?
 
-**Autonomous** programming is the art of making your robot operate independently without driver input. During the 30-second autonomous period in FTC matches, your robot must navigate the field, detect game elements, and score points — all on its own.
+An autonomous OpMode runs without driver input for the **30-second AUTO period** of an FTC match. It can read sensors, move mechanisms, and make decisions based on its program. The exact game tasks and scoring change each season; see the [current season guide](../season-breakdown) and current Competition Manual for those details.
 
-Unlike driver-controlled periods where you're constantly adjusting, autonomous requires your robot to:
-- **Plan paths** from start to finish
-- **Localize itself** to know where it is on the field
-- **Make decisions** based on sensor data
-- **Execute tasks** precisely and repeatably
+A useful autonomous routine is repeatable, stops safely, and accounts for uncertainty in localization and game-piece interaction. More steps do not guarantee a better routine.
 
-## Why Autonomous Matters
+## Core concepts
 
-In FTC DECODE (2025-2026), autonomous is worth **significant points**:
-- Delivering ARTIFACTS to the OBELISK
-- Detecting MOTIF patterns with AprilTags
-- Parking in designated zones
-- Setting up for driver-controlled period
+- **Motion planning** describes where and how the robot should move.
+- **Localization** estimates the robot's pose using encoders, an IMU, odometry, or vision.
+- **Control** uses sensor feedback to reduce the difference between the desired and measured behavior.
+- **Decision logic** handles alternate outcomes, such as a missed game piece or a tag that was not detected.
 
-**Teams with strong autonomous routines consistently outperform those without**, often winning matches before the driver-controlled period even begins.
+These components affect each other. A path follower cannot compensate for a badly calibrated localizer, and an AprilTag pose is an estimate whose quality depends on visibility and camera calibration.
 
-## Core Concepts in Autonomous
+## A reliable build-up
 
-### Motion Planning
+1. Test individual hardware safely.
+2. Make one short movement and verify motor direction, encoder direction, and stopping behavior.
+3. Measure localization error before adding long paths.
+4. Add one mechanism action and confirm its timing.
+5. Test repeated runs from the real starting position, with realistic battery and field conditions.
+6. Add fallback behavior and an explicit safe stop.
 
-How your robot decides **where to go** and **what path to take**. This includes:
-- Straight-line movements vs curved paths
-- Staying within boundaries
-- Timing movements with mechanism actions
+The following pages cover movement, odometry, path planning, and sensor fusion. They explain general methods; check each library's official documentation before using its API.
 
-### Localization & Odometry
+## Topics
 
-How your robot knows **where it is** on the field:
-- **Dead reckoning** (encoders, IMU)
-- **Sensor fusion** (combining multiple data sources)
-- **Visual localization** (AprilTags, computer vision)
-
-### Control & Execution
-
-How your robot **follows the plan accurately**:
-- PID controllers for precise movement
-- Motion profiling for smooth acceleration
-- Pure pursuit for curved path following
-
-## Building Your First Autonomous
-
-Here's what you'll learn in this section:
-
-1. **[Time vs Encoder-Based Movement](/docs/autonomous/time-vs-encoder)** — Start simple before going advanced
-2. **[Odometry Basics](/docs/autonomous/odometry)** — Track your robot's position on the field
-3. **[Motion Planning](/docs/autonomous/motion-planning)** — Choose the right path planning method
-4. **[Pure Pursuit](/docs/autonomous/pure-pursuit)** — Follow smooth, curved paths with precision
-5. **[Sensor Fusion](/docs/autonomous/sensor-fusion)** — Combine multiple sensors for better accuracy
-
-## Autonomous Strategy Tips
-
-<Callout type="tip">
-**Start Simple, Then Optimize:** Your first autonomous doesn't need to be complex. A reliable 2-3 task routine beats an unreliable 5-task routine every time!
-</Callout>
-
-### Development Process
-
-1. **Plan on paper first** — Draw your robot's path on a field diagram
-2. **Start with time-based** — Get basic movement working
-3. **Add encoders** — Make movements more consistent
-4. **Implement odometry** — Start tracking position
-5. **Use vision** — Detect game elements and align precisely
-6. **Test, test, test** — Practice matches reveal issues early
-
-### Competition Priorities
-
-**Early Season (Weeks 1-4):**
-- Time-based movement to scoring zones
-- Basic game element detection with color sensors
-- Simple parking routine
-
-**Mid Season (Weeks 5-8):**
-- Encoder-based precise movements
-- Dead reckoning odometry (2-wheel or 3-wheel)
-- AprilTag localization for alignment
-
-**Late Season (League Championships):**
-- Full path following (Pure Pursuit, Road Runner)
-- Sensor fusion for robust localization
-- Multiple autonomous routes based on alliance color and randomization
-
-## Common Mistakes to Avoid
-
-**Complex autonomous on day one** — Start simple, add complexity gradually  
-**No testing on actual field** — Carpet type, battery voltage, and lighting all affect performance  
-**Hardcoded delays** — Time-based waits are unreliable; use sensor feedback when possible  
-**Single autonomous route** — Always have a backup plan if vision fails  
-**Ignoring initialization time** — Robot takes time to initialize; account for this in planning
-
-## Next Steps
-
-Ready to build your autonomous routine? Start with **[Time vs Encoder-Based Movement](/docs/autonomous/time-vs-encoder)** to understand the fundamentals, then progress to **[Odometry](/docs/autonomous/odometry)** for position tracking!
+- [Time-based and encoder-based movement](./time-vs-encoder)
+- [Odometry](./odometry)
+- [Motion planning](./motion-planning)
+- [Pure Pursuit](./pure-pursuit)
+- [Sensor fusion](./sensor-fusion)
+- [Current FTC season](../season-breakdown)

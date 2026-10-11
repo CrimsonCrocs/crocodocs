@@ -1,154 +1,76 @@
 ---
 title: Vision Basics
-description: Fundamental concepts of image processing for FTC
+description: Learn what a camera pipeline measures before writing robot decisions
 icon: BookOpen
 ---
 
-## How Cameras Work in FTC
+# What does a vision program actually see?
 
-Your robot's camera captures frames at a specific resolution (typically 640x480 or 1280x720) and frame rate. Each frame is a 2D array of pixels, where each pixel contains color information.
+A camera does not see “a game piece” the way a person does. It gives the program an image made of pixels. Vision software turns those pixels into measurements—such as “these pixels look blue,” “this shape is centered at x = 210,” or “I can read tag ID 4.” Your OpMode must decide what those measurements mean and what the robot should do next.
 
-## Color Spaces
+![OpenCV stages on an official BIOBUZZ Pollen photo: source image, yellow HSV mask, cleaned candidate, and measured blob.](/guides/vision-color-blob-pipeline.png)
 
-Different color spaces represent colors in different ways. Understanding them is crucial for effective color detection.
+*This controlled example uses a [published Pollen product photo](https://andymark.com/products/biobuzz-scoring-elements); a robot camera sees a different background, distance, and lighting.*
 
-### RGB (Red, Green, Blue)
+## Follow one object through a vision pipeline
 
-The most common color space. Each pixel has three values (0-255) representing red, green, and blue intensity.
+Use the picture above as a mental model. A basic color pipeline performs these jobs:
 
-```java
-// RGB values
-int red = 255;
-int green = 0;
-int blue = 0;
-// Result: Pure red color
-```
+1. **Capture a frame.** The camera supplies a color image. Its width and height are measured in pixels.
+2. **Choose an area to search.** A region of interest (ROI) limits detection to the part of the image where the object could appear.
+3. **Mark pixels that match.** A color range converts the image into a mask: white means “matches this range,” black means “does not.”
+4. **Group connected matching pixels.** Each group becomes a candidate blob. A processor can report the blob's area, shape, and center point.
+5. **Make a robot decision.** Your program checks whether the result is plausible, then selects an action or a fallback.
 
-**Pros:** Intuitive, widely used  
-**Cons:** Not ideal for color detection due to lighting sensitivity
+A blob is a candidate, not proof that the robot found the intended game object. A colored light, field decoration, or reflection can look like a match too. Preview the output and test several distances and lighting conditions before trusting it.
 
-### HSV (Hue, Saturation, Value)
+## Color numbers: RGB and HSV
 
-HSV separates color information (hue) from brightness (value) and intensity (saturation).
+**RGB** stores the red, green, and blue amount for each pixel. It is easy to understand, but a shadow can change all three values even when the object is the same color.
 
-- **Hue (0-179 in OpenCV)** - The actual color (red, green, blue, etc.)
-- **Saturation (0-255)** - How "pure" the color is
-- **Value (0-255)** - How bright the color is
+**HSV** stores hue (the color family), saturation (how vivid it is), and value (brightness). This can make thresholding easier, but it does **not** make detection independent of lighting. In OpenCV's common 8-bit HSV representation, hue runs from 0 to 179; other libraries or formats may use a different range. Check the image format and processor you are actually using.
 
-```java
-// HSV ranges for detecting red
-Scalar lowerRed = new Scalar(0, 100, 100);
-Scalar upperRed = new Scalar(10, 255, 255);
-```
+A threshold is a range of numbers, not a universal definition of “blue” or “red.” Calibrate it with the real camera, object, distance, and field lighting. FTC's built-in color swatches are convenient starting points, but the FTC color guide notes that some swatches were tuned for older season game pieces.
 
-**Pros:** Much better for color detection, lighting-independent  
-**Cons:** Slightly less intuitive
+## Image coordinates are not field coordinates
 
-### YCrCb (Luma, Chroma Red, Chroma Blue)
+In a camera image, `(0, 0)` is usually the top-left pixel. **X increases to the right** and **Y increases downward**. If a blob center is at x = 80 in a 320-pixel-wide image, it is left of center. This does not directly tell you how many inches away the object is.
 
-YCrCb separates brightness (Y) from color information (Cr and Cb channels).
+To estimate field position or distance, the robot needs additional geometry and calibration—for example, camera calibration, known object size, a known field tag layout, or another sensor. AprilTag pose results are estimates and depend on correct tag size and camera calibration. A pixel coordinate alone is not a field pose.
 
-- **Y (0-255)** - Brightness/luminance
-- **Cr (0-255)** - Red chrominance
-- **Cb (0-255)** - Blue chrominance
+## Choose the FTC tool for the question
 
-```java
-// YCrCb is great for detecting specific alliance colors
-Scalar lowerBlue = new Scalar(0, 0, 150);
-Scalar upperBlue = new Scalar(255, 120, 255);
-```
+| If you need to know… | Start with… | What it returns |
+| --- | --- | --- |
+| What color is in a camera image region? | FTC SDK **ColorProcessor** | A color estimate from the selected image region. This is camera vision, not a REV color sensor. |
+| Where a group of a chosen color appears in the frame? | FTC **Color Locator** processor | Blob measurements such as area and a fitted box/center. |
+| Which known fiducial marker is visible, or its estimated pose? | FTC **AprilTag** processor | Detection identity and pose fields, subject to SDK version and calibration. |
+| A custom shape, feature, or rule? | **EasyOpenCV** pipeline | Your own OpenCV processing steps and measurements. |
 
-**Pros:** Excellent for FTC alliance color detection  
-**Cons:** Less intuitive than HSV
+VisionPortal is the FTC SDK camera-and-processor workflow. EasyOpenCV is a separate library used for custom pipelines. Start with the FTC sample OpModes when using a built-in processor; they are maintained with the SDK and match its current API.
 
-## Common Vision Techniques
+## A first camera exercise
 
-### Thresholding
+Before making the robot move, run a sample or preview OpMode and answer these questions:
 
-Convert an image to binary (black and white) based on color ranges. Pixels within range become white, others become black.
+1. Does the camera show a live image, and is it rotated the way you expect?
+2. What changes when you move the target from the left side of the frame to the right?
+3. What does the processor report when the target leaves the image?
+4. Does a similar-colored background create a false detection?
+5. Does it still work from the distance and under the lights where the robot will run?
 
-```java
-// Create a mask showing only red pixels
-Core.inRange(inputMat, lowerBound, upperBound, mask);
-```
+Keep vision in **INIT** or display results with telemetry while learning. For your first test, make the robot report a location; do not let it drive toward an unverified detection.
 
-### Contour Detection
+## Continue with a focused lesson
 
-Find the boundaries of white regions in a binary image. Useful for identifying game elements.
+- [VisionPortal](./visionportal/vision-portal) — connect FTC processors to a camera.
+- [Color blob locator](./visionportal/color-blob-locator) — find and inspect matching color regions.
+- [AprilTag detection](./visionportal/apriltag-detection) — understand tag results and pose limits.
+- [EasyOpenCV basics](./easyopencv/easyopencv-basics) — build a custom image pipeline.
 
-```java
-List<MatOfPoint> contours = new ArrayList<>();
-Imgproc.findContours(mask, contours, hierarchy, 
-    Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-```
+## Official references
 
-### Bounding Boxes
-
-Draw rectangles around detected objects to determine their position and size.
-
-```java
-Rect boundingRect = Imgproc.boundingRect(contour);
-// Now you know: x, y, width, height
-```
-
-### Region of Interest (ROI)
-
-Analyze only specific parts of the image to improve performance and reduce false positives.
-
-```java
-Mat leftRegion = inputMat.submat(
-    new Rect(0, 240, 213, 240) // x, y, width, height
-);
-```
-
-## Performance Considerations
-
-### Resolution vs Speed
-
-- **Lower resolution (320x240)** - Faster processing, less detail
-- **Higher resolution (1280x720)** - More detail, slower processing
-
-Choose based on your needs. Most teams use 640x480 or 640x360 as a good balance.
-
-### Frame Rate
-
-- **Higher FPS** - More responsive, more CPU usage
-- **Lower FPS** - Less responsive, less CPU usage
-
-Typical FTC cameras run at 30 FPS, but you may process every 2nd or 3rd frame to save resources.
-
-### Processing Location
-
-- **OnBot Java/Kotlin** - Runs on Control Hub, simpler deployment
-- **Android Studio** - Runs on Robot Controller phone, more power but deprecated
-
-<Callout type="warn">
-**Important:** Vision processing can be CPU-intensive. Always test your pipeline's performance to ensure it doesn't slow down your control loop.
-</Callout>
-
-## Testing Your Vision Code
-
-### EOCV-Sim
-
-EOCV-Sim is an offline simulator where you can:
-- Test pipelines without a robot
-- Use images or webcam input
-- Tune parameters quickly
-- See processing results in real-time
-
-See [EOCV-Sim Setup](./eocv-sim) for details.
-
-### FTC Dashboard
-
-FTC Dashboard allows you to:
-- Stream camera feed over WiFi
-- Adjust parameters in real-time
-- View telemetry alongside video
-- Save tuned values back to code
-
-## Next Steps
-
-Now that you understand the basics:
-- Learn [EasyOpenCV setup](./easyopencv-basics) for custom pipelines
-- Or jump to [VisionPortal](./vision-portal) for quick implementation
-- Explore [EOCV-Sim](./eocv-sim) for offline testing
+- [FTC color processing overview](https://ftc-docs.firstinspires.org/en/latest/color_processing/overview/overview.html)
+- [FTC Color Blob Concepts](https://ftc-docs.firstinspires.org/en/latest/color_processing/color-blob-concepts/color-blob-concepts.html)
+- [FTC VisionPortal overview](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_overview/visionportal-overview.html)
+- [FTC AprilTag pose and calibration](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_pose/apriltag-pose.html)

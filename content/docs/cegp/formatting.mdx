@@ -1,6 +1,34 @@
 ---
 title: Formatting
 description: Practices to maintain readability in a team's codebase
+icon: AlignLeft
 ---
 
-<TBA />
+Consistent formatting makes robot code easier to review, debug, and hand over to the next programmer. Agree on a small set of conventions as a team and apply them consistently.
+
+## Start with the project formatter
+
+Use the formatter configured by your Android Studio or FTC project. If the project does not include one, use Android Studio's **Reformat Code** action and keep the default Java or Kotlin style. Avoid manually reformatting unrelated files in a code review.
+
+## Naming
+
+- Use `UpperCamelCase` for Java classes and interfaces, such as `DriveSubsystem`.
+- Use `lowerCamelCase` for methods and variables, such as `setTargetPosition`.
+- Use clear names for hardware configuration strings. They must match the Robot Controller configuration exactly.
+- Use constants for values that explain robot behavior, such as `MAX_DRIVE_POWER` or `ARM_HOME_TICKS`.
+- Avoid names that encode a temporary assumption, such as `motor2` or `magicNumber`.
+
+## Methods and comments
+
+- Keep methods focused on one task and split long autonomous routines into named steps.
+- Comment on intent, units, and non-obvious constraints. Prefer `// Distance in millimeters` over a comment that only repeats the code.
+- Remove commented-out code and update comments when behavior changes.
+- Keep telemetry useful to the driver and debugging team; remove noisy per-loop output before competition.
+
+## Safety and review
+
+- Check motor direction, servo limits, and sensor behavior with the robot safely supported before field testing.
+- Review changes as a team and test the affected behavior on the actual robot. A clean build does not prove the robot is safe or tuned.
+- Keep season-specific names, scoring rules, and field assumptions out of reusable code unless they are clearly labeled and checked against the current game manual.
+
+For FTC-specific coding tools and current season rules, see the [official FIRST Tech Challenge programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html) and [current game manual](https://ftc-resources.firstinspires.org/ftc/game).

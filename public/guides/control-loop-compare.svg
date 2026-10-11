@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 260" role="img" aria-labelledby="title desc">
+  <title id="title">Open-loop and closed-loop control</title>
+  <desc id="desc">Open loop sends a command straight to a motor. Closed loop measures the result with a sensor and uses the difference from the target to adjust the next command.</desc>
+  <rect width="820" height="260" rx="18" fill="#f1f5f9"/>
+  <g font-family="Arial, sans-serif" font-size="17" fill="#0f172a">
+    <text x="26" y="47" font-weight="bold">Open loop</text>
+    <text x="26" y="157" font-weight="bold">Closed loop</text>
+  </g>
+  <g fill="#fff" stroke="#2563eb" stroke-width="2">
+    <rect x="170" y="17" width="160" height="57" rx="10"/><rect x="425" y="17" width="160" height="57" rx="10"/>
+    <rect x="170" y="128" width="160" height="57" rx="10"/><rect x="425" y="128" width="160" height="57" rx="10"/>
+    <rect x="615" y="177" width="164" height="57" rx="10"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#0f172a">
+    <text x="250" y="52">Command</text><text x="505" y="52">Motor moves</text>
+    <text x="250" y="163">Adjust command</text><text x="505" y="163">Motor moves</text>
+    <text x="697" y="212">Sensor measures</text>
+  </g>
+  <g fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M335 45h80m-8-8 8 8-8 8"/>
+    <path d="M335 157h80m-8-8 8 8-8 8"/>
+    <path d="M585 157h112v10m-8-8 8 8 8-8"/>
+    <path d="M697 238v8H250v-61m-8 8 8-8 8 8"/>
+  </g>
+</svg>

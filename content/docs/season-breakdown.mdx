@@ -1,204 +1,59 @@
 ---
-title: Season Breakdown
+title: FTC Season Breakdown
+description: A sourced overview of the 2026–27 FIRST Tech Challenge game, BIOBUZZ
 icon: Trophy
 ---
 
-# FTC DECODE
+# BIOBUZZ presented by RTX
 
-In DECODE™ presented by RTX, 2 ALLIANCES of 2 teams compete to score purple and green ARTIFACTS in their GOAL, build PATTERNS based on a randomized MOTIF, and race back to their BASE before time runs out.
+BIOBUZZ is the 2026–27 FIRST Tech Challenge game in the FIRST CANOPY season. Two alliances, each made up of two teams, collect **POLLEN** and **NECTAR**, launch them into their alliance's **HIVE**, place game pieces into **FLOWERS**, and score in their **GARDEN**.
 
-![DECODE Field](/field.png)
+This is a guide to the game at a glance. The [official Competition Manual](https://ftc-resources.firstinspires.org/ftc/archive/2027/game) is the source of truth. At the time this page was reviewed, the current manual was **TU04**, updated October 8, 2026. Recheck the [current game resources](https://ftc-resources.firstinspires.org/ftc/game) for later Team Updates before every event.
 
-## Game Overview
-
-DECODE is played on a 12' × 12' field with 2 ALLIANCES (Red and Blue) competing to score the most points. Each match consists of:
-- **30-second AUTO period** - Robots operate autonomously
-- **2-minute TELEOP period** - Drivers control robots manually
-- **Last 20 seconds** - Focus on returning to BASE
-
-## Game Elements
-
-### ARTIFACTS (Scoring Elements)
-- **24 purple ARTIFACTS** + **12 green ARTIFACTS**
-- 5" polypropylene balls (Gopher ResisDent™)
-- ALLIANCE neutral - either alliance can score any ARTIFACT
-
-### OBELISK
-Triangular prism randomized before each match to display one of 3 **MOTIFS**:
-- **GPP** (Green-Purple-Purple)
-- **PGP** (Purple-Green-Purple)
-- **PPG** (Purple-Purple-Green)
-
-The MOTIF defines what color PATTERN robots try to create on their RAMP.
-
-### GOAL & CLASSIFIER
-- **GOAL**: 3-sided structure with horizontal triangular opening at top
-- **CLASSIFIER**: Attached to GOAL with 3 components:
-  - **SQUARE**: Where ARTIFACTS are scored
-  - **RAMP**: Holds up to 9 CLASSIFIED ARTIFACTS
-  - **GATE**: Retains ARTIFACTS on RAMP (can be opened by robot)
-
-### Other Field Elements
-- **LAUNCH ZONE**: Triangular area where robots can LAUNCH ARTIFACTS
-- **LOADING ZONE**: Where DRIVE TEAM members can handle ARTIFACTS during TELEOP
-- **BASE ZONE**: 18"×18" area for endgame return
-- **DEPOT**: Area adjacent to GOAL where ARTIFACTS can be scored for 1 point each
-
-## Autonomous (30 seconds)
-
-### Scoring Options:
-- **LEAVE** (3 pts): Move robot off LAUNCH LINE
-- **CLASSIFIED ARTIFACT** (3 pts): Score through SQUARE → directly onto RAMP
-- **OVERFLOW ARTIFACT** (1 pt): Score through SQUARE but rolls over existing ARTIFACTS
-- **PATTERN** (2 pts/ARTIFACT): ARTIFACTS on RAMP matching MOTIF color at end of AUTO
-
-<Callout type="info">
-**Vision is Critical!** Use AprilTags on the OBELISK to detect the MOTIF and program autonomous routines accordingly.
+<Callout type="warn" title="Rules change during the season">
+This page summarizes the game and is not a substitute for the manual. The official manual says its rule wording and later Team Updates take precedence. Check the current scoring table, Ranking Point thresholds, and robot rules before building or competing.
 </Callout>
 
-## TeleOp (2 minutes)
+## Match flow
 
-### Scoring Options:
-- **CLASSIFIED ARTIFACT** (3 pts): Score through SQUARE → directly onto RAMP
-- **OVERFLOW ARTIFACT** (1 pt): Score through SQUARE but rolls over existing ARTIFACTS
-- **DEPOT ARTIFACT** (1 pt): Place ARTIFACT over DEPOT area
-- **PATTERN** (2 pts/ARTIFACT): ARTIFACTS on RAMP matching MOTIF color at end of TELEOP
+A match consists of a **30-second AUTO period**, an **8-second transition**, and a **2-minute TELEOP period**. During AUTO, robots run pre-programmed instructions. During TELEOP, drivers control the robots. As the match progresses, teams launch game pieces to tip their HIVE, earn access to additional NECTAR, fill FLOWERS, and park in the LOADING ZONE.
 
-### HUMAN PLAYER Actions:
-- During TELEOP, DRIVE TEAM members can handle ARTIFACTS in the LOADING ZONE
-- Load ARTIFACTS into robots, organize ARTIFACTS, retrieve ARTIFACTS from field
-- Maximum 6 ARTIFACTS out of play at once
+![BIOBUZZ match timeline showing 30 seconds of autonomous play, an 8-second transition, and 2 minutes of driver-controlled play.](/guides/biobuzz-match-timeline.svg)
 
-### GATE Mechanism:
-- Robots can open their GATE to release CLASSIFIED ARTIFACTS from RAMP back onto field
-- Strategic decision: keep PATTERN on RAMP vs. clear space for better scoring
+The transition separates the two scoring periods; drivers begin controlling their robots in TELEOP. See [Section 10.4 of the manual](https://ftc-resources.firstinspires.org/ftc/archive/2027/game) for the official timing.
 
-## Endgame (Last 20 seconds)
+## Game pieces and field elements
 
-### Return to BASE:
-- **Partially returned** (5 pts): Some robot support from BASE ZONE tile
-- **Fully returned** (10 pts): All robot support from BASE ZONE tile only
-- **Both robots fully returned** (+10 pt bonus): Extra bonus if both alliance partners fully return
+- **POLLEN** is the yellow game piece.
+- **NECTAR** is alliance-colored red or blue.
+- **HIVE** is the alliance structure with two pivoting **CELLS**. Launching into the upward-facing CELL can tip the HIVE.
+- **FLOWERS** are field structures filled with POLLEN and NECTAR. Alliance ownership and scoring depend on placement defined in the manual.
+- **GARDEN** is an alliance scoring area for POLLEN and NECTAR.
+- **LOADING ZONE** is also where robots can earn PARK points.
 
-<Callout type="warn">
-**Vertical Expansion Rule:** Robots can only extend above 18" during the last 20 seconds when NOT in a LAUNCH ZONE (up to 38" max).
-</Callout>
+The manual describes field setup, object dimensions, legal interactions, and scoring volumes in Sections 9–11. Use those diagrams for mechanism design rather than relying on this short glossary.
 
-## Ranking Points (RP)
+## Scoring at a glance
 
-Teams earn RANKING POINTS to improve qualification ranking:
+The manual awards points for HIVE tips, game pieces in CELLS, game pieces in FLOWERS and GARDENS, LEAVE, and PARK. For example, its current point table assigns **20 points per HIVE TIP**, **2 points per POLLEN or NECTAR remaining in an upward-facing CELL at the end**, and **5 points for the bottom-NECTAR FLOWER bonus**. The exact conditions matter: read the scoring criteria and game rules before treating a piece as scored.
 
-| RP Type | Requirement (Qualification) | Requirement (Other) |
-|---------|----------------------------|---------------------|
-| **MOVEMENT RP** | LEAVE + BASE points ≥ 21 | ≥ 16 |
-| **GOAL RP** | ARTIFACTS scored through SQUARE ≥ 42 | ≥ 36 |
-| **PATTERN RP** | PATTERN points ≥ 22 | ≥ 18 |
-| **WIN** | Win match | Win match |
-| **TIE** | Tie match | Tie match |
+BIOBUZZ has three game-specific Ranking Points—**SWARM RP**, **POLLINATOR 1 RP**, and **POLLINATOR 2 RP**—as well as the match WIN/TIE Ranking Points. The latest manual table lists Championship thresholds as to be announced and thresholds for other events; Team Updates may change these numbers. Check the live manual before setting season goals.
 
-## Strategy Tips
+## Strategy and programming
 
-### Early Season:
-- **Reliable AUTO** - Consistent LEAVE + a few CLASSIFIED ARTIFACTS wins matches
-- **MOTIF Detection** - Use AprilTags to detect OBELISK orientation
-- **Basic PATTERN** - Score 3-6 ARTIFACTS matching MOTIF for easy RP
-- **Partial BASE** - Even partial return (5pts) adds up
+Start by making a robot that can complete one repeatable task safely. Then test a short AUTO routine, measure cycle time, and coordinate with your alliance partner. HIVE tipping and FLOWER scoring have timing and interaction rules, so design the mechanism around the official drawings and criteria rather than an animation alone.
 
-### Mid Season:
-- **Full BASE Return** - 10 points is huge, aim for both robots (20+ pts total)
-- **DEPOT Strategy** - Quick 1-point scores add up when cycling fast
-- **GATE Manipulation** - Open gate strategically to clear bad PATTERNS
-- **Fast Cycling** - Maximize CLASSIFIED ARTIFACTS (3pts each)
+For software, separate hardware control from match logic, log sensor and mechanism state during testing, and make autonomous behavior stop safely when a sensor reading or mechanism state is unexpected. See [Autonomous](./autonomous), [Vision](./sensors-and-vision/vision-overview), and [Control Systems](./control-systems) for general programming concepts. These pages are season-independent unless they explicitly say otherwise.
 
-### Late Season:
-- **PATTERN Optimization** - Perfect 9-ARTIFACT PATTERN = 18 points
-- **Alliance Coordination** - Both robots fully returned = 10pt bonus
-- **RP Focus** - All 3 RPs (MOVEMENT, GOAL, PATTERN) in one match
-- **Defensive Play** - Protect your RAMP, contest opponent LOADING ZONE
+## Official resources
 
-## Common Mechanisms
+- [2026–27 BIOBUZZ game and season materials](https://ftc-resources.firstinspires.org/ftc/archive/2027/game) — manual, Team Updates, animation, and field resources
+- [Current FTC game resources](https://ftc-resources.firstinspires.org/ftc/game) — use this page to find the latest update
+- [FTC programming resources](https://ftc-resources.firstinspires.org/ftc/programming) — official programming references
+- [FTC SDK source repository](https://github.com/FIRST-Tech-Challenge/FtcRobotController)
 
-### Intake Systems:
-- **Over-the-Bumper Intake** - Flexible rollers to grab ARTIFACTS from floor
-- **Side Intake** - Wheels/belts on side of robot for wall collection
-- **Passive Funnel** - Guide ARTIFACTS into collection area
+## AprilTag clusters in BIOBUZZ
 
-### Launcher/Scoring:
-- **Flywheel Launcher** - High-speed wheels to LAUNCH ARTIFACTS into GOAL
-- **Catapult/Pusher** - Mechanical launching for consistent trajectories
-- **Direct Placement** - Extend over GOAL and drop ARTIFACTS through SQUARE
+BIOBUZZ uses AprilTag **clusters** on HIVE CELLS. Each CELL has a four-tag cluster; FTC documents four defined clusters for the game and no standalone game tags. The SDK reports a visible cluster as one `AprilTagClusterDetection`, even if it sees one or several of that cluster's printed tags. The cluster's pose can point toward the CELL opening rather than toward the center of a printed tag. This matters when using camera pose to line up a scoring action.
 
-### GATE Mechanism:
-- **Servo Arm** - Push GATE lever down to open
-- **Linear Slide** - Extend to reach GATE from distance
-- **Don't grab/pull** - Rules prohibit grasping or pulling GATE
-
-### Endgame/BASE:
-- **Low Center of Gravity** - Stable design to stay fully on BASE ZONE
-- **Alignment Guides** - Visual markers to help drivers position accurately
-- **Fast Return** - Quick path from scoring area to BASE
-
-## Programming Considerations
-
-### Vision Processing:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-// Detect OBELISK MOTIF using AprilTags
-int motifID = detectAprilTag(); // Returns 21 (GPP), 22 (PGP), or 23 (PPG)
-
-if (motifID == 21) { // GPP
-    targetColors = new String[]{"G", "P", "P", "G", "P", "P", "G", "P", "P"};
-} else if (motifID == 22) { // PGP
-    targetColors = new String[]{"P", "G", "P", "P", "G", "P", "P", "G", "P"};
-} else { // PPG
-    targetColors = new String[]{"P", "P", "G", "P", "P", "G", "P", "P", "G"};
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-// Detect OBELISK MOTIF using AprilTags
-val motifID = detectAprilTag() // Returns 21 (GPP), 22 (PGP), or 23 (PPG)
-
-val targetColors = when (motifID) {
-    21 -> arrayOf("G", "P", "P", "G", "P", "P", "G", "P", "P") // GPP
-    22 -> arrayOf("P", "G", "P", "P", "G", "P", "P", "G", "P") // PGP
-    else -> arrayOf("P", "P", "G", "P", "P", "G", "P", "P", "G") // PPG
-}
-```
-</Tab>
-</Tabs>
-
-### Autonomous Routines:
-1. **Detect MOTIF** - Use AprilTag vision to identify OBELISK orientation
-2. **LEAVE Launch Line** - Move off starting position (3 pts)
-3. **Score Pre-loaded ARTIFACTS** - Start with up to 3 ARTIFACTS
-4. **Build PATTERN** - Score ARTIFACTS matching MOTIF colors
-5. **Collect Additional ARTIFACTS** - From spike marks or other positions
-
-### TeleOp Features:
-- **MOTIF Display** - Show drivers current MOTIF on Driver Station
-- **ARTIFACT Counter** - Track how many CLASSIFIED vs OVERFLOW scored
-- **Endgame Timer** - Alert drivers at 20 seconds for BASE return
-
-## Game Manual Resources
-
-<Callout type="info">
-For complete rules, refer to the [Official Game Manual](https://ftc-resources.firstinspires.org/ftc/game/manual). This guide is a summary.
-</Callout>
-
-### Key Resources:
-- [Game Animation](https://youtu.be/LCqWA6gSCXA) - Watch DECODE reveal
-- [Field Tour](https://youtu.be/lW0NzkG2zAo) - Detailed walkthrough
-- [Game Manual](https://ftc-resources.firstinspires.org/ftc/game/manual) - Complete rules
-
-## Next Steps
-
-Ready to build your DECODE robot? Check out:
-- [Vision Documentation](./sensors-and-vision/vision-overview) - AprilTag detection for MOTIF
-- [Control Systems](./control-systems) - Flywheel PID for launcher consistency
-- [Libraries](./libraries) - FTCLib, RoadRunner for advanced control
-
-Good luck this season! 🚀
+SDK 12.0 and later return both single-tag and cluster detection types. Check the type before reading type-specific fields; cluster results have a name and `percentClusterFound`, not a single tag ID. See the [step-by-step AprilTag guide](./sensors-and-vision/visionportal/apriltag-detection) and [official FTC cluster guide](https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html).

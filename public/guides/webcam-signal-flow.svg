@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 830 180" role="img" aria-labelledby="title desc">
+  <title id="title">How a webcam result reaches an OpMode</title>
+  <desc id="desc">The webcam captures frames, the Robot Controller passes them to a vision processor, and the processor gives a result to the OpMode.</desc>
+  <rect width="830" height="180" rx="18" fill="#f1f5f9"/>
+  <g fill="#fff" stroke="#7c3aed" stroke-width="2">
+    <rect x="20" y="42" width="166" height="96" rx="12"/>
+    <rect x="224" y="42" width="166" height="96" rx="12"/>
+    <rect x="428" y="42" width="166" height="96" rx="12"/>
+    <rect x="632" y="42" width="178" height="96" rx="12"/>
+  </g>
+  <g fill="#111827" font-family="Arial, sans-serif" text-anchor="middle">
+    <g font-size="18" font-weight="bold">
+      <text x="103" y="81">Webcam</text><text x="307" y="81">USB frames</text>
+      <text x="511" y="81">Processor</text><text x="721" y="81">OpMode</text>
+    </g>
+    <g fill="#475569" font-size="14">
+      <text x="103" y="109">captures light</text><text x="307" y="109">reach controller</text>
+      <text x="511" y="109">finds a target</text><text x="721" y="109">uses the result</text>
+    </g>
+  </g>
+  <g fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M191 90h24m-8-8 8 8-8 8"/>
+    <path d="M395 90h24m-8-8 8 8-8 8"/>
+    <path d="M599 90h24m-8-8 8 8-8 8"/>
+  </g>
+</svg>

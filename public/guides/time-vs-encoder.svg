@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 245" role="img" aria-labelledby="title desc">
+  <title id="title">Timed movement compared with encoder movement</title>
+  <desc id="desc">A timed move ends when a clock reaches the chosen time. An encoder move checks measured wheel ticks and ends when the target tick count is reached.</desc>
+  <rect width="820" height="245" rx="18" fill="#f1f5f9"/>
+  <g font-family="Arial, sans-serif" fill="#0f172a">
+    <text x="28" y="53" font-size="19" font-weight="bold">Timed</text>
+    <text x="28" y="161" font-size="19" font-weight="bold">Encoder</text>
+  </g>
+  <g fill="#fff" stroke="#2563eb" stroke-width="2">
+    <rect x="160" y="20" width="165" height="70" rx="12"/>
+    <rect x="415" y="20" width="165" height="70" rx="12"/>
+    <rect x="160" y="128" width="165" height="70" rx="12"/>
+    <rect x="415" y="128" width="165" height="70" rx="12"/>
+    <rect x="625" y="128" width="165" height="70" rx="12"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#0f172a">
+    <text x="242" y="50">Apply power</text><text x="497" y="50">Stop after time</text>
+    <text x="242" y="168">Set tick target</text><text x="497" y="168">Read wheel ticks</text>
+    <text x="707" y="168">Stop at target</text>
+  </g>
+  <g fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M330 55h76m-8-8 8 8-8 8"/>
+    <path d="M330 163h76m-8-8 8 8-8 8"/>
+    <path d="M585 163h30m-8-8 8 8-8 8"/>
+  </g>
+  <text x="666" y="60" font-family="Arial, sans-serif" font-size="16" fill="#334155">Clock decides</text>
+  <text x="414" y="222" font-family="Arial, sans-serif" font-size="16" fill="#334155">Keep reading ticks until the target is reached</text>
+</svg>

@@ -1,589 +1,252 @@
 ---
 title: Sensor Fusion
-description: Combine multiple sensors for more accurate robot localization
+description: Combine robot measurements while accounting for their limits
 icon: Orbit
 ---
 
-## What is Sensor Fusion?
+Odometry can estimate how far the robot moved, but wheel slip makes that estimate drift. An IMU can measure turning, but it does not tell the robot where it is on the field. A camera can estimate the robot's position relative to a known target, but only when that target is visible and the camera geometry is configured correctly.
 
-**Sensor fusion** is the process of combining data from multiple sensors to get a more accurate and reliable estimate of your robot's state (position, heading, velocity) than any single sensor could provide alone.
+**Sensor fusion** means combining measurements with different strengths and limitations to maintain one better estimate. It does not automatically make a robot accurate: bad calibration, incorrect axes, or stale readings can make a combined estimate worse.
 
-Think of it like using both your eyes and ears to navigate — you get better situational awareness by combining multiple inputs.
+![Odometry estimates movement between field observations; a known target can correct accumulated drift.](/guides/sensor-fusion.svg)
 
-### Why Sensor Fusion Matters
+## Start with one source at a time
 
-**Single sensor limitations:**
-- **Encoders/Odometry:** Drift over time from wheel slip
-- **IMU:** Gyro drift, magnetic interference
-- **Vision (AprilTags):** Only works when tags are visible
-- **Distance sensors:** Limited range and accuracy
+Before combining readings, display each source separately:
 
-**Sensor fusion benefits:**
-- Combines strengths of each sensor
-- Compensates for individual weaknesses
-- More robust to sensor failures
-- Significantly improved accuracy
+1. **Odometry:** Does the estimated position move in the expected direction when you push or drive the robot a measured distance?
+2. **IMU:** Does the heading increase in the expected direction during a slow turn? Is it in degrees or radians?
+3. **Vision:** Does a known AprilTag detection report a plausible camera-relative pose? Does the robot know the camera's position and orientation on its frame?
 
-## Common Sensor Combinations
+Write down the coordinate convention for each one. FTC code and libraries may use different axis names or heading signs. Do not combine values until they refer to the same origin, axes, units, and moment in time.
 
-### 1. Odometry + IMU
+## A beginner example: odometry with an IMU
 
-Combine wheel encoders with an IMU to get better heading estimates.
+Use encoder-based odometry to estimate translation and an IMU to measure heading. The IMU helps estimate rotation; it does not replace the encoder measurements needed to estimate forward or sideways travel.
 
-**Why this works:**
-- Encoders measure wheel rotation (good for position)
-- IMU measures rotation directly (immune to wheel slip)
-- Combining eliminates heading drift from wheel slip
+The steps are:
+
+1. Read the encoder changes since the previous loop.
+2. Convert those changes to robot-relative forward and sideways movement using calibrated constants.
+3. Read the IMU heading and normalize its units and sign.
+4. Rotate the robot-relative movement into the field coordinate frame using the heading convention chosen by your localization system.
+5. Add that field-relative change to the previous position estimate.
+6. Compare the result with a measured test and correct calibration before adding another sensor.
+
+The example below turns that plan into a small **differential-drive** heading and position estimate. It combines wheel-based heading change with the IMU's yaw, then uses the corrected heading to put the wheel travel onto field X/Y. It does not support strafing, camera localization, or every robot coordinate convention.
+
+First, convert each encoder delta into inches using your calibrated `COUNTS_PER_INCH`. The track width is the distance between the left and right wheels that produce the encoder readings. Configure and initialize the FTC `IMU` for its real mounting orientation before using this update.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
+
 ```java
-public class OdometryIMUFusion {
-    private ThreeWheelOdometry odometry;
-    private IMU imu;
-    
-    private double x = 0, y = 0;
-    
-    public void update() {
-        // Get odometry position change (more accurate for x/y)
-        double oldX = odometry.getX();
-        double oldY = odometry.getY();
-        
-        odometry.update();
-        
-        double deltaX = odometry.getX() - oldX;
-        double deltaY = odometry.getY() - oldY;
-        
-        // Get IMU heading (more accurate than encoder-based heading)
-        double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        
-        // Use IMU heading to correct position update
-        x += deltaX * Math.cos(heading) - deltaY * Math.sin(heading);
-        y += deltaX * Math.sin(heading) + deltaY * Math.cos(heading);
+public final class FusedOdometry {
+    private final double trackWidthInches;
+    private final double encoderHeadingWeight = 0.10;
+    private int previousLeftTicks;
+    private int previousRightTicks;
+    private boolean started;
+    private double xInches;
+    private double yInches;
+    private double headingRadians;
+
+    public FusedOdometry(double trackWidthInches, double startX, double startY) {
+        this.trackWidthInches = trackWidthInches;
+        this.xInches = startX;
+        this.yInches = startY;
     }
-    
-    public double getX() { return x; }
-    public double getY() { return y; }
-    public double getHeading() { 
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+    public void update(int leftTicks, int rightTicks,
+                       double countsPerInch, double imuYawRadians) {
+        if (!started) {
+            previousLeftTicks = leftTicks;
+            previousRightTicks = rightTicks;
+            headingRadians = imuYawRadians; // Align this estimate to the IMU at start.
+            started = true;
+            return;
+        }
+
+        double leftInches = (leftTicks - previousLeftTicks) / countsPerInch;
+        double rightInches = (rightTicks - previousRightTicks) / countsPerInch;
+        previousLeftTicks = leftTicks;
+        previousRightTicks = rightTicks;
+
+        double forwardInches = (leftInches + rightInches) / 2.0;
+        double wheelTurn = (rightInches - leftInches) / trackWidthInches;
+        double predictedHeading = wrapRadians(headingRadians + wheelTurn);
+        double imuCorrection = wrapRadians(imuYawRadians - predictedHeading);
+        double correctedHeading = wrapRadians(
+            predictedHeading + (1.0 - encoderHeadingWeight) * imuCorrection
+        );
+
+        // Use the middle of this small movement to rotate local travel into field axes.
+        double middleHeading = headingRadians + 0.5 * wrapRadians(correctedHeading - headingRadians);
+        xInches += forwardInches * Math.cos(middleHeading);
+        yInches += forwardInches * Math.sin(middleHeading);
+        headingRadians = correctedHeading;
     }
+
+    private static double wrapRadians(double angle) {
+        while (angle > Math.PI) angle -= 2.0 * Math.PI;
+        while (angle < -Math.PI) angle += 2.0 * Math.PI;
+        return angle;
+    }
+
+    public double xInches() { return xInches; }
+    public double yInches() { return yInches; }
+    public double headingRadians() { return headingRadians; }
 }
 ```
+
 </Tab>
 <Tab value="Kotlin">
+
 ```kotlin
-class OdometryIMUFusion(
-    private val odometry: ThreeWheelOdometry,
-    private val imu: IMU
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
+
+class FusedOdometry(
+    private val trackWidthInches: Double,
+    startX: Double,
+    startY: Double
 ) {
-    var x = 0.0
-        private set
-    var y = 0.0
-        private set
-    
-    fun update() {
-        // Get odometry position change (more accurate for x/y)
-        val oldX = odometry.x
-        val oldY = odometry.y
-        
-        odometry.update()
-        
-        val deltaX = odometry.x - oldX
-        val deltaY = odometry.y - oldY
-        
-        // Get IMU heading (more accurate than encoder-based heading)
-        val heading = imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
-        
-        // Use IMU heading to correct position update
-        x += deltaX * cos(heading) - deltaY * sin(heading)
-        y += deltaX * sin(heading) + deltaY * cos(heading)
+    private val encoderHeadingWeight = 0.10
+    private var previousLeftTicks = 0
+    private var previousRightTicks = 0
+    private var started = false
+    private var xInches = startX
+    private var yInches = startY
+    private var headingRadians = 0.0
+
+    fun update(leftTicks: Int, rightTicks: Int,
+               countsPerInch: Double, imuYawRadians: Double) {
+        if (!started) {
+            previousLeftTicks = leftTicks
+            previousRightTicks = rightTicks
+            headingRadians = imuYawRadians // Align this estimate to the IMU at start.
+            started = true
+            return
+        }
+
+        val leftInches = (leftTicks - previousLeftTicks) / countsPerInch
+        val rightInches = (rightTicks - previousRightTicks) / countsPerInch
+        previousLeftTicks = leftTicks
+        previousRightTicks = rightTicks
+
+        val forwardInches = (leftInches + rightInches) / 2.0
+        val wheelTurn = (rightInches - leftInches) / trackWidthInches
+        val predictedHeading = wrapRadians(headingRadians + wheelTurn)
+        val imuCorrection = wrapRadians(imuYawRadians - predictedHeading)
+        val correctedHeading = wrapRadians(
+            predictedHeading + (1.0 - encoderHeadingWeight) * imuCorrection
+        )
+
+        // Use the middle of this small movement to rotate local travel into field axes.
+        val middleHeading = headingRadians + 0.5 * wrapRadians(correctedHeading - headingRadians)
+        xInches += forwardInches * cos(middleHeading)
+        yInches += forwardInches * sin(middleHeading)
+        headingRadians = correctedHeading
     }
-    
-    val heading: Double
-        get() = imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
+
+    private fun wrapRadians(angle: Double): Double {
+        var wrapped = angle
+        while (wrapped > PI) wrapped -= 2.0 * PI
+        while (wrapped < -PI) wrapped += 2.0 * PI
+        return wrapped
+    }
+
+    fun xInches() = xInches
+    fun yInches() = yInches
+    fun headingRadians() = headingRadians
 }
 ```
+
 </Tab>
 </Tabs>
 
-**Best for:** Teams with odometry who want to eliminate heading drift
-
-### 2. Odometry + AprilTags
-
-Use AprilTag detections to **correct odometry drift** when tags are visible.
-
-**How it works:**
-1. Odometry tracks position continuously
-2. When AprilTag is detected, robot knows exact position relative to tag
-3. Update odometry estimate to match AprilTag measurement
-4. Continue with improved estimate
+Call it once each OpMode loop after reading the encoders and IMU. For the FTC SDK IMU API, `getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)` supplies the yaw value after initialization. The example expects that yaw and the starting heading to use the same zero and sign. Display the estimate while pushing the robot by hand before using it to drive:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
+
 ```java
-public class OdometryAprilTagFusion {
-    private ThreeWheelOdometry odometry;
-    private AprilTagProcessor aprilTag;
-    
-    private double x, y, heading;
-    
-    public void update() {
-        // Always update odometry
-        odometry.update();
-        x = odometry.getX();
-        y = odometry.getY();
-        heading = odometry.getHeading();
-        
-        // Check for AprilTag detections
-        List<AprilTagDetection> detections = aprilTag.getDetections();
-        
-        if (!detections.isEmpty()) {
-            AprilTagDetection tag = detections.get(0);
-            
-            // Get tag ID and known field position
-            int tagID = tag.id;
-            Point tagFieldPos = getTagFieldPosition(tagID);
-            
-            // Convert robot-to-tag transform into field position
-            double robotX = tagFieldPos.x - tag.ftcPose.x;
-            double robotY = tagFieldPos.y - tag.ftcPose.y;
-            double robotHeading = tagFieldPos.heading - Math.toRadians(tag.ftcPose.yaw);
-            
-            // Weighted fusion (trust vision more when fresh)
-            double VISION_WEIGHT = 0.7;
-            x = VISION_WEIGHT * robotX + (1 - VISION_WEIGHT) * x;
-            y = VISION_WEIGHT * robotY + (1 - VISION_WEIGHT) * y;
-            heading = VISION_WEIGHT * robotHeading + (1 - VISION_WEIGHT) * heading;
-            
-            // Reset odometry to corrected position
-            odometry.setPosition(x, y, heading);
-        }
-    }
-}
+double imuYaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+localizer.update(leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition(),
+    COUNTS_PER_INCH, imuYaw);
+
+telemetry.addData("X (in)", "%.1f", localizer.xInches());
+telemetry.addData("Y (in)", "%.1f", localizer.yInches());
+telemetry.addData("Heading (deg)", "%.1f",
+    Math.toDegrees(localizer.headingRadians()));
+telemetry.update();
 ```
+
 </Tab>
 <Tab value="Kotlin">
+
 ```kotlin
-class OdometryAprilTagFusion(
-    private val odometry: ThreeWheelOdometry,
-    private val aprilTag: AprilTagProcessor
-) {
-    var x = 0.0
-        private set
-    var y = 0.0
-        private set
-    var heading = 0.0
-        private set
-    
-    fun update() {
-        // Always update odometry
-        odometry.update()
-        x = odometry.x
-        y = odometry.y
-        heading = odometry.heading
-        
-        // Check for AprilTag detections
-        val detections = aprilTag.detections
-        
-        if (detections.isNotEmpty()) {
-            val tag = detections[0]
-            
-            // Get tag ID and known field position
-            val tagID = tag.id
-            val tagFieldPos = getTagFieldPosition(tagID)
-            
-            // Convert robot-to-tag transform into field position
-            val robotX = tagFieldPos.x - tag.ftcPose.x
-            val robotY = tagFieldPos.y - tag.ftcPose.y
-            val robotHeading = tagFieldPos.heading - Math.toRadians(tag.ftcPose.yaw)
-            
-            // Weighted fusion (trust vision more when fresh)
-            val VISION_WEIGHT = 0.7
-            x = VISION_WEIGHT * robotX + (1 - VISION_WEIGHT) * x
-            y = VISION_WEIGHT * robotY + (1 - VISION_WEIGHT) * y
-            heading = VISION_WEIGHT * robotHeading + (1 - VISION_WEIGHT) * heading
-            
-            // Reset odometry to corrected position
-            odometry.setPosition(x, y, heading)
-        }
-    }
-}
+val imuYaw = imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
+localizer.update(leftMotor.currentPosition, rightMotor.currentPosition,
+    COUNTS_PER_INCH, imuYaw)
+
+telemetry.addData("X (in)", "%.1f", localizer.xInches())
+telemetry.addData("Y (in)", "%.1f", localizer.yInches())
+telemetry.addData("Heading (deg)", "%.1f",
+    Math.toDegrees(localizer.headingRadians()))
+telemetry.update()
 ```
+
 </Tab>
 </Tabs>
 
-**Best for:** Competitive teams wanting maximum accuracy during autonomous
+The `0.10` encoder weight is only a starting illustration: it means this example corrects most of its heading prediction toward IMU yaw each update. Tune from measured turns and investigate any persistent bias first. This weighted blend is an educational complementary estimate, not a covariance-based Kalman filter. For a mecanum or three-dead-wheel robot, include calibrated sideways movement too; do not use the two-wheel equations above as if they measured strafe.
 
-<Callout type="tip">
-**Competition Advantage:** AprilTags on the OBELISK in DECODE enable precise localization for scoring!
-</Callout>
+For path following, use a current localization library and follow its localizer guide rather than mixing snippets from different frameworks.
 
-### 3. Odometry + Distance Sensors
+An IMU may reduce heading error from wheel slip, but it can still have bias, noise, initialization requirements, and mounting errors. Fusion does not “eliminate drift.” It changes how the estimate uses each sensor's information.
 
-Use distance sensors to detect walls and correct position estimates.
+## Add camera measurements after odometry works
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-public void correctWithWall() {
-    odometry.update();
-    
-    // Robot facing wall with distance sensor
-    double measuredDistance = frontDistanceSensor.getDistance(DistanceUnit.INCH);
-    
-    // Known wall position (e.g., field edge at x = 72 inches)
-    double WALL_X = 72.0;
-    
-    // Calculate expected distance based on odometry
-    double expectedDistance = WALL_X - odometry.getX();
-    
-    // If mismatch, correct odometry
-    double error = measuredDistance - expectedDistance;
-    if (Math.abs(error) > 1.0) { // Threshold to avoid noisy corrections
-        odometry.setX(WALL_X - measuredDistance);
-    }
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-fun correctWithWall() {
-    odometry.update()
-    
-    // Robot facing wall with distance sensor
-    val measuredDistance = frontDistanceSensor.getDistance(DistanceUnit.INCH)
-    
-    // Known wall position (e.g., field edge at x = 72 inches)
-    val WALL_X = 72.0
-    
-    // Calculate expected distance based on odometry
-    val expectedDistance = WALL_X - odometry.x
-    
-    // If mismatch, correct odometry
-    val error = measuredDistance - expectedDistance
-    if (abs(error) > 1.0) { // Threshold to avoid noisy corrections
-        odometry.setX(WALL_X - measuredDistance)
-    }
-}
-```
-</Tab>
-</Tabs>
+AprilTag pose is relative to the camera. To compare it with the robot's field position, the program needs:
 
-**Best for:** Quick position corrections when near field perimeter
+- the tag's known location and orientation on the field;
+- the camera's fixed position and orientation on the robot;
+- a consistent coordinate frame and units;
+- a fresh detection whose pose is usable from the current view.
 
-## Advanced: Kalman Filter Fusion
+When these are known, a localization system can use the camera observation to correct accumulated motion-estimate error. A raw tag `ftcPose` value is not the robot's field pose by itself. BIOBUZZ also uses AprilTag clusters, so check the SDK version and current game layout before assuming every detection has one standalone tag ID.
 
-For maximum accuracy, use a **Kalman filter** to optimally combine multiple sensors.
+See [AprilTag Detection](../sensors-and-vision/visionportal/apriltag-detection) for current SDK result types and the official [FTC pose guide](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_pose/apriltag-pose.html).
 
-The Kalman filter mathematically weighs each sensor based on its **noise characteristics** and **confidence**, producing the best possible estimate.
+## Test a correction without driving from it
 
-### Simplified Kalman Filter Example
+1. Place the robot at a measured starting pose and reset the localization estimate.
+2. Move it slowly along a short, measured route while displaying odometry and IMU values.
+3. Stop at a known field location where a target is visible.
+4. Compare the camera-based estimate with the odometry estimate and the measured location.
+5. Check for a consistent offset, a sign/axis mistake, stale detections, or a camera-mount error before trusting a correction.
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-public class KalmanFusion {
-    // State estimate (x, y, heading)
-    private double x = 0, y = 0, heading = 0;
-    
-    // Uncertainty (covariance)
-    private double xVariance = 10.0;
-    private double yVariance = 10.0;
-    
-    // Sensor noise
-    private static final double ODOMETRY_NOISE = 0.5;
-    private static final double APRILTAG_NOISE = 1.0;
-    
-    public void predictWithOdometry(double deltaX, double deltaY) {
-        // Prediction step (odometry update)
-        x += deltaX;
-        y += deltaY;
-        
-        // Uncertainty increases with movement
-        xVariance += ODOMETRY_NOISE;
-        yVariance += ODOMETRY_NOISE;
-    }
-    
-    public void updateWithAprilTag(double measuredX, double measuredY) {
-        // Kalman gain (how much to trust measurement vs prediction)
-        double kx = xVariance / (xVariance + APRILTAG_NOISE);
-        double ky = yVariance / (yVariance + APRILTAG_NOISE);
-        
-        // Update estimate
-        x = x + kx * (measuredX - x);
-        y = y + ky * (measuredY - y);
-        
-        // Reduce uncertainty
-        xVariance = (1 - kx) * xVariance;
-        yVariance = (1 - ky) * yVariance;
-    }
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-class KalmanFusion {
-    // State estimate (x, y, heading)
-    var x = 0.0
-        private set
-    var y = 0.0
-        private set
-    var heading = 0.0
-        private set
-    
-    // Uncertainty (covariance)
-    private var xVariance = 10.0
-    private var yVariance = 10.0
-    
-    companion object {
-        const val ODOMETRY_NOISE = 0.5
-        const val APRILTAG_NOISE = 1.0
-    }
-    
-    fun predictWithOdometry(deltaX: Double, deltaY: Double) {
-        // Prediction step (odometry update)
-        x += deltaX
-        y += deltaY
-        
-        // Uncertainty increases with movement
-        xVariance += ODOMETRY_NOISE
-        yVariance += ODOMETRY_NOISE
-    }
-    
-    fun updateWithAprilTag(measuredX: Double, measuredY: Double) {
-        // Kalman gain (how much to trust measurement vs prediction)
-        val kx = xVariance / (xVariance + APRILTAG_NOISE)
-        val ky = yVariance / (yVariance + APRILTAG_NOISE)
-        
-        // Update estimate
-        x = x + kx * (measuredX - x)
-        y = y + ky * (measuredY - y)
-        
-        // Reduce uncertainty
-        xVariance = (1 - kx) * xVariance
-        yVariance = (1 - ky) * yVariance
-    }
-}
-```
-</Tab>
-</Tabs>
+Keep telemetry for each source and for the combined estimate. If the combined value suddenly jumps, it should be possible to tell which measurement caused it. Do not command high-speed movement from a measurement you have not tested.
 
-**Learn more:** [Kalman Filter](/docs/control-systems/kalman-filter)
+## Common mistakes
 
-## Choosing Fusion Strategy
+- **Assuming an IMU gives field position:** it measures rotation and acceleration, not an absolute `(x, y)` location.
+- **Treating a tag pose as field coordinates:** camera-relative pose needs field-tag and camera-on-robot transforms.
+- **Mixing degrees and radians or changing axis conventions:** the result can look plausible while pointing the wrong way.
+- **Combining measurements from different times:** delayed camera frames may describe where the robot was, not where it is now.
+- **Believing more sensors always means a better estimate:** a badly calibrated sensor can make the estimate worse.
+- **Using old season tag assumptions:** verify current field targets and SDK detection types.
 
-| Sensor Combination | Accuracy | Complexity | Use Case |
-|--------------------|----------|------------|----------|
-| **Odometry + IMU** | ⭐⭐⭐⭐ | ⭐⭐ | Standard for most teams |
-| **Odometry + AprilTags** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | Competition autonomous |
-| **Odometry + Distance** | ⭐⭐⭐ | ⭐⭐ | Quick wall corrections |
-| **Kalman Filter (all)** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Advanced teams only |
+## Continue learning
 
-## Practical Tips
+- [Odometry](./odometry) — measure movement and understand drift.
+- [Vision Basics](../sensors-and-vision/vision-basics) — distinguish image coordinates from field pose.
+- [AprilTag Detection](../sensors-and-vision/visionportal/apriltag-detection) — inspect FTC SDK tag and cluster results.
+- [Pedro Pathing](../libraries/pedro-pathing) — follow the current library's localization instructions.
 
-### 1. Weighted Averaging
+## Official references
 
-The simplest fusion method is **weighted averaging**:
-
-```java
-double fusedX = WEIGHT_A * sensorA + WEIGHT_B * sensorB;
-```
-
-Adjust weights based on which sensor you trust more:
-- **High confidence:** `WEIGHT = 0.8`
-- **Low confidence:** `WEIGHT = 0.2`
-
-### 2. Sensor Prioritization
-
-Use a **fallback hierarchy**:
-
-```java
-if (aprilTagVisible) {
-    position = aprilTagPosition; // Most accurate
-} else if (imuAvailable) {
-    position = odometryWithIMU; // Good backup
-} else {
-    position = odometryOnly; // Fallback
-}
-```
-
-### 3. Periodic Corrections
-
-Don't fuse constantly — correct odometry **periodically**:
-
-```java
-private long lastCorrectionTime = 0;
-private static final long CORRECTION_INTERVAL = 1000; // ms
-
-if (System.currentTimeMillis() - lastCorrectionTime > CORRECTION_INTERVAL) {
-    correctWithAprilTag();
-    lastCorrectionTime = System.currentTimeMillis();
-}
-```
-
-### 4. Outlier Rejection
-
-Ignore sensor readings that are **obviously wrong**:
-
-```java
-double measuredX = aprilTag.getX();
-
-// Sanity check: robot can't teleport 12+ inches in one loop
-if (Math.abs(measuredX - odometry.getX()) < 12) {
-    // Reasonable, fuse it
-    fusedX = 0.5 * measuredX + 0.5 * odometry.getX();
-} else {
-    // Outlier, ignore it
-    fusedX = odometry.getX();
-}
-```
-
-## Complete Fusion Example
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-@Autonomous(name = "Sensor Fusion Demo")
-public class SensorFusionDemo extends LinearOpMode {
-    
-    private ThreeWheelOdometry odometry;
-    private IMU imu;
-    private AprilTagProcessor aprilTag;
-    
-    private double x = 0, y = 0, heading = 0;
-    
-    @Override
-    public void runOpMode() {
-        // Initialize sensors
-        odometry = new ThreeWheelOdometry(/* setup */);
-        imu = hardwareMap.get(IMU.class, "imu");
-        aprilTag = AprilTagProcessor.easyCreateWithDefaults();
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            updateFusedPosition();
-            
-            telemetry.addData("Fused Position", "%.1f, %.1f", x, y);
-            telemetry.addData("Odometry Only", "%.1f, %.1f", odometry.getX(), odometry.getY());
-            telemetry.update();
-        }
-    }
-    
-    private void updateFusedPosition() {
-        // Step 1: Update odometry (always)
-        odometry.update();
-        
-        // Step 2: Get IMU heading (more reliable than encoder-based)
-        heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        
-        // Step 3: Use odometry delta with IMU heading
-        x = odometry.getX();
-        y = odometry.getY();
-        
-        // Step 4: Correct with AprilTag if visible
-        List<AprilTagDetection> detections = aprilTag.getDetections();
-        if (!detections.isEmpty()) {
-            AprilTagDetection tag = detections.get(0);
-            
-            // Calculate robot position from tag
-            Point tagPos = getTagFieldPosition(tag.id);
-            double measuredX = tagPos.x - tag.ftcPose.x;
-            double measuredY = tagPos.y - tag.ftcPose.y;
-            
-            // Weighted fusion (70% vision, 30% odometry)
-            x = 0.7 * measuredX + 0.3 * x;
-            y = 0.7 * measuredY + 0.3 * y;
-            
-            // Reset odometry to corrected position
-            odometry.setPosition(x, y, heading);
-        }
-    }
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-@Autonomous(name = "Sensor Fusion Demo")
-class SensorFusionDemo : LinearOpMode() {
-    
-    private lateinit var odometry: ThreeWheelOdometry
-    private lateinit var imu: IMU
-    private lateinit var aprilTag: AprilTagProcessor
-    
-    private var x = 0.0
-    private var y = 0.0
-    private var heading = 0.0
-    
-    override fun runOpMode() {
-        // Initialize sensors
-        odometry = ThreeWheelOdometry(/* setup */)
-        imu = hardwareMap.get(IMU::class.java, "imu")
-        aprilTag = AprilTagProcessor.easyCreateWithDefaults()
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            updateFusedPosition()
-            
-            telemetry.addData("Fused Position", "%.1f, %.1f", x, y)
-            telemetry.addData("Odometry Only", "%.1f, %.1f", odometry.x, odometry.y)
-            telemetry.update()
-        }
-    }
-    
-    private fun updateFusedPosition() {
-        // Step 1: Update odometry (always)
-        odometry.update()
-        
-        // Step 2: Get IMU heading (more reliable than encoder-based)
-        heading = imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
-        
-        // Step 3: Use odometry delta with IMU heading
-        x = odometry.x
-        y = odometry.y
-        
-        // Step 4: Correct with AprilTag if visible
-        val detections = aprilTag.detections
-        if (detections.isNotEmpty()) {
-            val tag = detections[0]
-            
-            // Calculate robot position from tag
-            val tagPos = getTagFieldPosition(tag.id)
-            val measuredX = tagPos.x - tag.ftcPose.x
-            val measuredY = tagPos.y - tag.ftcPose.y
-            
-            // Weighted fusion (70% vision, 30% odometry)
-            x = 0.7 * measuredX + 0.3 * x
-            y = 0.7 * measuredY + 0.3 * y
-            
-            // Reset odometry to corrected position
-            odometry.setPosition(x, y, heading)
-        }
-    }
-}
-```
-</Tab>
-</Tabs>
-
-## Common Mistakes
-
-**Trusting vision blindly** — AprilTag detections can be noisy; always validate  
-**Not handling sensor failures** — If IMU disconnects, have fallback to odometry-only  
-**Fusing too frequently** — Can amplify noise; correct every 500ms-1s instead  
-**Ignoring sensor latency** — Vision processing has delay; account for it  
-**Incorrect coordinate transforms** — Robot-relative vs field-relative confusion
-
-## Next Steps
-
-You now understand how to combine sensors for robust localization! Apply sensor fusion to:
-- **[Motion Planning](/docs/autonomous/motion-planning)** — Navigate more accurately
-- **[Pure Pursuit](/docs/autonomous/pure-pursuit)** — Follow paths with better position tracking
-- **[AprilTag Detection](/docs/sensors-and-vision/visionportal/apriltag-detection)** — Implement vision-based corrections
-
-## Additional Resources
-
-- [Kalman Filters Explained](https://www.kalmanfilter.net/default.aspx)
-- [FTC AprilTag Localization Guide](https://ftc-docs.firstinspires.org)
-- [gm0: Sensor Fusion](https://gm0.org/en/latest/docs/software/concepts/odometry.html)
-- [Control Systems: Kalman Filter](/docs/control-systems/kalman-filter)
+- [FTC AprilTag pose and camera calibration](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_pose/apriltag-pose.html)
+- [FTC AprilTag clusters](https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html)

@@ -1,0 +1,116 @@
+---
+title: FTCLib
+description: Organize FTC hardware actions with FTCLib commands
+icon: Package
+---
+
+FTCLib is a Java library with FTC utilities and a command-based framework. We will use it to run one safe motor test in order: set a low power, wait one second, then stop. This example teaches the command flow; it is not a drivetrain or a tuned mechanism controller.
+
+## Step 1: Add FTCLib
+
+Follow the current [FTCLib installation instructions](https://docs.ftclib.org/ftclib/installation) for your FTC SDK and project structure. Add one compatible release, sync Gradle, and build before copying imports from another project. FTCLib and FTC SDK versions must match.
+
+## Step 2: Map the motor in a CommandOpMode
+
+`CommandOpMode` gives the command scheduler a place to run. Add a device field and map it in `initialize()`. The configured name must match Robot Configuration.
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+private DcMotor testMotor;
+
+@Override
+public void initialize() {
+    testMotor = hardwareMap.get(DcMotor.class, "testMotor");
+    testMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+}
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+private lateinit var testMotor: DcMotor
+
+override fun initialize() {
+    testMotor = hardwareMap.get(DcMotor::class.java, "testMotor")
+    testMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+}
+```
+
+</Tab>
+</Tabs>
+
+Place this field and method inside a class that extends `CommandOpMode`. `BRAKE` asks the motor to resist coasting when power is zero; it does not make the mechanism safe by itself.
+
+## Step 3: Make the first command
+
+An `InstantCommand` runs its action once. Before building the full sequence, make one that writes a small power value:
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+Command startMotor = new InstantCommand(() -> testMotor.setPower(0.15));
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+val startMotor = InstantCommand { testMotor.power = 0.15 }
+```
+
+</Tab>
+</Tabs>
+
+The command stores the action; it does not run just because you created the variable. Avoid testing this on a loaded arm or lift.
+
+## Step 4: Put the actions in order and schedule them
+
+A `SequentialCommandGroup` starts the next command after the previous one finishes. `WaitCommand` takes milliseconds. Add this in `initialize()` after mapping the motor:
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+CommandScheduler.getInstance().schedule(
+    new SequentialCommandGroup(
+        new InstantCommand(() -> testMotor.setPower(0.15)),
+        new WaitCommand(1000),
+        new InstantCommand(() -> testMotor.setPower(0.0))
+    )
+);
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+CommandScheduler.getInstance().schedule(
+    SequentialCommandGroup(
+        InstantCommand { testMotor.power = 0.15 },
+        WaitCommand(1000),
+        InstantCommand { testMotor.power = 0.0 }
+    )
+)
+```
+
+</Tab>
+</Tabs>
+
+Read the sequence from top to bottom: the first instant command starts the motor, the wait stays active for one second, then the last instant command writes zero. `CommandOpMode` advances the scheduler while the OpMode runs. With a regular SDK `OpMode`, your loop must call `CommandScheduler.getInstance().run()` yourself.
+
+Before trying the pattern, confirm the device name and test the motor unloaded at low power. Commands that control the same subsystem should declare requirements so FTCLib can prevent them from conflicting.
+
+## Important FTCLib Pure Pursuit note
+
+FTCLib's own documentation currently labels its Pure Pursuit implementation buggy and says it is not recommended. Learn the geometry from the [Pure Pursuit guide](../autonomous/pure-pursuit), but use a maintained pathing implementation for a robot route. For FTC teams, see [Pedro Pathing](./pedro-pathing) or [Road Runner](./road-runner).
+
+## References
+
+- [FTCLib documentation](https://docs.ftclib.org/ftclib)
+- [FTCLib command groups](https://docs.ftclib.org/ftclib/command-base/command-system/command-groups)
+- [FTCLib CommandOpMode](https://docs.ftclib.org/ftclib/command-base/command-system/robot-and-commandopmode)
+- [FTCLib Pure Pursuit warning](https://docs.ftclib.org/ftclib/pathing/pure-pursuit)

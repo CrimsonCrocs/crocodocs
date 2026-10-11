@@ -1,202 +1,40 @@
 ---
 title: Panels
-description: All-in-one plugin-based dashboard for FTC robots
+description: Plugin-based dashboard and development tools for FTC robots
 icon: LayoutDashboard
 ---
 
 ## What is Panels?
 
-**Panels** is a comprehensive, plugin-based dashboard for FTC robots developed by [Lazar](https://bylazar.com/) from team **19234 ByteForce**. It provides a modern web interface for controlling your robot, visualizing telemetry, tuning parameters, and debugging - all wirelessly from any device on your network.
-
-Panels 1.0 is entirely plugin-driven, allowing you to extend it with custom features using a Svelte frontend and Kotlin backend.
-
-## Key Features
-
-Panels provides a complete FTC development toolkit:
-
-- **OpMode Control:** Driver Station-like interface with Auto/TeleOp selection and timers
-- **Real-time Telemetry:** Live robot data display that can mirror Driver Hub
-- **Field View:** Drawable canvas with coordinate mapping for path visualization
-- **Graph View:** Live data plotting for PID tuning and debugging
-- **Capture Mode:** Record and replay matches for post-analysis
-- **Configurables:** Tune variables in real-time without reuploading code
-- **Limelight Support:** Wireless Limelight 3A control and pipeline tuning
-- **Dual Gamepads:** Control robot wirelessly with two FTC gamepads
-- **Themes:** Customizable colors, layouts, and widget arrangements
-- **Plugin System:** Extend with custom Svelte + Kotlin plugins
-- **Cross-Platform:** Access from any device (laptop, tablet, phone)
-- **Camera Stream:** Optimized FTC webcam streaming
-- **Battery Monitor:** Real-time battery level display
-- **Ping Monitor:** Track input delay and connection quality
-- **Integrated Docs:** Read documentation offline within Panels
-- **Auto-Updates:** Plugins check for updates automatically
+[Panels](https://panels.bylazar.com/) is a browser dashboard and plugin system for FTC robots. The official project describes tools for OpMode control, telemetry, field and graph views, capture/replay, runtime configurables, Limelight support, gamepads, and custom plugins. Availability depends on which plugins your project includes.
 
 ## Installation
 
-### Standard Installation
+Panels has changed significantly over time. Use the official [installation documentation](https://panels.bylazar.com/docs/com.bylazar.docs/) or the current Java/Kotlin Quickstart linked from the [official GitHub organization](https://github.com/ftcontrol). Copy the artifact coordinates and version that match your FTC SDK and language setup; old `fullpanels` versions and Sloth variants may not match current releases.
 
-Add the Dairy repository to your `TeamCode` `build.gradle`:
-
-<Tabs items={['Gradle (Groovy)', 'Gradle (Kotlin)']}>
-<Tab value="Gradle (Groovy)">
-
-```groovy
-repositories {
-    maven {
-        url = 'https://repo.dairy.foundation/releases'
-    }
-}
-
-dependencies {
-    // Panels (latest: 1.0.12)
-    implementation 'com.bylazar:fullpanels:1.0.12'
-}
-```
-
-</Tab>
-<Tab value="Gradle (Kotlin)">
-
-```kotlin
-repositories {
-    maven {
-        url = uri("https://repo.dairy.foundation/releases")
-    }
-}
-
-dependencies {
-    // Panels (latest: 1.0.12)
-    implementation("com.bylazar:fullpanels:1.0.12")
-}
-```
-
-</Tab>
-</Tabs>
-
-### With Sloth (Hot Reload)
-
-If you're using [Sloth](/docs/libraries/sloth) for fast code deployment:
-
-<Tabs items={['Gradle (Groovy)', 'Gradle (Kotlin)']}>
-<Tab value="Gradle (Groovy)">
-
-```groovy
-dependencies {
-    // Sloth-compatible Panels
-    implementation 'com.bylazar.sloth:fullpanels:0.2.4+1.0.12'
-}
-```
-
-</Tab>
-<Tab value="Gradle (Kotlin)">
-
-```kotlin
-dependencies {
-    // Sloth-compatible Panels
-    implementation("com.bylazar.sloth:fullpanels:0.2.4+1.0.12")
-}
-```
-
-</Tab>
-</Tabs>
-
-<Callout type="info">
-You can also add individual Panels plugins separately. Check the [Dairy repository](https://repo.dairy.foundation/#/releases/com/bylazar/sloth) for all available modules.
+<Callout type="warn" title="Check SDK compatibility">
+Panels releases are built against particular FTC SDK versions. Confirm the current prerequisites in the official installation guide before updating Panels or the SDK. Kotlin projects may also need a matching Kotlin Gradle plugin version.
 </Callout>
 
-## Accessing Panels
+## Connect and use it
 
-After installation, connect to Panels dashboard:
+After installing and deploying the matching project, connect a browser to the robot network and follow the address printed or documented by that Quickstart. The IP address and port depend on the project configuration; do not assume that an address from an older version still applies.
 
-1. **Connect to Robot:** Connect your computer to Robot WiFi
-2. **Open Browser:** Navigate to `http://192.168.43.1:8000` (or your Control Hub IP)
-3. **Use Panels:** Full dashboard interface loads in browser
+Use the telemetry and graph tools to inspect behavior while testing. Runtime configurables are useful for tuning, but record known-good values in your source control. Capture and replay can help investigate test data; it does not replace checking robot behavior on the field.
 
-<Callout>
-**Any Device:** Panels works on laptops, tablets, and phones - anything with a web browser!
-</Callout>
+## Expose a value you can tune
 
-## Core Plugins
-
-Panels comes with essential plugins out of the box:
-
-### OpMode Control Plugin
-
-Driver Station-style interface:
-
-- **Auto/TeleOp Sections:** Organized OpMode selection
-- **Init/Start/Stop:** Full OpMode lifecycle control
-- **Timers:** Built-in match timers with auto-stop
-- **Status Display:** Current OpMode and robot state
-
-### Telemetry Plugin
-
-Text-based telemetry display:
-
-- Mirrors Driver Hub telemetry
-- Organized data display
-- Real-time updates
-- Customizable formatting
-
-### Field Plugin
-
-Interactive field canvas:
-
-- Draw robot position and path
-- Coordinate-mapped rendering
-- Support for popular pathing libraries (Pedro, Road Runner)
-- Custom shape rendering
-
-### Graph Plugin
-
-Live data visualization:
-
-- Plot telemetry values over time
-- Multiple data series
-- Perfect for PID tuning
-- Zoom and pan controls
-- Export data
-
-### Configurables Plugin
-
-Real-time variable tuning:
-
-- Edit values without reuploading code
-- Support for all data types
-- Instant updates
-- Perfect for autonomous tuning
+One practical first use is to expose a motor limit so the team can adjust it in the Panels Configurables plugin while watching telemetry. Panels' Configurables plugin reads mutable `public static` Java fields from a class marked with `@Configurable`:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-import com.bylazar.ftcontrol.annotations.Configurable;
+import com.bylazar.configurables.annotations.Configurable;
 
-@TeleOp(name = "Tuning Demo")
-public class TuningDemo extends LinearOpMode {
-    
-    // Make variable tunable in Panels
-    @Configurable
-    public double armPower = 0.5;
-    
-    @Configurable
-    public int targetPosition = 1000;
-    
-    @Override
-    public void runOpMode() {
-        DcMotor armMotor = hardwareMap.get(DcMotor.class, "arm");
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            // Use tunable values - they update in real-time!
-            armMotor.setTargetPosition(targetPosition);
-            armMotor.setPower(armPower);
-            
-            telemetry.addData("Arm Power", armPower);
-            telemetry.addData("Target", targetPosition);
-            telemetry.update();
-        }
-    }
+@Configurable
+public final class DriveTuning {
+    public static double MAX_TEST_POWER = 0.20;
 }
 ```
 
@@ -204,431 +42,60 @@ public class TuningDemo extends LinearOpMode {
 <Tab value="Kotlin">
 
 ```kotlin
-import com.bylazar.ftcontrol.annotations.Configurable
+import com.bylazar.configurables.annotations.Configurable
 
-@TeleOp(name = "Tuning Demo")
-class TuningDemo : LinearOpMode() {
-    
-    // Make variable tunable in Panels
-    @Configurable
-    var armPower = 0.5
-    
-    @Configurable
-    var targetPosition = 1000
-    
-    override fun runOpMode() {
-        val armMotor = hardwareMap.get(DcMotor::class.java, "arm")
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            // Use tunable values - they update in real-time!
-            armMotor.targetPosition = targetPosition
-            armMotor.power = armPower
-            
-            telemetry.addData("Arm Power", armPower)
-            telemetry.addData("Target", targetPosition)
-            telemetry.update()
-        }
-    }
+@Configurable
+object DriveTuning {
+    @JvmField var MAX_TEST_POWER = 0.20
 }
 ```
 
 </Tab>
 </Tabs>
 
-### Limelight Plugin
-
-Wireless Limelight 3A control:
-
-- Live camera stream
-- Pipeline switching
-- Camera stats tracking
-- Telemetry logging
-- No USB connection needed
-
-### Gamepads Plugin
-
-Wireless robot control:
-
-- Support for up to 2 FTC gamepads
-- Driver 1 and Driver 2
-- Full button and joystick mapping
-- Pre-configured and ready to use
-
-### Capture Plugin
-
-Record and replay matches:
-
-- Record all telemetry data
-- Replay matches later
-- Debug intermittent issues
-- Analyze match performance
-
-### Themes Plugin
-
-Customize Panels appearance:
-
-- Full color control
-- Resizable layouts
-- Grid-based widget system
-- Navlets for navbar customization
-- Multiple tabbed widget groups
-- Pre-made themes (blue, red, green, dark, light)
-
-### Camera Stream Plugin
-
-FTC webcam streaming:
-
-- Optimized for FTC cameras
-- Inspired by Limelight Stream Widget
-- Low latency
-- Adjustable quality
-
-### Lights Plugin
-
-goBILDA-style RGB indicators:
-
-- Fast glanceable feedback
-- Visual status indicators
-- Development aid
-
-### Battery & Pinger Plugins
-
-System monitoring:
-
-- Real-time battery level
-- Input delay tracking
-- Connection quality monitoring
-- Keep system responsive
-
-### Integrated Docs Plugin
-
-Built-in documentation:
-
-- Read Panels docs within dashboard
-- Works offline
-- No internet needed
-
-## Using Panels
-
-### Basic Telemetry
+Read the field when you set motor power so a live change can affect the next loop:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-@TeleOp(name = "Panels Basic")
-public class PanelsBasic extends LinearOpMode {
-    @Override
-    public void runOpMode() {
-        DcMotor motor = hardwareMap.get(DcMotor.class, "motor");
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            double power = -gamepad1.left_stick_y;
-            motor.setPower(power);
-            
-            // Telemetry shows in Panels AND Driver Hub
-            telemetry.addData("Motor Power", power);
-            telemetry.addData("Position", motor.getCurrentPosition());
-            telemetry.update();
-        }
-    }
-}
+double requested = -gamepad1.left_stick_y * DriveTuning.MAX_TEST_POWER;
+leftMotor.setPower(requested);
+rightMotor.setPower(requested);
+telemetry.addData("Test power limit", "%.2f", DriveTuning.MAX_TEST_POWER);
+telemetry.addData("Requested power", "%.2f", requested);
+telemetry.update();
 ```
 
 </Tab>
 <Tab value="Kotlin">
 
 ```kotlin
-@TeleOp(name = "Panels Basic")
-class PanelsBasic : LinearOpMode() {
-    override fun runOpMode() {
-        val motor = hardwareMap.get(DcMotor::class.java, "motor")
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            val power = -gamepad1.left_stick_y
-            motor.power = power
-            
-            // Telemetry shows in Panels AND Driver Hub
-            telemetry.addData("Motor Power", power)
-            telemetry.addData("Position", motor.currentPosition)
-            telemetry.update()
-        }
-    }
-}
+val requested = -gamepad1.left_stick_y * DriveTuning.MAX_TEST_POWER
+leftMotor.power = requested
+rightMotor.power = requested
+telemetry.addData("Test power limit", "%.2f", DriveTuning.MAX_TEST_POWER)
+telemetry.addData("Requested power", "%.2f", requested)
+telemetry.update()
 ```
 
 </Tab>
 </Tabs>
 
-### Field Visualization
+The variable changes the chosen command limit; it does not measure whether the robot is moving straight or safely. Begin with the robot on blocks, then test at low power on an open floor. Write a known-good value into your source code after tuning. For dependency coordinates and setup, copy the Java or Kotlin Quickstart linked by the [Panels documentation](https://panels.bylazar.com/docs/com.bylazar.docs/); the plugin API and compatible versions change over time.
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
+## Plugins
 
-```java
-import com.bylazar.ftcontrol.field.Field;
+Panels is plugin-driven. Its official project lists OpMode control, telemetry, field view, graph view, capture, configurables, Limelight support, gamepads, camera stream, battery and ping information, and integrated documentation. Use the [current plugin documentation](https://panels.bylazar.com/docs/com.bylazar.docs/) for installation and APIs. Plugin names and installation steps can change, so verify the selected plugin's release details before adding it.
 
-@Autonomous(name = "Field Demo")
-public class FieldDemo extends LinearOpMode {
-    @Override
-    public void runOpMode() {
-        waitForStart();
-        
-        // Draw on field (coordinate-mapped)
-        Field field = Field.getInstance();
-        
-        while (opModeIsActive()) {
-            // Draw robot position
-            field.drawRobot(24, 12, Math.toRadians(90));
-            
-            // Draw path
-            field.drawLine(0, 0, 24, 24);
-            field.drawCircle(48, 48, 6);
-            
-            field.update();
-        }
-    }
-}
-```
+## Panels and FTC Dashboard
 
-</Tab>
-<Tab value="Kotlin">
+Both tools can support telemetry and robot development. Compare their current plugin sets, existing team code, SDK compatibility, and setup cost. Panels has a plugin model; FTC Dashboard provides its own telemetry, live configuration, field, graph, and camera features. Neither replaces careful match testing.
 
-```kotlin
-import com.bylazar.ftcontrol.field.Field
+## Official references
 
-@Autonomous(name = "Field Demo")
-class FieldDemo : LinearOpMode() {
-    override fun runOpMode() {
-        waitForStart()
-        
-        // Draw on field (coordinate-mapped)
-        val field = Field.getInstance()
-        
-        while (opModeIsActive()) {
-            // Draw robot position
-            field.drawRobot(24.0, 12.0, Math.toRadians(90.0))
-            
-            // Draw path
-            field.drawLine(0.0, 0.0, 24.0, 24.0)
-            field.drawCircle(48.0, 48.0, 6.0)
-            
-            field.update()
-        }
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-### Graph Data
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-import com.bylazar.ftcontrol.graph.Graph;
-
-@TeleOp(name = "PID Tuning")
-public class PIDTuning extends LinearOpMode {
-    @Override
-    public void runOpMode() {
-        Graph graph = Graph.getInstance();
-        PIDController controller = new PIDController(0.01, 0.0, 0.0);
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            double target = 1000;
-            double current = motor.getCurrentPosition();
-            double output = controller.calculate(current, target);
-            
-            // Plot on graph
-            graph.addPoint("Target", target);
-            graph.addPoint("Current", current);
-            graph.addPoint("Output", output);
-            graph.update();
-        }
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-import com.bylazar.ftcontrol.graph.Graph
-
-@TeleOp(name = "PID Tuning")
-class PIDTuning : LinearOpMode() {
-    override fun runOpMode() {
-        val graph = Graph.getInstance()
-        val controller = PIDController(0.01, 0.0, 0.0)
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            val target = 1000.0
-            val current = motor.currentPosition.toDouble()
-            val output = controller.calculate(current, target)
-            
-            // Plot on graph
-            graph.addPoint("Target", target)
-            graph.addPoint("Current", current)
-            graph.addPoint("Output", output)
-            graph.update()
-        }
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-## Creating Custom Plugins
-
-Panels supports custom plugins using Svelte (frontend) and Kotlin (backend):
-
-### Plugin Structure
-
-```
-my-plugin/
-  ├── frontend/        (Svelte UI)
-  │   ├── Plugin.svelte
-  │   └── components/
-  └── backend/         (Kotlin logic)
-      └── MyPlugin.kt
-```
-
-### Example Plugin
-
-<Tabs items={['Kotlin Backend', 'Svelte Frontend']}>
-<Tab value="Kotlin Backend">
-
-```kotlin
-package com.myteam.plugins
-
-import com.bylazar.ftcontrol.plugin.Plugin
-import com.bylazar.ftcontrol.plugin.PluginMetadata
-
-@PluginMetadata(
-    name = "My Custom Plugin",
-    version = "1.0.0",
-    description = "Does something cool"
-)
-class MyPlugin : Plugin {
-    override fun init() {
-        // Plugin initialization
-    }
-    
-    override fun update() {
-        // Called every loop
-        val data = computeSomething()
-        sendToFrontend("myData", data)
-    }
-}
-```
-
-</Tab>
-<Tab value="Svelte Frontend">
-
-```svelte
-<script lang="ts">
-  import { onMount } from 'svelte';
-  import { panelsAPI } from '$lib/panels';
-  
-  let myData = 0;
-  
-  onMount(() => {
-    // Listen for backend data
-    panelsAPI.on('myData', (data) => {
-      myData = data;
-    });
-  });
-</script>
-
-<div class="plugin">
-  <h2>My Custom Plugin</h2>
-  <p>Data: {myData}</p>
-</div>
-```
-
-</Tab>
-</Tabs>
-
-Check the [Panels Plugin Development docs](https://panels.bylazar.com/docs/com.bylazar.docs/Plugins%20Development) for full guide.
-
-## Panels vs FTC Dashboard
-
-| Feature | Panels | FTC Dashboard |
-|---------|--------|---------------|
-| **UI** | Modern Svelte | React-based |
-| **Plugins** | Full plugin system | Limited |
-| **Limelight** | Built-in support | Requires setup |
-| **Gamepads** | Wireless control | No |
-| **Themes** | Highly customizable | Basic |
-| **Field View** | Yes | Yes |
-| **Graphs** | Yes | Yes |
-| **Configurables** | Yes | Yes (`@Config`) |
-| **OpMode Control** | Yes | Limited |
-| **Capture/Replay** | Yes | No |
-| **Learning Curve** | Moderate | Low |
-
-## When to Use Panels
-
-**Use Panels when:**
-- You want all-in-one dashboard solution
-- You need Limelight wireless control
-- You want wireless gamepad control
-- You like modern, customizable UI
-- You want plugin extensibility
-- You need capture/replay for debugging
-
-**Use FTC Dashboard when:**
-- You want simplest setup
-- You only need basic telemetry
-- Your team is already familiar with it
-- You don't need Limelight features
-
-## Tips for Success
-
-1. **Bookmark Dashboard:** Save `http://192.168.43.1:8000` for quick access
-2. **Organize Widgets:** Use tabs to group related data
-3. **Use Configurables:** Tune parameters without reuploading
-4. **Graph Everything:** Visual feedback helps PID tuning
-5. **Custom Themes:** Make dashboard easy on your eyes
-6. **Try Plugins:** Explore all built-in plugins
-7. **Capture Matches:** Record for post-analysis
-8. **Learn Hotkeys:** Speed up your workflow
-
-## Resources
-
-- **Website:** [panels.bylazar.com](https://panels.bylazar.com/)
-- **Documentation:** [Panels Docs](https://panels.bylazar.com/docs/com.bylazar.docs/)
-- **GitHub:** [ftcontrol/ftcontrol-panels](https://github.com/ftcontrol/ftcontrol-panels)
-- **Repository:** [Dairy Foundation Repo](https://repo.dairy.foundation/#/releases/com/bylazar)
-- **Team:** 19234 ByteForce
-- **Creator:** [Lazar](https://bylazar.com/)
-
-## Next Steps
-
-1. Add Panels to your `build.gradle`
-2. Sync Gradle and build project
-3. Deploy to robot
-4. Connect to robot WiFi
-5. Open `http://192.168.43.1:8000` in browser
-6. Explore all the plugins
-7. Try `@Configurable` for tuning
-8. Customize your theme
-9. Create custom plugins if needed
-
-<Callout>
-**Pro Tip:** Combine Panels with [Sloth](/docs/libraries/sloth) for hot code reload and live Configurables updates - the ultimate FTC development experience!
-</Callout>
+- [Panels website](https://panels.bylazar.com/)
+- [Panels documentation](https://panels.bylazar.com/docs/com.bylazar.docs/)
+- [Panels GitHub repository](https://github.com/ftcontrol/ftcontrol-panels)
+- [Official GitHub organization and Quickstarts](https://github.com/ftcontrol)
+- [Dairy Foundation releases](https://repo.dairy.foundation/)

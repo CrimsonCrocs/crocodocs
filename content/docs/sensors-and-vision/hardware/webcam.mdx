@@ -1,338 +1,56 @@
 ---
 title: Webcams
-description: Camera hardware setup and configuration for FTC robots
+description: Choose, mount, configure, and test a USB webcam on an FTC robot
 icon: Camera
 ---
 
-## What are Webcams?
-
-Webcams give your robot vision! They capture images that can be processed to detect objects, recognize colors, identify AprilTags, and enable autonomous navigation.
-
-**Common uses in FTC:**
-- 📍 Robot localization with AprilTags
-- 🎯 Object detection and tracking
-- 🔴 Color-based game element identification
-- 📊 Position and distance estimation
-
-<Callout type="info">
-**Ready to use your webcam?** See the [Vision Overview](./vision-overview) for complete software documentation.
-</Callout>
-
-## Recommended Cameras
-
-### Logitech C920/C922
-
-**Specifications:**
-- Resolution: Up to 1920x1080
-- Frame rate: 30 FPS at 1080p
-- Field of view: 78° diagonal
-- Autofocus: Yes
-- **Price:** ~$70-100
-
-**Pros:**
-- Excellent image quality
-- Wide availability
-- Good low-light performance
-- Reliable autofocus
-
-**Cons:**
-- More expensive
-- Larger/heavier
-
-**Best for:** Teams prioritizing detection accuracy and have room/budget
+## What the camera does
 
-### Logitech C270
-
-**Specifications:**
-- Resolution: Up to 1280x720
-- Frame rate: 30 FPS at 720p
-- Field of view: 60° diagonal
-- Autofocus: No
-- **Price:** ~$25-35
-
-**Pros:**
-- Budget-friendly
-- Compact and lightweight
-- Sufficient for most tasks
-- Easy to mount
-
-**Cons:**
-- Lower resolution
-- Fixed focus
-- Smaller field of view
+A webcam sends images to the Robot Controller. A vision program can then look for a color, shape, or AprilTag in those images. The camera alone does not tell the robot where to drive; your code must interpret what it sees.
 
-**Best for:** Budget-conscious teams, basic detection tasks
-
-### ELP USB Cameras
+![A webcam sends frames through USB to the Robot Controller, where a vision processor turns image pixels into a result for the OpMode.](/guides/webcam-signal-flow.svg)
 
-**Specifications:**
-- Resolution: Various (up to 1080p)
-- Frame rate: 30-60 FPS
-- Field of view: Various lens options
-- Customizable: Wide angle, fisheye, etc.
-
-**Pros:**
-- Interchangeable lenses
-- Compact module design
-- Good value
-- Various mounting options
-
-**Cons:**
-- May require tuning
-- Variable quality between models
-- Less common in FTC
-
-**Best for:** Custom applications, specific field-of-view needs
+## 1. Choose a camera
 
-## Camera Mounting
-
-### Mounting Best Practices
-
-1. **Stability is Critical**
-   - Use rigid mounts (no flex!)
-   - Secure all screws/fasteners
-   - Vibration causes blur
-
-2. **Height Considerations**
-   - Mount at consistent height
-   - Consider viewing angle to targets
-   - Don't obstruct driver's view
-
-3. **Angle and Orientation**
-   - Face forward for navigation
-   - Angle down for ground objects
-   - Consider tilting for AprilTags on walls
-
-4. **Protection**
-   - Shield from impacts
-   - Protect lens from scratches
-   - Consider bumper/guard
-
-### Mounting Examples
-
-**3D Printed Mounts:**
-- Custom fit for your camera model
-- Lightweight
-- Adjustable angle
-- Easy to iterate
-
-**REV Extrusion Mounts:**
-- Quick attachment to REV Robotics extrusion
-- Adjustable positioning
-- Reusable between robots
-
-**Cable Management:**
-- Route USB cable securely
-- Strain relief at camera
-- Avoid pinch points
-- Leave slack for movement
-
-## Camera Configuration
+For a Control Hub, choose a **USB Video Class (UVC)** compatible webcam. FIRST lists **Logitech C270, C310, and C920** among cameras it has tested and calibrated. Its [webcam reference](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_webcams/visionportal-webcams.html) includes supported resolutions, frame rates, and field of view.
 
-### Adding Camera to Robot Configuration
-
-1. **Connect Camera**
-   - Plug USB camera into Robot Controller or Control Hub
-   - Wait for detection
-
-2. **Open Robot Controller App**
-   - Tap **Configure Robot**
-   - Select your active configuration
+Start with a camera your team already owns if it appears on that list. More pixels are not automatically better: a higher resolution can add processing work, and a wider view makes a distant target smaller in the image. Check what your vision task needs before buying or changing cameras.
 
-3. **Add Webcam Device**
-   - Tap **Webcams** category
-   - Tap **Add**
-   - Select your camera from dropdown
-   - Give it a name (e.g., "Webcam 1")
+## 2. Mount it for the task
 
-4. **Save Configuration**
-   - Tap **Done**
-   - Tap **Save** on configuration screen
+- Aim it at the part of the field you need to observe. Test that a target stays in view while the robot turns and approaches it.
+- Keep the camera and USB cable firmly attached. A moving camera changes the relationship between image position and robot position.
+- Keep the lens clear of mechanisms. Avoid placing it where a game piece can hit it.
+- For distance or pose estimates, measure the camera's position and direction relative to the robot after mounting it. Recheck those measurements whenever you move the camera.
 
-5. **Verify in Code**
-   ```java
-   WebcamName webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
-   // Name must match configuration exactly!
-   ```
-
-### Multiple Cameras
+For color detection, test under the lighting you expect at an event. For AprilTag pose, also follow the [AprilTag guide](../visionportal/apriltag-detection) for camera calibration and coordinate conventions.
 
-You can use multiple cameras simultaneously:
-
-```java
-WebcamName frontCamera = hardwareMap.get(WebcamName.class, "Front Camera");
-WebcamName rearCamera = hardwareMap.get(WebcamName.class, "Rear Camera");
-
-// Create separate VisionPortals
-VisionPortal frontPortal = new VisionPortal.Builder()
-    .setCamera(frontCamera)
-    .addProcessor(frontProcessor)
-    .build();
-
-VisionPortal rearPortal = new VisionPortal.Builder()
-    .setCamera(rearCamera)
-    .addProcessor(rearProcessor)
-    .build();
-```
-
-<Callout type="warn">
-**Performance Note:** Multiple cameras increase CPU load. Test thoroughly to ensure control loop remains responsive.
-</Callout>
+## 3. Add the webcam to the robot configuration
 
-## Resolution Settings
+1. Connect the webcam to the Control Hub's USB port, or to a supported powered USB hub when your setup needs one.
+2. In the Robot Controller configuration, add the webcam as a USB device and save the configuration. FIRST's [external webcam configuration guide](https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/configuring_external_webcam/configuring-external-webcam.html) shows the screens.
+3. Give it a clear name, such as `Webcam 1`. Your code must use **that exact name** when it looks up the camera.
 
-### Choosing Resolution
-
-| Resolution | Use Case | Performance | Detail |
-|------------|----------|-------------|--------|
-| 320x240 | Fast processing, simple detection | Excellent | Low |
-| 640x360 | Balanced approach ⭐ | Good | Medium |
-| 640x480 | Standard definition, good detail | Good | Medium |
-| 1280x720 | High detail, precise detection | Fair | High |
-| 1920x1080 | Maximum quality | Poor | Very High |
-
-**Recommended:** Start with 640x360 or 640x480 for best balance.
-
-```java
-visionPortal = new VisionPortal.Builder()
-    .setCamera(webcamName)
-    .setCameraResolution(new Size(640, 360))  // Set resolution
-    .build();
-```
-
-## USB Connection
-
-### USB Bandwidth
-
-USB 2.0 bandwidth is shared across all devices:
-- Control Hub has limited bandwidth
-- Multiple cameras share bandwidth
-- High resolution uses more bandwidth
-
-**Symptoms of bandwidth issues:**
-- Slow frame rate
-- Connection drops
-- Poor image quality
-
-**Solutions:**
-- Lower resolution
-- Use powered USB hub
-- Reduce frame rate
-
-### Powered USB Hubs
-
-For multiple cameras or power-hungry devices:
-
-**Recommended:** REV Robotics Powered USB Hub
-- Provides additional power
-- Expands USB ports
-- Reduces Control Hub load
+## 4. Run one camera test
 
-**Setup:**
-1. Connect hub to Control Hub
-2. Power hub from robot's 12V supply
-3. Connect cameras to hub
+Use a webcam sample OpMode included with the [FTC SDK](https://github.com/FIRST-Tech-Challenge/FtcRobotController) or follow the [VisionPortal setup guide](../visionportal/vision-portal). Confirm that the preview shows a live image before adding detection logic.
 
-## Troubleshooting
-
-### Camera Not Detected
+| If you see… | Check this first |
+| --- | --- |
+| Camera not found | The USB connection, active robot configuration, and camera name in code |
+| Black or frozen preview | Another OpMode using the camera, USB power, and whether the camera opened successfully |
+| Detection misses a visible target | Focus, exposure, lighting, resolution, and the processor's settings |
+| Slow robot loop | Camera resolution and how much work the vision processor does per frame |
 
-**Check:**
-- USB cable connected firmly
-- Camera powered (LED on)
-- Driver Station app updated
-- Try different USB port
-- Test with different camera
+Change one thing at a time and test again. That makes it easier to tell which change helped.
 
-### Poor Image Quality
+## Continue learning
 
-**Solutions:**
-- Clean lens with microfiber cloth
-- Adjust camera position
-- Improve lighting
-- Disable auto-exposure
-- Change resolution
+- [Vision basics](../vision-basics) explains image coordinates and the steps from pixels to a detection.
+- [VisionPortal](../visionportal/vision-portal) is the SDK's camera and processor framework.
+- [EasyOpenCV](../easyopencv/easyopencv-basics) is a separate option for custom image pipelines.
 
-### Lag / Slow Frame Rate
+## Official references
 
-**Solutions:**
-- Reduce resolution
-- Disable live preview
-- Optimize processing pipeline
-- Use powered USB hub
-- Check CPU usage
-
-### Focus Issues
-
-**For autofocus cameras (C920/C922):**
-- Allow time for autofocus to settle
-- May need to manually set focus distance
-- Consider fixed-focus camera for consistency
-
-**For fixed-focus cameras (C270):**
-- Adjust camera distance to target
-- Optimal focus distance varies by camera
-- Test at competition distances
-
-## Lighting Considerations
-
-Vision processing is highly sensitive to lighting:
-
-**Best Practices:**
-- **Add LED strips** to robot for consistent lighting
-- **White LEDs** work well for most tasks
-- **Position lights** to illuminate target area
-- **Test** under competition field lighting
-- **Tune** color thresholds for lighting conditions
-
-**Avoid:**
-- Backlighting (target between camera and light)
-- Reflections on glossy surfaces
-- Shadows on target objects
-- Extreme brightness differences
-
-## Legal Rules
-
-Always check current FTC game manual for camera rules:
-
-**Typically allowed:**
-- USB webcams
-- Standard commercial cameras
-- LED lights for illumination
-
-**Typically restricted:**
-- Laser rangefinders
-- Active IR projectors (except built-in)
-- Radio transmitters
-- Excessive brightness (blinding other robots)
-
-<Callout type="warn">
-**Important:** Rules change each season. Always verify camera and lighting legality in the current game manual!
-</Callout>
-
-## Cost Summary
-
-Budget breakdown for vision system:
-
-| Item | Budget Option | Premium Option |
-|------|---------------|----------------|
-| Camera | Logitech C270 ($30) | Logitech C920 ($80) |
-| Mount | 3D printed ($2) | Commercial mount ($15) |
-| USB Cable | Included | Longer cable ($5) |
-| Lighting (opt.) | LED strip ($10) | Ring light ($25) |
-| **Total** | **$42** | **$125** |
-
-## Next Steps
-
-Ready to program your webcam? Check out:
-
-- [Vision Overview](./vision-overview) - Start here for complete vision guide
-- [EasyOpenCV Basics](./easyopencv-basics) - Custom pipeline approach
-- [VisionPortal](./vision-portal) - Modern structured approach  
-- [AprilTag Detection](./apriltag-detection) - Precise robot localization
-- [Color Blob Locator](./color-blob-locator) - Quick color detection
-
-<Callout type="info">
-**Getting Started?** Begin with [Vision Overview](./vision-overview) to choose your approach, then follow the detailed guides!
-</Callout>
-
+- [Configuring an external webcam with a Control Hub](https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/configuring_external_webcam/configuring-external-webcam.html)
+- [Webcams for VisionPortal](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_webcams/visionportal-webcams.html)

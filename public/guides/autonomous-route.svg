@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 500" role="img" aria-labelledby="title desc">
+  <title id="title">Plan an autonomous routine as testable actions</title>
+  <desc id="desc">An illustrative top-down route moves from the starting pose to a scoring pose, then to a parking pose. The path is a plan, not a guarantee of exact motion. Test each move and verify the robot's ending pose before adding the next action.</desc>
+  <defs>
+    <marker id="route-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b4232e"/></marker>
+    <style>
+      .title{font:700 27px system-ui,sans-serif;fill:#34272a}
+      .sub{font:16px system-ui,sans-serif;fill:#76676a}
+      .head{font:700 18px system-ui,sans-serif;fill:#34272a;text-anchor:middle}
+      .body{font:15px system-ui,sans-serif;fill:#65575a;text-anchor:middle}
+      .note{font:15px system-ui,sans-serif;fill:#65575a;text-anchor:start}
+      .card{fill:#fff;stroke:#e8c9cc;stroke-width:2}
+      .accent{fill:#fff3f3;stroke:#b4232e;stroke-width:2.5}
+    </style>
+  </defs>
+  <rect width="1040" height="500" rx="24" fill="#fff"/>
+  <text class="title" x="520" y="48" text-anchor="middle">Build the autonomous routine one action at a time</text>
+  <text class="sub" x="520" y="76" text-anchor="middle">Plan a short route, test each move, then add the next.</text>
+
+  <rect x="44" y="112" width="952" height="250" rx="20" fill="#fffafa" stroke="#f0dfe1" stroke-width="2"/>
+  <path d="M246 230H422M602 230H778" fill="none" stroke="#b4232e" stroke-width="3" stroke-dasharray="9 8" marker-end="url(#route-arrow)"/>
+
+  <rect class="card" x="82" y="164" width="164" height="132" rx="18"/>
+  <circle cx="164" cy="200" r="17" fill="#fff3f3" stroke="#b4232e" stroke-width="2"/>
+  <path d="M164 188v24M152 200h24" stroke="#b4232e" stroke-width="2.5" stroke-linecap="round"/>
+  <text class="head" x="164" y="248">1. Start pose</text>
+  <text class="body" x="164" y="272">initial position</text>
+
+  <rect class="accent" x="438" y="164" width="164" height="132" rx="18"/>
+  <circle cx="520" cy="200" r="17" fill="#fff" stroke="#b4232e" stroke-width="2"/>
+  <path d="M508 200h24M520 188v24" stroke="#b4232e" stroke-width="2.5" stroke-linecap="round"/>
+  <text class="head" x="520" y="248">2. Score</text>
+  <text class="body" x="520" y="272">planned scoring pose</text>
+
+  <rect class="card" x="794" y="164" width="164" height="132" rx="18"/>
+  <circle cx="876" cy="200" r="17" fill="#fff3f3" stroke="#b4232e" stroke-width="2"/>
+  <path d="M864 200h24M876 188v24" stroke="#b4232e" stroke-width="2.5" stroke-linecap="round"/>
+  <text class="head" x="876" y="248">3. Park</text>
+  <text class="body" x="876" y="272">planned parking pose</text>
+
+  <rect x="44" y="390" width="952" height="68" rx="16" fill="#fff3f3"/>
+  <circle cx="78" cy="424" r="12" fill="#b4232e"/>
+  <path d="M78 417v8M78 431v1" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="104" y="419" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#702129">Treat the dashed route as a plan</text>
+  <text class="note" x="104" y="442">Test one move and verify where the robot ended up before adding another.</text>
+</svg>

@@ -1,171 +1,105 @@
 ---
 title: NextFTC
-description: Command-based framework with built-in control systems and gamepad bindings
+description: Current NextFTC v2 modules, robot structure, triggers, and command model
 icon: Code
 ---
 
 ## What is NextFTC?
 
-**NextFTC** is a collection of powerful libraries designed to make FTC programming easier and more organized. It includes:
+NextFTC is an open-source library for FTC robot code. The current documentation covers **NextFTC v2**, a Kotlin-first library with Java interoperability. Its modules cover robot lifecycle and command bindings (`robot`), hardware wrappers (`hardware`), and control theory (`control`). Check which major version your project uses before copying an example: v1 code is not interchangeable with v2.
 
-- **NextFTC Core** - Command-based framework with commands, subsystems, and components
-- **NextControl** - Advanced control systems (PID, feedforward, Bang-Bang)
-- **NextBindings** - Gamepad integration with button bindings and edge detection
-- **Hardware Module** - Built-in commands for motors, servos, and drivetrains
-- **Extensions** - Integration with Pedro Pathing and Road Runner
+<Callout type="warn" title="Version note">
+This page describes v2. Do not mix it with older v1 examples such as `NextFTCOpMode`, `CommandManager`, `NextBindings`, `setStart`, or `setUpdate`. The official docs warn that keeping v1 dependencies alongside v2 can cause duplicate-class build errors.
+</Callout>
 
-Think of it like having a professional toolkit instead of starting from scratch every time.
+## Install v2
 
-## Why Use NextFTC?
-
-**Command-Based Programming:**
-- Organize code into reusable commands
-- Prevent conflicts with subsystem requirements
-- Run commands sequentially or in parallel
-- Build complex autonomous routines easily
-
-**Advanced Control:**
-- Built-in PID, feedforward, and Bang-Bang controllers
-- Clean API for control systems
-- Everything integrates seamlessly
-
-**Better Gamepad Handling:**
-- Bind callbacks to button presses
-- Rising and falling edge detection
-- Automatic gamepad polling
-- Joystick curving and dead zones
-
-**Key Benefits:**
-- ✅ Less boilerplate code than vanilla FTC
-- ✅ Professional command-based architecture
-- ✅ Built-in hardware commands for common tasks
-- ✅ Excellent control systems included
-- ✅ Active development and support
-- ✅ Extensions for popular pathing libraries
-
-## Installation
-
-### NextFTC Core + Hardware Module
-
-In your `build.gradle` (Module: TeamCode), add:
+In `TeamCode/build.gradle`, use the current version listed by the [official installation guide](https://nextftc.dev/introduction/installation/). Replace `VERSION` with the Maven Central version shown there (without a leading `v`). Add the Dairy Maven repository when using `hardware` or `robot`:
 
 ```groovy
+repositories {
+    maven { url 'https://repo.dairy.foundation/releases' }
+}
+
 dependencies {
-    implementation 'dev.nextftc:ftc:1.0.1'
-    implementation 'dev.nextftc:hardware:1.0.1'  // Optional hardware module
+    implementation 'dev.nextftc.v2:control:VERSION'
+    implementation 'dev.nextftc.v2:hardware:VERSION'
+    implementation 'dev.nextftc.v2:robot:VERSION'
 }
 ```
 
-### NextControl (Optional)
+You can use `control` or `hardware` by itself. Read the official installation page for the current requirements and migration status before changing an existing v1 project.
 
-```groovy
-implementation 'dev.nextftc:control:1.0.0'
-```
+## How v2 is organized
 
-### NextBindings (Optional)
+- **`NextRobot`** lists the robot's `Mechanism` instances. NextFTC discovers exactly one `NextRobot` implementation at runtime and supplies it to each OpMode.
+- **`Mechanism`** groups hardware owned by one part of the robot and can define commands that require that mechanism.
+- **`NextOpMode`** is the base for registered OpModes. Annotate it with `@NextTeleop`, `@NextAutonomous`, or `@NextUtility`.
+- **Commands** in the robot module use Ivy, Pedro Pathing's command library. NextFTC v2 does not provide its own separate command framework.
+- **Triggers** poll buttons and conditions and schedule or cancel commands. NextFTC advances triggers and the scheduler during the OpMode loop; you do not call a `BindingManager.update()` loop yourself.
 
-```groovy
-implementation 'dev.nextftc:bindings:1.0.1'
-```
+See the official [robot module guide](https://nextftc.dev/robot/), [project structure](https://nextftc.dev/robot/project-structure/), and [commands page](https://nextftc.dev/robot/commands/) for full details.
 
-Then click "Sync Now" in Android Studio.
+## Build a small claw example in stages
 
-**Note:** Check [nextftc.dev](https://nextftc.dev/) for the latest versions.
+We will make one button close a claw. This example assumes you have installed the `robot` and `hardware` modules, added the claw servo to your Robot Controller configuration as `clawServo`, and selected a robot profile that includes the servo.
 
-## Core Concepts
+### Step 1: Give the claw two actions
 
-### Commands
-
-Commands have four main components: `start`, `update`, `stop`, and `isDone`.
+Create one `Mechanism` that owns the servo. An action describes what should happen; it moves the servo only when a trigger schedules it. The positions are practice values that you must tune for your linkage.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-// Lambda command - the main way to create commands
-LambdaCommand myCommand = new LambdaCommand()
-    .setStart(() -> {
-        // Runs once when command starts
-        armMotor.setTargetPosition(1000);
-    })
-    .setUpdate(() -> {
-        // Runs every loop
-        armMotor.setPower(0.8);
-    })
-    .setStop((interrupted) -> {
-        // Runs once when command ends
-        armMotor.setPower(0);
-    })
-    .setIsDone(() -> {
-        // Returns true when command is finished
-        return Math.abs(armMotor.getCurrentPosition() - 1000) < 10;
-    })
-    .setInterruptible(true)  // Optional
-    .named("Move Arm");       // Optional
+public class Claw implements Mechanism {
+    private final NextServo servo = new NextServo("clawServo");
+
+    public Command open() {
+        return instant(() -> servo.setPosition(0.2));
+    }
+
+    public Command close() {
+        return instant(() -> servo.setPosition(0.8));
+    }
+}
 ```
 
 </Tab>
 <Tab value="Kotlin">
 
 ```kotlin
-// Lambda command - the main way to create commands
-val myCommand = LambdaCommand()
-    .setStart { 
-        // Runs once when command starts
-        armMotor.targetPosition = 1000
-    }
-    .setUpdate { 
-        // Runs every loop
-        armMotor.power = 0.8
-    }
-    .setStop { interrupted ->
-        // Runs once when command ends
-        armMotor.power = 0.0
-    }
-    .setIsDone { 
-        // Returns true when command is finished
-        Math.abs(armMotor.currentPosition - 1000) < 10
-    }
-    .setInterruptible(true)  // Optional
-    .named("Move Arm")        // Optional
+class Claw : Mechanism {
+    private val servo = NextServo("clawServo")
+
+    fun open() = instant { servo.position = 0.2 }
+    fun close() = instant { servo.position = 0.8 }
+}
 ```
 
 </Tab>
 </Tabs>
 
-**Commands as Classes** (for reusability):
+The string `clawServo` must match the configured device name. `instant` makes a command that runs its action once and then finishes.
+
+### Step 2: List the claw on your robot
+
+`NextRobot` is the shared place where NextFTC finds the mechanisms. Add the claw to `mechanisms`; otherwise the OpMode will not receive it through the robot object.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-public class MoveArmCommand extends Command {
-    private DcMotor motor;
-    private int target;
-    
-    public MoveArmCommand(DcMotor motor, int target) {
-        this.motor = motor;
-        this.target = target;
-    }
-    
+public class Robot implements NextRobot {
+    private final Claw claw = new Claw();
+
     @Override
-    public void start() {
-        motor.setTargetPosition(target);
+    public Set<Mechanism> getMechanisms() {
+        return Set.of(claw);
     }
-    
-    @Override
-    public void update() {
-        motor.setPower(0.8);
-    }
-    
-    @Override
-    public void stop(boolean interrupted) {
-        motor.setPower(0);
-    }
-    
-    @Override
-    public boolean isDone() {
-        return Math.abs(motor.getCurrentPosition() - target) < 10;
+
+    public Claw getClaw() {
+        return claw;
     }
 }
 ```
@@ -174,123 +108,44 @@ public class MoveArmCommand extends Command {
 <Tab value="Kotlin">
 
 ```kotlin
-class MoveArmCommand(
-    private val motor: DcMotor,
-    private val target: Int
-) : Command() {
-    
+class Robot : NextRobot {
+    val claw = Claw()
+    override val mechanisms = setOf(claw)
+}
+```
+
+</Tab>
+</Tabs>
+
+NextFTC discovers one public `NextRobot` implementation at runtime and supplies that instance to each `NextOpMode`. You do not create a second `Robot` inside the OpMode.
+
+### Step 3: Bind the A button to the close action
+
+Now the OpMode can use the shared claw. `onTrue` schedules `close()` once when the A button changes from released to pressed.
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+@NextTeleop(name = "Claw Practice")
+public class ClawPractice extends NextOpMode {
+    public ClawPractice(Robot robot) {
+        super(robot);
+        CommandGamepad driver = new CommandGamepad(gamepad1);
+        driver.a().onTrue(robot.getClaw().close());
+    }
+}
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+@NextTeleop(name = "Claw Practice")
+class ClawPractice(private val robot: Robot) : NextOpMode(robot) {
     override fun start() {
-        motor.targetPosition = target
-    }
-    
-    override fun update() {
-        motor.power = 0.8
-    }
-    
-    override fun stop(interrupted: Boolean) {
-        motor.power = 0.0
-    }
-    
-    override val isDone: Boolean
-        get() = Math.abs(motor.currentPosition - target) < 10
-}
-```
-
-</Tab>
-</Tabs>
-
-**Scheduling Commands:**
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Method 1: Use CommandManager
-CommandManager.scheduleCommand(myCommand);
-
-// Method 2: Commands are Runnable - just call them
-myCommand();
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Method 1: Use CommandManager
-CommandManager.scheduleCommand(myCommand)
-
-// Method 2: Commands are Runnable - just call them
-myCommand()
-```
-
-</Tab>
-</Tabs>
-
-### Subsystems
-
-Subsystems organize your robot's mechanisms. **Use singletons** to ensure only one instance exists:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-public class ArmSubsystem implements Subsystem {
-    private static ArmSubsystem instance;
-    private DcMotor armMotor;
-    
-    private ArmSubsystem() {
-        // Private constructor
-    }
-    
-    public static ArmSubsystem getInstance(HardwareMap hardwareMap) {
-        if (instance == null) {
-            instance = new ArmSubsystem();
-            instance.armMotor = hardwareMap.get(DcMotor.class, "arm");
-        }
-        return instance;
-    }
-    
-    @Override
-    public void initialize() {
-        // Runs on init (optional)
-    }
-    
-    @Override
-    public void periodic() {
-        // Runs every loop (optional)
-    }
-    
-    public void setPosition(int position) {
-        armMotor.setTargetPosition(position);
-        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armMotor.setPower(0.8);
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-object ArmSubsystem : Subsystem {
-    private lateinit var armMotor: DcMotor
-    
-    fun init(hardwareMap: HardwareMap) {
-        armMotor = hardwareMap.get(DcMotor::class.java, "arm")
-    }
-    
-    override fun initialize() {
-        // Runs on init (optional)
-    }
-    
-    override fun periodic() {
-        // Runs every loop (optional)
-    }
-    
-    fun setPosition(position: Int) {
-        armMotor.targetPosition = position
-        armMotor.mode = DcMotor.RunMode.RUN_TO_POSITION
-        armMotor.power = 0.8
+        val driver = CommandGamepad(gamepad1)
+        driver.a.onTrue(robot.claw.close())
     }
 }
 ```
@@ -298,709 +153,38 @@ object ArmSubsystem : Subsystem {
 </Tab>
 </Tabs>
 
-**Commands can require subsystems** to prevent conflicts:
+NextFTC checks the trigger and advances the command during the OpMode loop. You do not add a separate scheduler-update loop. For the full package imports and current Java/Kotlin signatures, follow the official [mechanism](https://nextftc.dev/robot/mechanisms/), [NextOpMode](https://nextftc.dev/robot/nextopmode/), and [trigger](https://nextftc.dev/robot/triggers/) examples.
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
+### Step 4: Try it safely
 
-```java
-LambdaCommand command = new LambdaCommand()
-    .setUpdate(() -> arm.setPosition(1000))
-    .requires(arm);  // Only this command can use 'arm' at once
-```
+1. Check that the servo name in the Robot Controller configuration is exactly `clawServo`.
+2. With the robot lifted or the claw disconnected from anything it could pinch, select the OpMode and press INIT.
+3. Press PLAY and tap A. The servo should move once to the close position.
+4. If nothing happens, check that you included `claw` in `mechanisms`, that the class has the required annotation and constructor, and that you installed compatible v2 dependencies.
 
-</Tab>
-<Tab value="Kotlin">
+The positions `0.2` and `0.8` are examples, not safe or correct positions for every claw. Start with low-risk values and tune them for your linkage.
 
-```kotlin
-val command = LambdaCommand()
-    .setUpdate { arm.setPosition(1000) }
-    .requires(arm)  // Only this command can use 'arm' at once
-```
+## Controls, hardware, and feedback
 
-</Tab>
-</Tabs>
+A `CommandGamepad` wraps an FTC `Gamepad`. Buttons expose `Trigger`s such as `onTrue` (schedule on a rising edge) and `whileTrue` (schedule while active, cancel when released). Stick axes and analog triggers expose range values and threshold helpers. Bind commands in the OpMode lifecycle and let NextFTC poll them.
 
-### OpModes
+The `hardware` module wraps FTC SDK devices and resolves them lazily. Device wrappers can be created from a configured name or a hub/port. The `control` module is usable on its own and includes feedback controllers, feedforward, filters, motion profiles, geometry, and typed units. Start with the official [hardware](https://nextftc.dev/hardware/) and [control](https://nextftc.dev/control/) references before adding a controller to a robot.
 
-NextFTC OpModes extend `NextFTCOpMode` with five lifecycle functions:
+## Java support
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
+NextFTC is written in Kotlin but designed for Java interoperability. The official docs include Java and Kotlin tabs for core examples; use those examples instead of translating Kotlin syntax by guesswork. Confirm annotations, constructor visibility, and generated Kotlin property accessors for your selected version.
 
-```java
-@TeleOp(name = "My TeleOp")
-public class MyTeleOp extends NextFTCOpMode {
-    
-    public MyTeleOp() {
-        // Get singleton instance and register subsystem
-        ArmSubsystem arm = ArmSubsystem.getInstance(hardwareMap);
-        addComponents(new SubsystemComponent(arm));
-    }
-    
-    @Override
-    public void onInit() {
-        // Called once when INIT is pressed
-    }
-    
-    @Override
-    public void onWaitForStart() {
-        // Called repeatedly between INIT and START
-    }
-    
-    @Override
-    public void onStartButtonPressed() {
-        // Called once when START is pressed
-    }
-    
-    @Override
-    public void onUpdate() {
-        // Called repeatedly during TeleOp
-    }
-    
-    @Override
-    public void onStop() {
-        // Called when STOP is pressed
-    }
-}
-```
+## Choosing NextFTC
 
-</Tab>
-<Tab value="Kotlin">
+NextFTC can help when a team wants shared mechanisms, scheduled commands, reusable controls, or its hardware/control wrappers. It adds dependencies and concepts, so a small project may be easier to understand with the FTC SDK alone. Compare the actual APIs and maintenance needs with alternatives before adopting it.
 
-```kotlin
-@TeleOp(name = "My TeleOp")
-class MyTeleOp : NextFTCOpMode() {
-    
-    init {
-        // Initialize and register singleton subsystem
-        ArmSubsystem.init(hardwareMap)
-        addComponents(SubsystemComponent(ArmSubsystem))
-    }
-    
-    override fun onInit() {
-        // Called once when INIT is pressed
-    }
-    
-    override fun onWaitForStart() {
-        // Called repeatedly between INIT and START
-    }
-    
-    override fun onStartButtonPressed() {
-        // Called once when START is pressed
-    }
-    
-    override fun onUpdate() {
-        // Called repeatedly during TeleOp
-    }
-    
-    override fun onStop() {
-        // Called when STOP is pressed
-    }
-}
-```
+## Official references
 
-</Tab>
-</Tabs>
-
-## Command Groups
-
-Run commands sequentially or in parallel using helper methods:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Sequential - one after another
-Command sequential = moveArmUp
-    .then(openClaw)
-    .then(moveArmDown);
-
-// Or use SequentialGroup
-Command sequential2 = new SequentialGroup(moveArmUp, openClaw, moveArmDown);
-
-// Parallel - all at once
-Command parallel = driveForward
-    .and(raiseArm)
-    .and(spinIntake);
-
-// Or use ParallelGroup
-Command parallel2 = new ParallelGroup(driveForward, raiseArm, spinIntake);
-
-// Race - ends when first command finishes
-Command race = command1.raceWith(command2);
-
-// Deadline - ends when deadline command finishes
-Command deadline = command1.asDeadline(command2, command3);
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Sequential - one after another
-val sequential = moveArmUp
-    .then(openClaw)
-    .then(moveArmDown)
-
-// Or use SequentialGroup
-val sequential2 = SequentialGroup(moveArmUp, openClaw, moveArmDown)
-
-// Parallel - all at once
-val parallel = driveForward
-    .and(raiseArm)
-    .and(spinIntake)
-
-// Or use ParallelGroup
-val parallel2 = ParallelGroup(driveForward, raiseArm, spinIntake)
-
-// Race - ends when first command finishes
-val race = command1.raceWith(command2)
-
-// Deadline - ends when deadline command finishes
-val deadline = command1.asDeadline(command2, command3)
-```
-
-</Tab>
-</Tabs>
-
-## NextBindings - Gamepad Integration
-
-NextBindings provides a powerful button binding system. **Important:** Call `BindingManager.update()` in your `onUpdate()` and `BindingManager.reset()` in `onStop()`.
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-@Override
-public void onStartButtonPressed() {
-    // Create buttons from gamepad inputs
-    Button aButton = button(() -> gamepad1.a);
-    Button bButton = button(() -> gamepad1.b);
-    
-    // Rising edge - triggers once when pressed
-    aButton.whenBecomesTrue(() -> arm.setPosition(HIGH_POSITION));
-    
-    // Falling edge - triggers when released
-    aButton.whenBecomesFalse(() -> arm.setPower(0));
-    
-    // While true - runs every loop while held
-    bButton.whenTrue(() -> intake.run());
-    
-    // While false - runs every loop while not held
-    bButton.whenFalse(() -> intake.stop());
-    
-    // Toggles
-    button(() -> gamepad1.x)
-        .toggleOnBecomesTrue()
-        .whenBecomesTrue(() -> openClaw())   // First press, third press, etc.
-        .whenBecomesFalse(() -> closeClaw()); // Second press, fourth press, etc.
-    
-    // Combine buttons with logical operators
-    Button both = button(() -> gamepad1.left_bumper && gamepad1.right_bumper);
-    both.whenBecomesTrue(() -> launchDrone());
-}
-
-@Override
-public void onUpdate() {
-    BindingManager.update();  // REQUIRED - updates all buttons
-}
-
-@Override
-public void onStop() {
-    BindingManager.reset();   // REQUIRED - cleanup
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-override fun onStartButtonPressed() {
-    // Create buttons from gamepad inputs
-    val aButton = button { gamepad1.a }
-    val bButton = button { gamepad1.b }
-    
-    // Rising edge - triggers once when pressed
-    aButton.whenBecomesTrue { arm.setPosition(HIGH_POSITION) }
-    
-    // Falling edge - triggers when released
-    aButton.whenBecomesFalse { arm.setPower(0.0) }
-    
-    // While true - runs every loop while held
-    bButton.whenTrue { intake.run() }
-    
-    // While false - runs every loop while not held
-    bButton.whenFalse { intake.stop() }
-    
-    // Toggles
-    button { gamepad1.x }
-        .toggleOnBecomesTrue()
-        .whenBecomesTrue { openClaw() }   // First press, third press, etc.
-        .whenBecomesFalse { closeClaw() } // Second press, fourth press, etc.
-    
-    // Combine buttons with logical operators
-    val both = button { gamepad1.left_bumper && gamepad1.right_bumper }
-    both.whenBecomesTrue { launchDrone() }
-}
-
-override fun onUpdate() {
-    BindingManager.update()  // REQUIRED - updates all buttons
-}
-
-override fun onStop() {
-    BindingManager.reset()   // REQUIRED - cleanup
-}
-```
-
-</Tab>
-</Tabs>
-
-## NextControl - Control Systems
-
-NextControl provides a clean API for control systems with feedback and feedforward elements.
-
-### PID Control
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Create a control system with PID
-ControlSystem armController = ControlSystemKt.controlSystem(builder -> {
-    builder.feedback(fb -> fb.pid(0.05, 0.01, 0.004));
-    return null;
-});
-
-// Use in your loop with KineticState
-@Override
-public void onUpdate() {
-    KineticState currentState = new KineticState(
-        armMotor.getCurrentPosition(),
-        armMotor.getVelocity()
-    );
-    
-    double power = armController.calculate(currentState);
-    armMotor.setPower(power);
-}
-
-// Set target position
-armController.setReference(1000.0);
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Create a control system with PID
-val armController = controlSystem {
-    posPid(0.05, 0.01, 0.004)
-}
-
-// Use in your loop with KineticState
-override fun onUpdate() {
-    val currentState = KineticState(
-        armMotor.currentPosition.toDouble(),
-        armMotor.velocity
-    )
-    
-    val power = armController.calculate(currentState)
-    armMotor.power = power
-}
-
-// Set target position
-armController.goal = KineticState(1000.0)
-```
-
-</Tab>
-</Tabs>
-
-### Feedforward Control
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Arm feedforward (accounts for gravity)
-ControlSystem armWithFF = ControlSystemKt.controlSystem(builder -> {
-    builder.feedback(fb -> fb.pid(0.05, 0.01, 0.004));
-    builder.feedforward(ff -> ff.arm(0.1, 0.5, 0.01, 0.001));  // kS, kG, kV, kA
-    return null;
-});
-
-// Elevator feedforward
-ControlSystem elevatorWithFF = ControlSystemKt.controlSystem(builder -> {
-    builder.feedback(fb -> fb.pid(0.05, 0.01, 0.004));
-    builder.feedforward(ff -> ff.elevator(0.1, 0.3, 0.01, 0.001));
-    return null;
-});
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Arm feedforward (accounts for gravity)
-val armWithFF = controlSystem {
-    posPid(0.05, 0.01, 0.004)
-    armFF(0.1, 0.5, 0.01, 0.001)  // kS, kG, kV, kA
-}
-
-// Elevator feedforward
-val elevatorWithFF = controlSystem {
-    posPid(0.05, 0.01, 0.004)
-    elevatorFF(0.1, 0.3, 0.01, 0.001)  // kS, kG, kV, kA
-}
-```
-
-</Tab>
-</Tabs>
-
-## Hardware Module
-
-Pre-built hardware commands for common tasks:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// SetPosition - move servo to position
-SetPosition clawOpen = new SetPosition(clawServo, 1.0);
-SetPosition clawClose = new SetPosition(clawServo, 0.0);
-
-// Can use with multiple servos
-SetPositions both = new SetPositions(
-    new Pair<>(servo1, 0.5),
-    new Pair<>(servo2, 0.8)
-);
-
-// Holonomic drivetrain command
-HolonomicDriveCommand drive = new HolonomicDriveCommand(
-    drivetrain,
-    () -> -gamepad1.left_stick_y,
-    () -> gamepad1.left_stick_x,
-    () -> gamepad1.right_stick_x
-);
-
-// Schedule in onStartButtonPressed
-CommandManager.scheduleCommand(drive);
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// SetPosition - move servo to position
-val clawOpen = SetPosition(clawServo, 1.0)
-val clawClose = SetPosition(clawServo, 0.0)
-
-// Can use with multiple servos
-val both = SetPositions(
-    servo1 to 0.5,
-    servo2 to 0.8
-)
-
-// Holonomic drivetrain command
-val drive = HolonomicDriveCommand(
-    drivetrain,
-    { -gamepad1.left_stick_y },
-    { gamepad1.left_stick_x },
-    { gamepad1.right_stick_x }
-)
-
-// Schedule in onStartButtonPressed
-CommandManager.scheduleCommand(drive)
-```
-
-</Tab>
-</Tabs>
-
-## Complete Example OpMode
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-@TeleOp(name = "NextFTC TeleOp")
-public class NextFTCTeleOp extends NextFTCOpMode {
-    private DcMotor frontLeft, frontRight, backLeft, backRight;
-    private DcMotor armMotor;
-    private Servo claw;
-    
-    private ControlSystem armController;
-    
-    private static final int ARM_HIGH = 1000;
-    private static final int ARM_MID = 500;
-    private static final int ARM_LOW = 0;
-    
-    @Override
-    public void onInit() {
-        // Initialize hardware
-        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
-        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
-        backRight = hardwareMap.get(DcMotor.class, "backRight");
-        armMotor = hardwareMap.get(DcMotor.class, "arm");
-        claw = hardwareMap.get(Servo.class, "claw");
-        
-        // Set motor directions
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        
-        // Create control system with PID
-        armController = ControlSystemKt.controlSystem(builder -> {
-            builder.feedback(fb -> fb.pid(0.05, 0.01, 0.004));
-            return null;
-        });
-    }
-    
-    @Override
-    public void onStartButtonPressed() {
-        // Bind gamepad controls using NextBindings
-        button(() -> gamepad1.a).whenBecomesTrue(() -> armController.setReference((double) ARM_HIGH));
-        button(() -> gamepad1.b).whenBecomesTrue(() -> armController.setReference((double) ARM_MID));
-        button(() -> gamepad1.x).whenBecomesTrue(() -> armController.setReference((double) ARM_LOW));
-        
-        button(() -> gamepad1.right_bumper).whenBecomesTrue(() -> claw.setPosition(1.0));
-        button(() -> gamepad1.left_bumper).whenBecomesTrue(() -> claw.setPosition(0.0));
-    }
-    
-    @Override
-    public void onUpdate() {
-        // Update bindings (REQUIRED for NextBindings)
-        BindingManager.update();
-        
-        // Mecanum drive
-        double y = -gamepad1.left_stick_y;
-        double x = gamepad1.left_stick_x;
-        double rx = gamepad1.right_stick_x;
-        
-        frontLeft.setPower(y + x + rx);
-        backLeft.setPower(y - x + rx);
-        frontRight.setPower(y - x - rx);
-        backRight.setPower(y + x - rx);
-        
-        // Control system for arm
-        KineticState armState = new KineticState(
-            armMotor.getCurrentPosition(),
-            armMotor.getVelocity()
-        );
-        double armPower = armController.calculate(armState);
-        armMotor.setPower(armPower);
-        
-        // Telemetry
-        telemetry.addData("Arm Position", armMotor.getCurrentPosition());
-        telemetry.addData("Arm Target", armController.getReference());
-        telemetry.update();
-    }
-    
-    @Override
-    public void onStop() {
-        BindingManager.reset();  // REQUIRED for NextBindings cleanup
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-@TeleOp(name = "NextFTC TeleOp")
-class NextFTCTeleOp : NextFTCOpMode() {
-    private lateinit var frontLeft: DcMotor
-    private lateinit var frontRight: DcMotor
-    private lateinit var backLeft: DcMotor
-    private lateinit var backRight: DcMotor
-    private lateinit var armMotor: DcMotor
-    private lateinit var claw: Servo
-    
-    private lateinit var armController: ControlSystem
-    
-    companion object {
-        const val ARM_HIGH = 1000
-        const val ARM_MID = 500
-        const val ARM_LOW = 0
-    }
-    
-    override fun onInit() {
-        // Initialize hardware
-        frontLeft = hardwareMap.get(DcMotor::class.java, "frontLeft")
-        frontRight = hardwareMap.get(DcMotor::class.java, "frontRight")
-        backLeft = hardwareMap.get(DcMotor::class.java, "backLeft")
-        backRight = hardwareMap.get(DcMotor::class.java, "backRight")
-        armMotor = hardwareMap.get(DcMotor::class.java, "arm")
-        claw = hardwareMap.get(Servo::class.java, "claw")
-        
-        // Set motor directions
-        frontRight.direction = DcMotorSimple.Direction.REVERSE
-        backRight.direction = DcMotorSimple.Direction.REVERSE
-        
-        // Create control system with PID
-        armController = controlSystem {
-            posPid(0.05, 0.01, 0.004)
-        }
-    }
-    
-    override fun onStartButtonPressed() {
-        // Bind gamepad controls using NextBindings
-        button { gamepad1.a }.whenBecomesTrue { armController.goal = KineticState(ARM_HIGH.toDouble()) }
-        button { gamepad1.b }.whenBecomesTrue { armController.goal = KineticState(ARM_MID.toDouble()) }
-        button { gamepad1.x }.whenBecomesTrue { armController.goal = KineticState(ARM_LOW.toDouble()) }
-        
-        button { gamepad1.right_bumper }.whenBecomesTrue { claw.position = 1.0 }
-        button { gamepad1.left_bumper }.whenBecomesTrue { claw.position = 0.0 }
-    }
-    
-    override fun onUpdate() {
-        // Update bindings (REQUIRED for NextBindings)
-        BindingManager.update()
-        
-        // Mecanum drive
-        val y = -gamepad1.left_stick_y
-        val x = gamepad1.left_stick_x
-        val rx = gamepad1.right_stick_x
-        
-        frontLeft.power = y + x + rx
-        backLeft.power = y - x + rx
-        frontRight.power = y - x - rx
-        backRight.power = y + x - rx
-        
-        // Control system for arm
-        val armState = KineticState(
-            armMotor.currentPosition.toDouble(),
-            armMotor.velocity
-        )
-        val armPower = armController.calculate(armState)
-        armMotor.power = armPower
-        
-        // Telemetry
-        telemetry.addData("Arm Position", armMotor.currentPosition)
-        telemetry.addData("Arm Target", armController.goal.position)
-        telemetry.update()
-    }
-    
-    override fun onStop() {
-        BindingManager.reset()  // REQUIRED for NextBindings cleanup
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-## Extensions
-
-### Pedro Pathing Integration
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```groovy
-// Add the extension
-implementation 'dev.nextftc:extension-pedro:1.0.1'
-```
-
-```java
-// Use in autonomous
-FollowPath followPath = new FollowPath(follower, path);
-CommandManager.scheduleCommand(followPath);
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Add the extension
-implementation("dev.nextftc:extension-pedro:1.0.1")
-```
-
-```kotlin
-// Use in autonomous
-val followPath = FollowPath(follower, path)
-CommandManager.scheduleCommand(followPath)
-```
-
-</Tab>
-</Tabs>
-
-### Road Runner Integration
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```groovy
-// Add the extension  
-implementation 'dev.nextftc:extension-roadrunner:1.0.1'
-```
-
-```java
-// Use with NextFTC commands
-TrajectorySequenceCommand autoCmd = new TrajectorySequenceCommand(drive, trajectory);
-CommandManager.scheduleCommand(autoCmd);
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Add the extension
-implementation("dev.nextftc:extension-roadrunner:1.0.1")
-```
-
-```kotlin
-// Use with NextFTC commands
-val autoCmd = TrajectorySequenceCommand(drive, trajectory)
-CommandManager.scheduleCommand(autoCmd)
-```
-
-</Tab>
-</Tabs>
-
-## Pros and Cons
-
-**Advantages:**
-- ✅ Professional command-based architecture
-- ✅ Excellent built-in control systems
-- ✅ Powerful gamepad binding system
-- ✅ Hardware commands save time
-- ✅ Seamless integration between libraries
-- ✅ Active development and community
-- ✅ Great documentation at nextftc.dev
-
-**Disadvantages:**
-- ❌ Learning curve for command-based programming
-- ❌ Adds dependencies to your project
-- ❌ May be overkill for simple robots
-- ❌ Different from traditional FTC structure
-
-## When to Use NextFTC
-
-**Great for:**
-- Teams wanting professional code architecture
-- Complex robots with many subsystems
-- Advanced autonomous routines
-- Teams that value code organization
-- Projects using Pedro Pathing or Road Runner
-
-**Maybe skip if:**
-- Simple robot with basic TeleOp only
-- Team prefers traditional FTC structure
-- Very limited programming experience
-- Want to minimize dependencies
-
-## Resources
-
-- **Official Documentation:** [nextftc.dev](https://nextftc.dev/)
-- **GitHub:** [NextFTC Organization](https://github.com/NextFTC)
-- **KDoc (API Reference):** [javadoc.io/doc/dev.nextftc](https://javadoc.io/doc/dev.nextftc)
-- **Discord:** [NextFTC Discord Server](https://discord.gg/PjP9Ze6fkX)
-- **Guide:** [Getting Started Guide](https://nextftc.dev/guide/about)
-
-## Next Steps
-
-1. Install NextFTC and hardware module
-2. Read the official guide at nextftc.dev
-3. Create a simple OpMode with subsystems
-4. Try NextBindings for gamepad controls
-5. Use NextControl for PID on your mechanisms
-6. Explore command groups for autonomous!
+- [NextFTC documentation](https://nextftc.dev/)
+- [Installation](https://nextftc.dev/introduction/installation/)
+- [Robot module and project structure](https://nextftc.dev/robot/project-structure/)
+- [Commands](https://nextftc.dev/robot/commands/)
+- [Triggers and RangeTriggers](https://nextftc.dev/robot/triggers/)
+- [Hardware module](https://nextftc.dev/hardware/)
+- [Control module](https://nextftc.dev/control/)
+- [NextFTC GitHub organization](https://github.com/NextFTC)

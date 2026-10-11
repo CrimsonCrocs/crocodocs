@@ -1,76 +1,36 @@
 ---
-title: Programming in FTC
-description: Let's get started with robots! 🚀
-icon: Terminal
+title: Getting Started
+description: Choose an FTC programming tool and find the official setup guides
+icon: Rocket
 ---
 
-## Overview
+## Start here
 
-In the FIRST Tech Challenge (FTC), programming is what brings your robot to life! 🌟
-It controls how your robot moves, senses, and performs tasks on the field. Without it,
-even the most sophisticated robot would just sit there looking pretty. Let's dive in! 🏊
-programming, teams develop software that interprets sensor input, manages
-hardware components such as motors and servos, and executes strategies both
-autonomously and under driver control. In both FTC and the FIRST Global
-Challenge (FGC), programming is conducted using JavaBlocks, OnBotJava, Android
-Studio (Java), or Kotlin. Ultimately, programming serves as the bridge between
-mechanical design and game strategy, transforming a collection of parts into an
-intelligent, responsive machine.
+FIRST recommends beginning with **Blocks**, including for students who have programmed before. It is a quick way to learn the FTC Control System and test simple OpModes. When you are ready to write text, choose **OnBot Java** or **Android Studio**.
 
-## Choosing Your Programming Environment
+| Tool | Best starting point | Where code is edited |
+| --- | --- | --- |
+| Blocks | New programmers and visual learners | Browser connected to the Robot Controller |
+| OnBot Java | Teams learning text-based Java | Browser connected to the Robot Controller |
+| Android Studio | Teams needing a full IDE, Git, or external libraries | Android Studio project on a computer |
 
-Programming environments vary greatly in terms of complexity, ease of use, and
-available features. Here's a quick guide to help you pick:
+These are FTC programming tools. Android Studio is an IDE; Java and Blocks are programming languages/tools. Kotlin is possible in Android Studio with the required project setup, but it is not one of the three standard programming tools in FIRST's current comparison guide.
 
-### JavaBlocks
+## Learn the robot workflow
 
-[=>JavaBlocks](/docs/getting-started/blocks)
+Each program is an **OpMode** that runs on the Robot Controller after a team selects it on the Driver Station. Before writing code, configure the robot's motors and sensors in the Robot Controller app. Use the same device names in the program as in the hardware configuration.
 
-- **Ideal for beginners** who are completely new to programming.
-- Visually intuitive drag-and-drop interface.
-- Excellent for understanding basic programming concepts quickly.
-- Limited functionality for more complex algorithms.
+Start with one motor or servo, then add gamepad input and sensor feedback. Test mechanisms with the robot safely supported and keep motor power limited while bringing up new code.
 
-### OnBotJava
+## Choose a path
 
-[=>OnBotJava](/docs/getting-started/onbotjava)
+- [Blocks](./blocks) — create an OpMode using visual blocks in a browser.
+- [OnBot Java](./onbot-java) — edit and build Java OpModes in a browser.
+- [Android Studio](./android-studio) — work in the official FTC Android Studio project.
 
-- **Great for teams starting to explore Java.**
-- Browser-based interface.
-- No additional software installation needed.
-- Suitable for moderately complex programs but limited compared to Android
-  Studio.
+## Official setup and references
 
-### Android Studio (Java & Kotlin)
-
-[=>Android Studio](/docs/getting-started/android-studio)
-
-- **Recommended for advanced teams** who want more control and customization.
-- Full-featured IDE supporting Java and Kotlin.
-- Advanced debugging tools, version control, and integration with libraries.
-- Slightly steeper learning curve but highly rewarding.
-
-## Basic Programming Concepts
-
-FTC programming primarily involve:
-- **Initialization**: Configuring hardware components such as motors, servos,
-  sensors, and controllers.
-- **Control Loops**: Running continuous loops to manage robot behavior during
-  autonomous and tele-operated periods.
-- **Event Handling**: Managing robot reactions to gamepad input and sensor
-  feedback.
-
-## Best Practices
-
-1. **Start Simple**: Test individual components before integrating complex
-   behaviors.
-2. **Version Control**: Use tools like Git to manage your team's codebase.
-3. **Comments and Documentation**: Clearly comment your code to improve
-   readability and teamwork.
-4. **Consistency**: Establish coding standards to ensure team-wide consistency.
-
-## Resources
-
-- [Official FTC Programming Resources](https://ftc-docs.firstinspires.org/)
-- [Android Studio Guide](https://developer.android.com/studio)
-- [OnBotJava Documentation](https://github.com/FIRST-Tech-Challenge/FtcRobotController/wiki/OnBot-Java-Tutorial)
+- [Choose a programming tool](https://ftc-docs.firstinspires.org/en/latest/programming_resources/shared/choosing_program_lang/choosing-program-lang.html)
+- [FTC programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
+- [FTC SDK repository](https://github.com/FIRST-Tech-Challenge/FtcRobotController)
+- [Current FTC SDK releases](https://github.com/FIRST-Tech-Challenge/FtcRobotController/releases)

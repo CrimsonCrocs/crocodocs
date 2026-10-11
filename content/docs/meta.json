@@ -1,21 +1,21 @@
 {
-    "title": "Home",
-    "root": true,
-    "pages": [
-        "---Introduction---",
-        "index",
-        "season-breakdown",
-        "---Getting Started---",
-        "...getting-started",
-        "---Control Systems---",
-        "...control-systems",
-        "---Autonomous---",
-        "...autonomous",
-        "---Codebase Etiquette and Good Practices---",
-        "...cegp",
-        "---Libraries---",
-        "...libraries",
-        "---Sensors and Vision---",
-        "...sensors-and-vision"
-    ]
+  "title": "Home",
+  "root": true,
+  "pages": [
+    "---Introduction---",
+    "index",
+    "season-breakdown",
+    "---Getting Started---",
+    "...getting-started",
+    "---Control Systems---",
+    "...control-systems",
+    "---Autonomous---",
+    "...autonomous",
+    "---Codebase Etiquette and Good Practices---",
+    "...cegp",
+    "---Libraries---",
+    "...libraries",
+    "---Sensors and Vision---",
+    "...sensors-and-vision"
+  ]
 }

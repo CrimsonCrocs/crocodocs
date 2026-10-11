@@ -1,422 +1,286 @@
 ---
 title: VisionPortal
-description: Modern structured vision framework for FTC
+description: Open an FTC camera, attach a processor, and check the preview
 icon: Scan
 ---
 
-## What is VisionPortal?
+# Open a camera with the FTC SDK
 
-VisionPortal is the modern, structured approach to vision processing in FTC. Introduced in SDK 8.2, it provides:
+**VisionPortal** is the FTC SDK's camera manager. It opens a webcam or supported Robot Controller camera, shows a preview, and sends frames to one or more processors. An **AprilTag processor** or **Color Locator processor** examines those frames and returns measurements for your OpMode.
 
-- **Standardized interface** - Consistent API across processors
-- **Built-in processors** - AprilTag and ColorBlobLocator ready to use
-- **Multi-processor support** - Run multiple vision tasks simultaneously
-- **Better resource management** - Automatic camera lifecycle handling
+![A real Driver Hub camera preview in which the FTC AprilTag processor labels two detected BIOBUZZ AprilTag clusters.](/guides/biobuzz-apriltag-pose.jpg)
 
-<Callout type="info">
-**When to use VisionPortal:** If you're starting fresh or need AprilTags, use VisionPortal. It's the officially supported approach going forward.
-</Callout>
+*FTC Docs example image. The labels are detection overlays; your own OpMode still needs to read and check detection data before the robot acts.*
 
-## VisionPortal vs EasyOpenCV
+## The order matters
 
-| Feature | VisionPortal | EasyOpenCV |
-|---------|-------------|------------|
-| Complexity | Simpler API | More complex |
-| AprilTags | Built-in | Requires extra work |
-| Custom Processing | VisionProcessor | OpenCvPipeline |
-| Multiple Processors | ✅ Native support | ❌ Manual implementation |
-| FTC Support | Official | Community |
-| Learning Curve | Gentle | Steeper |
-| Flexibility | Structured | Full OpenCV access |
+The setup has three jobs, in this order:
 
-## Basic Setup
+1. **Create a processor.** Choose what the camera should detect.
+2. **Build a VisionPortal.** Tell it which configured camera to open, then attach the processor.
+3. **Read the processor result.** Use the values in your OpMode only after confirming the preview and measurements.
 
-### Dependencies
+The processor is not the camera, and creating a processor alone does not start a video stream.
 
-VisionPortal is included in the FTC SDK (8.2+). No additional dependencies needed!
+## Step 1: Create a processor
 
-### Camera Initialization
+For a first AprilTag preview, the FTC SDK offers a convenience method:
 
-**Java:**
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
 
 ```java
-package org.firstinspires.ftc.teamcode;
+AprilTagProcessor aprilTag = AprilTagProcessor.easyCreateWithDefaults();
+```
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.vision.VisionPortal;
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+val aprilTag = AprilTagProcessor.easyCreateWithDefaults()
+```
+
+</Tab>
+</Tabs>
+
+This makes the processor with its default options. Use the Builder API when you need to configure options such as overlays or a tag library. The matching FTC sample shows the exact options available in your installed SDK.
+
+## Step 2: Open a configured camera and add the processor
+
+This example assumes a webcam whose Robot Controller configuration name is `Webcam 1`:
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+VisionPortal portal = new VisionPortal.Builder()
+    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
+    .addProcessor(aprilTag)
+    .build();
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+val portal = VisionPortal.Builder()
+    .setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
+    .addProcessor(aprilTag)
+    .build()
+```
+
+</Tab>
+</Tabs>
+
+If you use an Android Robot Controller phone camera or a different webcam name, follow the camera selection in the current SDK sample. A misspelled configured name prevents the camera from opening.
+
+## Step 3: Confirm the preview before acting on detections
+
+While the OpMode is in INIT, open the Driver Station camera stream. Check that:
+
+- the image is live and upright;
+- the target can be seen at the distance where the robot will use it;
+- the processor draws an overlay when a target is recognized;
+- telemetry changes when you move or hide the target.
+
+Keep the robot stationary during this test. When you finish using the camera, close the portal if the OpMode or SDK sample owns its lifecycle. Do not start by steering a robot from unverified vision data.
+
+## Choosing a processor
+
+- Use **AprilTag** to detect known printed markers and, when tag metadata and camera calibration permit, estimate pose relative to the camera.
+- Use the FTC **Color Sensor** processor to estimate a predominant color in an image region.
+- Use the FTC **Color Locator** to find blobs of a selected color and measure their image position and shape.
+- Use **EasyOpenCV** when your team needs a custom OpenCV pipeline.
+
+The current FTC color processors are part of VisionPortal. AprilTag, color processors, and camera preview may be combined in one portal when needed; each processor still consumes processing time. Start with one processor so it is easier to see which part is not working.
+
+## Can I run an EasyOpenCV pipeline inside VisionPortal?
+
+Not directly. An EasyOpenCV `OpenCvPipeline` and an FTC `VisionProcessor` have different camera and frame-processing APIs. You cannot pass an `OpenCvPipeline` to `VisionPortal.Builder.addProcessor()`.
+
+You can reuse the OpenCV steps from a pipeline by moving them into a class that implements `VisionProcessor`. The main change is where each part goes:
+
+1. Move setup that only needs to happen once into `init()`.
+2. Move image operations from `OpenCvPipeline.processFrame()` into `VisionProcessor.processFrame()`.
+3. Return a small result (or store a thread-safe result) for the OpMode to read. Use `onDrawFrame()` if you need to draw on VisionPortal's preview.
+
+Here is a small example that finds the center of blue pixels. It follows the same OpenCV pattern used in many EasyOpenCV pipelines: convert to HSV, threshold a color, then measure the mask. The bounds are just starting values; camera lighting and the target material change what works.
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionProcessor;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Moments;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
-@Autonomous(name = "VisionPortal Example")
-public class VisionPortalExample extends LinearOpMode {
-    
-    private VisionPortal visionPortal;
-    
+public class BlueCenterProcessor implements VisionProcessor {
+    private final Mat hsv = new Mat();
+    private final Mat mask = new Mat();
+    private volatile double centerX = Double.NaN;
+
     @Override
-    public void runOpMode() {
-        // Create VisionPortal
-        visionPortal = new VisionPortal.Builder()
-            .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-            .addProcessor(yourProcessor) // Add your processor(s)
-            .build();
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            // Access processor data here
-            telemetry.update();
-        }
-        
-        // Cleanup happens automatically
+    public void init(int width, int height, CameraCalibration calibration) {
+        // Runs once when VisionPortal initializes this processor.
+    }
+
+    @Override
+    public Object processFrame(Mat frame, long captureTimeNanos) {
+        // VisionPortal supplies RGB frames. HSV makes color thresholds easier to tune.
+        Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_RGB2HSV);
+        Core.inRange(
+            hsv,
+            new Scalar(90, 80, 50),   // lower H, S, V
+            new Scalar(130, 255, 255), // upper H, S, V
+            mask
+        );
+
+        Moments moments = Imgproc.moments(mask, true);
+        centerX = moments.get_m00() > 0
+            ? moments.get_m10() / moments.get_m00()
+            : Double.NaN;
+        return null; // No preview overlay in this first example.
+    }
+
+    @Override
+    public void onDrawFrame(
+        android.graphics.Canvas canvas,
+        int onscreenWidth,
+        int onscreenHeight,
+        float scaleBmpPxToCanvasPx,
+        float scaleCanvasDensity,
+        Object userContext
+    ) {
+        // Optional: draw a box or marker on the preview here.
+    }
+
+    public double getCenterX() {
+        return centerX;
+    }
+
+    public void release() {
+        hsv.release();
+        mask.release();
     }
 }
 ```
 
-**Kotlin:**
+</Tab>
+<Tab value="Kotlin">
 
 ```kotlin
-package org.firstinspires.ftc.teamcode
+import android.graphics.Canvas
+import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration
+import org.firstinspires.ftc.vision.VisionProcessor
+import org.opencv.core.Core
+import org.opencv.core.Mat
+import org.opencv.core.Moments
+import org.opencv.core.Scalar
+import org.opencv.imgproc.Imgproc
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
-import org.firstinspires.ftc.vision.VisionPortal
+class BlueCenterProcessor : VisionProcessor {
+    private val hsv = Mat()
+    private val mask = Mat()
+    @Volatile private var centerX = Double.NaN
 
-@Autonomous(name = "VisionPortal Example")
-class VisionPortalExample : LinearOpMode() {
-    
-    private lateinit var visionPortal: VisionPortal
-    
-    override fun runOpMode() {
-        // Create VisionPortal
-        visionPortal = VisionPortal.Builder()
-            .setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
-            .addProcessor(yourProcessor) // Add your processor(s)
-            .build()
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            // Access processor data here
-            telemetry.update()
-        }
-        
-        // Cleanup happens automatically
+    override fun init(width: Int, height: Int, calibration: CameraCalibration) {
+        // Runs once when VisionPortal initializes this processor.
+    }
+
+    override fun processFrame(frame: Mat, captureTimeNanos: Long): Any? {
+        // VisionPortal supplies RGB frames. HSV makes color thresholds easier to tune.
+        Imgproc.cvtColor(frame, hsv, Imgproc.COLOR_RGB2HSV)
+        Core.inRange(hsv, Scalar(90.0, 80.0, 50.0), Scalar(130.0, 255.0, 255.0), mask)
+
+        val moments: Moments = Imgproc.moments(mask, true)
+        centerX = if (moments.m00 > 0.0) moments.m10 / moments.m00 else Double.NaN
+        return null // No preview overlay in this first example.
+    }
+
+    override fun onDrawFrame(
+        canvas: Canvas,
+        onscreenWidth: Int,
+        onscreenHeight: Int,
+        scaleBmpPxToCanvasPx: Float,
+        scaleCanvasDensity: Float,
+        userContext: Any?
+    ) {
+        // Optional: draw a box or marker on the preview here.
+    }
+
+    fun getCenterX() = centerX
+
+    fun release() {
+        hsv.release()
+        mask.release()
     }
 }
 ```
 
-## VisionPortal Builder
+</Tab>
+</Tabs>
 
-The builder pattern lets you configure the portal:
+Attach that processor just like an SDK processor, then read its latest result during INIT. This OpMode fragment assumes `Webcam 1` is the name in your Robot Controller configuration:
 
-### Camera Configuration
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
 
 ```java
-visionPortal = new VisionPortal.Builder()
+BlueCenterProcessor blueProcessor = new BlueCenterProcessor();
+VisionPortal portal = new VisionPortal.Builder()
     .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-    // ... other options
-    .build();
-```
-
-### Resolution Settings
-
-```java
-visionPortal = new VisionPortal.Builder()
-    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-    .setCameraResolution(new Size(640, 480))
-    // ... other options
-    .build();
-```
-
-Common resolutions:
-- `640x480` - Good balance (default)
-- `1280x720` - High detail, slower
-- `320x240` - Fast processing, less detail
-
-### Stream Format
-
-```java
-visionPortal = new VisionPortal.Builder()
-    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-    .setStreamFormat(VisionPortal.StreamFormat.YUY2)
-    // ... other options
-    .build();
-```
-
-- `YUY2` - Best quality (default)
-- `MJPEG` - Faster, compressed
-
-### Enable/Disable Live View
-
-```java
-visionPortal = new VisionPortal.Builder()
-    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-    .enableLiveView(true) // Enable camera preview on Driver Station
-    // ... other options
-    .build();
-```
-
-Set to `false` to save bandwidth when you don't need to see the feed.
-
-## Adding Processors
-
-### Single Processor
-
-```java
-ColorBlobLocatorProcessor colorProcessor = new ColorBlobLocatorProcessor.Builder()
-    .setTargetColorRange(ColorRange.BLUE)
+    .addProcessor(blueProcessor)
     .build();
 
-visionPortal = new VisionPortal.Builder()
-    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-    .addProcessor(colorProcessor)
-    .build();
-```
-
-### Multiple Processors
-
-Run AprilTag detection AND color detection simultaneously:
-
-```java
-AprilTagProcessor aprilTagProcessor = new AprilTagProcessor.Builder().build();
-
-ColorBlobLocatorProcessor colorProcessor = new ColorBlobLocatorProcessor.Builder()
-    .setTargetColorRange(ColorRange.BLUE)
-    .build();
-
-visionPortal = new VisionPortal.Builder()
-    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-    .addProcessor(aprilTagProcessor)
-    .addProcessor(colorProcessor)
-    .build();
-```
-
-Both processors receive every frame!
-
-## Managing the Portal
-
-### Enable/Disable Processors
-
-Save CPU by disabling processors you're not using:
-
-```java
-// During init, only use AprilTags
-visionPortal.setProcessorEnabled(colorProcessor, false);
-
-waitForStart();
-
-// During autonomous, switch to color detection
-visionPortal.setProcessorEnabled(aprilTagProcessor, false);
-visionPortal.setProcessorEnabled(colorProcessor, true);
-```
-
-### Stop and Resume Streaming
-
-```java
-// Stop streaming to save resources
-visionPortal.stopStreaming();
-
-// Resume streaming
-visionPortal.resumeStreaming();
-```
-
-### Close the Portal
-
-Usually automatic, but you can close manually:
-
-```java
-visionPortal.close();
-```
-
-## Complete Example
-
-Here's a full example using ColorBlobLocatorProcessor:
-
-**Java:**
-
-```java
-package org.firstinspires.ftc.teamcode;
-
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
-import org.firstinspires.ftc.vision.opencv.ColorRange;
-import org.firstinspires.ftc.vision.opencv.ImageRegion;
-import org.opencv.core.RotatedRect;
-import java.util.List;
-
-@Autonomous(name = "Color Blob Detection")
-public class ColorBlobAuto extends LinearOpMode {
-    
-    private VisionPortal visionPortal;
-    private ColorBlobLocatorProcessor colorProcessor;
-    
-    @Override
-    public void runOpMode() {
-        
-        // Create color processor
-        colorProcessor = new ColorBlobLocatorProcessor.Builder()
-            .setTargetColorRange(ColorRange.BLUE)
-            .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
-            .setRoi(ImageRegion.entireFrame())
-            .setDrawContours(true)
-            .build();
-        
-        // Create VisionPortal
-        visionPortal = new VisionPortal.Builder()
-            .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
-            .addProcessor(colorProcessor)
-            .build();
-        
-        telemetry.addLine("Ready! Press Play to start.");
-        telemetry.update();
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            // Get detected blobs
-            List<ColorBlobLocatorProcessor.Blob> blobs = colorProcessor.getBlobs();
-            
-            // Filter blobs by size
-            ColorBlobLocatorProcessor.Util.filterByArea(50, 10000, blobs);
-            
-            // Sort by size (largest first)
-            ColorBlobLocatorProcessor.Util.sortByArea(SortOrder.DESCENDING, blobs);
-            
-            if (!blobs.isEmpty()) {
-                ColorBlobLocatorProcessor.Blob largestBlob = blobs.get(0);
-                RotatedRect boxFit = largestBlob.getBoxFit();
-                
-                telemetry.addData("Largest Blob", "Found!");
-                telemetry.addData("X Position", boxFit.center.x);
-                telemetry.addData("Y Position", boxFit.center.y);
-                telemetry.addData("Area", largestBlob.getContourArea());
-            } else {
-                telemetry.addLine("No blobs detected");
-            }
-            
-            telemetry.update();
-            sleep(50);
-        }
-        
-        visionPortal.close();
-    }
+while (opModeInInit()) {
+    double x = blueProcessor.getCenterX();
+    telemetry.addData("Blue center X", Double.isNaN(x) ? "not found" : x);
+    telemetry.update();
+    idle();
 }
+portal.close();
+blueProcessor.release();
 ```
 
-**Kotlin:**
+</Tab>
+<Tab value="Kotlin">
 
 ```kotlin
-package org.firstinspires.ftc.teamcode
+val blueProcessor = BlueCenterProcessor()
+val portal = VisionPortal.Builder()
+    .setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
+    .addProcessor(blueProcessor)
+    .build()
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
-import org.firstinspires.ftc.vision.VisionPortal
-import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor
-import org.firstinspires.ftc.vision.opencv.ColorRange
-import org.firstinspires.ftc.vision.opencv.ImageRegion
-
-@Autonomous(name = "Color Blob Detection")
-class ColorBlobAuto : LinearOpMode() {
-    
-    private lateinit var visionPortal: VisionPortal
-    private lateinit var colorProcessor: ColorBlobLocatorProcessor
-    
-    override fun runOpMode() {
-        
-        // Create color processor
-        colorProcessor = ColorBlobLocatorProcessor.Builder()
-            .setTargetColorRange(ColorRange.BLUE)
-            .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
-            .setRoi(ImageRegion.entireFrame())
-            .setDrawContours(true)
-            .build()
-        
-        // Create VisionPortal
-        visionPortal = VisionPortal.Builder()
-            .setCamera(hardwareMap.get(WebcamName::class.java, "Webcam 1"))
-            .addProcessor(colorProcessor)
-            .build()
-        
-        telemetry.addLine("Ready! Press Play to start.")
-        telemetry.update()
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            // Get detected blobs
-            val blobs = colorProcessor.blobs
-            
-            // Filter blobs by size
-            ColorBlobLocatorProcessor.Util.filterByArea(50.0, 10000.0, blobs)
-            
-            // Sort by size (largest first)
-            ColorBlobLocatorProcessor.Util.sortByArea(
-                ColorBlobLocatorProcessor.Util.SortOrder.DESCENDING, blobs
-            )
-            
-            if (blobs.isNotEmpty()) {
-                val largestBlob = blobs[0]
-                val boxFit = largestBlob.boxFit
-                
-                telemetry.addData("Largest Blob", "Found!")
-                telemetry.addData("X Position", boxFit.center.x)
-                telemetry.addData("Y Position", boxFit.center.y)
-                telemetry.addData("Area", largestBlob.contourArea)
-            } else {
-                telemetry.addLine("No blobs detected")
-            }
-            
-            telemetry.update()
-            sleep(50)
-        }
-        
-        visionPortal.close()
-    }
+while (opModeInInit()) {
+    val x = blueProcessor.getCenterX()
+    telemetry.addData("Blue center X", if (x.isNaN()) "not found" else x)
+    telemetry.update()
+    idle()
 }
+portal.close()
+blueProcessor.release()
 ```
 
-## Performance Tips
+</Tab>
+</Tabs>
 
-### 1. Disable Unused Processors
+The important adaptation is the processor interface and its three callbacks; most of your OpenCV operations can stay recognizable. Confirm the frame color order and threshold against the FTC sample for your installed SDK, then tune using the live preview. For a standard color-blob task, the SDK's [Color Blob Locator guide](./color-blob-locator) may save you from writing this processor yourself. The [EasyOpenCV project](https://github.com/OpenFTC/EasyOpenCV) documents its own pipeline API and notes the VisionProcessor route when working through VisionPortal.
 
-```java
-visionPortal.setProcessorEnabled(processor, false);
-```
+## Camera calibration and version notes
 
-### 2. Reduce Resolution
+A live preview does not prove that a pose estimate is accurate. AprilTag pose depends on correct tag size and camera calibration for the camera and resolution. Some cameras have built-in calibration; others require calibration. Read the official webcam and calibration guide before using pose for field localization.
 
-```java
-.setCameraResolution(new Size(320, 240))
-```
+FTC SDK 12.0 introduced AprilTag cluster detections. If your SDK is 12.0 or later, see [AprilTag Detection](./apriltag-detection) before copying older code that assumes every detection has an `.id` field.
 
-### 3. Disable Live View
+## Official setup references
 
-```java
-.enableLiveView(false)
-```
-
-### 4. Limit Processing Rate
-
-Process every Nth frame instead of all frames:
-
-```java
-private int frameCount = 0;
-
-// In your processor
-if (frameCount++ % 3 == 0) {
-    // Process this frame
-}
-```
-
-## Next Steps
-
-- Learn about [ColorBlobLocatorProcessor](./color-blob-locator) in detail
-- Explore [AprilTag Detection](./apriltag-detection)
-- Create [Custom VisionProcessors](./custom-processors)
-- See [Migration Guide](./migration-guide) from EasyOpenCV
+- [FTC VisionPortal overview](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_overview/visionportal-overview.html)
+- [FTC Vision processor initialization](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/vision_processor_init/vision-processor-init.html)
+- [FTC VisionPortal initialization](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_init/visionportal-init.html)
+- [FTC webcams and camera calibration](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_webcams/visionportal-webcams.html)
+- [FTC Color Locator beginner sample](https://ftc-docs.firstinspires.org/en/latest/color_processing/color-locator-discover/color-locator-discover.html)

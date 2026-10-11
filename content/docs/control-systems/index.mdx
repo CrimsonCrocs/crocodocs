@@ -1,74 +1,41 @@
 ---
-title: Introduction
-description: Master the fundamentals of robot control
+title: Control Systems
+description: Learn how commands, sensors, and feedback affect robot motion
 icon: BookOpen
 ---
 
-## What are Control Systems?
+## Start with a command
 
-A **control system** is how your robot responds to commands and adjusts its behavior based on what's happening around it. Think of it like this: when you drive a car, you don't just turn the steering wheel once and hope for the best — you constantly make small adjustments based on where the car is going. Your robot needs to do the same thing!
+A **control system** turns a goal into a robot action. For example, pushing a gamepad stick gives the drivetrain a command. Asking an arm to hold a position gives its motor a target.
 
-In FTC robotics, control systems handle everything from simple tasks like "move forward when I push the joystick" to complex operations like "keep the arm at exactly 45 degrees no matter what."
+The first question is: **Does the program measure what actually happened?**
 
-## Why Control Systems Matter
+![Open-loop control sends a command to a motor. Closed-loop control also reads a sensor and uses that measurement to adjust the next command.](/guides/control-loop-compare.svg)
 
-Without good control, even the best-built robot will:
-- Overshoot targets and miss game pieces
-- Drift off course during autonomous
-- Respond unpredictably to driver inputs
-- Waste time with imprecise movements
+## Open loop: command only
 
-With proper control systems, your robot becomes:
-- **Precise** — Goes exactly where you want it
-- **Responsive** — Reacts quickly to commands
-- **Stable** — Maintains position even under load
-- **Predictable** — Behaves consistently every time
+Suppose your code sets an arm motor to `0.3` power for half a second. The program has sent a command, but it has not measured the arm's final position. Battery voltage, friction, or an added game piece can change where it stops.
 
-## Core Concepts
+Open-loop control is a good first step for learning motor direction and power. It can also work when exact position is unimportant. Test it at low power before using it on a mechanism.
 
-### Open-Loop Control
+## Closed loop: command, measure, adjust
 
-This is the simplest type of control: you give a command, the robot executes it, and that's it. No feedback, no adjustments.
+Now suppose the arm has an encoder. Your code compares the **target position** with the **measured position** and changes motor power based on the difference. That difference is called the **error**.
 
-**Example:** Setting a motor to 50% power and hoping it moves the arm to the right position.
+| If the arm is… | The controller can… |
+| --- | --- |
+| Below its target | Move it upward |
+| Above its target | Move it downward |
+| Near its target | Reduce power or hold position |
 
-**Pros:**
-- Simple to program
-- Fast execution
-- Works fine for simple tasks
+Feedback helps a robot correct for changing conditions, but it needs a trustworthy measurement and careful tuning. A sensor reading alone does not make an action accurate.
 
-**Cons:**
-- No way to know if it worked
-- Affected by battery level, friction, weight
-- Inconsistent results
+## Learn in this order
 
-### Closed-Loop Control (Feedback Control)
+1. [Joystick mapping](./joystick-mapping): turn driver input into motor commands.
+2. [PID control](./pid-control): use error to correct a motor or mechanism.
+3. [Motion profiling](./motion-profiling): choose smoother target motion.
+4. [Low-pass filtering](./lowpass-filter): reduce noise in a measurement.
+5. [Kalman filtering](./kalman-filter): combine predictions and measurements when simpler filters are not enough.
 
-This is smarter control: you give a command, the robot checks if it's doing the right thing, and adjusts automatically.
-
-**Example:** Telling the robot "go to 45 degrees," and it constantly checks its angle and corrects itself until it reaches exactly 45 degrees.
-
-**Pros:**
-- Self-correcting
-- Consistent results
-- Handles disturbances (like game pieces changing weight)
-
-**Cons:**
-- More complex to program
-- Requires sensors
-- Needs tuning to work properly
-
-## What You'll Learn
-
-In this section, we'll cover:
-
-- **Manual Control** — How to map gamepad inputs to robot actions
-- **Motor Commands** — Different ways to control motors and when to use each
-- **PID Control** — The most important feedback algorithm in FTC
-- **Motion Profiling** — Smooth, controlled movements instead of jerky stops and starts
-- **Practical Examples** — Real code you can use on your robot
-
-## Getting Started
-
-Start with manual control to understand the basics, then move on to PID control once you're comfortable with sensors and feedback loops. Don't worry if PID seems complicated at first — we'll break it down step by step!
-
+You do not need to master every technique at once. Begin with one motor and one measurement; add complexity only after you can observe what the robot is doing.

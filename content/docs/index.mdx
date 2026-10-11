@@ -3,21 +3,15 @@ title: What is CrocoDocs?
 icon: Info
 ---
 
-<Wordmark textOnly /> is your **powerful**, **student-led** guide to robotics programming! 🚀
+<Wordmark textOnly /> is a student-written guide to robotics programming.
 
-We're here to share tips, tricks, and insights for **FIRST Tech Challenge (FTC)** and
-**FIRST Global Challenge (FGC)**. All content is created by students who live and breathe
-robotics competitions. Let's make coding fun and accessible for everyone! ✨
+This handbook focuses on **FIRST Tech Challenge (FTC)** programming: Java and Kotlin, robot control, vision, autonomous routines, and commonly used libraries.
 
 <Callout>
-  This site is not officially affiliated with FIRST. It is also made in the
-  assumption that all users have an understanding of what FIRST, FTC, and FGC
-  are.
+  This site is an independent student project and is not affiliated with or endorsed by FIRST. Competition rules and software APIs change; use the linked official sources for current requirements.
 </Callout>
 
-The information shared here is based on both factual sources and firsthand
-experience. Even if an issue only occurs one out of ten times, it will still be
-documented, as in robotics, the edge cases matter.
+Articles combine explanations with links to official documentation. Robot behavior depends on the SDK version, hardware, and implementation, so test examples safely on your own robot.
 
 Some pages may recompile and rephrase information from various sources to make
 it more accessible or relevant. However, if an existing resource already covers
@@ -25,16 +19,8 @@ a topic thoroughly and clearly, we will link to it directly instead of rewriting
 it. Additionally, sources and references used in each page will be listed where
 applicable.
 
-<Callout type="warn" title="Note">
-Throughout this handbook, only FTC will be referenced by name.
-Unless otherwise noted, all information applies equally to both FTC and FGC.
-
-FTC primarily uses Java (and occasionally Kotlin) for programming, whereas FGC
-relies mainly on JavaBlocks, with some teams using OnBotJava. References to
-Challenge relies mainly on JavaBlocks, with some teams using OnBotJava.
-References to external hardware not included in the official FGC kit may
-therefore not apply to that competition.
-
+<Callout type="warn" title="Season-specific information">
+The current season page covers BIOBUZZ (2026–27). Always check the official competition manual and team updates before relying on game rules, scoring, or robot legality.
 </Callout>
 
 ## Philosophy
@@ -50,6 +36,7 @@ The site is currently maintained by:
 
 - Matthew Williams ([FGC Jamaica](https://fgcjamaica.github.io/),
   [FTC 16075](https://ftcscout.org/teams/16075))
+- Amari Cross ([FTC 16075](https://ftcscout.org/teams/16075))
 
 ## Navigation
 
@@ -60,26 +47,26 @@ Explore key sections of the site below:
     {
       title: "Getting Started",
       description:
-        "New to programming robots? Learn the basics of FTC and FGC development, from setup to writing your first lines of code.",
+        "New to programming robots? Learn the FTC tools, setup, and first steps in robot code.",
       href: "/docs/getting-started",
     },
     {
       title: "Libraries",
       description:
         "Explore and compare popular robotics libraries like Road Runner and EasyOpenCV. Find the best tools for your needs.",
-      href: "/",
+      href: "/docs/libraries",
     },
     {
       title: "Sensors and Vision",
       description:
-        "Understand how to work with encoders, IMUs, and vision systems like AprilTags and TFOD to give your robot awareness.",
-      href: "/",
+        "Understand how to work with encoders, IMUs, and vision systems like AprilTags and color processors to give your robot awareness.",
+      href: "/docs/sensors-and-vision",
     },
     {
       title: "Control Systems",
       description:
         "Master the fundamentals of robot control — from joystick mapping and motor commands to PID tuning and feedback loops.",
-      href: "/kkk",
+      href: "/docs/control-systems",
     },
     {
       title: "Autonomous",
@@ -92,6 +79,11 @@ Explore key sections of the site below:
       description:
         "Keep your code clean and collaborative. Learn best practices for structure, naming, abstraction, and teamwork.",
       href: "/docs/cegp",
+    },
+    {
+      title: "Season Breakdown",
+      description: "A short overview of the current FTC game, with links to the official manual and updates.",
+      href: "/docs/season-breakdown",
     },
   ]}
 />

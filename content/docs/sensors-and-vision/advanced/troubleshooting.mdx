@@ -1,536 +1,133 @@
 ---
 title: Vision Troubleshooting
-description: Common vision problems and solutions
+description: Diagnose camera and detection problems one step at a time
 icon: Wrench
 ---
 
-## Camera Issues
+When vision fails, change one thing at a time. First prove that the camera works, then prove that the processor sees an image, and only then tune detection. That order makes it easier to find the step that is failing.
 
-### Camera Not Detected
+## 1. The camera does not open
 
-**Symptoms:**
-- "Camera not found" error
-- OpMode fails to initialize
-- Blank camera preview
+Check the hardware before editing image-processing code:
 
-**Causes &Solutions:**
+1. In the Robot Controller configuration, confirm the webcam is present and its name matches the code exactly, including spaces and capitalization.
+2. Reseat the USB cable and try the webcam on its own. Multiple USB devices or a weak connection can make camera startup unreliable.
+3. Start the OpMode and read the Robot Controller log for the first camera error. A blank preview by itself does not tell you whether the name, connection, or camera startup failed.
+4. If using VisionPortal, temporarily remove extra processors and start with one. If using EasyOpenCV, wait for the asynchronous open callback before calling `startStreaming`.
 
-1. **Wrong hardware name**
-   ```java
-   // Check your configuration file
-   WebcamName webcam = hardwareMap.get(WebcamName.class, "Webcam 1");
-   // Name must match exactly (case-sensitive!)
-   ```
+For VisionPortal, this is the smallest useful camera setup. `webcamName` must come from the configured name in the first step.
 
-2. **USB connection loose**
-   - Reconnect USB cable
-   - Try different USB port
-   - Check for damaged cables
-
-3. **Camera not in configuration**
-   - Open Robot Controller app
-   - Configure → Select active configuration
-   - Add webcam device
-   - Save configuration
-
-4. **Insufficient power**
-   - Camera draws significant power
-   - Use powered USB hub if multiple devices
-   - Check battery voltage
-
-### Black Screen / No Preview
-
-**Symptoms:**
-- Camera initializes but shows black
-- No image on Driver Station
-
-**Solutions:**
-
-1. **Enable live view**
-   ```java
-   visionPortal = new VisionPortal.Builder()
-       .setCamera(webcamName)
-       .enableLiveView(true)  // Ensure this is true
-       .addProcessor(processor)
-       .build();
-   ```
-
-2. **Check camera monitor ID**
-   ```java
-   // For EasyOpenCV
-   int cameraMonitorViewId = hardwareMap.appContext
-       .getResources()
-       .getIdentifier("cameraMonitorViewId", "id",
-           hardwareMap.appContext.getPackageName());
-   ```
-
-3. **Verify camera permissions**
-   - Android needs camera permission
-   - Check Robot Controller app settings
-
-4. **Test with different camera**
-   - Hardware failure possible
-   - Try known-working camera
-
-### Poor Image Quality
-
-**Symptoms:**
-- Blurry images
-- Dark or overexposed
-- Color artifacts
-
-**Solutions:**
-
-1. **Adjust camera settings**
-   ```java
-   // After camera opens
-   webcam.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
-   
-   // Adjust exposure (if supported)
-   ExposureControl exposureControl = webcam.getExposureControl();
-   if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
-       exposureControl.setMode(ExposureControl.Mode.Manual);
-       exposureControl.setExposure(50, TimeUnit.MILLISECONDS);
-   }
-   ```
-
-2. **Clean camera lens**
-   - Dirt and smudges reduce quality
-   - Use microfiber cloth
-
-3. **Improve lighting**
-   - Add LED lights to robot
-   - Position for consistent illumination
-   - Avoid shadows on target
-
-4. **Reduce motion blur**
-   - Decrease exposure time
-   - Stabilize camera mount
-   - Process at lower speeds
-
-## Detection Issues
-
-### No Objects Detected
-
-**Symptoms:**
-- Blobs list is empty
-- AprilTags not found
-- Pipeline returns nothing
-
-**Debugging Steps:**
-
-1. **Verify color thresholds**
-   ```java
-   // Test in EOCV-Sim first
-   // Add telemetry to see mask
-   Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
-   Core.inRange(hsv, lower, upper, mask);
-   
-   // Show percentage of image matching
-   double matchPercent = Core.mean(mask).val[0] / 255.0 * 100;
-   telemetry.addData("Match %", matchPercent);
-   ```
-
-2. **Check region of interest**
-   ```java
-   // Make sure ROI covers target area
-   .setRoi(ImageRegion.entireFrame())  // Test with full frame first
-   ```
-
-3. **Verify object is in frame**
-   - Stream to Driver Station
-   - Confirm object visible
-   - Check camera angle
-
-4. **Adjust area filters**
-   ```java
-   // Remove filters temporarily to see all detections
-   // ColorBlobLocatorProcessor.Util.filterByArea(50, 50000, blobs);
-   // Then tighten filters once detection works
-   ```
-
-5. **Lighting variations**
-   - Test under competition lighting
-   - Adjust thresholds for different conditions
-   - Use adaptive techniques
-
-### False Positives
-
-**Symptoms:**
-- Detecting wrong objects
-- Multiple unwanted detections
-- Background noise
-
-**Solutions:**
-
-1. **Tighten color thresholds**
-   ```java
-   // Narrow the range
-   Scalar lower = new Scalar(100, 150, 100);  // More restrictive
-   Scalar upper = new Scalar(120, 255, 255);
-   ```
-
-2. **Add area filtering**
-   ```java
-   // Filter by expected object size
-   ColorBlobLocatorProcessor.Util.filterByArea(1000, 5000, blobs);
-   ```
-
-3. **Use density filtering**
-   ```java
-   // Filter out hollow/sparse detections
-   ColorBlobLocatorProcessor.Util.filterByDensity(0.7, blobs);
-   ```
-
-4. **Restrict ROI**
-   ```java
-   // Only look where object should be
-   .setRoi(ImageRegion.asUnityCenterCoordinates(-0.5, 0, 0.5, 1))
-   ```
-
-5. **Add shape validation**
-   ```java
-   // Check aspect ratio
-   for (ColorBlobLocatorProcessor.Blob blob : blobs) {
-       double aspectRatio = blob.getAspectRatio();
-       if (aspectRatio > 0.8 && aspectRatio < 1.2) {
-           // Roughly square, might be our target
-       }
-   }
-   ```
-
-### Inconsistent Detection
-
-**Symptoms:**
-- Detection works sometimes
-- Flickers on/off
-- Position jumps around
-
-**Solutions:**
-
-1. **Add hysteresis**
-   ```java
-   private int detectionConfidence = 0;
-   private final int CONFIDENCE_THRESHOLD = 3;
-   
-   if (objectDetected) {
-       detectionConfidence++;
-   } else {
-       detectionConfidence = 0;
-   }
-   
-   boolean confirmed = detectionConfidence >= CONFIDENCE_THRESHOLD;
-   ```
-
-2. **Average multiple frames**
-   ```java
-   private Queue<Double> recentXPositions = new LinkedList<>();
-   private final int FRAME_HISTORY = 5;
-   
-   recentXPositions.add(currentX);
-   if (recentXPositions.size() > FRAME_HISTORY) {
-       recentXPositions.poll();
-   }
-   
-   double averageX = recentXPositions.stream()
-       .mapToDouble(Double::doubleValue)
-       .average()
-       .orElse(0);
-   ```
-
-3. **Stabilize lighting**
-   - Add consistent light source
-   - Disable auto-exposure
-   - Shield from ambient changes
-
-4. **Improve thresholds**
-   - Test under various conditions
-   - Build tolerance into ranges
-   - Use multiple color spaces
-
-## Performance Issues
-
-### Low Frame Rate
-
-**Symptoms:**
-- Choppy video preview
-- Delayed responses
-- Frame drops
-
-**Solutions:**
-
-1. **Reduce resolution**
-   ```java
-   .setCameraResolution(new Size(320, 240))  // Lower res
-   ```
-
-2. **Increase decimation (AprilTags)**
-   ```java
-   AprilTagProcessor.Builder()
-       .setDecimation(3)  // Process every 3rd pixel
-   ```
-
-3. **Disable live view**
-   ```java
-   .enableLiveView(false)  // No preview = less work
-   ```
-
-4. **Optimize pipeline**
-   ```java
-   // Reuse Mat objects (don't create new ones each frame)
-   private Mat hsv = new Mat();
-   private Mat mask = new Mat();
-   
-   @Override
-   public Mat processFrame(Mat input) {
-       // Reuse hsv and mask instead of creating new
-       return input;
-   }
-   ```
-
-5. **Process fewer frames**
-   ```java
-   private int frameCount = 0;
-   
-   @Override
-   public Mat processFrame(Mat input) {
-       if (frameCount++ % 3 == 0) {
-           // Only process every 3rd frame
-           doExpensiveProcessing(input);
-       }
-       return input;
-   }
-   ```
-
-6. **Disable unused processors**
-   ```java
-   visionPortal.setProcessorEnabled(processor, false);
-   ```
-
-### High CPU Usage
-
-**Symptoms:**
-- Robot control loop slows down
-- Mecanum drive feels sluggish
-- Telemetry updates slowly
-
-**Solutions:**
-
-1. **Close vision when not needed**
-   ```java
-   // After autonomous detection
-   visionPortal.setProcessorEnabled(colorProcessor, false);
-   ```
-
-2. **Use lower resolution**
-   ```java
-   .setCameraResolution(new Size(320, 240))
-   ```
-
-3. **Simplify processing**
-   - Remove unnecessary operations
-   - Use simpler color spaces
-   - Reduce morphological operations
-
-4. **Profile your code**
-   ```java
-   long startTime = System.nanoTime();
-   // Do expensive operation
-   long elapsedMs = (System.nanoTime() - startTime) / 1000000;
-   telemetry.addData("Processing Time (ms)", elapsedMs);
-   ```
-
-### Memory Issues
-
-**Symptoms:**
-- OutOfMemoryError
-- Garbage collection pauses
-- Crashes after running
-
-**Solutions:**
-
-1. **Release submats**
-   ```java
-   Mat crop = input.submat(roi);
-   // ... use crop ...
-   crop.release();  // IMPORTANT!
-   ```
-
-2. **Reuse Mat objects**
-   ```java
-   // Don't do this:
-   Mat hsv = new Mat();  // Creates new Mat every frame!
-   
-   // Do this instead:
-   private Mat hsv = new Mat();  // Reuse same Mat
-   ```
-
-3. **Clear contours**
-   ```java
-   List<MatOfPoint> contours = new ArrayList<>();
-   // ... find contours ...
-   
-   // Release when done
-   for (MatOfPoint contour : contours) {
-       contour.release();
-   }
-   contours.clear();
-   ```
-
-## AprilTag Specific Issues
-
-### Tags Not Detected
-
-**Solutions:**
-
-1. **Check distance and angle**
-   - Move within 1-4 feet
-   - Face tag head-on (< 30° angle)
-
-2. **Verify tag library**
-   ```java
-   .setTagLibrary(AprilTagGameDatabase.getCurrentGameTagLibrary())
-   ```
-
-3. **Improve lighting**
-   - AprilTags need good contrast
-   - Avoid shadows and glare
-
-4. **Check tag size configuration**
-   - Ensure tag size matches physical tags
-   - Verify units (inches vs mm)
-
-### Inaccurate Pose Data
-
-**Solutions:**
-
-1. **Camera calibration**
-   - Use proper lens intrinsics
-   - Calibrate with checkerboard pattern
-
-2. **View tags at better angles**
-   - Best accuracy head-on
-   - Avoid extreme angles
-
-3. **Use multiple tags**
-   - Triangulate from multiple detections
-   - Average pose estimates
-
-## EasyOpenCV vs VisionPortal Issues
-
-### Pipeline Works in EOCV-Sim but Not on Robot
-
-**Common causes:**
-
-1. **Different resolutions**
-   ```java
-   // Make sure resolution matches simulator
-   .setCameraResolution(new Size(640, 480))
-   ```
-
-2. **Color space differences**
-   - Robot camera may have different color response
-   - Retune thresholds with actual camera
-
-3. **Lighting conditions**
-   - Simulator uses test images
-   - Robot has dynamic lighting
-   - Add tolerance to thresholds
-
-### Migration Issues
-
-Moving from EasyOpenCV to VisionPortal:
-
-1. **Different coordinate systems**
-   ```java
-   // EasyOpenCV: Origin at top-left
-   // VisionPortal: Same, but check your processor
-   ```
-
-2. **API differences**
-   ```java
-   // EasyOpenCV
-   public Mat processFrame(Mat input) { ... }
-   
-   // VisionPortal
-   public void processFrame(Mat input, long captureTimeNanos) { ... }
-   // Note: void return, different signature
-   ```
-
-## Debugging Techniques
-
-### Add Visual Feedback
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
 
 ```java
-// Draw what you're detecting
-Imgproc.rectangle(input, roi, new Scalar(0, 255, 0), 2);
-Imgproc.putText(input, "Target: " + target, new Point(10, 30),
-    Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 0, 0), 2);
+VisionPortal portal = new VisionPortal.Builder()
+    .setCamera(webcamName)
+    .build();
 ```
 
-### Telemetry Everything
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+val portal = VisionPortal.Builder()
+    .setCamera(webcamName)
+    .build()
+```
+
+</Tab>
+</Tabs>
+
+Add a processor only after the camera opens. Use the [VisionPortal setup guide](../visionportal/vision-portal) for the full lifecycle and shutdown steps.
+
+## 2. The preview is black or missing
+
+Ask these questions in order:
+
+1. **Did the camera open?** Check the log or the EasyOpenCV open callback. If it did not, return to the previous section.
+2. **Is the preview enabled?** VisionPortal live view can be disabled in its builder. EasyOpenCV preview also depends on the monitor view being configured.
+3. **Is the camera pointed at a lit scene?** Covering the lens or pointing it into darkness can look like a software failure.
+4. **Does a simple pass-through pipeline or empty processor work?** If it does, the camera path is sound and the problem is in later processing.
+
+Avoid changing camera resolution, exposure, and detection thresholds at the same time. Otherwise, you will not know which change helped.
+
+## 3. The camera works, but nothing is detected
+
+Start with a target that is large, close, and easy to distinguish. Then inspect each stage:
+
+1. **Can you see the target in the preview?** Fix framing and lighting first.
+2. **Is the processor enabled?** VisionPortal processors can be enabled or disabled while the portal runs.
+3. **Does the color mask contain pixels?** In a custom OpenCV pipeline, show the mask or report the percentage of nonzero pixels. Remember that the expected channel order depends on the input frame; FTC EasyOpenCV commonly supplies RGBA frames, so do not label it RGB without checking.
+4. **Is the region of interest over the target?** Temporarily use the whole frame to check. Reintroduce a smaller region after detection works.
+5. **Are filters excluding it?** Temporarily remove area, density, and aspect-ratio limits. Add them back one at a time after you can see candidate detections.
+6. **Are the color limits based on the robot camera?** Tune them from the actual camera under the expected field lighting. A screenshot or simulator image may have different exposure and color response.
+
+For the FTC SDK `ColorBlobLocatorProcessor`, area and density filters take a minimum and a maximum followed by the blob list:
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
 
 ```java
-telemetry.addData("Blobs Found", blobs.size());
-telemetry.addData("Largest Blob Area", largestBlob.getContourArea());
-telemetry.addData("Center X", centerX);
-telemetry.addData("Processing Time (ms)", processingTimeMs);
-telemetry.update();
+ColorBlobLocatorProcessor.Util.filterByArea(minArea, maxArea, blobs);
+ColorBlobLocatorProcessor.Util.filterByDensity(minDensity, maxDensity, blobs);
 ```
 
-### Log to File
+</Tab>
+<Tab value="Kotlin">
 
-```java
-// For detailed debugging
-try {
-    FileWriter writer = new FileWriter("/sdcard/FIRST/vision_log.txt", true);
-    writer.write(String.format("%d,%.2f,%.2f\n", 
-        System.currentTimeMillis(), x, y));
-    writer.close();
-} catch (IOException e) {
-    // Handle error
-}
+```kotlin
+ColorBlobLocatorProcessor.Util.filterByArea(minArea, maxArea, blobs)
+ColorBlobLocatorProcessor.Util.filterByDensity(minDensity, maxDensity, blobs)
 ```
 
-### Test Incrementally
+</Tab>
+</Tabs>
 
-1. Test camera initialization alone
-2. Add simple pass-through pipeline
-3. Add color conversion
-4. Add thresholding
-5. Add contour detection
-6. Add filtering and logic
+Use values measured from your own preview. A density value is a ratio from 0 to 1; it is not a guarantee that the object is the right game element. See the official [Color Locator guide](https://ftc-docs.firstinspires.org/en/latest/color_processing/color-locator-explore/color-locator-explore.html).
 
-Identify exactly where issues occur!
+## 4. Detections appear and disappear
 
-## Getting Help
+Small changes in lighting, camera movement, or object position can move a target across a threshold. Before adding code to smooth the result:
 
-If you're still stuck:
+- secure the camera mount and use steady lighting;
+- make sure the target is not right at the edge of the frame or region of interest;
+- record the reported center and size for several seconds;
+- widen a threshold slightly only if the extra detections are still safe to reject.
 
-1. **Check FTC Discord** - Active community, fast responses
-2. **Post on FTC Forums** - Official support
-3. **Review SDK Examples** - Look at `FtcRobotController/samples`
-4. **Enable verbose logging** - Catch hidden errors
-5. **Ask your mentor** - They may have seen it before
+If the robot should act only after several matching frames, add a simple confirmation counter. Reset it when detection is lost, and keep the robot stopped until the count reaches the chosen threshold. This is temporal confirmation, not a replacement for correct calibration.
 
-## Quick Reference Checklist
+## 5. AprilTag pose looks wrong
 
-When vision isn't working, check:
+First separate **which target was detected** from **how its pose is interpreted**:
 
-- [ ] Camera plugged in and powered
-- [ ] Hardware name matches configuration
-- [ ] Camera opens successfully (no errors)
-- [ ] Objects visible in camera preview
-- [ ] Color in right range (test in EOCV-Sim)
-- [ ] ROI includes target area
-- [ ] Filters not too restrictive
-- [ ] Good lighting conditions
-- [ ] Resolution appropriate
-- [ ] Pipeline returning valid data
-- [ ] No errors in DS logs
+1. Check the official season tag layout and confirm that your code handles the detection type used by that game. Some seasons use AprilTag clusters; a cluster is not the same object as an individually identified tag.
+2. Confirm the physical tag size and units match the processor setup.
+3. Check the camera mounting direction and the coordinate axes shown by the FTC SDK. Do not swap camera-relative pose values with field coordinates: localization requires a known camera pose on the robot and a known target pose on the field.
+4. Test from a short distance with the camera close to facing the target. Move farther away or add angled views only after the basic result makes sense.
+5. Treat the pose as an estimate. Blur, oblique views, calibration, and distance all affect accuracy.
 
-## Next Steps
+For this season’s target type and pose details, use the [AprilTag guide](../visionportal/apriltag-detection) and the official FTC [AprilTag documentation](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_pose/apriltag-pose.html).
 
-- Review [Vision Basics](./vision-basics) for fundamentals
-- See [Vision Integration](./vision-integration) for architecture
-- Try [EOCV-Sim](./eocv-sim) for offline debugging
+## 6. The robot slows down while vision runs
+
+Keep camera work away from the drive-control loop where possible. Try these changes one at a time:
+
+1. Disable processors the OpMode does not need.
+2. Lower the camera resolution and compare the frame rate.
+3. Reduce expensive per-frame operations; reuse OpenCV `Mat` objects instead of allocating new ones for every frame.
+4. Measure processing time before and after a change. Do not skip frames until you know processing load is the cause.
+
+For custom EasyOpenCV code, release any `Mat` you create or obtain with `submat()` when you are done with it. Do not release the camera-owned input frame. For VisionPortal, prefer the SDK processor examples and their lifecycle rather than mixing EasyOpenCV callbacks into a VisionPortal processor.
+
+## A small debugging checklist
+
+- [ ] The configured camera name matches the code.
+- [ ] The camera opens without a logged error.
+- [ ] The preview shows a bright, stable image.
+- [ ] A simple processor or pass-through pipeline works.
+- [ ] The target is visible and inside the region of interest.
+- [ ] Thresholds and filters are checked one at a time.
+- [ ] Detection results are observed before they control robot motion.
+- [ ] The OpMode stops the robot safely when a target is not found.
+
+Next, work through [Vision Basics](../vision-basics), the [VisionPortal guide](../visionportal/vision-portal), or [EasyOpenCV pipelines](../easyopencv/writing-pipelines) depending on which system your project uses.

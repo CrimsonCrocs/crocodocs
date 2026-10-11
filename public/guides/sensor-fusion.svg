@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 540" role="img" aria-labelledby="title desc">
+  <title id="title">How sensor fusion improves robot localization</title>
+  <desc id="desc">Odometry predicts movement while a camera measures the robot's position relative to a known AprilTag. After coordinate frames and units are aligned, localization combines both measurements into a better robot pose.</desc>
+  <defs>
+    <marker id="fusion-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b4232e"/></marker>
+    <style>
+      .title{font:700 27px system-ui,sans-serif;fill:#34272a}
+      .sub{font:16px system-ui,sans-serif;fill:#76676a}
+      .head{font:700 18px system-ui,sans-serif;fill:#34272a}
+      .body{font:15px system-ui,sans-serif;fill:#65575a}
+      .small{font:14px system-ui,sans-serif;fill:#76676a}
+      .card{fill:#fff;stroke:#e8c9cc;stroke-width:2}
+      .accent{fill:#fff3f3;stroke:#b4232e;stroke-width:2.5}
+      .line{fill:none;stroke:#b4232e;stroke-width:3;marker-end:url(#fusion-arrow)}
+    </style>
+  </defs>
+  <rect width="1120" height="540" rx="24" fill="#fff"/>
+  <text class="title" x="560" y="50" text-anchor="middle">Two measurements help locate the robot</text>
+  <text class="sub" x="560" y="78" text-anchor="middle">Each source has different strengths; localization combines them after they are aligned.</text>
+
+  <rect class="card" x="48" y="124" width="300" height="126" rx="16"/>
+  <rect x="48" y="124" width="8" height="126" rx="4" fill="#b4232e"/>
+  <circle cx="84" cy="162" r="14" fill="#fff3f3" stroke="#b4232e" stroke-width="2"/>
+  <path d="M78 162h12M84 156v12" stroke="#b4232e" stroke-width="2.5" stroke-linecap="round"/>
+  <text class="head" x="108" y="168">Odometry</text>
+  <text class="body" x="76" y="201">Predicts motion from wheel or</text>
+  <text class="body" x="76" y="222">other movement measurements.</text>
+
+  <rect class="card" x="48" y="286" width="300" height="126" rx="16"/>
+  <rect x="48" y="286" width="8" height="126" rx="4" fill="#b4232e"/>
+  <rect x="71" y="307" width="28" height="28" rx="5" fill="#fff3f3" stroke="#b4232e" stroke-width="2"/>
+  <path d="M77 313h16v16H77zM85 313v16M77 321h16" fill="none" stroke="#b4232e" stroke-width="1.7"/>
+  <text class="head" x="108" y="330">Known AprilTag</text>
+  <text class="body" x="76" y="363">Camera provides an independent,</text>
+  <text class="body" x="76" y="384">field-relative pose observation.</text>
+
+  <path class="line" d="M348 187H398V256H438"/>
+  <path class="line" d="M348 349H398V286H438"/>
+  <rect class="accent" x="440" y="207" width="242" height="128" rx="18"/>
+  <text class="head" x="561" y="247" text-anchor="middle">Align measurements</text>
+  <text class="body" x="561" y="277" text-anchor="middle">Match coordinate frames</text>
+  <text class="body" x="561" y="300" text-anchor="middle">and units before combining.</text>
+
+  <path class="line" d="M682 271H740"/>
+  <rect class="card" x="744" y="207" width="184" height="128" rx="18"/>
+  <text class="head" x="836" y="250" text-anchor="middle">Localization</text>
+  <text class="body" x="836" y="279" text-anchor="middle">Combines the motion</text>
+  <text class="body" x="836" y="302" text-anchor="middle">prediction and observation.</text>
+  <path class="line" d="M928 271H974"/>
+  <rect x="978" y="223" width="104" height="96" rx="18" fill="#b4232e"/>
+  <text x="1030" y="263" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">Robot</text>
+  <text x="1030" y="286" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">pose</text>
+
+  <rect x="48" y="454" width="1034" height="48" rx="14" fill="#fff3f3"/>
+  <circle cx="75" cy="478" r="9" fill="#b4232e"/>
+  <text class="body" x="96" y="483">Odometry can drift over time; a known landmark adds an independent reference.</text>
+</svg>

@@ -1,11 +1,12 @@
 {
-  "name": "my-first-journal",
+  "name": "crocodocs",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "shadcn": "bunx --bun shadcn",
     "build": "next build",
+    "check:docs": "node scripts/check-docs.mjs",
     "dev": "next dev --turbo",
     "start": "next start",
     "postinstall": "fumadocs-mdx"

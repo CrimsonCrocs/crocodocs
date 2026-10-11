@@ -1,94 +1,49 @@
 ---
 title: Libraries
-description: Explore and compare popular robotics libraries like Road Runner and EasyOpenCV
+description: A sourced directory of tools used in FTC robot software
 icon: Package
 ---
 
-## What are FTC Libraries?
+## Start with the problem
 
-FTC libraries are pre-built code packages that make complex tasks easier. Instead of writing everything from scratch, you can use tested, optimized code written by experienced teams and community members.
+A library is optional code maintained outside your robot project. It can save implementation time, but it also adds APIs, dependencies, version compatibility, and maintenance work. Read the project's current installation guide and check which FTC SDK version it supports before adding it.
 
-Think of libraries like power tools — you could build furniture with just a hand saw, but a power saw makes the job faster, cleaner, and more professional.
+This directory covers tools with their own pages here. API examples and release numbers can change; each article links to the project's official documentation or source repository.
 
-## Why Use Libraries?
+## Path following and autonomous
 
-**Save Time:**
-- Don't reinvent the wheel
-- Focus on your robot's unique features
-- Spend more time testing and driving
+- [Pedro Pathing](./pedro-pathing) — build and follow a first field path with Pedro 3; the page includes a Java OpMode example.
+- [Road Runner](./road-runner) — build a Road Runner 1.0 route with the official FTC Quickstart.
 
-**Better Performance:**
-- Libraries are optimized and tested by many teams
-- Benefit from community improvements and bug fixes
-- Get features that would take months to build yourself
+## Robot architecture and control
 
-**Learn From Experts:**
-- Study well-written code
-- Understand advanced concepts through examples
-- Build on proven solutions
+- [NextFTC](./nextftc) — create mechanisms, connect gamepad triggers, and run commands. The page includes servo and intake examples for v2.
+- [Mercurial](./mercurial) — create and schedule a command with the Dairy Foundation framework.
+- [FTCLib](./ftclib) — compose and schedule commands with FTCLib's command framework.
 
-## Popular FTC Libraries
+## Tuning and development
 
-We'll cover the most widely-used libraries in FTC:
+- [FTC Dashboard](./ftc-dashboard) — add telemetry and tune live configuration variables with code.
+- [Panels](./panels) — expose a live-tunable value and inspect robot telemetry.
+- [Sloth](./sloth) — deploy eligible TeamCode changes with its Gradle task; use a full install for dependencies and other unsupported changes.
 
-### Path Planning & Autonomous
-- **Pedro Pathing** - Modern path following system with smooth curves and easy setup
-- **Road Runner** - Advanced motion planning library (industry standard)
+## Vision
 
-### Development & Debugging
-- **FTC Dashboard** - Real-time telemetry, configuration, and debugging tool
-- **NextFTC** - Command-based framework with built-in control systems and gamepad bindings
+- [EasyOpenCV](../sensors-and-vision/easyopencv/easyopencv-basics) — OpenCV pipelines integrated with FTC camera workflows. It is a community library; follow its upstream documentation and check compatibility with your SDK.
+- [VisionPortal and AprilTags](../sensors-and-vision/vision-overview) — FTC SDK vision APIs and related guides.
 
-### Vision Processing
-- **EasyOpenCV** - Simplified computer vision with pipeline support for color detection and object recognition
+## Before you install
 
-### Control & Math
-- **FTC Lib** - Utility library with geometry, control, and hardware abstractions
-- **Road Runner Core** - Standalone trajectory math and kinematics
+1. Confirm the FTC SDK version used by your robot project.
+2. Read the library's current official installation and migration instructions.
+3. Check that every repository and artifact in the Gradle example still exists.
+4. Add one library at a time and sync Gradle.
+5. Build and test on the Control Hub before relying on it in a match.
 
-## Choosing the Right Libraries
+A version number copied from an old article can stop resolving or pull incompatible code. Where versions change often, these pages link to the official release page instead of guessing a version.
 
-**For Beginners:**
-- Start with FTC Dashboard for debugging
-- Try Pedro Pathing for autonomous
-- Use EasyOpenCV for simple vision tasks
+## Community resources
 
-**For Advanced Teams:**
-- Road Runner for complex autonomous
-- Custom control systems with FTC Lib
-- Multiple cameras with advanced pipelines
-
-**Things to Consider:**
-- ✅ How much time do you have to learn?
-- ✅ Does it fit your robot's design?
-- ✅ Is there good documentation?
-- ✅ Is the library actively maintained?
-- ✅ Do other teams use it? (community support)
-
-## Installing Libraries
-
-Most FTC libraries use **Gradle** for installation. You'll typically:
-
-1. Add repository to your `build.gradle`
-2. Add dependency line for the library
-3. Sync your project
-4. Import and use in your code
-
-We'll show exact steps for each library in their individual pages.
-
-## Getting Help
-
-**Documentation:**
-- Each library has its own documentation site
-- Read the README files on GitHub
-- Check example code in the repository
-
-**Community:**
-- FTC Discord servers
-- Reddit r/FTC
-- Chief Delphi forums
-- Team websites and blogs
-
-## Next Steps
-
-Explore the individual library pages to learn how to install and use each one. Start with the tools that solve your biggest problems first — if autonomous is your struggle, try Pedro Pathing or Road Runner. If debugging is hard, start with FTC Dashboard.
+- [FIRST Tech Challenge programming resources](https://ftc-resources.firstinspires.org/ftc/programming)
+- [FTC SDK source repository](https://github.com/FIRST-Tech-Challenge/FtcRobotController)
+- [Game Manual 0](https://gm0.org/)

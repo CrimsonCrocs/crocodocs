@@ -1,590 +1,381 @@
 ---
 title: PID Control
-description: Self-correcting robot control made simple
+description: Build a feedback controller for an FTC arm one step at a time
 icon: Target
 ---
 
-## Open-Loop vs Closed-Loop Control
+# Make an arm stop at a chosen angle
 
-Before diving into PID, let's understand the two fundamental types of control systems:
+Imagine your arm must lift to 60°. With a timed command, you might run its motor for half a second and hope it stops there. The arm can stop short when the battery is low, or travel too far when the arm is lighter. A **PID controller** checks the arm's encoder while it moves and adjusts motor power based on what the arm actually did.
 
-### Open-Loop Control
+This lesson builds that controller in stages. You will first check the encoder and motor direction, then add proportional control, and only then add derivative and integral correction. The example is for a single encoder-equipped arm; your gear ratio, arm range, motor direction, and gains must be measured on your robot.
 
-**Open-loop control** means you give a command and hope for the best — there's no feedback to tell you if it worked.
+![A feedback loop: compare the target angle to the measured angle, adjust motor power, and measure again.](/guides/pid-feedback-loop.svg)
 
-**Example:** You tell your arm motor "run at 50% power for 2 seconds" and assume it reaches the right position.
+## Before you start
 
-**How it works:**
-1. Set motor power
-2. Wait some time
-3. Stop motor
-4. Hope it's in the right place
+You need:
 
-**Real-world analogy:** Throwing a basketball without watching where it goes. You take the shot and walk away assuming it went in.
+- A motor with an encoder attached to the arm.
+- The motor configured in the Robot Controller configuration. This example calls it `arm`.
+- A known safe low and high arm position, with hard stops or another way to keep the arm inside its real travel range.
+- A way to measure the arm angle, such as a printed angle guide or protractor.
 
-**Pros:**
-- ✅ Simple to program
-- ✅ Fast execution (no calculations needed)
-- ✅ Works fine for simple, repeatable tasks
+**Make the mechanism safe before testing.** Support the arm so it cannot fall, keep hands clear of gears and pinch points, and begin with a small power limit. If motor power moves the arm away from the target, stop the OpMode and correct the motor direction before continuing.
 
-**Cons:**
-- ❌ No way to verify it worked
-- ❌ Battery voltage affects speed/power
-- ❌ Load changes (game pieces, gravity) throw it off
-- ❌ No self-correction
-- ❌ Inconsistent results
+## First, understand feedback
 
-### Closed-Loop Control (Feedback Control)
+A timed motor command is open-loop: you choose a power and duration, then hope the arm ends up where you wanted. Battery voltage, friction, and the arm's load can change the result. A feedback controller closes that gap by measuring what happened and correcting it repeatedly:
 
-**Closed-loop control** means you constantly measure what's happening and adjust accordingly — it's self-correcting!
+1. Read the encoder and convert its counts to the arm's angle.
+2. Compare that measured angle with the target.
+3. Turn the difference into a motor-power command.
+4. Apply the command briefly, then measure again on the next loop.
 
-**Example:** You tell your arm "go to 45 degrees," it checks its current angle with a sensor, calculates how far to move, adjusts power, and keeps correcting until it reaches exactly 45°.
+The target is the **setpoint**, the encoder-derived angle is the **measurement**, and their difference is the **error**:
 
-**How it works:**
-1. Set a target (45°)
-2. Measure current position (30°)
-3. Calculate error (45° - 30° = 15°)
-4. Adjust motor power based on error
-5. Repeat steps 2-4 constantly
-
-**Real-world analogy:** Driving a car. You constantly look at the road (feedback) and adjust the steering wheel to stay in your lane. If you start drifting right, you correct left.
-
-**Pros:**
-- ✅ Self-correcting
-- ✅ Consistent results
-- ✅ Handles disturbances automatically
-- ✅ Adapts to changing conditions
-- ✅ Reaches exact targets
-
-**Cons:**
-- ❌ More complex to program
-- ❌ Requires sensors
-- ❌ Needs tuning to work properly
-- ❌ Can be unstable if tuned poorly
-
-### Which Should You Use?
-
-**Use Open-Loop when:**
-- Movement doesn't need precision (simple driving)
-- No sensors available
-- Testing basic functionality
-- Time-based actions are "good enough"
-
-**Use Closed-Loop when:**
-- Precision matters (arm positioning, autonomous driving)
-- Consistent results are critical
-- Environment changes (battery, load, friction)
-- You have sensors to measure position/speed
-
-<Callout type="info">
-**PID is a type of closed-loop control.** It uses feedback from sensors to continuously correct and reach your target precisely. That's what makes it so powerful!
-</Callout>
-
-## What is PID?
-
-**PID** stands for **P**roportional, **I**ntegral, **D**erivative. It's a feedback algorithm that helps your robot automatically reach and maintain a target position, speed, or any other measurable value.
-
-Think of PID like a smart thermostat:
-- You set a target temperature (70°F)
-- It measures the current temperature (65°F)
-- It calculates how much to heat (the error is 5°F)
-- It turns the heater on just the right amount
-- It keeps checking and adjusting until it hits 70°F
-
-Your robot does the same thing with motors, arms, and other mechanisms!
-
-### The PID Equation
-
-The complete PID controller output is calculated as:
-
-```math
-u(t) = K_p e(t) + K_i \int_0^t e(\tau) d\tau + K_d \frac{de(t)}{dt}
+```text
+error = target angle - measured angle
 ```
 
-Where:
-- $u(t)$ = Controller output (motor power)
-- $e(t)$ = Error at time $t$ (target - current)
-- $K_p$ = Proportional gain
-- $K_i$ = Integral gain  
-- $K_d$ = Derivative gain
+If the target is 60° and the encoder says 20°, the error is `60 - 20 = 40°`. Positive error means the arm needs to move toward a larger angle. Your motor's configured direction determines which power sign produces that motion, so verify the sign at low power before tuning.
 
-In discrete form (for code implementation):
+The letters describe three ways of responding to that error. A common continuous-time form is:
 
-```math
-u[k] = K_p e[k] + K_i \sum_{i=0}^{k} e[i] \Delta t + K_d \frac{e[k] - e[k-1]}{\Delta t}
+You can skip the equation on a first read. The table below gives the practical meaning of each part.
+
+$$
+u(t) = k_P e(t) + k_I \int_0^t e(\tau)\,d\tau + k_D \frac{de(t)}{dt}
+$$
+
+Here `e` is the error and `u` is the requested motor command. The controller below runs digitally, so it approximates the integral by adding `error × elapsed time` on each loop. It estimates speed from the change in measured angle divided by elapsed time. The gains are tied to these units: with angle in degrees and output in motor power, `kP` has units of power per degree; `kI` has units of power per degree-second; `kD` has units of power-seconds per degree. Changing the sensor units or time units means the gains must change too.
+
+### What each term contributes
+
+- **P — Proportional:** reacts to the gap right now. A bigger gap asks for a stronger push. Start here; too much P can make the arm overshoot.
+- **I — Integral:** reacts to an error that keeps happening. It can help when the arm repeatedly stops a little short, but stored error can build up while the motor is blocked. Leave I at zero until P and D behave well.
+- **D — Derivative:** reacts to how fast the arm is moving. It can brake an arm approaching its target, but too much D can make the motor chatter.
+
+The finished example limits stored I error and estimates D from measured arm speed. These choices avoid two common problems, but the gains and limits still need tuning on your robot.
+
+The example combines the terms like this:
+
+```text
+requested power = P contribution + I contribution + D contribution
+               = kP × error + kI × accumulated error - kD × measured speed
 ```
 
-## Why Use PID?
+The minus sign on the speed term makes it oppose the arm's current movement. The requested power is then limited to the configured maximum. Once that limit is reached, a bigger controller request cannot produce more motor power, which is why integral buildup needs a limit too.
 
-Without PID, you might tell your arm "move at 50% power for 2 seconds" and hope it lands at the right angle. Problems:
-- Battery level affects speed
-- Weight of game pieces changes behavior
-- Friction varies
-- No way to correct if it overshoots
+PID does not mean all three gains must be nonzero. Start with P, add D if the arm overshoots, and try I only when repeatable tests show a small error that remains. An arm also has gravity acting on it; a PID loop may need a properly measured gravity-compensation term to hold a position without a large integral correction.
 
-With PID, you say "go to 45 degrees" and the robot figures out the rest:
-- ✅ Self-correcting
-- ✅ Consistent results
-- ✅ Handles disturbances
-- ✅ Reaches exact targets
+### A quick mental model
 
-## The Three Components
+| Term | Question it answers | Arm intuition |
+| --- | --- | --- |
+| P | How far away are we right now? | Push toward the target in proportion to the gap. |
+| I | Has a small error kept happening? | Add a little more push to overcome a persistent load or friction. |
+| D | How fast are we moving? | Ease off while moving quickly toward the target. |
 
-### P - Proportional
+For an FTC arm, begin with P only. Add D if it overshoots. Add I only if it consistently stops short after P and D are tuned. Integral is not automatically needed; an arm that must hold itself against gravity may need gravity feedforward or a carefully limited integral term.
 
-This is the main driving force. The farther you are from the target, the harder you push.
+## Step 1: Give the encoder a safe reference
 
-**Formula:**
+An encoder reports counts, not degrees. To convert it into an angle, first choose what angle should mean zero. In this example, zero is the arm's safe lower position.
 
-```math
-P = K_p \cdot e(t)
-```
-
-Where the error is defined as:
-
-```math
-e(t) = r(t) - y(t)
-```
-
-- $r(t)$ = Target (reference) value
-- $y(t)$ = Current (measured) value
-- $e(t)$ = Error
-
-**Example:** If your arm is at 10° and you want 50°:
-- Error = $50° - 10° = 40°$
-- If $K_p = 0.05$, then $P = 0.05 \times 40 = 2.0$ (power)
-
-**Behavior:**
-- Large errors → Large power → Fast movement
-- Small errors → Small power → Gentle approach
-- At target (error = 0) → No power → Stops
-
-**Problem:** P alone often overshoots! The motor has momentum and can't stop instantly.
-
-### I - Integral
-
-This accumulates error over time to eliminate steady-state error (when you're close but not quite there).
-
-**Formula:**
-
-```math
-I = K_i \int_0^t e(\tau) d\tau
-```
-
-In discrete form:
-
-```math
-I[k] = K_i \sum_{i=0}^{k} e[i] \cdot \Delta t
-```
-
-**Example:** Your arm should be at 45° but keeps settling at 44.5° because gravity or friction:
-- Error keeps being 0.5°
-- That 0.5° adds up: 0.5, 1.0, 1.5, 2.0...
-- Eventually I builds up enough to push past the resistance
-
-**Behavior:**
-- Eliminates persistent small errors
-- Pushes through friction or load
-- Helps reach the exact target
-
-**Problem:** I can cause overshoot if too large, or make the system oscillate.
-
-### D - Derivative
-
-This predicts future error by looking at how fast the error is changing. It acts like a brake!
-
-**Formula:**
-
-```math
-D = K_d \frac{de(t)}{dt}
-```
-
-In discrete form:
-
-```math
-D[k] = K_d \frac{e[k] - e[k-1]}{\Delta t}
-```
-
-**Example:** Your arm is approaching 45°, moving fast:
-- Error went from 10° to 5° in one loop
-- Change = $-5°$ (getting closer fast!)
-- D applies counter-force to slow down
-- Prevents overshoot
-
-**Behavior:**
-- Dampens oscillation
-- Slows approach to target
-- Reduces overshoot
-- Makes system more stable
-
-**Problem:** Sensitive to noise in sensor readings.
-
-## Visualizing PID Response
-
-Understanding how P, I, and D affect your robot's behavior is crucial. Here are some excellent resources to see PID in action:
-
-<Callout title="🎮 Interactive Learning Resources">
-
-**Online Simulators:**
-- **[PID Controller Demo (YouTube)](https://www.youtube.com/results?search_query=pid+controller+simulator+demo)** - Video demonstrations of PID tuning
-- **[Desmos PID Graphing Calculator](https://www.desmos.com/calculator)** - Create custom PID response graphs
-
-**Video Tutorials:**
-- **[Control Systems Bootcamp by Steve Brunton](https://www.youtube.com/watch?v=Pi7l8mMjYVE&list=PLMrJAkhIeNNR20Mz-VpzgfQs5zrYi085m)** - Excellent series on control theory
-- **[FTC PID Tuning Videos](https://www.youtube.com/results?search_query=ftc+pid+tuning)** - FTC-specific examples
-- **[Understanding PID Control (MATLAB)](https://www.youtube.com/watch?v=wkfEZmsQqiA)** - Visual explanation series
-
-</Callout>
-
-### Response Curve Comparison
-
-Here's how different PID configurations affect an arm reaching 90 degrees:
-
-#### P-Only Control (kP = 0.05, kI = 0, kD = 0)
-
-**What happens:**
-- ⚡ Fast initial approach - motor responds aggressively to error
-- ❌ Overshoots target significantly (can reach ~110° when targeting 90°)
-- ❌ Bounces back and forth continuously
-- ❌ Never settles exactly at 90° - oscillates forever
-- 💡 **Too aggressive, no damping to slow down**
-
-**Why it happens:** The proportional term only looks at current error. As it approaches the target, momentum carries it past. Then it corrects back, overshoots again, repeat forever.
-
-#### PI Control (kP = 0.05, kI = 0.01, kD = 0)
-
-**What happens:**
-- ⚡ Fast approach with strong response
-- ❌ Still overshoots initially (reaches ~100°)
-- ⚠️ Oscillates for a bit as integral builds up
-- ✅ Eventually settles exactly at 90° with no steady-state error
-- 💡 **I term eliminates persistent error that P alone can't fix**
-
-**Why it's better:** The integral term accumulates small errors over time. If the arm settles at 89.5° due to friction/gravity, the integral grows until it pushes hard enough to reach exactly 90°.
-
-#### PID Control (kP = 0.05, kI = 0.01, kD = 0.004)
-
-**What happens:**
-- ⚡ Good speed - fast but controlled
-- ✅ Minimal overshoot (~92° max) - just barely goes past target
-- ✅ Quick settling - reaches target smoothly in ~1.2 seconds
-- ✅ Reaches and stays at exactly 90° with no drift
-- 💡 **D term dampens oscillation by predicting future error**
-
-**Why it's optimal:** The derivative term acts like a brake. As the arm approaches 90° quickly, D sees the error shrinking fast and applies counter-force to slow down, preventing overshoot.
-
-### Step-by-Step Tuning Process
-
-Here's the recommended order for tuning PID from scratch:
-
-**Step 1: Start with Zero Gains**
-- Set `kP = 0, kI = 0, kD = 0`
-- Result: Nothing happens - motor doesn't move
-- This is your baseline
-
-**Step 2: Increase P Until It Responds**
-- Set `kP = 0.02` (or higher until movement starts)
-- Result: Robot moves toward target but oscillates slowly
-- Keep increasing P until you get a reasonable response time
-
-**Step 3: Increase P for Faster Response**
-- Set `kP = 0.05` (continue increasing)
-- Result: Faster movement but more aggressive oscillation
-- Stop when oscillation becomes too wild or when response is fast enough
-- You'll likely overshoot at this point - that's normal!
-
-**Step 4: Add D to Dampen Oscillation**
-- Set `kD = 0.004` (start small)
-- Result: Oscillation reduces significantly, smoother approach
-- The D term acts like a brake, slowing down as you approach target
-- Increase D until oscillation is minimal but movement isn't too sluggish
-
-**Step 5: Add I to Eliminate Steady-State Error**
-- Set `kI = 0.01` (start very small!)
-- Result: System now reaches exact target with no drift
-- The I term fixes persistent small errors (gravity, friction)
-- Be careful - too much I causes overshoot and slow oscillation
-
-**Final Tuned Values:** `kP = 0.05, kI = 0.01, kD = 0.004` ✅
-
-### Common Tuning Problems
-
-#### Problem: Too Much P (kP too high)
-
-**Symptoms:**
-- Fast, aggressive movement that seems out of control
-- Large overshoot - goes way past the target
-- Continuous wild oscillation - bounces back and forth rapidly
-- Never settles - keeps oscillating forever
-- Makes loud buzzing sounds as motor rapidly switches direction
-
-**What's happening:** P term is too aggressive. The motor responds so strongly to any error that momentum carries it far past the target. Then it overcorrects back, creating a never-ending cycle.
-
-**Fix:** Reduce kP by 30-50% until oscillation decreases
-
-#### Problem: Too Much I (kI too high)
-
-**Symptoms:**
-- Overshoots target and stays high for a while
-- Slow, lazy oscillation - very gradual bouncing
-- Takes forever to settle (10+ seconds)
-- "Windup" - after hitting an obstacle, system goes crazy when released
-- Gets worse over time as integral accumulates
-
-**What's happening:** The integral term accumulates error too quickly, building up excessive correction force. This causes big overshoots and the system can't recover quickly.
-
-**Fix:** Reduce kI significantly (try 1/5th of current value) or add integral windup limit to cap the accumulated error
-
-#### Problem: Too Much D (kD too high)
-
-**Symptoms:**
-- Very slow, sluggish movement - feels like it's moving through mud
-- Overly cautious approach to target
-- Takes way too long to reach target (5-10+ seconds)
-- Too much "braking" - barely moves near the target
-- Seems scared to move
-
-**What's happening:** The derivative term is overcompensating, applying too much counter-force as the system moves. It's like driving with the brakes constantly engaged.
-
-**Fix:** Reduce kD by 50% or more until movement feels responsive
-
-#### Problem: Sensor Noise + High D
-
-**Symptoms:**
-- Jittery, shaky motion - especially when holding position
-- Motor keeps making small adjustments even when "stopped"
-- Rapid small movements back and forth
-- Buzzing or humming sound at rest
-- Works better when moving, worse when stationary
-
-**What's happening:** Your sensor readings have noise (small random fluctuations). The D term sees these as rapid changes in error and tries to correct them, causing jittery motion.
-
-**Fix:** 
-- Add a low-pass filter to smooth sensor readings: `filteredPosition = 0.8 * filteredPosition + 0.2 * rawPosition`
-- Reduce kD to make it less sensitive to small changes
-- Use better sensors or sensor mounting to reduce mechanical vibration
-
-### Real-World Tuning Examples
-
-**FTC Arm to 90°:**
-```java
-// Well-tuned for arm positioning
-PIDController armPID = new PIDController(
-    0.05,   // kP - proportional gain
-    0.01,   // kI - integral gain  
-    0.004   // kD - derivative gain
-);
-```
-
-**Response:**
-- Rise time: 0.8 seconds
-- Overshoot: 2%
-- Settling time: 1.2 seconds
-- Steady-state error: 0°
-
-**Poorly-tuned (P-only):**
-```java
-// Only P - will oscillate!
-PIDController armPID = new PIDController(
-    0.1,    // kP - too high!
-    0,      // kI - no integral
-    0       // kD - no damping
-);
-```
-
-**Response:**
-- Rise time: 0.3 seconds (too fast!)
-- Overshoot: 25%
-- Settling time: Never settles
-- Oscillates ±10° forever
-
-### Video Demonstrations
-
-<Callout title="📺 Watch PID in Action">
-
-**Recommended Videos:**
-- [FTC PID Tuning Tutorial](https://www.youtube.com/results?search_query=ftc+pid+tuning) - Search results for FTC-specific examples
-
-</Callout>
-
-## Basic PID Implementation
-
-Here's a simple PID controller you can use:
+With the robot powered off, support the arm and place it at that reference mark. Then reset the encoder at initialization:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-public class PIDController {
-    private double kP, kI, kD;
-    private double integral = 0;
-    private double previousError = 0;
-    private double previousTime = 0;
-    
-    public PIDController(double kP, double kI, double kD) {
-        this.kP = kP;
-        this.kI = kI;
-        this.kD = kD;
-    }
-    
-    public double calculate(double target, double current) {
-        // Calculate error
-        double error = target - current;
-        
-        // Calculate time delta
-        double currentTime = System.currentTimeMillis() / 1000.0;
-        double deltaTime = currentTime - previousTime;
-        
-        // Guard against first call and zero/negative deltaTime
-        if (previousTime == 0.0 || deltaTime <= 0.0) {
-            deltaTime = 1e-3;  // Small positive epsilon
-        }
-        
-        previousTime = currentTime;
-        
-        // Proportional term
-        double P = kP * error;
-        
-        // Integral term (accumulate error over time)
-        integral += error * deltaTime;
-        double I = kI * integral;
-        
-        // Derivative term (rate of change of error)
-        double derivative = 0.0;
-        if (previousTime != currentTime) {  // Skip derivative on first call
-            derivative = (error - previousError) / deltaTime;
-        }
-        double D = kD * derivative;
-        previousError = error;
-        
-        // Combine all three
-        return P + I + D;
-    }
-    
-    public void reset() {
-        integral = 0;
-        previousError = 0;
-        previousTime = System.currentTimeMillis() / 1000.0;
-    }
-}
+arm = hardwareMap.get(DcMotor.class, "arm");
+arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 ```
 
 </Tab>
 <Tab value="Kotlin">
 
 ```kotlin
-class PIDController(
-    private val kP: Double,
-    private val kI: Double,
-    private val kD: Double
-) {
-    private var integral = 0.0
-    private var previousError = 0.0
-    private var previousTime = 0.0
-    
-    fun calculate(target: Double, current: Double): Double {
-        // Calculate error
-        val error = target - current
-        
-        // Calculate time delta
-        val currentTime = System.currentTimeMillis() / 1000.0
-        var deltaTime = currentTime - previousTime
-        
-        // Guard against first call and zero/negative deltaTime
-        if (previousTime == 0.0 || deltaTime <= 0.0) {
-            deltaTime = 1e-3  // Small positive epsilon
-        }
-        
-        previousTime = currentTime
-        
-        // Proportional term
-        val P = kP * error
-        
-        // Integral term (accumulate error over time)
-        integral += error * deltaTime
-        val I = kI * integral
-        
-        // Derivative term (rate of change of error)
-        var derivative = 0.0
-        if (previousTime != currentTime) {  // Skip derivative on first call
-            derivative = (error - previousError) / deltaTime
-        }
-        val D = kD * derivative
-        previousError = error
-        
-        // Combine all three
-        return P + I + D
-    }
-    
-    fun reset() {
-        integral = 0.0
-        previousError = 0.0
-        previousTime = System.currentTimeMillis() / 1000.0
-    }
-}
+arm = hardwareMap.get(DcMotor::class.java, "arm")
+arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+arm.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 ```
 
 </Tab>
 </Tabs>
 
-## Using PID for an Arm
+`STOP_AND_RESET_ENCODER` makes the current encoder reading zero. It does **not** move or home the arm. Only reset it when the arm is physically at the reference angle. `RUN_WITHOUT_ENCODER` lets our code calculate power from the reading on every loop.
 
-Here's a complete example controlling an arm to a target angle:
+Now measure the encoder's scale. Move the arm slowly between two measured angles and record the change in encoder counts. For example, if it changes by 336 counts while the arm moves 60°, then:
+
+```text
+counts per degree = 336 counts ÷ 60 degrees = 5.6 counts/degree
+```
+
+Those numbers are an example measurement, not a motor specification. Use your own measured signed value. If the encoder count decreases while the arm angle increases, `COUNTS_PER_DEGREE` should be negative.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-@TeleOp(name="PID Arm Control")
-public class PIDArm extends LinearOpMode {
-    private DcMotor armMotor;
-    private PIDController pid;
-    
-    // Encoder counts per degree (you'll need to calculate this)
-    private static final double COUNTS_PER_DEGREE = 28.0 * 4.0 / 360.0;
-    
+private static final double COUNTS_PER_DEGREE = 5.6; // Replace with your measurement
+
+double currentAngle = arm.getCurrentPosition() / COUNTS_PER_DEGREE;
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+private const val COUNTS_PER_DEGREE = 5.6 // Replace with your measurement
+
+val currentAngle = arm.currentPosition / COUNTS_PER_DEGREE
+```
+
+</Tab>
+</Tabs>
+
+**Check this before adding PID:** manually move the arm through a known angle and compare the displayed angle with your protractor. If the sign is reversed or the scale is wrong, fix this conversion first.
+
+## Step 2: Choose a target and calculate the error
+
+Use the D-pad to choose three test positions: 0°, 30°, or 60°. Keep targets inside the safe mechanical range of your arm.
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+if (gamepad1.dpad_down) targetAngle = 0.0;
+if (gamepad1.dpad_left) targetAngle = 30.0;
+if (gamepad1.dpad_up) targetAngle = 60.0;
+
+double currentAngle = arm.getCurrentPosition() / COUNTS_PER_DEGREE;
+double error = targetAngle - currentAngle;
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+if (gamepad1.dpad_down) targetAngle = 0.0
+if (gamepad1.dpad_left) targetAngle = 30.0
+if (gamepad1.dpad_up) targetAngle = 60.0
+
+val currentAngle = arm.currentPosition / COUNTS_PER_DEGREE
+val error = targetAngle - currentAngle
+```
+
+</Tab>
+</Tabs>
+
+Before connecting motor power, send `targetAngle`, `currentAngle`, and `error` to telemetry. At the zero mark, telemetry should show a current angle close to 0°. When the arm is below a 60° target, the error should be positive. This tells you whether the sensor math agrees with the physical arm.
+
+## Step 3: Add the P term, and test direction at low power
+
+The proportional term is the error multiplied by `kP`:
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+double kP = 0.003; // A cautious starting example; tune for your mechanism
+
+double power = kP * error;
+power = Math.max(-0.25, Math.min(0.25, power)); // Low commissioning limit
+arm.setPower(power);
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+val kP = 0.003 // A cautious starting example; tune for your mechanism
+
+var power = kP * error
+power = max(-0.25, min(0.25, power)) // Low commissioning limit
+arm.power = power
+```
+
+</Tab>
+</Tabs>
+
+Here `kP` is motor-power per degree. With a 40° error and `kP = 0.003`, the requested power is 0.12. The ±0.25 limit is just a cautious starting limit; do not assume it is safe or strong enough for every mechanism.
+
+Test with the arm supported and watch closely. If positive error makes the arm move away from the target, stop, correct the motor direction or encoder sign, and test again. Increase `kP` in small steps only after the direction is correct.
+
+**What to look for:**
+
+- It barely moves and never gets close: raise `kP` a little.
+- It reaches the target slowly without crossing it: P-only control may be good enough for this test.
+- It swings past the target and comes back: keep the P value that moves it reliably, then continue to Step 4.
+
+Do not copy a gain from another robot. Changing the arm length, gearing, load, encoder scale, or loop timing changes the behavior.
+
+## Step 4: Add D to slow an approaching arm
+
+A fast-moving arm can pass the target even when the error is small. The derivative term measures the arm's speed and acts like a brake. We calculate it from the **measured angle**, so choosing a new target does not create an artificial speed spike.
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+double degreesPerSecond = (currentAngle - previousAngle) / deltaTimeSeconds;
+double dTerm = -kD * degreesPerSecond;
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+val degreesPerSecond = (currentAngle - previousAngle) / deltaTimeSeconds
+val dTerm = -kD * degreesPerSecond
+```
+
+</Tab>
+</Tabs>
+
+The minus sign makes the D term resist current motion. `deltaTimeSeconds` must be measured from a monotonic clock, such as `System.nanoTime()`, because loop timing can vary. The finished example below handles the first loop separately.
+
+Start with `kD = 0`. After P moves the arm in the right direction, add a small D gain and change only that value at a time. If the arm slows smoothly near the target, D is helping. If it barely moves or jitters, reduce D; encoder noise can make derivative control noisy.
+
+## Step 5: Add I only to fix a persistent small error
+
+If the arm repeatedly stops a few degrees short because of friction or load, the integral term can accumulate that leftover error:
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+integral += error * deltaTimeSeconds;
+integral = Math.max(-MAX_INTEGRAL, Math.min(MAX_INTEGRAL, integral));
+double iTerm = kI * integral;
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+integral += error * deltaTimeSeconds
+integral = max(-MAX_INTEGRAL, min(MAX_INTEGRAL, integral))
+val iTerm = kI * integral
+```
+
+</Tab>
+</Tabs>
+
+The limit prevents the stored error from growing without bound while the arm is blocked or cannot reach its target. Keep `kI` at zero while you tune P and D. Add a very small value only if your measured tests show a steady offset. Too much I causes the arm to keep pushing after it reaches the target.
+
+## Put the pieces together
+
+This complete Java example keeps the controller small enough to follow. The starting gains are deliberately modest examples, not guaranteed tuning values. Begin with `KI` and `KD` set to zero; tune on the real robot using the steps above. Change one gain at a time and keep the arm supported.
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+@TeleOp(name = "Guided PID Arm")
+public class GuidedPidArm extends LinearOpMode {
+    // Measure this on your robot; the sign matters.
+    private static final double COUNTS_PER_DEGREE = 5.6;
+    private static final double KP = 0.003;
+    private static final double KI = 0.0;
+    private static final double KD = 0.0;
+    private static final double MAX_POWER = 0.25;
+
+    private DcMotor arm;
+    private final ArmPid pid = new ArmPid(KP, KI, KD);
+
     @Override
     public void runOpMode() {
-        armMotor = hardwareMap.get(DcMotor.class, "arm_motor");
-        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        
-        // Initialize PID with tuned values
-        pid = new PIDController(0.02, 0.001, 0.01);
-        
+        arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         double targetAngle = 0.0;
-        
+        telemetry.addLine("Check that the arm is at its zero reference.");
+        telemetry.addLine("Press START only when the arm area is clear.");
+        telemetry.update();
         waitForStart();
         pid.reset();
-        
+
         while (opModeIsActive()) {
-            // Driver controls target angle
-            if (gamepad1.dpad_up) {
-                targetAngle = 90.0;  // High position
-            } else if (gamepad1.dpad_down) {
-                targetAngle = 0.0;   // Low position
-            } else if (gamepad1.dpad_left) {
-                targetAngle = 45.0;  // Mid position
-            }
-            
-            // Get current angle from encoder
-            double currentAngle = armMotor.getCurrentPosition() / COUNTS_PER_DEGREE;
-            
-            // Calculate power using PID
-            double power = pid.calculate(targetAngle, currentAngle);
-            
-            // Limit power to safe range
-            power = Math.max(-1.0, Math.min(1.0, power));
-            
-            armMotor.setPower(power);
-            
-            // Telemetry for debugging
-            telemetry.addData("Target", "%.1f°", targetAngle);
-            telemetry.addData("Current", "%.1f°", currentAngle);
-            telemetry.addData("Error", "%.1f°", targetAngle - currentAngle);
-            telemetry.addData("Power", "%.2f", power);
+            if (gamepad1.dpad_down) targetAngle = 0.0;
+            if (gamepad1.dpad_left) targetAngle = 30.0;
+            if (gamepad1.dpad_up) targetAngle = 60.0;
+            if (gamepad1.b) break;
+
+            double currentAngle = arm.getCurrentPosition() / COUNTS_PER_DEGREE;
+            double output = pid.calculate(targetAngle, currentAngle);
+            double power = Math.max(-MAX_POWER, Math.min(MAX_POWER, output));
+            arm.setPower(power);
+
+            telemetry.addData("Target (deg)", "%.1f", targetAngle);
+            telemetry.addData("Measured (deg)", "%.1f", currentAngle);
+            telemetry.addData("Error (deg)", "%.1f", targetAngle - currentAngle);
+            telemetry.addData("Motor power", "%.2f", power);
+            telemetry.addLine("Press B to stop the test.");
             telemetry.update();
         }
+
+        arm.setPower(0.0);
+    }
+
+    private static class ArmPid {
+        private static final double MAX_INTEGRAL = 300.0; // degree-seconds
+        private final double kP;
+        private final double kI;
+        private final double kD;
+        private double integral;
+        private double previousAngle;
+        private long previousTimeNanos;
+
+        ArmPid(double kP, double kI, double kD) {
+            this.kP = kP;
+            this.kI = kI;
+            this.kD = kD;
+        }
+
+        double calculate(double targetAngle, double currentAngle) {
+            long now = System.nanoTime();
+            double error = targetAngle - currentAngle;
+
+            if (previousTimeNanos == 0L) {
+                previousTimeNanos = now;
+                previousAngle = currentAngle;
+                return kP * error;
+            }
+
+            double dt = (now - previousTimeNanos) / 1_000_000_000.0;
+            previousTimeNanos = now;
+            if (dt <= 0.0 || dt > 0.1) {
+                previousAngle = currentAngle;
+                return kP * error + kI * integral;
+            }
+
+            integral += error * dt;
+            integral = Math.max(-MAX_INTEGRAL, Math.min(MAX_INTEGRAL, integral));
+            double degreesPerSecond = (currentAngle - previousAngle) / dt;
+            previousAngle = currentAngle;
+
+            return kP * error + kI * integral - kD * degreesPerSecond;
+        }
+
+        void reset() {
+            integral = 0.0;
+            previousAngle = 0.0;
+            previousTimeNanos = 0L;
+        }
     }
 }
 ```
@@ -593,52 +384,99 @@ public class PIDArm extends LinearOpMode {
 <Tab value="Kotlin">
 
 ```kotlin
-@TeleOp(name = "PID Arm Control")
-class PIDArm : LinearOpMode() {
-    private lateinit var armMotor: DcMotor
-    private lateinit var pid: PIDController
-    
-    // Encoder counts per degree (you'll need to calculate this)
-    private val COUNTS_PER_DEGREE = 28.0 * 4.0 / 360.0
-    
+package org.firstinspires.ftc.teamcode
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.hardware.DcMotor
+import kotlin.math.max
+import kotlin.math.min
+
+@TeleOp(name = "Guided PID Arm")
+class GuidedPidArm : LinearOpMode() {
+    companion object {
+        // Measure this on your robot; the sign matters.
+        private const val COUNTS_PER_DEGREE = 5.6
+        private const val KP = 0.003
+        private const val KI = 0.0
+        private const val KD = 0.0
+        private const val MAX_POWER = 0.25
+    }
+
+    private lateinit var arm: DcMotor
+    private val pid = ArmPid(KP, KI, KD)
+
     override fun runOpMode() {
-        armMotor = hardwareMap.get(DcMotor::class.java, "arm_motor")
-        armMotor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        armMotor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        
-        // Initialize PID with tuned values
-        pid = PIDController(0.02, 0.001, 0.01)
-        
+        arm = hardwareMap.get(DcMotor::class.java, "arm")
+        arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        arm.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+
         var targetAngle = 0.0
-        
+        telemetry.addLine("Check that the arm is at its zero reference.")
+        telemetry.addLine("Press START only when the arm area is clear.")
+        telemetry.update()
         waitForStart()
         pid.reset()
-        
+
         while (opModeIsActive()) {
-            // Driver controls target angle
-            when {
-                gamepad1.dpad_up -> targetAngle = 90.0    // High position
-                gamepad1.dpad_down -> targetAngle = 0.0   // Low position
-                gamepad1.dpad_left -> targetAngle = 45.0  // Mid position
-            }
-            
-            // Get current angle from encoder
-            val currentAngle = armMotor.currentPosition / COUNTS_PER_DEGREE
-            
-            // Calculate power using PID
-            var power = pid.calculate(targetAngle, currentAngle)
-            
-            // Limit power to safe range
-            power = power.coerceIn(-1.0, 1.0)
-            
-            armMotor.power = power
-            
-            // Telemetry for debugging
-            telemetry.addData("Target", "%.1f°".format(targetAngle))
-            telemetry.addData("Current", "%.1f°".format(currentAngle))
-            telemetry.addData("Error", "%.1f°".format(targetAngle - currentAngle))
-            telemetry.addData("Power", "%.2f".format(power))
+            if (gamepad1.dpad_down) targetAngle = 0.0
+            if (gamepad1.dpad_left) targetAngle = 30.0
+            if (gamepad1.dpad_up) targetAngle = 60.0
+            if (gamepad1.b) break
+
+            val currentAngle = arm.currentPosition / COUNTS_PER_DEGREE
+            val output = pid.calculate(targetAngle, currentAngle)
+            val power = max(-MAX_POWER, min(MAX_POWER, output))
+            arm.power = power
+
+            telemetry.addData("Target (deg)", "%.1f", targetAngle)
+            telemetry.addData("Measured (deg)", "%.1f", currentAngle)
+            telemetry.addData("Error (deg)", "%.1f", targetAngle - currentAngle)
+            telemetry.addData("Motor power", "%.2f", power)
+            telemetry.addLine("Press B to stop the test.")
             telemetry.update()
+        }
+
+        arm.power = 0.0
+    }
+
+    private class ArmPid(private val kP: Double, private val kI: Double, private val kD: Double) {
+        companion object { private const val MAX_INTEGRAL = 300.0 } // degree-seconds
+
+        private var integral = 0.0
+        private var previousAngle = 0.0
+        private var previousTimeNanos = 0L
+
+        fun calculate(targetAngle: Double, currentAngle: Double): Double {
+            val now = System.nanoTime()
+            val error = targetAngle - currentAngle
+
+            if (previousTimeNanos == 0L) {
+                previousTimeNanos = now
+                previousAngle = currentAngle
+                return kP * error
+            }
+
+            val dt = (now - previousTimeNanos) / 1_000_000_000.0
+            previousTimeNanos = now
+            if (dt <= 0.0 || dt > 0.1) {
+                previousAngle = currentAngle
+                return kP * error + kI * integral
+            }
+
+            integral += error * dt
+            integral = max(-MAX_INTEGRAL, min(MAX_INTEGRAL, integral))
+            val degreesPerSecond = (currentAngle - previousAngle) / dt
+            previousAngle = currentAngle
+
+            return kP * error + kI * integral - kD * degreesPerSecond
+        }
+
+        fun reset() {
+            integral = 0.0
+            previousAngle = 0.0
+            previousTimeNanos = 0L
         }
     }
 }
@@ -647,131 +485,32 @@ class PIDArm : LinearOpMode() {
 </Tab>
 </Tabs>
 
-## Tuning Your PID
+### Read the telemetry while tuning
 
-This is the tricky part! You need to find the right kP, kI, and kD values for your specific robot.
+1. Select `Guided PID Arm`, initialize, and confirm the displayed angle matches the real arm's zero position.
+2. Press D-pad left for the 30° target. Watch the target, measured angle, error, and power together.
+3. If the measured angle moves the wrong way, press B to stop and fix encoder or motor direction before continuing.
+4. If it moves correctly but stops short or overshoots, adjust only `KP` first. Record each value and result.
+5. Once P moves smoothly, add a little `KD` if it passes the target. Add `KI` only if repeated tests show a small persistent offset.
+6. Test the full safe range and expected load before relying on the arm in autonomous or a match.
 
-### Step-by-Step Tuning Process
+A build only checks that the code compiles. It does not prove the encoder scale, motor direction, gains, or mechanism limits are safe.
 
-**1. Start with all zeros:**
-```java
-kP = 0.0
-kI = 0.0  
-kD = 0.0
-```
+## If it behaves unexpectedly
 
-**2. Increase kP:**
-- Start small (0.01) and increase gradually
-- Stop when the system reaches the target but oscillates
-- If it never reaches target, keep increasing
-- If it oscillates wildly, decrease
+| What you observe | Check this first |
+| --- | --- |
+| Angle changes the wrong way | Encoder sign and motor direction; stop testing until corrected. |
+| Angle is the wrong size | Re-measure counts per degree and check the reference angle. |
+| Arm moves but overshoots | Lower `KP`, then add a small `KD` after P works. |
+| Arm chatters around the target | Reduce `KP` or `KD`; check for loose mechanics and noisy encoder readings. |
+| Arm settles short | Verify gravity/load behavior; only then try a small `KI` or a gravity feedforward term. |
+| Arm keeps pushing at a hard stop | Stop immediately; lower the target range and inspect the integral limit and mechanism. |
 
-**Good kP:** Gets close to target quickly but may oscillate slightly
+## Where to go next
 
-**3. Add kD to reduce oscillation:**
-- Start very small (0.001)
-- Increase until oscillation dampens
-- Too much D will make it sluggish
+Once the arm's encoder and feedback loop make sense, continue to [motion profiling](./motion-profiling) to control how quickly a mechanism accelerates, or review [low-pass filters](./lowpass-filter) if sensor readings are noisy.
 
-**Good kD:** Reduces overshoot and oscillation
+For another explanation of the controller terms and their behavior, read [CTRL ALT FTC: The PID Controller](https://www.ctrlaltftc.com/the-pid-controller). Treat its gains and code as examples to understand, not values to copy into your robot; tune using your own mechanism and measurements.
 
-**4. Add kI if needed:**
-- Only add if there's steady-state error (settles near but not at target)
-- Start extremely small (0.0001)
-- Increase slowly until it reaches exact target
-- Too much I causes overshoot
-
-**Good kI:** Eliminates small persistent errors
-
-### Tuning Tips
-
-- **Change one value at a time** — Don't adjust multiple gains at once
-- **Make small changes** — Double or halve values, don't make huge jumps
-- **Test under load** — Add weight, test with game pieces
-- **Watch for battery level** — Low battery affects behavior
-- **Use telemetry** — Plot error over time if possible
-
-### Common PID Problems
-
-| Symptom | Likely Cause | Fix |
-|---------|-------------|-----|
-| Doesn't reach target | kP too low | Increase kP |
-| Oscillates at target | kP too high or kD too low | Decrease kP or increase kD |
-| Overshoots badly | kD too low | Increase kD |
-| Responds slowly | kP too low or kD too high | Increase kP or decrease kD |
-| Settles near target | Needs kI | Add small kI |
-| Windup/runaway | kI too high | Decrease kI or add integral limits |
-
-## Advanced: Integral Windup Prevention
-
-When error accumulates for too long, I can grow huge and cause problems. Limit it:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// In your calculate method, after calculating integral:
-integral += error * deltaTime;
-
-// Limit integral to prevent windup (only if kI is non-zero)
-if (kI > 0) {
-    double maxIntegral = 1.0 / kI;  // Limits I contribution to ±1.0
-    integral = Math.max(-maxIntegral, Math.min(maxIntegral, integral));
-}
-
-double I = kI * integral;
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// In your calculate method, after calculating integral:
-integral += error * deltaTime
-
-// Limit integral to prevent windup (only if kI is non-zero)
-if (kI > 0) {
-    val maxIntegral = 1.0 / kI  // Limits I contribution to ±1.0
-    integral = integral.coerceIn(-maxIntegral, maxIntegral)
-}
-
-val I = kI * integral
-```
-
-</Tab>
-</Tabs>
-
-## When to Use PID
-
-**Great for:**
-- Arm/lift positioning
-- Maintaining robot heading
-- Drive-to-distance
-- Turning to angle
-- Maintaining shooter speed
-
-**Not needed for:**
-- Simple open-loop driving
-- One-time movements without precision
-- Systems without sensors
-
-## Practice Challenge
-
-Try implementing PID for these tasks:
-1. ✅ Hold your arm at a specific angle
-2. ✅ Drive straight using gyro feedback
-3. ✅ Turn to a precise heading
-4. ✅ Maintain flywheel at constant RPM
-
-## Additional Resources
-
-For a deeper dive into control theory and advanced control systems for FTC:
-
-- **[Ctrl Alt FTC](https://www.ctrlaltftc.com/)** — Comprehensive guide covering PID, feedforward, motion profiling, and advanced control theory concepts with detailed explanations and examples
-
-## Next Steps
-
-Once you master basic PID, explore:
-- **Feedforward** — Adding predictive control for better performance
-- **Motion Profiling** — Smooth acceleration/deceleration curves
-- **Cascading PID** — Using multiple PID loops together
+For SDK-specific motor and OpMode behavior, use the [FTC programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html). PID equations and example gains are concepts; your measured robot behavior is what determines the tuning.

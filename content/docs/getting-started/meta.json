@@ -2,7 +2,7 @@
     "pages": [
         "index",
         "blocks",
-        "onbotjava",
+        "onbot-java",
         "android-studio"
     ],
     "icon": "Rocket"

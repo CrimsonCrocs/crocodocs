@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 180" role="img" aria-labelledby="title desc">
+  <title id="title">Android Studio to robot workflow</title>
+  <desc id="desc">Edit TeamCode, build the app, install it on the Robot Controller, then test from the Driver Station.</desc>
+  <rect width="880" height="180" rx="18" fill="#f1f5f9"/>
+  <g font-family="Arial, sans-serif" text-anchor="middle">
+    <g fill="#ffffff" stroke="#2563eb" stroke-width="2">
+      <rect x="20" y="44" width="180" height="92" rx="12"/>
+      <rect x="240" y="44" width="180" height="92" rx="12"/>
+      <rect x="460" y="44" width="180" height="92" rx="12"/>
+      <rect x="680" y="44" width="180" height="92" rx="12"/>
+    </g>
+    <g fill="#0f172a" font-size="18" font-weight="bold">
+      <text x="110" y="82">1. Edit</text><text x="330" y="82">2. Build</text>
+      <text x="550" y="82">3. Install</text><text x="770" y="82">4. Test</text>
+    </g>
+    <g fill="#334155" font-size="14">
+      <text x="110" y="108">TeamCode</text><text x="330" y="108">Android app</text>
+      <text x="550" y="108">Robot Controller</text><text x="770" y="108">Driver Station</text>
+    </g>
+  </g>
+  <g fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M205 90h26m-8-8 8 8-8 8"/>
+    <path d="M425 90h26m-8-8 8 8-8 8"/>
+    <path d="M645 90h26m-8-8 8 8-8 8"/>
+  </g>
+</svg>

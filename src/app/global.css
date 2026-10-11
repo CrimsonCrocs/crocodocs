@@ -7,6 +7,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: var(--font-poppins);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -45,19 +46,8 @@
 }
 
 :root {
-    h1, h2, h3, h4, h5, h6 {
-        @apply font-bold tracking-tight;
-    }
-
-    p {
-        @apply font-normal leading-relaxed;
-    }
-    
-    a {
-        @apply transition-colors duration-200;
-    }
-    
   --radius: 1rem;
+  --font-sans: var(--font-poppins), "Segoe UI", "Aptos", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --card: oklch(0.99 0.005 0);
   --card-foreground: oklch(0.2 0.01 0);
   --popover: oklch(0.99 0.005 0);
@@ -131,6 +121,16 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+  p {
+    @apply font-normal leading-relaxed;
+  }
+  a {
+    @apply transition-colors duration-200;
   }
 }
 
@@ -243,8 +243,8 @@
 .wave-bottom svg {
     position: relative;
     display: block;
-    width: calc(154% + 1.3px);
-    height: 120px;
+    width: 100%;
+    height: clamp(48px, 8vw, 120px);
 }
 .wave-bottom .shape-fill {
   fill: currentColor;

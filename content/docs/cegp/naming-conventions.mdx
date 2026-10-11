@@ -1,386 +1,65 @@
 ---
 title: Naming Conventions
-description: Choose clear, consistent names for your code
+description: Pick names that tell a teammate what each part of the code means
 icon: Tag
 ---
 
-## Why Naming Matters
+## Start with meaning
 
-Good names make code self-documenting. When you read `frontLeftMotor.setPower(0.5)`, you immediately know what's happening. When you read `m1.setPower(0.5)`, you have no idea.
+Compare `motor1` with `leftDriveMotor`. The second name tells a teammate where the motor is and what it does. Clear names reduce the number of comments needed to understand an OpMode.
 
-## Java/Kotlin Standard Conventions
+Use the same words throughout the project. If the team calls a mechanism an “arm,” avoid switching between `arm`, `lift`, and `elevator` unless they are different things.
 
-### Classes and Interfaces
+## Common Java and Kotlin patterns
 
-Use **PascalCase** (capitalize first letter of each word):
+| What you name | Pattern | Example |
+| --- | --- | --- |
+| Class or interface | `UpperCamelCase` | `ArmController` |
+| Variable or method | `lowerCamelCase` | `targetAngleDegrees`, `moveArm()` |
+| Constant | `UPPER_SNAKE_CASE` | `MAX_ARM_POWER` |
+| Package | Lowercase words | `org.firstinspires.ftc.teamcode.arm` |
 
-```java
-// Good
-public class TeleOpMode extends LinearOpMode { }
-public class DrivetrainSubsystem { }
-public class AutoRedLeft extends OpMode { }
+These patterns match normal Java style and work well for Kotlin too. Consistency matters more than inventing a special name for every case.
 
-// Bad
-public class teleopmode { }
-public class drivetrain_subsystem { }
-public class auto_red_left { }
-```
+## Put units in measurement names
 
-### Methods and Variables
-
-Use **camelCase** (lowercase first word, capitalize subsequent words):
+`targetPosition` leaves an important question: is it degrees, encoder ticks, or millimeters? A name such as `targetAngleDegrees` or `targetTicks` answers it.
 
 ```java
-// Good
-private DcMotor frontLeftMotor;
-private double targetPosition;
-
-public void updateDrivetrain() { }
-public double calculateMotorPower(double input) { }
-
-// Bad
-private DcMotor FrontLeftMotor;
-private double target_position;
-
-public void UpdateDrivetrain() { }
-public double calculate_motor_power(double input) { }
+double targetAngleDegrees = 45.0;
+int armEncoderTicks = armMotor.getCurrentPosition();
+double maxArmPower = 0.25;
 ```
 
-### Constants
+These lines are illustrative values inside a larger OpMode. They do not convert ticks to degrees; that conversion needs a measured encoder scale and a known zero position.
 
-Use **UPPER_SNAKE_CASE** for values that never change:
+## Hardware names must match configuration
 
-```java
-// Good
-public static final double WHEEL_DIAMETER_INCHES = 4.0;
-public static final int ENCODER_TICKS_PER_REV = 1120;
-private static final double MAX_DRIVE_SPEED = 0.8;
-
-// Bad
-public static final double wheelDiameter = 4.0;
-public static final int encoderTicksPerRev = 1120;
-```
-
-### Packages
-
-Use **lowercase** with no separators:
-
-```java
-// Good
-package org.firstinspires.ftc.teamcode;
-package com.example.ftc.subsystems;
-
-// Bad
-package org.firstInspires.ftc.teamCode;
-package com.Example.FTC.Subsystems;
-```
-
-## Hardware Device Names
-
-Be descriptive and position-specific:
+The name passed to `hardwareMap.get` is a string from the **active Robot Controller configuration**. It is not automatically created by your Java or Kotlin variable name:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
+
 ```java
-// Good - clear position and purpose
-DcMotor frontLeftDrive = hardwareMap.get(DcMotor.class, "front_left_drive");
-DcMotor frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
-DcMotor backLeftDrive = hardwareMap.get(DcMotor.class, "back_left_drive");
-DcMotor backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
-
-DcMotor armMotor = hardwareMap.get(DcMotor.class, "arm_motor");
-Servo clawServo = hardwareMap.get(Servo.class, "claw_servo");
-
-// Bad - unclear, requires memorization
-DcMotor m1 = hardwareMap.get(DcMotor.class, "m1");
-DcMotor m2 = hardwareMap.get(DcMotor.class, "m2");
-DcMotor motor3 = hardwareMap.get(DcMotor.class, "motor3");
-Servo s = hardwareMap.get(Servo.class, "s");
+DcMotor leftDriveMotor = hardwareMap.get(DcMotor.class, "left_drive");
 ```
+
 </Tab>
 <Tab value="Kotlin">
+
 ```kotlin
-// Good - clear position and purpose
-val frontLeftDrive = hardwareMap.get(DcMotor::class.java, "front_left_drive")
-val frontRightDrive = hardwareMap.get(DcMotor::class.java, "front_right_drive")
-val backLeftDrive = hardwareMap.get(DcMotor::class.java, "back_left_drive")
-val backRightDrive = hardwareMap.get(DcMotor::class.java, "back_right_drive")
-
-val armMotor = hardwareMap.get(DcMotor::class.java, "arm_motor")
-val clawServo = hardwareMap.get(Servo::class.java, "claw_servo")
-
-// Bad - unclear, requires memorization
-val m1 = hardwareMap.get(DcMotor::class.java, "m1")
-val m2 = hardwareMap.get(DcMotor::class.java, "m2")
-val motor3 = hardwareMap.get(DcMotor::class.java, "motor3")
-val s = hardwareMap.get(Servo::class.java, "s")
+val leftDriveMotor = hardwareMap.get(DcMotor::class.java, "left_drive")
 ```
+
 </Tab>
 </Tabs>
 
-## OpMode Names
+Here, `leftDriveMotor` is a code variable and `left_drive` is the configured device name. The latter must match exactly, including capitalization.
 
-Use descriptive names that indicate mode type and purpose:
+## A quick naming check
 
-```java
-// Good
-@TeleOp(name = "Drive: Main TeleOp")
-public class MainTeleOp extends LinearOpMode { }
+Before committing, ask a teammate to read one method without your explanation. If a name makes them ask “which motor?” or “what unit?”, improve that name. Do not rename a configured hardware string without also updating the robot configuration.
 
-@Autonomous(name = "Auto: Red Left")
-public class AutoRedLeft extends LinearOpMode { }
+## Next step
 
-@Autonomous(name = "Auto: Blue Right Park")
-public class AutoBlueRightPark extends LinearOpMode { }
-
-// Bad
-@TeleOp(name = "TeleOp")
-public class TeleOp extends LinearOpMode { }
-
-@Autonomous(name = "Auto1")
-public class Auto1 extends LinearOpMode { }
-```
-
-**Naming pattern:** `[Type]: [Alliance] [Position] [Variant]`
-- **Type:** Auto, Drive, Test
-- **Alliance:** Red, Blue (for autonomous)
-- **Position:** Left, Right, Center
-- **Variant:** Park, Score, Cycles
-
-## Boolean Variables
-
-Use question-like names that read as true/false:
-
-```java
-// Good
-boolean isArmAtTarget;
-boolean hasGamePiece;
-boolean shouldReverse;
-boolean canShoot;
-
-if (isArmAtTarget) {
-    // Clear what this means
-}
-
-// Bad
-boolean arm;
-boolean gamePiece;
-boolean reverse;
-
-if (arm) {
-    // Arm what?
-}
-```
-
-## Function Names
-
-Use verbs that describe the action:
-
-```java
-// Good
-public void updateTelemetry() { }
-public void resetEncoders() { }
-public double calculateDistance() { }
-public boolean isAtTarget() { }
-public void setArmPosition(double position) { }
-
-// Bad
-public void telemetry() { }
-public void encoders() { }
-public double distance() { }
-public boolean target() { }
-public void arm(double position) { }
-```
-
-## Subsystem/Component Naming
-
-Group related functionality with clear prefixes or classes:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-// Good - grouped by subsystem
-public class Drivetrain {
-    private DcMotor frontLeft;
-    private DcMotor frontRight;
-    private DcMotor backLeft;
-    private DcMotor backRight;
-    
-    public void drive(double forward, double strafe, double turn) { }
-    public void stop() { }
-}
-
-public class Arm {
-    private DcMotor armMotor;
-    private static final double ARM_POWER = 0.6;
-    
-    public void setPosition(double position) { }
-    public boolean isAtTarget() { }
-}
-
-// Bad - everything mixed together
-DcMotor fl, fr, bl, br, am;
-double ap = 0.6;
-void setPos(double p) { }
-boolean atTarget() { }
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-// Good - grouped by subsystem
-class Drivetrain(hardwareMap: HardwareMap) {
-    private val frontLeft = hardwareMap.get(DcMotor::class.java, "front_left")
-    private val frontRight = hardwareMap.get(DcMotor::class.java, "front_right")
-    private val backLeft = hardwareMap.get(DcMotor::class.java, "back_left")
-    private val backRight = hardwareMap.get(DcMotor::class.java, "back_right")
-    
-    fun drive(forward: Double, strafe: Double, turn: Double) { }
-    fun stop() { }
-}
-
-class Arm(hardwareMap: HardwareMap) {
-    private val armMotor = hardwareMap.get(DcMotor::class.java, "arm_motor")
-    
-    companion object {
-        const val ARM_POWER = 0.6
-    }
-    
-    fun setPosition(position: Double) { }
-    fun isAtTarget(): Boolean { }
-}
-```
-</Tab>
-</Tabs>
-
-## Avoid Abbreviations
-
-Spell out words unless the abbreviation is universally understood:
-
-```java
-// Good
-private double currentPosition;
-private int targetEncoderTicks;
-private ColorSensor colorSensor;
-
-// Acceptable (well-known)
-private IMU imu;
-private PID pidController;
-private double maxSpeed;
-
-// Bad
-private double currPos;
-private int tgtEncTks;
-private ColorSensor cs;
-```
-
-## Sensor and Actuator Naming
-
-Include the device type in the name:
-
-```java
-// Good
-private DistanceSensor frontDistanceSensor;
-private ColorSensor intakeColorSensor;
-private RevColorSensorV3 leftColorSensor;
-private Servo clawServo;
-private CRServo intakeCRServo;
-
-// Bad
-private DistanceSensor front;
-private ColorSensor intake;
-private ColorSensor left;
-private Servo claw;
-private CRServo crservo1;
-```
-
-## Configuration File Names
-
-Match your code's hardware map names exactly:
-
-**Robot Configuration (Driver Station):**
-```
-front_left_drive
-front_right_drive
-back_left_drive
-back_right_drive
-arm_motor
-claw_servo
-intake_color_sensor
-```
-
-**Code:**
-```java
-DcMotor frontLeftDrive = hardwareMap.get(DcMotor.class, "front_left_drive");
-// Name matches configuration exactly
-```
-
-## Team-Specific Conventions
-
-Establish and document your team's conventions:
-
-```java
-/**
- * Team 12345 Naming Conventions:
- * - Motors: [position]_[purpose] (e.g., front_left_drive)
- * - Servos: [purpose]_servo (e.g., claw_servo)
- * - Sensors: [location]_[type]_sensor (e.g., intake_color_sensor)
- * - Constants: ALL_CAPS_WITH_UNDERSCORES
- * - OpModes: [Type]_[Alliance]_[Position] (e.g., Auto_Red_Left)
- */
-```
-
-## Common Mistakes
-
-**Using single letters:**
-```java
-// Bad
-for (int i = 0; i < motors.length; i++) {
-    DcMotor m = motors[i];
-    m.setPower(p);
-}
-
-// Good
-for (int motorIndex = 0; motorIndex < driveMotors.length; motorIndex++) {
-    DcMotor motor = driveMotors[motorIndex];
-    motor.setPower(targetPower);
-}
-```
-
-**Inconsistent pluralization:**
-```java
-// Bad
-DcMotor[] motor; // Should be motors or driveMotors
-
-// Good
-DcMotor[] driveMotors;
-DcMotor driveMotor; // Singular
-```
-
-**Type prefixes (Hungarian notation):**
-```java
-// Bad (outdated style)
-int iCount;
-String strName;
-DcMotor objMotor;
-
-// Good (modern style)
-int count;
-String name;
-DcMotor motor;
-```
-
-## Quick Reference
-
-| Item | Convention | Example |
-|------|-----------|---------|
-| Class | PascalCase | `DrivetrainSubsystem` |
-| Method | camelCase | `updateDrivetrain()` |
-| Variable | camelCase | `targetPosition` |
-| Constant | UPPER_SNAKE | `MAX_SPEED` |
-| Package | lowercase | `org.team.ftc` |
-| Boolean | is/has/can/should | `isReady`, `hasTarget` |
-| Hardware | descriptive_snake | `front_left_drive` |
-
-## Next Steps
-
-Learn how to organize these well-named components in **[Code Organization](/docs/cegp/code-organization)**.
+See [code organization](./code-organization) for where to put these clearly named parts as the project grows.

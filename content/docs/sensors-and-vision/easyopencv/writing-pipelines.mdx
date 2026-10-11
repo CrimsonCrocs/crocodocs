@@ -1,44 +1,124 @@
 ---
-title: Writing Custom Pipelines
-description: Create custom OpenCV pipelines for object detection
+title: Writing a First OpenCV Pipeline
+description: Build a small color mask step by step with EasyOpenCV
 icon: Code
 ---
 
-## What is a Pipeline?
+# Build a pipeline that finds one color
 
-A pipeline is a class that processes each camera frame. It extends `OpenCvPipeline` and defines what your camera looks for in the live feed. The pipeline's `processFrame` method is called for every frame captured by the camera.
+A pipeline is a method EasyOpenCV calls once for each camera frame. This lesson will turn a frame into a black-and-white mask, find connected matching pixels, draw a box around the largest match, and share its center with the OpMode.
 
-## Basic Pipeline Structure
+Use the real BIOBUZZ Pollen photo below to follow a yellow object through the pipeline. The photo is an isolated product shot from AndyMark, so its white background is much easier than a real field. We ran OpenCV on that image to make the mask and blob overlay shown here; the example bounds still need retuning for your robot's camera and lighting.
+
+![The unprocessed BIOBUZZ Pollen product photo used as the pipeline's input.](/guides/vision-stage-source.jpg)
+
+*Source photo: [AndyMark BIOBUZZ scoring elements](https://andymark.com/products/biobuzz-scoring-elements). This controlled product photo is easier to detect than a real field image; its mask thresholds are teaching values, not camera calibration.*
+
+## Before writing code
+
+This page assumes you have confirmed that the camera opens. If it does not, work through [EasyOpenCV Basics](./easyopencv-basics) first. EasyOpenCV passes **RGBA** frames to the pipeline, so the color conversion below starts with `COLOR_RGBA2HSV`.
+
+## Step 1: Create storage for the result and working images
+
+OpenCV represents an image as a `Mat`. The `input` image is supplied by EasyOpenCV; make `Mat` objects for the converted HSV image and the mask. Reuse them for each frame instead of constructing them every time.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-package org.firstinspires.ftc.teamcode;
+private final Mat hsv = new Mat();
+private final Mat mask = new Mat();
+private final Mat blurred = new Mat();
+private final Mat kernel = Imgproc.getStructuringElement(
+    Imgproc.MORPH_ELLIPSE, new Size(5, 5));
+private volatile double centerX = Double.NaN;
+```
 
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvPipeline;
+</Tab>
+<Tab value="Kotlin">
 
-public class SimplePipeline extends OpenCvPipeline {
-    
-    // Class variables for storing results
-    private String position = "UNKNOWN";
-    
-    @Override
-    public Mat processFrame(Mat input) {
-        // This method is called for every frame
-        // Process the frame here
-        
-        // Return the frame (optionally with annotations)
-        return input;
-    }
-    
-    // Getter method to access results from OpMode
-    public String getPosition() {
-        return position;
+```kotlin
+private val hsv = Mat()
+private val mask = Mat()
+private val blurred = Mat()
+private val kernel = Imgproc.getStructuringElement(
+    Imgproc.MORPH_ELLIPSE, Size(5.0, 5.0))
+@Volatile private var centerX = Double.NaN
+```
+
+</Tab>
+</Tabs>
+
+`centerX` is shared between the camera thread and the OpMode loop. `NaN` means “no valid detection yet.” Never treat it as a real pixel coordinate.
+
+## Step 2: Convert pixels, then make a mask
+
+The conversion separates hue from brightness. `inRange` paints matching pixels white and other pixels black:
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+Imgproc.GaussianBlur(input, blurred, new Size(5, 5), 0);
+Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGBA2HSV);
+Core.inRange(
+    hsv,
+    new Scalar(15, 60, 70),
+    new Scalar(40, 255, 255),
+    mask
+);
+Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel);
+Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+Imgproc.GaussianBlur(input, blurred, Size(5.0, 5.0), 0.0)
+Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGBA2HSV)
+Core.inRange(
+    hsv,
+    Scalar(15.0, 60.0, 70.0),
+    Scalar(40.0, 255.0, 255.0),
+    mask
+)
+Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel)
+Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel)
+```
+
+</Tab>
+</Tabs>
+
+These OpenCV 8-bit HSV bounds (hue 15–40, saturation 60–255, brightness 70–255) were tuned against the pictured product photo. Blur reduces pixel noise; the opening removes tiny specks; the closing joins small gaps. They are not field-ready settings. Preview the mask and tune the bounds under your expected lighting and camera exposure. If the mask is all black, no pixel passed the range. If nearly everything is white, the range is too broad or the color conversion is wrong. Because this source photo shows one isolated Pollen, this example returns one blob; balls touching on the field can merge into a single contour.
+
+For one test, temporarily return `mask` from `processFrame` to view the black-and-white result. Return the annotated color `input` after the mask is working.
+
+![The actual threshold output after the yellow HSV range and cleanup operations: white pixels passed the range, and black pixels did not.](/guides/vision-stage-mask.png)
+
+This is the intermediate result to inspect before moving on. If the Pollen is not mostly white, adjust the range or lighting first; contour code cannot recover pixels that the mask removed.
+
+## Step 3: Find connected white regions
+
+A connected group of white pixels is a contour. Find contours in the mask, then keep the largest contour above a minimum pixel area:
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+List<MatOfPoint> contours = new ArrayList<>();
+Mat hierarchy = new Mat();
+Imgproc.findContours(mask, contours, hierarchy,
+    Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+hierarchy.release();
+
+MatOfPoint largest = null;
+double largestArea = 250.0; // Example minimum, measured in pixels
+for (MatOfPoint contour : contours) {
+    double area = Imgproc.contourArea(contour);
+    if (area > largestArea) {
+        largestArea = area;
+        largest = contour;
     }
 }
 ```
@@ -47,210 +127,164 @@ public class SimplePipeline extends OpenCvPipeline {
 <Tab value="Kotlin">
 
 ```kotlin
-package org.firstinspires.ftc.teamcode
+val contours = mutableListOf<MatOfPoint>()
+val hierarchy = Mat()
+Imgproc.findContours(mask, contours, hierarchy,
+    Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
+hierarchy.release()
 
-import org.opencv.core.Core
-import org.opencv.core.Mat
-import org.opencv.core.Scalar
-import org.opencv.imgproc.Imgproc
-import org.openftc.easyopencv.OpenCvPipeline
-
-class SimplePipeline : OpenCvPipeline() {
-    
-    // Class variables for storing results
-    private var position = "UNKNOWN"
-    
-    override fun processFrame(input: Mat): Mat {
-        // This method is called for every frame
-        // Process the frame here
-        
-        // Return the frame (optionally with annotations)
-        return input
+var largest: MatOfPoint? = null
+var largestArea = 250.0 // Example minimum, measured in pixels
+for (contour in contours) {
+    val area = Imgproc.contourArea(contour)
+    if (area > largestArea) {
+        largestArea = area
+        largest = contour
     }
-    
-    // Getter method to access results from OpMode
-    fun getPosition(): String = position
 }
 ```
 
 </Tab>
 </Tabs>
 
-## Understanding the Basics
+Why keep the largest? A mask often contains tiny white specks caused by reflections or image noise. The area test removes small candidates. This is only a simple selection rule; if multiple real objects may be visible, the largest one may not be the object you want.
 
-### What is a Mat?
+![The largest accepted contour filled in white after the minimum-area check.](/guides/vision-stage-cleaned.png)
 
-A `Mat` (matrix) is OpenCV's way of representing an image. It's a 2D array where:
-- Each position = one pixel
-- Each pixel contains color data (RGB, HSV, or grayscale values)
-- Size depends on resolution (640x480 = 307,200 pixels)
+This view shows the candidate the example will measure. A mask with two touching balls can produce one connected contour, so this step does not promise one contour per game element.
 
-### What is `processFrame`?
+## Step 4: Measure the result and draw it on the preview
 
-```kotlin
-override fun processFrame(input: Mat): Mat
-```
-
-This method is called automatically for **every single camera frame** (typically 30 times per second). 
-
-**Parameters:**
-- `input` - The current camera frame as a Mat
-
-**Returns:**
-- A Mat that will be displayed on the Driver Station screen
-
-<Callout type="info">
-**Important:** Whatever Mat you return is what appears on your screen. You can return the original `input`, a processed version, or even a completely different visualization like a mask.
-</Callout>
-
-## Understanding Color Detection
-
-Before we write a pipeline, let's understand the key OpenCV concepts:
-
-### What is a Mask?
-
-A **mask** is a binary (black and white) image where:
-- **White pixels (255)** = color matches your target
-- **Black pixels (0)** = color doesn't match
-
-Think of it like a stencil that shows only where your target color appears.
-
-### What does `inRange` do?
-
-```java
-Core.inRange(hsvMat, lowerBound, upperBound, mask);
-```
-
-This function:
-1. Takes each pixel in `hsvMat`
-2. Checks if it falls between `lowerBound` and `upperBound`
-3. If yes → sets that pixel to white (255) in the `mask`
-4. If no → sets that pixel to black (0) in the `mask`
-
-### What is `bitwise_or`?
-
-```java
-Core.bitwise_or(mask1, mask2, combinedMask);
-```
-
-Combines two masks:
-- If **either** mask has white at a pixel → result is white
-- Only if **both** are black → result is black
-
-Useful for detecting multiple color ranges (like red, which wraps around in HSV).
-
-## Color Detection Pipeline
-
-This example detects a purple game element and draws circles around it.
+A bounding rectangle gives a practical center in **pixels**. Draw that rectangle so you can compare the program's result with the camera image:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-package org.firstinspires.ftc.teamcode;
+if (largest != null) {
+    Rect box = Imgproc.boundingRect(largest);
+    centerX = box.x + box.width / 2.0;
+    Imgproc.rectangle(input, box, new Scalar(0, 255, 0, 255), 3);
+    Imgproc.circle(input, new Point(centerX, box.y + box.height / 2.0),
+        5, new Scalar(255, 0, 0, 255), -1);
+} else {
+    centerX = Double.NaN;
+}
+```
 
-import org.opencv.core.*;
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+if (largest != null) {
+    val box = Imgproc.boundingRect(largest)
+    centerX = box.x + box.width / 2.0
+    Imgproc.rectangle(input, box, Scalar(0.0, 255.0, 0.0, 255.0), 3)
+    Imgproc.circle(input, Point(centerX, box.y + box.height / 2.0),
+        5.0, Scalar(255.0, 0.0, 0.0, 255.0), -1)
+} else {
+    centerX = Double.NaN
+}
+```
+
+</Tab>
+</Tabs>
+
+EasyOpenCV's frame is RGBA, so the color scalars above use four channels. The center is relative to the image, with the origin in its top-left corner; it does not directly give distance or field coordinates.
+
+![The processed Pollen with its detected contour, bounding box, and center marker drawn over the input image.](/guides/vision-stage-measured.jpg)
+
+Compare the center marker with the object before trusting `centerX`. It is a pixel location in this camera frame, not a robot-relative angle or field position.
+
+Release contours after use so native OpenCV memory does not accumulate:
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+for (MatOfPoint contour : contours) contour.release();
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+for (contour in contours) contour.release()
+```
+
+</Tab>
+</Tabs>
+
+## Step 5: Put these stages in the pipeline method
+
+The class below assembles the steps. Read it by matching each block to Steps 1–4 above. The camera setup and telemetry belong in a separate OpMode, as shown in [EasyOpenCV Basics](./easyopencv-basics).
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PurpleDetectionPipeline extends OpenCvPipeline {
-    
-    // Purple HSV thresholds - these values determine what counts as "purple"
-    // You'll tune these based on your lighting and game element
-    private Scalar purpleLower = new Scalar(130, 100, 50);  // H, S, V minimums
-    private Scalar purpleUpper = new Scalar(160, 255, 255); // H, S, V maximums
-    
-    // Minimum area to consider (filters out noise)
-    private double minContourArea = 100.0;
-    
-    // Where we found the largest object
-    private Point detectedCenter = new Point();
-    private double detectedRadius = 0;
-    
-    // Working matrices - reuse these to avoid creating new objects every frame
-    private Mat hsvMat = new Mat();
-    private Mat mask = new Mat();
-    
+public class PollenTargetPipeline extends OpenCvPipeline {
+    private final Mat hsv = new Mat();
+    private final Mat mask = new Mat();
+    private final Mat blurred = new Mat();
+    private final Mat kernel = Imgproc.getStructuringElement(
+        Imgproc.MORPH_ELLIPSE, new Size(5, 5));
+    private volatile double centerX = Double.NaN;
+
     @Override
     public Mat processFrame(Mat input) {
-        // Step 1: Convert from RGB to HSV color space
-        // HSV separates color (hue) from brightness (value), making detection easier
-        Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV);
-        
-        // Step 2: Create a mask showing only purple pixels
-        // inRange checks each pixel: if it's between purpleLower and purpleUpper,
-        // that pixel becomes white (255) in the mask. Otherwise, it's black (0).
-        Core.inRange(hsvMat, purpleLower, purpleUpper, mask);
-        
-        // Step 3: Find contours (outlines) of white regions in the mask
+        Imgproc.GaussianBlur(input, blurred, new Size(5, 5), 0);
+        Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGBA2HSV);
+        Core.inRange(hsv, new Scalar(15, 60, 70),
+            new Scalar(40, 255, 255), mask);
+        Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel);
+        Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
+
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
-        Imgproc.findContours(mask, contours, hierarchy, 
+        Imgproc.findContours(mask, contours, hierarchy,
             Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         hierarchy.release();
-        
-        // Step 4: Find the largest contour by tracking the maximum area
-        // We start with maxArea = 0 and check each contour.
-        // If current contour's area is bigger than maxArea, we update maxArea
-        // and remember this contour as the largest one found so far.
-        double maxArea = 0;
-        MatOfPoint largestContour = null;
-        
+
+        MatOfPoint largest = null;
+        double largestArea = 250.0;
         for (MatOfPoint contour : contours) {
             double area = Imgproc.contourArea(contour);
-            // Is this contour bigger than any we've seen? And big enough to not be noise?
-            if (area > maxArea && area > minContourArea) {
-                maxArea = area;  // Update the maximum
-                largestContour = contour;  // This is now the largest
+            if (area > largestArea) {
+                largestArea = area;
+                largest = contour;
             }
         }
-        
-        // Step 5: If we found something, draw a circle around it
-        if (largestContour != null) {
-            MatOfPoint2f contour2f = new MatOfPoint2f(largestContour.toArray());
-            float[] radius = new float[1];
-            Imgproc.minEnclosingCircle(contour2f, detectedCenter, radius);
-            detectedRadius = radius[0];
-            
-            // Draw the circle on the output
-            Imgproc.circle(input, detectedCenter, (int)detectedRadius, 
-                new Scalar(255, 0, 255), 3); // Purple circle
-            
-            // Draw center point
-            Imgproc.circle(input, detectedCenter, 5, 
-                new Scalar(0, 255, 0), -1); // Green dot
-            
-            // Add label
-            Imgproc.putText(input, 
-                String.format("Purple (%.0fpx)", detectedRadius),
-                new Point(detectedCenter.x - 50, detectedCenter.y - detectedRadius - 10),
-                Imgproc.FONT_HERSHEY_SIMPLEX, 0.6, 
-                new Scalar(255, 255, 255), 2);
-            
-            contour2f.release();
+
+        if (largest == null) {
+            centerX = Double.NaN;
+        } else {
+            Rect box = Imgproc.boundingRect(largest);
+            centerX = box.x + box.width / 2.0;
+            Imgproc.rectangle(input, box, new Scalar(0, 255, 0, 255), 3);
+            Imgproc.circle(input,
+                new Point(centerX, box.y + box.height / 2.0),
+                5, new Scalar(255, 0, 0, 255), -1);
         }
-        
-        // Release contours
-        for (MatOfPoint contour : contours) {
-            contour.release();
-        }
-        
+
+        for (MatOfPoint contour : contours) contour.release();
         return input;
     }
-    
-    // Getters for autonomous to use
-    public Point getDetectedCenter() {
-        return detectedCenter;
-    }
-    
-    public double getDetectedRadius() {
-        return detectedRadius;
-    }
-    
-    public boolean isDetected() {
-        return detectedRadius > 0;
+
+    public double getCenterX() {
+        return centerX;
     }
 }
 ```
@@ -259,425 +293,90 @@ public class PurpleDetectionPipeline extends OpenCvPipeline {
 <Tab value="Kotlin">
 
 ```kotlin
-package org.firstinspires.ftc.teamcode
-
-import org.opencv.core.*
+import org.opencv.core.Core
+import org.opencv.core.Mat
+import org.opencv.core.MatOfPoint
+import org.opencv.core.Point
+import org.opencv.core.Rect
+import org.opencv.core.Scalar
+import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 import org.openftc.easyopencv.OpenCvPipeline
 
-class PurpleDetectionPipeline : OpenCvPipeline() {
-    
-    // Purple HSV thresholds - use @JvmField to make these tunable in EOCV-Sim!
-    @JvmField var purpleLowerH = 130.0  // Hue minimum
-    @JvmField var purpleUpperH = 160.0  // Hue maximum
-    @JvmField var purpleLowerS = 100.0  // Saturation minimum
-    @JvmField var purpleUpperS = 255.0  // Saturation maximum
-    @JvmField var purpleLowerV = 50.0   // Value/brightness minimum
-    @JvmField var purpleUpperV = 255.0  // Value/brightness maximum
-    
-    // Minimum area to consider (filters out noise)
-    @JvmField var minContourArea = 100.0
-    
-    // Where we found the largest object
-    private val detectedCenter = Point()
-    private var detectedRadius = 0.0
-    
-    // Working matrices - reuse these to avoid creating new objects every frame
-    private val hsvMat = Mat()
+class PollenTargetPipeline : OpenCvPipeline() {
+    private val hsv = Mat()
     private val mask = Mat()
-    
+    private val blurred = Mat()
+    private val kernel = Imgproc.getStructuringElement(
+        Imgproc.MORPH_ELLIPSE, Size(5.0, 5.0))
+    @Volatile private var centerX = Double.NaN
+
     override fun processFrame(input: Mat): Mat {
-        // Step 1: Convert from RGB to HSV color space
-        // HSV separates color (hue) from brightness (value), making detection easier
-        Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV)
-        
-        // Step 2: Create a mask showing only purple pixels
-        // inRange checks each pixel: if it's between lower and upper bounds,
-        // that pixel becomes white (255) in the mask. Otherwise, it's black (0).
-        Core.inRange(
-            hsvMat,
-            Scalar(purpleLowerH, purpleLowerS, purpleLowerV),
-            Scalar(purpleUpperH, purpleUpperS, purpleUpperV),
-            mask
-        )
-        
-        // Step 3: Find contours (outlines) of white regions in the mask
-        val contours = ArrayList<MatOfPoint>()
+        Imgproc.GaussianBlur(input, blurred, Size(5.0, 5.0), 0.0)
+        Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGBA2HSV)
+        Core.inRange(hsv, Scalar(15.0, 60.0, 70.0),
+            Scalar(40.0, 255.0, 255.0), mask)
+        Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel)
+        Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel)
+
+        val contours = mutableListOf<MatOfPoint>()
         val hierarchy = Mat()
-        Imgproc.findContours(
-            mask, contours, hierarchy,
-            Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE
-        )
+        Imgproc.findContours(mask, contours, hierarchy,
+            Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE)
         hierarchy.release()
-        
-        // Step 4: Find the largest contour by tracking the maximum area
-        // We start with maxArea = 0 and check each contour.
-        // If current contour's area is bigger than maxArea, we update maxArea
-        // and remember this contour as the largest one found so far.
-        var maxArea = 0.0
-        var largestContour: MatOfPoint? = null
-        
+
+        var largest: MatOfPoint? = null
+        var largestArea = 250.0
         for (contour in contours) {
             val area = Imgproc.contourArea(contour)
-            // Is this contour bigger than any we've seen? And big enough to not be noise?
-            if (area > maxArea && area > minContourArea) {
-                maxArea = area  // Update the maximum
-                largestContour = contour  // This is now the largest
+            if (area > largestArea) {
+                largestArea = area
+                largest = contour
             }
         }
-        
-        // Step 5: If we found something, draw a circle around it
-        if (largestContour != null) {
-            val contour2f = MatOfPoint2f(*largestContour.toArray())
-            val radius = FloatArray(1)
-            Imgproc.minEnclosingCircle(contour2f, detectedCenter, radius)
-            detectedRadius = radius[0].toDouble()
-            
-            // Draw the circle on the output
-            Imgproc.circle(
-                input, detectedCenter, detectedRadius.toInt(),
-                Scalar(255.0, 0.0, 255.0), 3 // Purple circle
-            )
-            
-            // Draw center point
-            Imgproc.circle(
-                input, detectedCenter, 5,
-                Scalar(0.0, 255.0, 0.0), -1 // Green dot
-            )
-            
-            // Add label
-            Imgproc.putText(
-                input,
-                "Purple (${detectedRadius.toInt()}px)",
-                Point(detectedCenter.x - 50, detectedCenter.y - detectedRadius - 10),
-                Imgproc.FONT_HERSHEY_SIMPLEX, 0.6,
-                Scalar(255.0, 255.0, 255.0), 2
-            )
-            
-            contour2f.release()
+
+        if (largest == null) {
+            centerX = Double.NaN
+        } else {
+            val box: Rect = Imgproc.boundingRect(largest)
+            centerX = box.x + box.width / 2.0
+            Imgproc.rectangle(input, box, Scalar(0.0, 255.0, 0.0, 255.0), 3)
+            Imgproc.circle(input,
+                Point(centerX, box.y + box.height / 2.0),
+                5.0, Scalar(255.0, 0.0, 0.0, 255.0), -1)
         }
-        
-        // Release contours
-        for (contour in contours) {
-            contour.release()
-        }
-        
+
+        for (contour in contours) contour.release()
         return input
     }
-    
-    // Getters for autonomous to use
-    fun getDetectedCenter(): Point = detectedCenter
-    fun getDetectedRadius(): Double = detectedRadius
-    fun isDetected(): Boolean = detectedRadius > 0
-    
-    // Release matrices when done
-    fun release() {
-        hsvMat.release()
-        mask.release()
-    }
+
+    fun getCenterX() = centerX
 }
 ```
 
 </Tab>
 </Tabs>
 
-## Using Your Pipeline
+In the OpMode loop, read `pipeline.getCenterX()`. Check `Double.isNaN(centerX)` before using it. Do not block the camera callback waiting for the OpMode thread; pass simple measurements such as numbers or an enum between them.
 
-Once you've created a pipeline, use it in your OpMode:
+## Test one change at a time
 
-```java
-// Declare at class level
-RedDetectionPipeline pipeline = new RedDetectionPipeline();
+1. Run the camera with no detection. Confirm a live, correctly oriented image.
+2. Display the mask. Confirm the practice object is white and most of its background is black.
+3. Return the annotated image. Confirm the box and center dot stay on the object.
+4. Move the object left and right. Confirm `centerX` changes in the matching direction.
+5. Remove the object and introduce a similar-colored object. Confirm “no detection” and false positives are handled.
+6. Only after these checks, use the result to choose a robot action.
 
-@Override
-public void runOpMode() {
-    // ... camera initialization code ...
-    
-    webcam.setPipeline(pipeline);
-    
-    waitForStart();
-    
-    while (opModeIsActive()) {
-        // Access pipeline results
-        String position = pipeline.getPosition();
-        telemetry.addData("Position", position);
-        telemetry.update();
-        
-        // Use position for autonomous logic
-        if (position.equals("LEFT")) {
-            // Do something
-        }
-    }
-}
-```
+If detections flicker, improve the lighting or narrow the region of interest before adding complex logic. If your frame size changes, re-check area thresholds; a 250-pixel contour at one resolution is not the same fraction of the image at another.
 
-## Pipeline Best Practices
+## See the complete pipeline
 
-### 1. Reuse Mat Objects
+![Summary of the source, mask, cleaned candidate, and measured overlay shown at their corresponding steps above.](/guides/vision-color-blob-pipeline.png)
 
-Creating new `Mat` objects in `processFrame` causes excessive garbage collection. Declare them as class fields:
+## References
 
-```java
-// Good - reuse Mat objects
-private Mat hsvMat = new Mat();
-private Mat mask = new Mat();
-
-@Override
-public Mat processFrame(Mat input) {
-    Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV);
-    Core.inRange(hsvMat, lower, upper, mask);
-    // ...
-}
-```
-
-### 2. Release Submat Crops
-
-Always release submats to prevent memory leaks:
-
-```java
-Mat crop = input.submat(roi);
-// ... process crop ...
-crop.release(); // Important!
-```
-
-### 3. Avoid Heavy Processing
-
-Keep `processFrame` fast. If processing takes too long, reduce resolution or simplify your algorithm.
-
-### 4. Thread Safety
-
-If you access pipeline variables from your OpMode:
-- Use `volatile` keyword for simple values
-- Use `synchronized` blocks for complex objects
-
-```java
-private volatile String position = "UNKNOWN";
-```
-
-### 5. Annotate Your Output
-
-Draw on the input frame to visualize what your pipeline is detecting:
-
-```java
-Imgproc.rectangle(input, roi, new Scalar(0, 255, 0), 2);
-Imgproc.circle(input, center, 10, new Scalar(255, 0, 0), -1);
-Imgproc.putText(input, "Target", point, 
-    Imgproc.FONT_HERSHEY_SIMPLEX, 1, new Scalar(255, 255, 255), 2);
-```
-
-## Advanced Pipeline Techniques
-
-### Contour Detection
-
-Find the boundaries of detected objects:
-
-```java
-List<MatOfPoint> contours = new ArrayList<>();
-Mat hierarchy = new Mat();
-
-Imgproc.findContours(mask, contours, hierarchy,
-    Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-
-// Find largest contour by keeping track of the biggest area seen
-// Start at 0, and whenever we see a bigger contour, update our maximum
-double maxArea = 0;
-Rect largestRect = null;
-
-for (MatOfPoint contour : contours) {
-    double area = Imgproc.contourArea(contour);
-    // Is this contour bigger than the previous largest?
-    if (area > maxArea) {
-        maxArea = area;  // Yes! Update the max
-        largestRect = Imgproc.boundingRect(contour);
-    }
-}
-```
-
-### Multiple Color Detection
-
-Detect multiple colors simultaneously:
-
-```java
-Core.inRange(hsvMat, lowerRed, upperRed, redMask);
-Core.inRange(hsvMat, lowerBlue, upperBlue, blueMask);
-
-double redPercent = Core.mean(redMask).val[0] / 255.0 * 100;
-double bluePercent = Core.mean(blueMask).val[0] / 255.0 * 100;
-```
-
-### Morphological Operations
-
-Clean up noisy masks:
-
-```java
-Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-
-// Remove small noise
-Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel);
-
-// Fill small holes
-Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
-```
-
-## Distance Estimation
-
-You can estimate how far an object is from your camera using the **pinhole camera model**. This is useful for autonomous navigation and positioning.
-
-### The Pinhole Model
-
-The basic formula is:
-
-$$
-\text{Distance} = \frac{\text{Real Object Size} \times \text{Focal Length}}{\text{Pixel Size}}
-$$
-
-Where:
-- **Real Object Size** = Physical size of the object (inches/cm)
-- **Focal Length** = Camera's focal length (from calibration)
-- **Pixel Size** = Detected size in pixels
-
-### Camera Calibration
-
-You'll need your camera's intrinsic parameters (focal length, distortion coefficients). Get these from:
-- **[calibdb.net](https://calibdb.net)** - Database of pre-calibrated FTC cameras
-- Manual calibration using OpenCV's calibration tools
-
-<Callout type="info">
-**Tip:** Search for your camera model on [calibdb.net](https://calibdb.net) to find pre-calculated calibration values that you can use directly in your code!
-</Callout>
-
-### Distance Estimation Example
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-private double estimateDistance(RotatedRect rect, double focalLength, 
-                                 double realObjectWidth, double realObjectHeight) {
-    // Get the larger dimension (width or height) in pixels
-    double detectedSizePixels = Math.max(rect.size.width, rect.size.height);
-    
-    // Use the corresponding real-world dimension
-    double realObjectSize = Math.max(realObjectWidth, realObjectHeight);
-    
-    // Apply pinhole model formula
-    return (realObjectSize * focalLength) / detectedSizePixels;
-}
-
-// Example usage in processFrame:
-public Mat processFrame(Mat input) {
-    // ... detection code ...
-    
-    if (largestContour != null) {
-        MatOfPoint2f contour2f = new MatOfPoint2f(largestContour.toArray());
-        RotatedRect rotatedRect = Imgproc.minAreaRect(contour2f);
-        
-        // Camera focal length from calibration (example value)
-        double focalLength = 451.07;
-        
-        // Real object dimensions in centimeters
-        double objectWidth = 8.6;
-        double objectHeight = 3.7;
-        
-        // Calculate distance
-        double distance = estimateDistance(rotatedRect, focalLength, 
-                                          objectWidth, objectHeight);
-        
-        // Draw distance on frame
-        Imgproc.putText(input, 
-            String.format("Distance: %.1f cm", distance),
-            new Point(rotatedRect.center.x, rotatedRect.center.y),
-            Imgproc.FONT_HERSHEY_SIMPLEX, 0.7, 
-            new Scalar(255, 255, 255), 2);
-        
-        contour2f.release();
-    }
-    
-    return input;
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-private fun estimateDistance(
-    rect: RotatedRect,
-    focalLength: Double,
-    realObjectWidth: Double,
-    realObjectHeight: Double
-): Double {
-    // Get the larger dimension (width or height) in pixels
-    val detectedSizePixels = max(rect.size.width, rect.size.height)
-    
-    // Use the corresponding real-world dimension
-    val realObjectSize = max(realObjectWidth, realObjectHeight)
-    
-    // Apply pinhole model formula
-    return (realObjectSize * focalLength) / detectedSizePixels
-}
-
-// Example usage in processFrame:
-override fun processFrame(input: Mat): Mat {
-    // ... detection code ...
-    
-    if (largestContour != null) {
-        val contour2f = MatOfPoint2f(*largestContour.toArray())
-        val rotatedRect = Imgproc.minAreaRect(contour2f)
-        
-        // Camera focal length from calibration (example value)
-        val focalLength = 451.07
-        
-        // Real object dimensions in centimeters
-        val objectWidth = 8.6
-        val objectHeight = 3.7
-        
-        // Calculate distance
-        val distance = estimateDistance(rotatedRect, focalLength,
-                                       objectWidth, objectHeight)
-        
-        // Draw distance on frame
-        Imgproc.putText(
-            input,
-            "Distance: ${String.format("%.1f", distance)} cm",
-            Point(rotatedRect.center.x, rotatedRect.center.y),
-            Imgproc.FONT_HERSHEY_SIMPLEX, 0.7,
-            Scalar(255.0, 255.0, 255.0), 2
-        )
-        
-        contour2f.release()
-    }
-    
-    return input
-}
-```
-
-</Tab>
-</Tabs>
-
-### Accounting for Camera Angle
-
-If your camera is mounted at an angle, adjust the distance:
-
-```kotlin
-import kotlin.math.cos
-
-val cameraMountingAngle = 15.0  // degrees from horizontal
-val distanceRaw = estimateDistance(rect, focalLength, width, height)
-val distanceAdjusted = distanceRaw * cos(Math.toRadians(cameraMountingAngle))
-```
-
-### Best Practices
-
-- **Calibrate your specific camera** - Calibration values vary between camera units
-- **Test at actual distances** - Verify your distance estimates match reality
-- **Use consistent units** - Keep all measurements in the same unit (inches or cm)
-- **Account for camera angle** - Apply trigonometric corrections if mounted at an angle
-- **Consider object orientation** - Detection accuracy decreases with extreme angles
-
-## Next Steps
-
-- Learn to test pipelines offline with [EOCV-Sim](./eocv-sim)
-- Explore [advanced color detection](./color-detection) techniques
-- See real-world [pipeline examples](./pipeline-examples)
-- Integrate with [robot subsystems](./vision-integration)
+- [OpenFTC EasyOpenCV repository](https://github.com/OpenFTC/EasyOpenCV) — installation status, RGBA note, examples, and SDK compatibility.
+- [EasyOpenCV pipeline overview](https://github.com/OpenFTC/EasyOpenCV/blob/master/doc/user_docs/pipelines_overview.md)
+- [FTC Color Blob Concepts](https://ftc-docs.firstinspires.org/en/latest/color_processing/color-blob-concepts/color-blob-concepts.html) — how the FTC processor defines a blob, contour, and fitted box.
+- [Color Locator filtering](https://ftc-docs.firstinspires.org/en/latest/color_processing/color-locator-explore/color-locator-explore.html) — official FTC built-in processor filtering.

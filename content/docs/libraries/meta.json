@@ -3,7 +3,9 @@
     "pages": [
         "index",
         "nextftc",
+        "ftclib",
         "pedro-pathing",
+        "road-runner",
         "ftc-dashboard",
         "mercurial",
         "panels",

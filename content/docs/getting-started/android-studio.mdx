@@ -1,116 +1,46 @@
 ---
 title: Android Studio
-description: Power up your coding! ⚡
+description: Set up the FTC project and run one small Java OpMode
 icon: Laptop
 ---
 
-## Android Studio — What It is and Why We Use It
+## What you will do
 
-Android Studio is a powerful integrated development environment (IDE) 
-built by Google specifically for Android app development. In FTC robotics, we use Android Studio to write, 
-test, and debug the code that runs on our robot's Control Hub or Robot Controller phone. It provides essential 
-tools like code completion, syntax highlighting, and debugging features that make programming our robots much 
-easier and more efficient than using a simple text editor.
+Android Studio is the computer app used to edit and build the FTC Robot Controller project. Your team's programs live in its **TeamCode** module. This path is useful when your team wants a full code editor, Git, or libraries that need changes to the Android Studio project.
 
-## Android Studio — Installation & Importing the FTC SDK
+If this is your first time programming a robot, [start with Blocks](./blocks) to learn how the Robot Controller and Driver Station work. You can return here when you are comfortable selecting and running an OpMode.
 
-### Make Sure You Have
+![Four steps in the Android Studio workflow: edit TeamCode, build the app, install it on the Robot Controller, and test from the Driver Station.](/guides/android-studio-workflow.svg)
 
-- Android Studio installed on your computer
-- Git installed (Android Studio uses Git behind the scenes)
-- Internet connection (to clone the repository from GitHub)
+The **Robot Controller** runs your program. The **Driver Station** selects the program and starts or stops it. Building code on your computer does not put it on the robot; you must install the built app on the Robot Controller.
 
-### Installing Android Studio (Windows / macOS / Linux)
+## 1. Get the right software
 
-1. Go to the official [Android Studio download page](https://developer.android.com/studio) and click **Download Android Studio**.
+Install [Android Studio](https://developer.android.com/studio). The [current FTC SDK release notes](https://github.com/FIRST-Tech-Challenge/FtcRobotController/releases) list the minimum Android Studio version. For SDK **12.0**, that is **Narwhal 3 Feature Drop or later**. Use the release notes again when your team updates the SDK.
 
-2. Run the downloaded installer file:
-   - **On Windows:** Double-click the `.exe` file and follow the setup wizard.
-   - **On macOS:** Open the `.dmg` file and drag Android Studio into your Applications folder.
-   - **On Linux:** Extract the downloaded archive and run `studio.sh` from `android-studio/bin`.
+Download the [official FTC Robot Controller project](https://github.com/FIRST-Tech-Challenge/FtcRobotController). You can use **Code → Download ZIP** and extract it, or clone the repository if you already use Git. A ZIP is enough for this first exercise; Git is not required just to open the project.
 
-3. Follow the setup instructions on screen and accept the default options. Android Studio will install the Android SDK and other necessary tools during setup.
+Open the project folder in Android Studio and allow its **Gradle sync** to finish. Gradle downloads the software the project needs. Your first sync can take longer because it needs an internet connection.
 
-4. When finished, launch Android Studio. If it asks to install additional components (SDKs, tools, etc.), allow it to complete the download.
-
-### How to Import the FTC SDK Using Version Control (VCS)
-
-1. **Open Android Studio.** If it's already open on another project, go to **File → Close Project** so you see the Android Studio welcome screen.
-
-2. **Click Get from Version Control** or **Check out from VCS**. This lets you import a project directly from an online Git repository without the command line.
-
-3. **Paste the FTC SDK GitHub URL:**
-   ```
-   https://github.com/FIRST-Tech-Challenge/FtcRobotController.git
-   ```
-   This is the official FTC Android Studio project repository.
-
-4. **Choose a Local Folder.** Pick where you want the project to be saved on your computer — you can name the folder after your team or season.
-
-5. **Click Clone.** Android Studio will automatically download the project and open it.
-
-6. **Trust & Open the Project.** When prompted, click **Trust Project** or **Open**.
-
-7. **Build / Sync Gradle.** Android Studio will start syncing and building the project. This can take a minute — Gradle downloads everything the project needs in the background.
-
-### Where Your Code Goes
-
-Once the project is opened and synced, locate the **TeamCode** module — this is where all your custom robot programs (OpModes) will live.
-
-Typical folder tree:
-
-```
-TeamCode
- └─ src
-     └─ main
-         └─ java
-             └─ org.firstinspires.ftc.teamcode
-```
-
-This `org.firstinspires.ftc.teamcode` package is where you create or paste your robot programs.
-
-### What You Now Have
-
-After cloning and opening the project:
-
-- A full Android Studio project with at least two main modules:
-  - **FtcRobotController** → contains the robot controller app and sample code
-  - **TeamCode** → this is where your team's robot programs go
-
-<Callout>
-The **TeamCode** folder is the only place from which custom OpModes will be installed onto your robot controller device at runtime.
+<Callout type="tip" title="Keep your team code during SDK updates">
+Before changing SDK versions, copy or commit your TeamCode work and read the release notes for breaking changes. An SDK update can change an API used by an older OpMode.
 </Callout>
 
-## Programming Your Robot — The Basics
+## 2. Find TeamCode
 
-Now that you have Android Studio set up, let's cover the fundamentals of writing robot code for FTC.
+In Android Studio, open this folder:
 
-### Quick Notes for Beginners
+```text
+TeamCode/src/main/java/org/firstinspires/ftc/teamcode/
+```
 
-You don't need to understand every Java concept right away — just focus on:
+`TeamCode` is your team's module. `FtcRobotController` contains the controller app and SDK samples. Put the new Java file below in the `teamcode` package, and name it **OneMotor.java**.
 
-- **Classes** (containers for your robot programs)
-- **Methods** (`init`, `loop`, `runOpMode`)
-- **Variables** (names for motors and sensors)
-- **Gamepad inputs** (how drivers control the robot)
+## 3. Try one motor
 
-You can learn more Java fundamentals later — but the above is enough to start coding a robot that moves and responds to controls.
+First, configure a motor on the Robot Controller and name it `test_motor`. The text inside `hardwareMap.get(..., "test_motor")` must match that configuration name exactly, including capitalization.
 
-### What is an OpMode?
-
-An **OpMode** (Operation Mode) is a program that runs on your robot. There are two main types:
-
-- **TeleOp** — Used during the driver-controlled period where humans control the robot with gamepads
-- **Autonomous** — Used during the autonomous period where the robot runs pre-programmed actions
-
-Every OpMode you write will be a Java class that extends either `LinearOpMode` or `OpMode`.
-
-### Your First OpMode
-
-Here's a simple TeleOp program that controls a drive motor with the gamepad:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
+Support the robot so the motor can turn without moving the robot or catching a mechanism. Start at low power.
 
 ```java
 package org.firstinspires.ftc.teamcode;
@@ -119,373 +49,49 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@TeleOp(name="Basic Drive", group="TeleOp")
-public class BasicDrive extends LinearOpMode {
-    
-    // Declare motor variable
-    private DcMotor driveMotor;
-    
+@TeleOp(name = "One Motor")
+public class OneMotor extends LinearOpMode {
     @Override
     public void runOpMode() {
-        // Initialize hardware
-        driveMotor = hardwareMap.get(DcMotor.class, "drive_motor");
-        
-        // Wait for driver to press START
-        waitForStart();
-        
-        // Run until driver presses STOP
-        while (opModeIsActive()) {
-            // Get gamepad input
-            double power = -gamepad1.left_stick_y;
-            
-            // Set motor power
-            driveMotor.setPower(power);
-            
-            // Display info on driver station
-            telemetry.addData("Motor Power", power);
-            telemetry.update();
-        }
-    }
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-package org.firstinspires.ftc.teamcode
-
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.DcMotor
-
-@TeleOp(name = "Basic Drive", group = "TeleOp")
-class BasicDrive : LinearOpMode() {
-    
-    // Declare motor variable
-    private lateinit var driveMotor: DcMotor
-    
-    override fun runOpMode() {
-        // Initialize hardware
-        driveMotor = hardwareMap.get(DcMotor::class.java, "drive_motor")
-        
-        // Wait for driver to press START
-        waitForStart()
-        
-        // Run until driver presses STOP
-        while (opModeIsActive()) {
-            // Get gamepad input
-            val power = -gamepad1.left_stick_y.toDouble()
-            
-            // Set motor power
-            driveMotor.power = power
-            
-            // Display info on driver station
-            telemetry.addData("Motor Power", power)
-            telemetry.update()
-        }
-    }
-}
-```
-
-</Tab>
-</Tabs>
-
-### Understanding the Hardware Map
-
-The `hardwareMap` is how you access your robot's hardware (motors, sensors, servos, etc.). Before you can use any hardware in code, you must:
-
-1. **Configure it in the Robot Controller app** — Give each device a name (e.g., "drive_motor")
-2. **Retrieve it in your code** — Use `hardwareMap.get()` with the exact same name
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Get a motor
-DcMotor motor = hardwareMap.get(DcMotor.class, "motor_name");
-
-// Get a servo
-Servo servo = hardwareMap.get(Servo.class, "servo_name");
-
-// Get a sensor
-ColorSensor colorSensor = hardwareMap.get(ColorSensor.class, "color_sensor");
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Get a motor
-val motor = hardwareMap.get(DcMotor::class.java, "motor_name")
-
-// Get a servo
-val servo = hardwareMap.get(Servo::class.java, "servo_name")
-
-// Get a sensor
-val colorSensor = hardwareMap.get(ColorSensor::class.java, "color_sensor")
-```
-
-</Tab>
-</Tabs>
-
-### Working with Motors
-
-Motors are controlled by setting their **power** (a value from -1.0 to 1.0):
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Set motor to full speed forward
-motor.setPower(1.0);
-
-// Set motor to half speed backward
-motor.setPower(-0.5);
-
-// Stop the motor
-motor.setPower(0);
-
-// Set motor direction
-motor.setDirection(DcMotorSimple.Direction.REVERSE);
-
-// Set motor mode (using encoders or not)
-motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Set motor to full speed forward
-motor.power = 1.0
-
-// Set motor to half speed backward
-motor.power = -0.5
-
-// Stop the motor
-motor.power = 0.0
-
-// Set motor direction
-motor.direction = DcMotorSimple.Direction.REVERSE
-
-// Set motor mode (using encoders or not)
-motor.mode = DcMotor.RunMode.RUN_USING_ENCODER
-```
-
-</Tab>
-</Tabs>
-
-### Using the Gamepad
-
-The `gamepad1` and `gamepad2` objects give you access to controller inputs:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-// Joystick values (analog, -1.0 to 1.0)
-double leftY = -gamepad1.left_stick_y;   // Forward/backward
-double leftX = gamepad1.left_stick_x;    // Left/right
-double rightY = -gamepad1.right_stick_y;
-double rightX = gamepad1.right_stick_x;
-
-// Button values (digital, true/false)
-boolean aPressed = gamepad1.a;
-boolean bPressed = gamepad1.b;
-boolean xPressed = gamepad1.x;
-boolean yPressed = gamepad1.y;
-
-// Bumpers and triggers
-boolean leftBumper = gamepad1.left_bumper;
-boolean rightBumper = gamepad1.right_bumper;
-double leftTrigger = gamepad1.left_trigger;   // 0.0 to 1.0
-double rightTrigger = gamepad1.right_trigger; // 0.0 to 1.0
-
-// D-pad
-boolean dpadUp = gamepad1.dpad_up;
-boolean dpadDown = gamepad1.dpad_down;
-boolean dpadLeft = gamepad1.dpad_left;
-boolean dpadRight = gamepad1.dpad_right;
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-// Joystick values (analog, -1.0 to 1.0)
-val leftY = -gamepad1.left_stick_y.toDouble()   // Forward/backward
-val leftX = gamepad1.left_stick_x.toDouble()    // Left/right
-val rightY = -gamepad1.right_stick_y.toDouble()
-val rightX = gamepad1.right_stick_x.toDouble()
-
-// Button values (digital, true/false)
-val aPressed = gamepad1.a
-val bPressed = gamepad1.b
-val xPressed = gamepad1.x
-val yPressed = gamepad1.y
-
-// Bumpers and triggers
-val leftBumper = gamepad1.left_bumper
-val rightBumper = gamepad1.right_bumper
-val leftTrigger = gamepad1.left_trigger.toDouble()   // 0.0 to 1.0
-val rightTrigger = gamepad1.right_trigger.toDouble() // 0.0 to 1.0
-
-// D-pad
-val dpadUp = gamepad1.dpad_up
-val dpadDown = gamepad1.dpad_down
-val dpadLeft = gamepad1.dpad_left
-val dpadRight = gamepad1.dpad_right
-```
-
-</Tab>
-</Tabs>
-
-### Complete Robot Example
-
-Here's a more complete example showing a basic drive system with multiple motors:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-package org.firstinspires.ftc.teamcode;
-
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-
-@TeleOp(name="Complete Robot", group="TeleOp")
-public class CompleteRobot extends LinearOpMode {
-    
-    // Declare hardware
-    private DcMotor leftMotor;
-    private DcMotor rightMotor;
-    private DcMotor armMotor;
-    private Servo clawServo;
-    
-    @Override
-    public void runOpMode() {
-        // Initialize all hardware
-        leftMotor = hardwareMap.get(DcMotor.class, "left_motor");
-        rightMotor = hardwareMap.get(DcMotor.class, "right_motor");
-        armMotor = hardwareMap.get(DcMotor.class, "arm_motor");
-        clawServo = hardwareMap.get(Servo.class, "claw_servo");
-        
-        // Reverse one motor for proper drive
-        rightMotor.setDirection(DcMotor.Direction.REVERSE);
-        
-        // Wait for START
-        telemetry.addData("Status", "Initialized");
+        DcMotor motor = hardwareMap.get(DcMotor.class, "test_motor");
+        telemetry.addData("Status", "Ready");
         telemetry.update();
+
         waitForStart();
-        
-        // Main loop
         while (opModeIsActive()) {
-            // Drive control (tank drive)
-            double leftPower = -gamepad1.left_stick_y;
-            double rightPower = -gamepad1.right_stick_y;
-            
-            leftMotor.setPower(leftPower);
-            rightMotor.setPower(rightPower);
-            
-            // Arm control
-            double armPower = -gamepad2.left_stick_y * 0.5; // Slower speed
-            armMotor.setPower(armPower);
-            
-            // Claw control (open/close with buttons)
-            if (gamepad2.a) {
-                clawServo.setPosition(0.0); // Close
-            } else if (gamepad2.b) {
-                clawServo.setPosition(1.0); // Open
-            }
-            
-            // Telemetry
-            telemetry.addData("Left Power", leftPower);
-            telemetry.addData("Right Power", rightPower);
-            telemetry.addData("Arm Power", armPower);
-            telemetry.addData("Claw Position", clawServo.getPosition());
+            double power = -gamepad1.left_stick_y * 0.25;
+            motor.setPower(power);
+            telemetry.addData("Motor power", power);
             telemetry.update();
         }
+        motor.setPower(0);
     }
 }
 ```
 
-</Tab>
-<Tab value="Kotlin">
+Read the code in this order:
 
-```kotlin
-package org.firstinspires.ftc.teamcode
+1. `hardwareMap.get` finds the configured motor.
+2. `waitForStart` pauses until a driver presses **START**.
+3. Each trip through the `while` loop reads the left stick, sets motor power, and shows that value on the Driver Station.
+4. `-` makes a forward stick push positive. `0.25` limits this first test to one-quarter power.
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.DcMotor
-import com.qualcomm.robotcore.hardware.Servo
+The sign of “forward” depends on how your motor is mounted. If the motor turns the opposite way from what you expect, check its direction rather than removing the power limit.
 
-@TeleOp(name = "Complete Robot", group = "TeleOp")
-class CompleteRobot : LinearOpMode() {
-    
-    // Declare hardware
-    private lateinit var leftMotor: DcMotor
-    private lateinit var rightMotor: DcMotor
-    private lateinit var armMotor: DcMotor
-    private lateinit var clawServo: Servo
-    
-    override fun runOpMode() {
-        // Initialize all hardware
-        leftMotor = hardwareMap.get(DcMotor::class.java, "left_motor")
-        rightMotor = hardwareMap.get(DcMotor::class.java, "right_motor")
-        armMotor = hardwareMap.get(DcMotor::class.java, "arm_motor")
-        clawServo = hardwareMap.get(Servo::class.java, "claw_servo")
-        
-        // Reverse one motor for proper drive
-        rightMotor.direction = DcMotor.Direction.REVERSE
-        
-        // Wait for START
-        telemetry.addData("Status", "Initialized")
-        telemetry.update()
-        waitForStart()
-        
-        // Main loop
-        while (opModeIsActive()) {
-            // Drive control (tank drive)
-            val leftPower = -gamepad1.left_stick_y.toDouble()
-            val rightPower = -gamepad1.right_stick_y.toDouble()
-            
-            leftMotor.power = leftPower
-            rightMotor.power = rightPower
-            
-            // Arm control
-            val armPower = -gamepad2.left_stick_y.toDouble() * 0.5 // Slower speed
-            armMotor.power = armPower
-            
-            // Claw control (open/close with buttons)
-            if (gamepad2.a) {
-                clawServo.position = 0.0 // Close
-            } else if (gamepad2.b) {
-                clawServo.position = 1.0 // Open
-            }
-            
-            // Telemetry
-            telemetry.addData("Left Power", leftPower)
-            telemetry.addData("Right Power", rightPower)
-            telemetry.addData("Arm Power", armPower)
-            telemetry.addData("Claw Position", clawServo.position)
-            telemetry.update()
-        }
-    }
-}
-```
+## 4. Build, install, and test
 
-</Tab>
-</Tabs>
+1. Use **Build → Make Project**. Fix any error shown in the Build window before continuing.
+2. Connect your Robot Controller to Android Studio using your team's supported USB or wireless deployment setup, then run the **FtcRobotController** app configuration. See the [official Android Studio tutorial](https://ftc-docs.firstinspires.org/en/latest/programming_resources/android_studio_java/Android-Studio-Tutorial.html) for the connection and install steps.
+3. On the Driver Station, select **One Motor**, press **INIT**, then **START**.
+4. Move the left stick slightly and check both the motor and the **Motor power** telemetry value. Press **STOP** when finished.
 
-### Learning More
+If **One Motor** does not appear, confirm that the build succeeded, the new app was installed on the correct Robot Controller, and the file is in TeamCode. If initialization fails with a hardware-name error, compare `test_motor` with the active robot configuration.
 
-Want to dive deeper into Java for FTC? Check out this comprehensive free resource:
+## Next step
 
-**[Learn Java for FTC](https://github.com/alan412/LearnJavaForFTC)** — A free online book and GitHub repository that explains Java basics and FTC coding examples in a beginner-friendly way.
+Try [joystick mapping](../control-systems/joystick-mapping) once one motor responds correctly. Add a second motor only after you can explain what each line above does.
 
-This book covers everything from Java fundamentals to advanced FTC programming concepts, making it perfect for teammates who are new to programming or want to strengthen their skills.
+## Official references
 
+- [FTC Android Studio tutorial](https://ftc-docs.firstinspires.org/en/latest/programming_resources/android_studio_java/Android-Studio-Tutorial.html)
+- [FTC SDK project and release notes](https://github.com/FIRST-Tech-Challenge/FtcRobotController)

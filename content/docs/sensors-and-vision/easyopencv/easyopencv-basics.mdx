@@ -1,261 +1,139 @@
 ---
 title: EasyOpenCV Basics
-description: Setting up and using EasyOpenCV for custom vision pipelines
+description: Open a camera and understand how a custom OpenCV pipeline receives frames
 icon: Package
 ---
 
-## What is EasyOpenCV?
+# When should you use EasyOpenCV?
 
-EasyOpenCV is a simplified wrapper around OpenCV, the industry-standard computer vision library. It provides direct access to powerful image processing functions while handling the complexity of integrating with FTC's hardware.
+The FTC SDK already includes **EasyOpenCV** for supported SDK versions (SDK 8.2 and later). For that setup, you do not need to add a separate Maven repository, download a native library, or copy a `.so` file to the Control Hub. Those instructions appear in older tutorials and are not the normal setup for a current FTC project.
 
-<Callout type="info">
-**Why EasyOpenCV?** It gives you complete control over image processing, making it ideal for custom detection algorithms and complex vision tasks.
-</Callout>
+EasyOpenCV gives your OpMode a camera stream and a place to run your own OpenCV code. Choose it when you need a custom pipeline. If the built-in FTC Color Locator or AprilTag processor already answers your question, begin with [VisionPortal](../visionportal/vision-portal); it has fewer moving parts.
 
-## Installation
+## What happens when the camera runs?
 
-### Step 1: Download and Import the Library
+1. Your OpMode finds a camera by the name in Robot Configuration.
+2. EasyOpenCV opens that camera asynchronously. “Asynchronously” means the open result arrives later in a callback, so the robot loop does not wait for the camera to open.
+3. You attach an `OpenCvPipeline` before starting the stream.
+4. EasyOpenCV passes each camera frame to the pipeline's `processFrame` method.
+5. When the OpMode ends, stop the stream and close the camera.
 
-Add the EasyOpenCV dependency to your `build.gradle` file:
+![OpenCV stages on an official BIOBUZZ Pollen photo: source image, yellow HSV mask, cleaned candidate, and measured blob.](/guides/vision-color-blob-pipeline.png)
 
-```kotlin
-repositories {
-    maven { url = 'https://maven.brott.dev/' }
-}
+*Source photo: [AndyMark BIOBUZZ scoring elements](https://andymark.com/products/biobuzz-scoring-elements). The mask is a learning example; tune your pipeline against your live camera image.*
 
-dependencies {
-    implementation 'org.openftc:easyopencv:1.7.1'
-}
-```
+The vision illustration shows the stages after a frame reaches your pipeline. EasyOpenCV itself manages camera frames and pipeline calls; it does not choose what object to detect. Your OpenCV code does that.
 
-### Step 2: Configure build.common.gradle
+## Step 1: Configure a webcam
 
-Remove or comment out specific OpenCV references in `build.common.gradle` if they conflict:
+In the Robot Controller configuration, add the webcam and give it a simple name such as `Webcam 1`. That name is part of your program's hardware configuration. If your code asks for `Webcam 1` but the configured device is named `Front Camera`, `hardwareMap` cannot find it.
 
-```kotlin
-// Remove or comment out:
-// implementation 'org.opencv:opencv-java:4.x.x'
-```
+Connect the camera to the Control Hub or Robot Controller device, then use a preview sample to confirm that the image is live and correctly rotated before you write detection logic.
 
-### Step 3: Gradle Sync
+## Step 2: Find the camera and attach a pipeline
 
-In Android Studio, click **Sync Now** or **File → Sync Project with Gradle Files**.
+This short setup is the part that belongs in your `LinearOpMode`. `PreviewPipeline` is the small custom class you will build in [Writing Pipelines](./writing-pipelines).
 
-### Step 4: Copy .so File to Control Hub
-
-For OnBot Java users, copy the `libEasyOpenCV.so` file to your Control Hub:
-1. Connect to Control Hub via ADB or file transfer
-2. Place file in `/sdcard/FIRST/java/libs/`
-
-<Callout type="warn">
-**Note:** This step is only required for OnBot Java. Android Studio users can skip this.
-</Callout>
-
-## Camera Initialization
-
-Camera initialization in EasyOpenCV is more involved than initializing other hardware devices. Here's the complete process:
-
-### Java Implementation
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
 
 ```java
-package org.firstinspires.ftc.teamcode;
+int monitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+    "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
+WebcamName cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+OpenCvCamera camera = OpenCvCameraFactory.getInstance()
+    .createWebcam(cameraName, monitorViewId);
+camera.setPipeline(new PreviewPipeline());
+```
 
-@Autonomous(name = "Vision Test")
-public class VisionTest extends LinearOpMode {
-    
-    // Declare webcam as class member
-    OpenCvCamera webcam;
-    
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+val monitorViewId = hardwareMap.appContext.resources.getIdentifier(
+    "cameraMonitorViewId", "id", hardwareMap.appContext.packageName
+)
+
+val cameraName = hardwareMap.get(WebcamName::class.java, "Webcam 1")
+val camera = OpenCvCameraFactory.getInstance()
+    .createWebcam(cameraName, monitorViewId)
+camera.setPipeline(PreviewPipeline())
+```
+
+</Tab>
+</Tabs>
+
+The first lines find the preview container used by the Driver Station. The `hardwareMap.get(...)` line connects your Java variable to the named camera. `setPipeline(...)` tells EasyOpenCV which class should process the images.
+
+Use the `OpenCvCameraFactory` and callback signatures from the sample bundled with your installed FTC SDK. EasyOpenCV and SDK APIs have changed over time; the SDK sample is the version-matched reference.
+
+## Step 3: Open asynchronously and handle both outcomes
+
+Opening a camera can take time or fail. EasyOpenCV reports success in `onOpened()` and failure in `onError()`. Start streaming only after success:
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
     @Override
-    public void runOpMode() {
-        // Map webcam variable to hardware configuration
-        int cameraMonitorViewId = hardwareMap.appContext
-            .getResources()
-            .getIdentifier("cameraMonitorViewId", "id", 
-                hardwareMap.appContext.getPackageName());
-        
-        // Retrieve webcam from hardware map
-        WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
-        
-        // Create camera instance
-        webcam = OpenCvCameraFactory.getInstance()
-            .createWebcam(webcamName, cameraMonitorViewId);
-        
-        // Set the pipeline (we'll create this next)
-        webcam.setPipeline(new YourPipeline());
-        
-        // Open camera and start streaming
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                // Start streaming: width, height, rotation
-                webcam.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
-            }
-            
-            @Override
-            public void onError(int errorCode) {
-                telemetry.addData("Error", "Camera failed to open: " + errorCode);
-                telemetry.update();
-            }
-        });
-        
-        waitForStart();
-        
-        // Your autonomous code here
-        while (opModeIsActive()) {
-            // Access pipeline data
-            telemetry.update();
-        }
+    public void onOpened() {
+        camera.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
     }
-}
+
+    @Override
+    public void onError(int errorCode) {
+        // Save the error for telemetry in the OpMode loop.
+        cameraError = "Camera open failed: " + errorCode;
+    }
+});
 ```
 
-### Kotlin Implementation
+</Tab>
+<Tab value="Kotlin">
 
 ```kotlin
-package org.firstinspires.ftc.teamcode
-
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName
-import org.openftc.easyopencv.OpenCvCamera
-import org.openftc.easyopencv.OpenCvCameraFactory
-import org.openftc.easyopencv.OpenCvCameraRotation
-
-@Autonomous(name = "Vision Test")
-class VisionTest : LinearOpMode() {
-    
-    // Declare webcam as class member
-    private lateinit var webcam: OpenCvCamera
-    
-    override fun runOpMode() {
-        // Map webcam variable to hardware configuration
-        val cameraMonitorViewId = hardwareMap.appContext
-            .resources
-            .getIdentifier("cameraMonitorViewId", "id", 
-                hardwareMap.appContext.packageName)
-        
-        // Retrieve webcam from hardware map
-        val webcamName = hardwareMap.get(WebcamName::class.java, "Webcam 1")
-        
-        // Create camera instance
-        webcam = OpenCvCameraFactory.getInstance()
-            .createWebcam(webcamName, cameraMonitorViewId)
-        
-        // Set the pipeline
-        webcam.setPipeline(YourPipeline())
-        
-        // Open camera and start streaming
-        webcam.openCameraDeviceAsync(object : OpenCvCamera.AsyncCameraOpenListener {
-            override fun onOpened() {
-                // Start streaming: width, height, rotation
-                webcam.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT)
-            }
-            
-            override fun onError(errorCode: Int) {
-                telemetry.addData("Error", "Camera failed to open: $errorCode")
-                telemetry.update()
-            }
-        })
-        
-        waitForStart()
-        
-        // Your autonomous code here
-        while (opModeIsActive()) {
-            // Access pipeline data
-            telemetry.update()
-        }
+camera.openCameraDeviceAsync(object : OpenCvCamera.AsyncCameraOpenListener {
+    override fun onOpened() {
+        camera.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT)
     }
-}
+
+    override fun onError(errorCode: Int) {
+        // Save the error for telemetry in the OpMode loop.
+        cameraError = "Camera open failed: $errorCode"
+    }
+})
 ```
 
-## Key Initialization Components
+</Tab>
+</Tabs>
 
-### Camera Monitor View ID
+The `640 × 480` size and `UPRIGHT` rotation are examples, not universal settings. Start with a resolution supported by your camera; more pixels can take more processing time. Do not try to start streaming inside the OpMode before `onOpened()` runs.
 
-```java
-int cameraMonitorViewId = hardwareMap.appContext
-    .getResources()
-    .getIdentifier("cameraMonitorViewId", "id", 
-        hardwareMap.appContext.getPackageName());
-```
+## Step 4: Keep the OpMode alive, then clean up
 
-This retrieves the ID of the camera preview view on the Driver Station. It allows you to see the camera feed in real-time.
+After starting the stream, the OpMode must continue running while you read pipeline results. Keep the result visible in telemetry during the first test. When the OpMode stops, stop streaming and close the device according to the SDK-matched EasyOpenCV sample.
 
-### Webcam Name Mapping
+Do not run a drivetrain based on an untested camera result. First confirm the preview, then confirm that the pipeline result changes as you move a target in front of the camera.
 
-```java
-WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
-```
+## A note about pixel channel order
 
-This maps to the webcam name configured in your robot configuration file. Make sure the name matches exactly.
+EasyOpenCV supplies pipeline frames in **RGBA** order. Some desktop OpenCV examples use BGR instead. When converting a frame to HSV, use the conversion code that matches the frame you actually receive, such as `COLOR_RGBA2HSV`; copying `COLOR_BGR2HSV` from a desktop tutorial can produce incorrect colors.
 
-### Stream Parameters
+You will apply that conversion one step at a time in [Writing Pipelines](./writing-pipelines).
 
-```java
-webcam.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
-```
+## If the camera does not open
 
-- **Width**: 640 pixels (common resolutions: 320, 640, 1280)
-- **Height**: 360 pixels (common resolutions: 240, 360, 480, 720)
-- **Rotation**: `UPRIGHT`, `SIDEWAYS_LEFT`, `SIDEWAYS_RIGHT`, `UPSIDE_DOWN`
+- Confirm that the configured camera name exactly matches the name in `hardwareMap.get(...)`.
+- Check the cable, adapter, and USB connection.
+- Confirm that the camera is not already in use by another OpMode or process.
+- Read `onError` telemetry and the Robot Controller log.
+- Try the version-matched FTC/EasyOpenCV sample before changing resolution or adding image processing.
 
-<Callout type="info">
-**Resolution Tips:** Start with 640x360 for good balance between detail and performance. Increase for more detail, decrease for faster processing.
-</Callout>
+## References
 
-## Setting the Pipeline
-
-The pipeline defines what your camera looks for in the video feed. You set it before opening the camera:
-
-```java
-webcam.setPipeline(new YourPipeline());
-```
-
-In the next section, we'll learn how to [write custom pipelines](./writing-pipelines) that process frames and detect objects.
-
-## Camera Lifecycle
-
-1. **Declare** - Create class member variable
-2. **Initialize** - Map to hardware and create instance
-3. **Configure** - Set pipeline and parameters
-4. **Open** - Asynchronously open camera device
-5. **Stream** - Start streaming frames to pipeline
-6. **Process** - Pipeline processes each frame
-7. **Close** - Stop streaming when OpMode ends (automatic)
-
-## Troubleshooting
-
-### Camera Not Found
-
-**Error:** `Unable to find webcam "Webcam 1"`  
-**Solution:** Check your robot configuration file. The name must match exactly (including spaces and capitalization).
-
-### Black Screen
-
-**Possible causes:**
-- Camera not receiving power
-- USB connection loose
-- Wrong rotation setting
-- Pipeline returning empty frame
-
-### Poor Performance
-
-If your vision processing is slow:
-- Reduce resolution (try 320x240)
-- Optimize your pipeline (see [Writing Pipelines](./writing-pipelines))
-- Process every 2nd or 3rd frame instead of all frames
-
-## Next Steps
-
-Now that you can initialize a camera:
-- Learn to [write custom pipelines](./writing-pipelines)
-- Set up [EOCV-Sim](./eocv-sim) for faster development
-- Explore [color detection techniques](./color-detection)
+- [OpenFTC EasyOpenCV repository and installation notes](https://github.com/OpenFTC/EasyOpenCV)
+- [OpenFTC EasyOpenCV camera initialization guide](https://github.com/OpenFTC/EasyOpenCV/blob/master/doc/user_docs/camera_initialization_overview.md)
+- [OpenFTC EasyOpenCV pipeline guide](https://github.com/OpenFTC/EasyOpenCV/blob/master/doc/user_docs/pipelines_overview.md)
+- [FTC VisionPortal overview](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_overview/visionportal-overview.html)

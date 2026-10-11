@@ -1,433 +1,238 @@
 ---
 title: Pure Pursuit
-description: Follow smooth curved paths with a lookahead point algorithm
-icon: Navigation
+description: Understand how a robot can follow a path by aiming ahead
+icon: GitBranch
 ---
 
-## What is Pure Pursuit?
+Pure Pursuit is a path-following idea: instead of steering toward the next point right beside the robot, repeatedly choose a point farther ahead on the path and steer toward it. That moving target helps the robot follow a curve smoothly.
 
-**Pure Pursuit** is a path following algorithm that allows your robot to smoothly follow curved paths by continuously "chasing" a **lookahead point** ahead of it on the path.
+This page explains the geometry. It is not a complete drivetrain controller: encoder localization, motor control, path planning, and safety stops still need to be handled. Most FTC teams should learn the idea, then use a maintained library for the robot-specific implementation.
 
-Instead of going from waypoint to waypoint with sharp turns, Pure Pursuit creates smooth, continuous movement that looks professional and maintains speed through curves.
+## The parts of the problem
 
-### The Core Idea
+You need two things:
 
-Imagine driving a car while looking at a point 20 feet ahead on the road. You naturally steer toward that point, creating smooth turns. Pure Pursuit works the same way:
+1. A **path**: a sequence of points describing where the robot should go on the field.
+2. The robot's estimated **pose**: its field position and heading, usually supplied by odometry or a localization library.
 
-1. Find a **lookahead point** some distance ahead on the path
-2. Calculate the **curvature** needed to reach that point
-3. Steer the robot along that arc
-4. Repeat continuously as robot moves
+Pure Pursuit uses the pose to choose a point on the path ahead of the robot. That point is the **lookahead point**. Its distance from the robot is the **lookahead distance**.
 
-![Pure Pursuit Lookahead Point](/lookahead.png)
+## Step 1: Look ahead, not behind
 
-## Why Pure Pursuit?
+At each update, find the part of the path near the robot and look for a point about one lookahead distance ahead. A line segment may cross a circle around the robot between two stored path points, so implementations often calculate the intersection instead of choosing the nearest stored point.
 
-Without Pure Pursuit:
-- Robot stops at each waypoint
-- Sharp, jerky turns
-- Slow autonomous times
-- Inefficient movement
+If there is no useful point ahead, the robot may be at the end of the path or its pose estimate may be wrong. Handle that case explicitly; do not steer toward an old point behind the robot.
 
-With Pure Pursuit:
-- Smooth, continuous curves
-- No stopping between waypoints
-- Faster cycle times
-- Professional appearance
+![A robot on a planned curve with its lookahead circle and a selected forward intersection.](/guides/pure-pursuit-lookahead.png)
 
-## How Pure Pursuit Works
+## Step 2: Express the point relative to the robot
 
-### 1. Define a Path
+For the steering calculation, describe the lookahead point in robot-centered coordinates:
 
-Create a series of points the robot should pass through:
+- `x` is forward from the robot;
+- `y` is sideways from the robot (choose a sign convention and keep it consistent).
 
-```java
-List<Point> path = Arrays.asList(
-    new Point(0, 0),
-    new Point(24, 12),
-    new Point(48, 24),
-    new Point(60, 36)
-);
+For a differential-drive robot, the point defines an arc. The curvature needed for that arc is:
+
+```math
+\kappa = \frac{2y}{x^2 + y^2}
 ```
 
-### 2. Find Lookahead Point
+Curvature is signed: with the convention above, a point to one side asks for a turn toward that side. For example, a target at `(10, 5)` gives `κ = 10 / 125 = 0.08` per distance unit. This is a geometry example, not a motor-power setting.
 
-At each update, find the point on the path that's exactly **lookahead distance** away from the robot:
+The drivetrain controller turns curvature and a chosen speed into wheel commands. That last step depends on whether the robot is tank, mecanum, or another drive type; Pure Pursuit alone does not define it.
+
+## Step 3: Choose a lookahead distance
+
+Lookahead distance changes how sharply the robot follows the path:
+
+| Lookahead | What you may see |
+| --- | --- |
+| Too short | Sharp steering changes, jitter, or cutting across noisy pose updates |
+| Longer | Smoother turns, but the robot may cut corners |
+| Scaled with speed | More distance to react at higher speed, less at low speed |
+
+Begin slowly with one broad curve. Change lookahead a little at a time and watch the robot's actual track against the planned path. There is no value that works for every robot, speed, and field surface.
+
+## Step 4: Test one path at a time
+
+1. Check the localization estimate while the robot is still. Make sure the field axes and heading direction match your path coordinates.
+2. Lift the robot and verify that each motor command turns the wheels in the expected direction.
+3. Run a short, slow path in a clear practice area with a stop condition in every loop.
+4. Compare the planned path, estimated pose, and the robot's physical motion.
+5. If the pose estimate is wrong, fix localization first. If the pose is right but the robot steers too sharply or cuts corners, tune lookahead and speed.
+
+Never test a new path at full speed near people or field elements. Keep the robot easy to stop and have a mentor check the test area.
+
+## Step 5: Implement the geometry in small Java methods
+
+The following helper code implements the part Pure Pursuit contributes: find where each path segment crosses a circle around the robot, pick the furthest valid crossing along the path, and calculate curvature. It assumes field coordinates use `+X` forward at heading zero and `+Y` to the robot's left. Keep your odometry and path points in this same convention.
+
+Start with a simple point type and the circle/segment intersection. For a segment from `a` to `b`, parameter `t = 0` is its start and `t = 1` is its end:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
+
 ```java
-public Point findLookaheadPoint(List<Point> path, Point robotPos, double lookahead) {
-    Point closestPoint = null;
-    double closestDistance = Double.MAX_VALUE;
-    
-    // Check each segment of the path
+static final class Point2 {
+    final double x;
+    final double y;
+    Point2(double x, double y) { this.x = x; this.y = y; }
+}
+
+static Point2 furthestLookahead(List<Point2> path, double robotX, double robotY,
+                                double radius) {
+    Point2 result = null;
+    double radiusSquared = radius * radius;
+
     for (int i = 0; i < path.size() - 1; i++) {
-        Point start = path.get(i);
-        Point end = path.get(i + 1);
-        
-        // Find intersection of lookahead circle with line segment
-        Point intersection = lineCircleIntersection(start, end, robotPos, lookahead);
-        
-        if (intersection != null) {
-            double dist = distance(robotPos, intersection);
-            if (dist < closestDistance) {
-                closestDistance = dist;
-                closestPoint = intersection;
-            }
-        }
+        Point2 a = path.get(i);
+        Point2 b = path.get(i + 1);
+        double dx = b.x - a.x;
+        double dy = b.y - a.y;
+        double fx = a.x - robotX;
+        double fy = a.y - robotY;
+
+        double quadraticA = dx * dx + dy * dy;
+        if (quadraticA == 0.0) continue; // Ignore duplicate consecutive points.
+        double quadraticB = 2.0 * (fx * dx + fy * dy);
+        double quadraticC = fx * fx + fy * fy - radiusSquared;
+        double discriminant = quadraticB * quadraticB
+            - 4.0 * quadraticA * quadraticC;
+        if (discriminant < 0.0) continue; // This segment misses the circle.
+
+        double root = Math.sqrt(discriminant);
+        double t1 = (-quadraticB - root) / (2.0 * quadraticA);
+        double t2 = (-quadraticB + root) / (2.0 * quadraticA);
+        double t = Double.NaN;
+        if (t1 >= 0.0 && t1 <= 1.0) t = t1;
+        if (t2 >= 0.0 && t2 <= 1.0 && (Double.isNaN(t) || t2 > t)) t = t2;
+        if (!Double.isNaN(t)) result = new Point2(a.x + t * dx, a.y + t * dy);
     }
-    
-    return closestPoint != null ? closestPoint : path.get(path.size() - 1);
+    return result;
 }
 ```
+
 </Tab>
 <Tab value="Kotlin">
+
 ```kotlin
-fun findLookaheadPoint(path: List<Point>, robotPos: Point, lookahead: Double): Point {
-    var closestPoint: Point? = null
-    var closestDistance = Double.MAX_VALUE
-    
-    // Check each segment of the path
+import kotlin.math.sqrt
+
+data class Point2(val x: Double, val y: Double)
+
+fun furthestLookahead(path: List<Point2>, robotX: Double, robotY: Double,
+                     radius: Double): Point2? {
+    var result: Point2? = null
+    val radiusSquared = radius * radius
+
     for (i in 0 until path.size - 1) {
-        val start = path[i]
-        val end = path[i + 1]
-        
-        // Find intersection of lookahead circle with line segment
-        val intersection = lineCircleIntersection(start, end, robotPos, lookahead)
-        
-        intersection?.let {
-            val dist = robotPos.distanceTo(it)
-            if (dist < closestDistance) {
-                closestDistance = dist
-                closestPoint = it
-            }
-        }
+        val a = path[i]
+        val b = path[i + 1]
+        val dx = b.x - a.x
+        val dy = b.y - a.y
+        val fx = a.x - robotX
+        val fy = a.y - robotY
+
+        val quadraticA = dx * dx + dy * dy
+        if (quadraticA == 0.0) continue // Ignore duplicate consecutive points.
+        val quadraticB = 2.0 * (fx * dx + fy * dy)
+        val quadraticC = fx * fx + fy * fy - radiusSquared
+        val discriminant = quadraticB * quadraticB - 4.0 * quadraticA * quadraticC
+        if (discriminant < 0.0) continue // This segment misses the circle.
+
+        val root = sqrt(discriminant)
+        val t1 = (-quadraticB - root) / (2.0 * quadraticA)
+        val t2 = (-quadraticB + root) / (2.0 * quadraticA)
+        var t = Double.NaN
+        if (t1 in 0.0..1.0) t = t1
+        if (t2 in 0.0..1.0 && (t.isNaN() || t2 > t)) t = t2
+        if (!t.isNaN()) result = Point2(a.x + t * dx, a.y + t * dy)
     }
-    
-    return closestPoint ?: path.last()
+    return result
 }
 ```
+
 </Tab>
 </Tabs>
 
-### 3. Calculate Curvature
+This checks every segment and remembers the last valid intersection in path order. If it returns `null`, do not reuse an old target: stop or handle the path endpoint explicitly.
 
-Determine how sharply the robot needs to turn to reach the lookahead point:
+Next, rotate that field point into robot coordinates and turn curvature into left/right commands for a **differential drive**:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
+
 ```java
-public double calculateCurvature(Point robot, Point lookahead, double heading) {
-    // Transform lookahead to robot-relative coordinates
-    double dx = lookahead.x - robot.x;
-    double dy = lookahead.y - robot.y;
-    
-    // Rotate to robot frame
-    double localX = dx * Math.cos(-heading) - dy * Math.sin(-heading);
-    double localY = dx * Math.sin(-heading) + dy * Math.cos(-heading);
-    
-    // Calculate curvature (1/radius)
-    double lookaheadDist = Math.hypot(localX, localY);
-    return (2 * localY) / (lookaheadDist * lookaheadDist);
+static double[] tankPowers(Point2 lookahead, double robotX, double robotY,
+                           double headingRadians, double lookaheadRadius,
+                           double trackWidthInches, double maxSpeedInchesPerSecond) {
+    double dx = lookahead.x - robotX;
+    double dy = lookahead.y - robotY;
+
+    // Robot coordinates: x forward, y left.
+    double localX = Math.cos(headingRadians) * dx + Math.sin(headingRadians) * dy;
+    double localY = -Math.sin(headingRadians) * dx + Math.cos(headingRadians) * dy;
+    double curvature = 2.0 * localY / (lookaheadRadius * lookaheadRadius);
+
+    double speed = 6.0; // Slow example speed; tune for your robot.
+    double turnSpeed = speed * curvature * trackWidthInches / 2.0;
+    double left = (speed - turnSpeed) / maxSpeedInchesPerSecond;
+    double right = (speed + turnSpeed) / maxSpeedInchesPerSecond;
+    double largest = Math.max(1.0, Math.max(Math.abs(left), Math.abs(right)));
+    return new double[] { left / largest, right / largest };
 }
 ```
+
 </Tab>
 <Tab value="Kotlin">
+
 ```kotlin
-fun calculateCurvature(robot: Point, lookahead: Point, heading: Double): Double {
-    // Transform lookahead to robot-relative coordinates
-    val dx = lookahead.x - robot.x
-    val dy = lookahead.y - robot.y
-    
-    // Rotate to robot frame
-    val localX = dx * cos(-heading) - dy * sin(-heading)
-    val localY = dx * sin(-heading) + dy * cos(-heading)
-    
-    // Calculate curvature (1/radius)
-    val lookaheadDist = hypot(localX, localY)
-    return (2 * localY) / (lookaheadDist * lookaheadDist)
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
+
+fun tankPowers(lookahead: Point2, robotX: Double, robotY: Double,
+               headingRadians: Double, lookaheadRadius: Double,
+               trackWidthInches: Double, maxSpeedInchesPerSecond: Double): DoubleArray {
+    val dx = lookahead.x - robotX
+    val dy = lookahead.y - robotY
+
+    // Robot coordinates: x forward, y left.
+    val localX = cos(headingRadians) * dx + sin(headingRadians) * dy
+    val localY = -sin(headingRadians) * dx + cos(headingRadians) * dy
+    val curvature = 2.0 * localY / (lookaheadRadius * lookaheadRadius)
+
+    val speed = 6.0 // Slow example speed; tune for your robot.
+    val turnSpeed = speed * curvature * trackWidthInches / 2.0
+    val left = (speed - turnSpeed) / maxSpeedInchesPerSecond
+    val right = (speed + turnSpeed) / maxSpeedInchesPerSecond
+    val largest = maxOf(1.0, abs(left), abs(right))
+    return doubleArrayOf(left / largest, right / largest)
 }
 ```
+
 </Tab>
 </Tabs>
 
-### 4. Apply to Drivetrain
+In the OpMode loop, call `furthestLookahead(...)` with the current localized pose. If a point is returned, call `tankPowers(...)` and send the result to the left and right motor groups. Stop when the robot is within a measured endpoint tolerance; stop immediately if the OpMode is no longer active. This conversion is for tank/differential drive only. Mecanum drive needs a different mapping, and a complete competition implementation also needs path progress tracking, endpoint behavior, timeouts, and a calibrated localizer.
 
-Convert curvature to motor powers:
+## Common reasons it does not follow the path
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-public void followPath(List<Point> path, Odometry odom) {
-    double LOOKAHEAD_DISTANCE = 12.0; // inches
-    double BASE_SPEED = 0.6;
-    
-    while (opModeIsActive()) {
-        odom.update();
-        
-        Point robotPos = new Point(odom.getX(), odom.getY());
-        Point lookahead = findLookaheadPoint(path, robotPos, LOOKAHEAD_DISTANCE);
-        
-        if (lookahead == null) break; // Reached end
-        
-        double curvature = calculateCurvature(robotPos, lookahead, odom.getHeading());
-        
-        // Differential drive: adjust left/right speeds based on curvature
-        double leftPower = BASE_SPEED * (1 - curvature * TRACK_WIDTH / 2);
-        double rightPower = BASE_SPEED * (1 + curvature * TRACK_WIDTH / 2);
-        
-        leftMotor.setPower(leftPower);
-        rightMotor.setPower(rightPower);
-    }
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-fun followPath(path: List<Point>, odom: Odometry) {
-    val LOOKAHEAD_DISTANCE = 12.0 // inches
-    val BASE_SPEED = 0.6
-    
-    while (opModeIsActive()) {
-        odom.update()
-        
-        val robotPos = Point(odom.x, odom.y)
-        val lookahead = findLookaheadPoint(path, robotPos, LOOKAHEAD_DISTANCE) ?: break
-        
-        val curvature = calculateCurvature(robotPos, lookahead, odom.heading)
-        
-        // Differential drive: adjust left/right speeds based on curvature
-        val leftPower = BASE_SPEED * (1 - curvature * TRACK_WIDTH / 2)
-        val rightPower = BASE_SPEED * (1 + curvature * TRACK_WIDTH / 2)
-        
-        leftMotor.power = leftPower
-        rightMotor.power = rightPower
-    }
-}
-```
-</Tab>
-</Tabs>
+- **The pose drifts:** Pure Pursuit cannot fix bad odometry. Calibrate the localization system first.
+- **The robot turns the wrong way:** Check the sign convention for heading, sideways position, and curvature.
+- **It cuts corners:** Reduce speed or shorten lookahead; also check whether the path itself has sharp turns.
+- **It jitters:** Increase lookahead modestly, reduce speed, and check for noisy pose measurements.
+- **It never finishes:** Define what “at the end” means and stop the drivetrain when the endpoint condition is met.
 
-## Tuning Parameters
+## Use a library for the full controller
 
-### Lookahead Distance
+The geometry is useful for understanding what a path follower is doing, but robust FTC code also needs localization, speed limits, endpoint handling, drivetrain-specific control, and safe stop behavior. See the [Pedro Pathing guide](../libraries/pedro-pathing) for a maintained FTC pathing option. Check its official documentation for current installation and APIs; those change between major versions.
 
-The **lookahead distance** is how far ahead the robot "looks" on the path.
+Continue with [Odometry](./odometry) to understand pose estimates, [Motion Planning](./motion-planning) to choose a route, or [Sensor Fusion](./sensor-fusion) to combine measurements.
 
-- **Small lookahead (6-10 inches):**
-  - Tighter path following
-  - Good for sharp corners
-  - Can oscillate or overshoot
-  
-- **Large lookahead (15-20 inches):**
-  - Smoother movement
-  - Less oscillation
-  - Cuts corners on sharp turns
+## Further reading
 
-**Recommended:** Start with 12 inches and adjust based on your robot's performance.
-
-### Base Speed
-
-Controls how fast the robot follows the path.
-
-- **Too fast:** Robot overshoots, unstable
-- **Too slow:** Wastes autonomous time
-- **Sweet spot:** 60-80% power for most robots
-
-### Adaptive Lookahead
-
-Advanced teams use **variable lookahead** based on speed or curvature:
-
-```java
-double adaptiveLookahead = MIN_LOOKAHEAD + (robotSpeed / MAX_SPEED) * LOOKAHEAD_RANGE;
-```
-
-Faster robot = longer lookahead (smoother)  
-Slower robot = shorter lookahead (tighter following)
-
-## Complete Pure Pursuit Example
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-@Autonomous(name = "Pure Pursuit Demo")
-public class PurePursuitDemo extends LinearOpMode {
-    
-    private static final double LOOKAHEAD = 12.0;
-    private static final double BASE_SPEED = 0.6;
-    private static final double TRACK_WIDTH = 14.0;
-    
-    @Override
-    public void runOpMode() {
-        // Initialize odometry
-        ThreeWheelOdometry odometry = new ThreeWheelOdometry(
-            hardwareMap.get(DcMotor.class, "left_encoder"),
-            hardwareMap.get(DcMotor.class, "right_encoder"),
-            hardwareMap.get(DcMotor.class, "strafe_encoder")
-        );
-        
-        DcMotor leftMotor = hardwareMap.get(DcMotor.class, "left_motor");
-        DcMotor rightMotor = hardwareMap.get(DcMotor.class, "right_motor");
-        
-        // Define path
-        List<Point> path = Arrays.asList(
-            new Point(0, 0),
-            new Point(24, 12),
-            new Point(48, 24),
-            new Point(60, 36)
-        );
-        
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            odometry.update();
-            
-            Point robotPos = new Point(odometry.getX(), odometry.getY());
-            Point lookahead = findLookaheadPoint(path, robotPos, LOOKAHEAD);
-            
-            // Check if finished
-            if (robotPos.distanceTo(path.get(path.size() - 1)) < 3.0) {
-                leftMotor.setPower(0);
-                rightMotor.setPower(0);
-                break;
-            }
-            
-            // Calculate steering
-            double curvature = calculateCurvature(robotPos, lookahead, odometry.getHeading());
-            
-            double leftPower = BASE_SPEED * (1 - curvature * TRACK_WIDTH / 2);
-            double rightPower = BASE_SPEED * (1 + curvature * TRACK_WIDTH / 2);
-            
-            leftMotor.setPower(leftPower);
-            rightMotor.setPower(rightPower);
-            
-            // Telemetry
-            telemetry.addData("Position", "%.1f, %.1f", odometry.getX(), odometry.getY());
-            telemetry.addData("Lookahead", "%.1f, %.1f", lookahead.x, lookahead.y);
-            telemetry.addData("Curvature", curvature);
-            telemetry.update();
-        }
-    }
-    
-    // Helper methods (findLookaheadPoint, calculateCurvature, etc.)
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-@Autonomous(name = "Pure Pursuit Demo")
-class PurePursuitDemo : LinearOpMode() {
-    
-    companion object {
-        const val LOOKAHEAD = 12.0
-        const val BASE_SPEED = 0.6
-        const val TRACK_WIDTH = 14.0
-    }
-    
-    override fun runOpMode() {
-        // Initialize odometry
-        val odometry = ThreeWheelOdometry(
-            hardwareMap.get(DcMotor::class.java, "left_encoder"),
-            hardwareMap.get(DcMotor::class.java, "right_encoder"),
-            hardwareMap.get(DcMotor::class.java, "strafe_encoder")
-        )
-        
-        val leftMotor = hardwareMap.get(DcMotor::class.java, "left_motor")
-        val rightMotor = hardwareMap.get(DcMotor::class.java, "right_motor")
-        
-        // Define path
-        val path = listOf(
-            Point(0.0, 0.0),
-            Point(24.0, 12.0),
-            Point(48.0, 24.0),
-            Point(60.0, 36.0)
-        )
-        
-        waitForStart()
-        
-        while (opModeIsActive()) {
-            odometry.update()
-            
-            val robotPos = Point(odometry.x, odometry.y)
-            val lookahead = findLookaheadPoint(path, robotPos, LOOKAHEAD)
-            
-            // Check if finished
-            if (robotPos.distanceTo(path.last()) < 3.0) {
-                leftMotor.power = 0.0
-                rightMotor.power = 0.0
-                break
-            }
-            
-            // Calculate steering
-            val curvature = calculateCurvature(robotPos, lookahead, odometry.heading)
-            
-            val leftPower = BASE_SPEED * (1 - curvature * TRACK_WIDTH / 2)
-            val rightPower = BASE_SPEED * (1 + curvature * TRACK_WIDTH / 2)
-            
-            leftMotor.power = leftPower
-            rightMotor.power = rightPower
-            
-            // Telemetry
-            telemetry.addData("Position", "%.1f, %.1f", odometry.x, odometry.y)
-            telemetry.addData("Lookahead", "%.1f, %.1f", lookahead.x, lookahead.y)
-            telemetry.addData("Curvature", curvature)
-            telemetry.update()
-        }
-    }
-    
-    // Helper methods (findLookaheadPoint, calculateCurvature, etc.)
-}
-```
-</Tab>
-</Tabs>
-
-## Advantages Over Other Methods
-
-| Method | Smoothness | Speed | Complexity | Stopping Points |
-|--------|-----------|-------|------------|-----------------|
-| **Waypoints** | ⭐⭐ | ⭐⭐ | ⭐ | Many |
-| **Pure Pursuit** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | None |
-| **Splines (Road Runner)** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | None |
-
-## Common Mistakes
-
-**Lookahead too small** — Robot oscillates and overshoots  
-**No end condition** — Robot circles final point forever  
-**Not updating odometry** — Position estimates drift, path fails  
-**Path points too far apart** — Robot cuts corners excessively  
-**Forgetting to clip motor powers** — Values > 1.0 cause issues
-
-## Using Libraries Instead
-
-While implementing Pure Pursuit from scratch is educational, **production teams typically use libraries**:
-
-### Pedro Pathing
-- Built-in Pure Pursuit
-- Bézier curve support
-- Easy to use, well-documented
-- [Learn more: Pedro Pathing](/docs/libraries/pedro-pathing)
-
-### Road Runner
-- Advanced spline-based following
-- More complex but very powerful
-- Industry standard for top teams
-- [Learn more: Road Runner](/docs/libraries/road-runner)
-
-<Callout type="tip">
-**Recommendation:** Understand Pure Pursuit conceptually, then use Pedro Pathing or Road Runner for your actual autonomous. Don't reinvent the wheel!
-</Callout>
-
-## Next Steps
-
-Now that you understand Pure Pursuit, explore:
-- **[Sensor Fusion](/docs/autonomous/sensor-fusion)** — Combine odometry with vision for even better accuracy
-- **[Pedro Pathing](/docs/libraries/pedro-pathing)** — Use a pre-built Pure Pursuit library
-- **[Motion Profiling](/docs/control-systems/motion-profiling)** — Add velocity control to your paths
-
-## Additional Resources
-
-- [Purdue SIGBots: Pure Pursuit (VEX, but concepts apply)](https://wiki.purduesigbots.com/software/control-algorithms/pure-pursuit)
-- [Pedro Pathing Documentation](https://pedropathing.com)
-- [FTC Discord: #programming-help](https://discord.gg/first-tech-challenge)
-- [gm0: Path Following](https://gm0.org/en/latest/docs/software/concepts/odometry.html)
+- [Pedro Pathing documentation](https://pedropathing.com)
+- [Purdue SIGBots: Pure Pursuit](https://wiki.purduesigbots.com/software/control-algorithms/pure-pursuit)
+- [gm0: Odometry](https://gm0.org/en/latest/docs/software/concepts/odometry.html)

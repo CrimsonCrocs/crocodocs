@@ -1,475 +1,60 @@
 ---
 title: Comments and Documentation
-description: When and how to document your code
+description: Explain decisions that code alone cannot show
 icon: MessageSquare
 ---
 
-## The Golden Rule
+## Write the reason
 
-**Comment the WHY, not the WHAT.**
+A comment is useful when a teammate needs to know **why** the code uses a value or takes an unusual step. It is less useful when it only repeats the line below it.
 
-Your code already shows what it does. Comments should explain why you're doing it, especially for non-obvious decisions.
+| Less helpful | More helpful |
+| --- | --- |
+| `// Set power to 0.25` | `// Limit power while the new arm mechanism is being tested.` |
+| `// Reverse motor` | `// This motor faces the opposite direction on this robot.` |
 
-## Good Comments
+The second column gives context a reader cannot infer from `setPower` or `setDirection` alone. Keep the comment near the code it explains.
 
-### Explaining Intent
+## Show units and assumptions
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-// Good - explains WHY
-// Reverse left motors because they're mounted backwards
-frontLeft.setDirection(DcMotor.Direction.REVERSE);
-backLeft.setDirection(DcMotor.Direction.REVERSE);
-
-// Add small delay to let servo reach position before reading sensor
-sleep(200);
-
-// Clamp to [-1, 1] to prevent motor power overflow
-motorPower = Math.max(-1.0, Math.min(1.0, motorPower));
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-// Good - explains WHY
-// Reverse left motors because they're mounted backwards
-frontLeft.direction = DcMotor.Direction.REVERSE
-backLeft.direction = DcMotor.Direction.REVERSE
-
-// Add small delay to let servo reach position before reading sensor
-sleep(200)
-
-// Clamp to [-1, 1] to prevent motor power overflow
-motorPower = motorPower.coerceIn(-1.0, 1.0)
-```
-</Tab>
-</Tabs>
-
-### Documenting Workarounds
+Measurements are easy to misuse when their units or starting point are unclear:
 
 ```java
-// WORKAROUND: IMU occasionally returns NaN on first read.
-// Clear cache by reading twice during initialization.
-imu.getRobotYawPitchRollAngles();
-sleep(50);
-double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+// Encoder zero is set with the arm resting against its mechanical stop.
+// This limit is in encoder ticks, not degrees.
+private static final int ARM_UPPER_LIMIT_TICKS = 850;
 ```
 
-### Flagging Issues
+The value `850` is only an **illustration**. Your team must measure its own safe limit. A comment should record how a number was chosen, but it cannot replace testing.
 
-```java
-// TODO: Add timeout to prevent infinite loop if motor stalls
-while (!arm.isAtTarget()) {
-    sleep(10);
-}
+## Document a reusable method
 
-// FIXME: This calibration value is wrong for the new wheels
-private static final int TICKS_PER_INCH = 50;
-
-// NOTE: Alliance color must be set on Driver Station before running
-if (allianceColor == Alliance.RED) {
-    // ...
-}
-```
-
-### Explaining Complex Logic
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-// Calculate curvature for Pure Pursuit path following
-// Formula: curvature = 2 * localY / lookaheadDistance²
-// where localY is the y-coordinate in the robot's frame
-double localX = Math.cos(-heading) * (lookaheadX - robotX) - 
-                Math.sin(-heading) * (lookaheadY - robotY);
-double localY = Math.sin(-heading) * (lookaheadX - robotX) + 
-                Math.cos(-heading) * (lookaheadY - robotY);
-
-double curvature = (2 * localY) / (lookaheadDistance * lookaheadDistance);
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-// Calculate curvature for Pure Pursuit path following
-// Formula: curvature = 2 * localY / lookaheadDistance²
-// where localY is the y-coordinate in the robot's frame
-val localX = cos(-heading) * (lookaheadX - robotX) - 
-             sin(-heading) * (lookaheadY - robotY)
-val localY = sin(-heading) * (lookaheadX - robotX) + 
-             cos(-heading) * (lookaheadY - robotY)
-
-val curvature = (2 * localY) / (lookaheadDistance * lookaheadDistance)
-```
-</Tab>
-</Tabs>
-
-## Bad Comments
-
-### Stating the Obvious
-
-```java
-// Bad - code already says this
-int count = 0; // Set count to 0
-count++; // Increment count
-motor.setPower(0); // Set motor power to 0
-
-// Good - no comment needed, code is self-explanatory
-int count = 0;
-count++;
-motor.setPower(0);
-```
-
-### Outdated Comments
-
-```java
-// Bad - comment doesn't match code anymore
-// Set servo to open position (0.5)
-clawServo.setPosition(0.75); // Position changed but comment didn't update
-
-// Good - keep comments in sync or remove them
-clawServo.setPosition(CLAW_OPEN_POSITION);
-```
-
-### Redundant Descriptions
-
-```java
-// Bad
-/**
- * Gets the position
- * @return the position
- */
-public int getPosition() {
-    return position;
-}
-
-// Good - only comment if there's something non-obvious
-/**
- * Gets the arm encoder position.
- * 
- * @return Position in encoder ticks, where 0 is the starting position
- *         and positive values are up.
- */
-public int getPosition() {
-    return armMotor.getCurrentPosition();
-}
-```
-
-## Header Comments for Classes
-
-Use header comments to explain the class's purpose:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-/**
- * Drivetrain subsystem for mecanum drive.
- * 
- * Provides field-centric drive control with optional slow mode.
- * Motors are configured with front-left reversed to match robot orientation.
- * 
- * Usage:
- *   Drivetrain drive = new Drivetrain(hardwareMap);
- *   drive.fieldCentricDrive(x, y, rotation, heading);
- */
-public class Drivetrain {
-    // Implementation
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-/**
- * Drivetrain subsystem for mecanum drive.
- * 
- * Provides field-centric drive control with optional slow mode.
- * Motors are configured with front-left reversed to match robot orientation.
- * 
- * Usage:
- *   val drive = Drivetrain(hardwareMap)
- *   drive.fieldCentricDrive(x, y, rotation, heading)
- */
-class Drivetrain(hardwareMap: HardwareMap) {
-    // Implementation
-}
-```
-</Tab>
-</Tabs>
-
-## Method Documentation
-
-Document public methods with JavaDoc/KDoc:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-```java
-/**
- * Drives the robot using field-centric control.
- * 
- * Field-centric means joystick directions are relative to the field, not the robot.
- * Forward on the joystick always moves towards the opponent wall, regardless of
- * robot orientation.
- * 
- * @param x Forward/backward component (-1 to 1)
- * @param y Left/right strafe component (-1 to 1)
- * @param rotation Rotation component (-1 to 1, positive = counterclockwise)
- * @param headingDegrees Current robot heading from IMU (0-360)
- */
-public void fieldCentricDrive(double x, double y, double rotation, double headingDegrees) {
-    // Implementation
-}
-```
-</Tab>
-<Tab value="Kotlin">
-```kotlin
-/**
- * Drives the robot using field-centric control.
- * 
- * Field-centric means joystick directions are relative to the field, not the robot.
- * Forward on the joystick always moves towards the opponent wall, regardless of
- * robot orientation.
- * 
- * @param x Forward/backward component (-1 to 1)
- * @param y Left/right strafe component (-1 to 1)
- * @param rotation Rotation component (-1 to 1, positive = counterclockwise)
- * @param headingDegrees Current robot heading from IMU (0-360)
- */
-fun fieldCentricDrive(x: Double, y: Double, rotation: Double, headingDegrees: Double) {
-    // Implementation
-}
-```
-</Tab>
-</Tabs>
-
-## Inline Comments
-
-Use inline comments sparingly for non-obvious lines:
-
-```java
-// Check if we're within the safe zone before extending arm
-if (arm.getPosition() < Constants.ARM_SAFE_ZONE && intake.isExtended()) {
-    intake.retract(); // Prevent collision with field perimeter
-}
-
-// Wait for all motors to finish (with 5 second timeout)
-long startTime = System.currentTimeMillis();
-while (motorsAreBusy() && System.currentTimeMillis() - startTime < 5000) {
-    idle();
-}
-```
-
-## Configuration Comments
-
-Document robot configuration and calibration:
-
-```java
-public class Constants {
-    // DRIVETRAIN CALIBRATION
-    // Measured on 2024-11-15 with new 96mm mecanum wheels
-    public static final double WHEEL_DIAMETER_INCHES = 3.78;
-    public static final int MOTOR_TICKS_PER_REV = 537; // GoBILDA 5203-2402-0019
-    public static final double GEAR_RATIO = 1.0; // Direct drive, no gearbox
-    
-    // TRACK WIDTH
-    // Distance between left/right wheel centers
-    // Calibrated using 10-rotation test: measured 359.5", theoretical 360"
-    public static final double TRACK_WIDTH_INCHES = 14.52;
-    
-    // ARM POSITIONS
-    // Found through manual testing during Week 3 build session
-    public static final int ARM_GROUND_PICKUP = 50;
-    public static final int ARM_LOW_BASKET = 800;
-    public static final int ARM_HIGH_BASKET = 1650;
-    public static final int ARM_SAFE_TRAVEL = 200; // Clears intake when driving
-}
-```
-
-## Section Comments
-
-Use section comments to organize long files:
-
-```java
-public class MainTeleOp extends LinearOpMode {
-    // ===== HARDWARE =====
-    private Drivetrain drivetrain;
-    private Arm arm;
-    private Intake intake;
-    
-    // ===== STATE =====
-    private boolean slowMode = false;
-    private boolean lastBumperState = false;
-    
-    // ===== INITIALIZATION =====
-    @Override
-    public void runOpMode() {
-        initializeHardware();
-        waitForStart();
-        
-        while (opModeIsActive()) {
-            updateGameplay();
-        }
-    }
-    
-    // ===== GAMEPLAY UPDATES =====
-    private void updateGameplay() {
-        handleDrivetrain();
-        handleArm();
-        handleIntake();
-    }
-    
-    // ===== HELPER METHODS =====
-    private void initializeHardware() {
-        // ...
-    }
-}
-```
-
-## Comment Markers
-
-Use standard markers for task tracking:
-
-```java
-// TODO: Implement encoder-based autonomous movement
-// FIXME: Color sensor values are inverted (hardware issue?)
-// NOTE: This autonomous mode is for the RED alliance only
-// HACK: Temporary fix until we get the new IMU sensor
-// OPTIMIZE: This loop could be more efficient with ArrayList instead of array
-```
-
-## When NOT to Comment
-
-**Self-documenting code doesn't need comments:**
-
-```java
-// Bad - comment adds no value
-// Get the motor power
-double motorPower = calculateMotorPower();
-
-// Good - no comment needed
-double motorPower = calculateMotorPower();
-```
-
-**Use better names instead of comments:**
-
-```java
-// Bad
-double x = motor.getCurrentPosition(); // Current arm position
-
-// Good
-double currentArmPosition = motor.getCurrentPosition();
-```
-
-## README Files
-
-Create a README.md for your team's repository:
-
-```markdown
-# Team 12345 FTC Robot Code - DECODE Season
-
-## Robot Configuration
-
-**Hardware:**
-- 4x GoBILDA 5203-2402-0019 motors (drivetrain)
-- 1x REV HD Hex motor (arm)
-- 2x REV Servo (claw, wrist)
-- 1x REV Control Hub
-- 1x REV IMU
-- 1x REV Color Sensor V3
-
-**Wiring:**
-See `docs/wiring-diagram.pdf`
-
-## Running OpModes
-
-**TeleOp:**
-1. Select "Drive: Main TeleOp" from Driver Station
-2. Controls:
-   - Left stick: forward/strafe
-   - Right stick: rotation
-   - Left bumper: slow mode toggle
-   - A button: intake collect
-   - B button: intake eject
-
-**Autonomous:**
-- `Auto: Red Left` - Red alliance, left starting position
-- `Auto: Red Right` - Red alliance, right starting position
-- `Auto: Blue Left` - Blue alliance, left starting position
-- `Auto: Blue Right` - Blue alliance, right starting position
-
-## Code Structure
-
-```
-TeamCode/
-├── opmodes/          - TeleOp and Autonomous OpModes
-├── subsystems/       - Drivetrain, Arm, Intake classes
-├── utilities/        - Constants, PID, Odometry helpers
-└── hardware/         - RobotHardware wrapper class
-```
-
-## Important Notes
-
-- Always calibrate track width after changing wheels
-- IMU must be mounted flat on the robot (Z-axis up)
-- Run "Test: Motor Direction Test" after any wiring changes
-
-## Contact
-
-Lead Programmer: Jane Doe (jane@team12345.org)
-```
-
-## Literate Programming
-
-For complex algorithms, consider a "literate" style:
+When teammates call a method from several OpModes, describe what they can pass and what the method guarantees:
 
 ```java
 /**
- * Pure Pursuit path following algorithm.
- * 
- * The robot chases a "lookahead point" on the path that's a fixed distance ahead.
- * This creates smooth curved paths instead of sharp point-to-point turns.
- * 
- * Algorithm steps:
- * 1. Find the lookahead point on the path
- * 2. Transform lookahead to robot's coordinate frame
- * 3. Calculate curvature to reach the lookahead point
- * 4. Convert curvature to left/right motor powers
- * 
- * Resources:
- * - https://www.chiefdelphi.com/t/paper-implementation-of-the-adaptive-pure-pursuit-controller/166552
- * - Team 1712's presentation: https://www.youtube.com/watch?v=YBJmYSWFjZ4
+ * Sets arm motor power, limited to the tested range [-0.25, 0.25].
+ * Call with zero when manual arm control should stop.
  */
-public void followPath(List<Pose2D> path) {
-    // Step 1: Find lookahead point
-    Pose2D lookahead = findLookaheadPoint(path, robotPose, LOOKAHEAD_DISTANCE);
-    
-    // Step 2: Transform to robot frame
-    double localX = /* transformation math */;
-    double localY = /* transformation math */;
-    
-    // Step 3: Calculate curvature
-    // Formula from Pure Pursuit paper: k = 2 * localY / L²
-    double curvature = (2 * localY) / (LOOKAHEAD_DISTANCE * LOOKAHEAD_DISTANCE);
-    
-    // Step 4: Convert to motor powers
-    // Left motor slows down, right motor speeds up for left turn
-    double leftPower = basePower * (1 - curvature * TRACK_WIDTH / 2);
-    double rightPower = basePower * (1 + curvature * TRACK_WIDTH / 2);
-    
-    drivetrain.setPower(leftPower, rightPower);
+public void moveArm(double requestedPower) {
+    double safePower = Math.max(-0.25, Math.min(0.25, requestedPower));
+    armMotor.setPower(safePower);
 }
 ```
 
-## Quick Reference
+This fragment assumes `armMotor` has already been mapped. It is not a complete OpMode.
 
-| Situation | Comment? | Example |
-|-----------|----------|---------|
-| Obvious code | No | `count++;` |
-| Magic number | Use constant | `WHEEL_DIAMETER` |
-| Complex logic | Yes | Pure Pursuit math |
-| Workaround | Yes | IMU NaN bug |
-| TODO/FIXME | Yes | Future improvements |
-| Method purpose | Yes (public only) | JavaDoc |
-| Why, not what | Yes | "Reverse motors because..." |
+## Keep notes honest
 
-## Next Steps
+- Update a comment when behavior changes. A wrong comment can be worse than no comment.
+- Use `TODO` for a specific future task, such as `// TODO: Add a timeout to the homing routine before field testing.` Do not leave an unsafe loop in use just because it has a TODO.
+- Delete commented-out code once the team has a working replacement in Git history.
+- Put setup steps, robot configuration names, and test instructions in a short README instead of repeating them in every file.
 
-Learn how to work effectively with your team in **[Team Collaboration](/docs/cegp/team-collaboration)**.
+## A quick review
+
+Read a comment without looking at the code beneath it. Does it explain a decision, unit, constraint, or expected behavior? If it only narrates syntax, improve the name or remove the comment.
+
+## Next step
+
+See [team collaboration](./team-collaboration) for how to review and share these changes.

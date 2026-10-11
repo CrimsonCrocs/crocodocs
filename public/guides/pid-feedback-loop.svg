@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 430" role="img" aria-labelledby="title desc">
+  <title id="title">Arm position PID feedback loop</title>
+  <desc id="desc">The controller compares a 60 degree target with the encoder's measured angle. PID turns the error into motor power, the motor moves the arm, and the encoder measures again so the loop can repeat.</desc>
+  <defs>
+    <marker id="pid-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#b4232e"/></marker>
+    <style>
+      .title{font:700 27px system-ui,sans-serif;fill:#34272a}
+      .sub{font:16px system-ui,sans-serif;fill:#76676a}
+      .head{font:700 18px system-ui,sans-serif;fill:#34272a;text-anchor:middle}
+      .body{font:15px system-ui,sans-serif;fill:#65575a;text-anchor:middle}
+      .card{fill:#fff;stroke:#e8c9cc;stroke-width:2}
+      .accent{fill:#fff3f3;stroke:#b4232e;stroke-width:2.5}
+      .flow{fill:none;stroke:#b4232e;stroke-width:3;marker-end:url(#pid-arrow)}
+      .feedback{fill:none;stroke:#b4232e;stroke-width:2.5;stroke-dasharray:8 7;marker-end:url(#pid-arrow)}
+    </style>
+  </defs>
+  <rect width="1120" height="430" rx="24" fill="#fff"/>
+  <text class="title" x="560" y="48" text-anchor="middle">A PID controller corrects arm position over time</text>
+  <text class="sub" x="560" y="76" text-anchor="middle">Measure the result, compare it with the target, and adjust motor power on each cycle.</text>
+
+  <rect class="accent" x="38" y="130" width="150" height="104" rx="16"/>
+  <text class="head" x="113" y="171">Target</text>
+  <text class="body" x="113" y="200">60° desired angle</text>
+
+  <path class="flow" d="M188 182H229"/>
+  <rect class="card" x="234" y="130" width="190" height="104" rx="16"/>
+  <text class="head" x="329" y="171">Compare</text>
+  <text class="body" x="329" y="200">target − measured angle</text>
+
+  <path class="flow" d="M424 182H465"/>
+  <rect class="accent" x="470" y="130" width="160" height="104" rx="16"/>
+  <text class="head" x="550" y="171">PID</text>
+  <text class="body" x="550" y="200">error → motor power</text>
+
+  <path class="flow" d="M630 182H671"/>
+  <rect class="card" x="676" y="130" width="160" height="104" rx="16"/>
+  <text class="head" x="756" y="171">Motor</text>
+  <text class="body" x="756" y="200">moves the arm</text>
+
+  <path class="flow" d="M836 182H877"/>
+  <rect class="card" x="882" y="130" width="198" height="104" rx="16"/>
+  <text class="head" x="981" y="171">Encoder</text>
+  <text class="body" x="981" y="200">measures arm angle</text>
+
+  <path class="feedback" d="M981 234V310H329V239"/>
+  <rect x="407" y="293" width="498" height="38" rx="19" fill="#fff"/>
+  <text x="656" y="318" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" font-weight="600" fill="#9d2630">Measured angle feeds the next control cycle</text>
+  <text class="sub" x="560" y="382" text-anchor="middle">The loop repeats until the arm is close to its target position.</text>
+</svg>

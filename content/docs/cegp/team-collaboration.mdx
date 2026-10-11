@@ -1,452 +1,60 @@
 ---
 title: Team Collaboration
-description: Git, code reviews, and working together
+description: Share robot code without losing changes or confusing teammates
 icon: Users
 ---
 
-## Version Control with Git
+## Why use Git?
 
-Git is essential for team programming. It tracks changes, prevents conflicts, and lets multiple people work on code simultaneously.
+Git keeps a history of code changes. A **commit** is a saved point in that history. A **remote** is a shared copy, often on GitHub, that teammates can fetch from and push to.
 
-### Basic Git Workflow
+![A Git change moves from edited files to a selected set of staged files, then to a local commit, and finally to the team's shared remote.](/guides/git-team-flow.svg)
 
-```bash
-# 1. Pull latest changes before starting work
-git pull
+Before a new programmer edits the robot project, agree on who owns the shared repository and how the team checks changes on the robot. A successful code build does not prove that motors, servos, and sensors behave correctly.
 
-# 2. Make your changes to the code
+## One small change, step by step
 
-# 3. Check what you changed
-git status
-git diff
+Use these commands in your team's project folder. If you use Android Studio's Git buttons, the same ideas still apply.
 
-# 4. Stage your changes
-git add .
+1. **Get the latest team work:** `git pull`. If Git reports a conflict, stop and resolve it with a teammate before editing more files.
+2. **Make one focused change.** For example, adjust one arm limit and test the arm safely.
+3. **See what changed:** `git status` lists changed files; `git diff` shows changed lines. Review these before saving a commit.
+4. **Stage only relevant files:** `git add TeamCode/src/main/java/org/firstinspires/ftc/teamcode/Arm.java`. Staging selects exactly what goes into the next commit.
+5. **Save the change:** `git commit -m "Limit arm power during homing"`.
+6. **Share it:** `git push` sends your local commits to the shared remote.
 
-# 5. Commit with a descriptive message
-git commit -m "Add autonomous red left path"
+This example path is only illustrative; use your actual file path. A commit message should say what behavior changed. If a change needs context, explain the reason in the commit body or team review.
 
-# 6. Push to remote repository
-git push
-```
+## Work together without stepping on changes
 
-### Commit Messages
-
-Write clear commit messages that explain what and why:
-
-**Good commit messages:**
-```
-Add encoder-based drivetrain movement
-
-Implement autonomous red left side path
-- Drive to specimen scoring zone
-- Score preloaded specimen
-- Park in ascent zone
-
-Fix arm motor direction (was reversed)
-
-Update TRACK_WIDTH calibration to 14.52 inches
-```
-
-**Bad commit messages:**
-```
-update
-fixed stuff
-changes
-test
-asdfasdf
-```
-
-**Format:** 
-- First line: Brief summary (50 chars or less)
-- Blank line
-- Detailed description if needed (what changed and why)
-
-### Branching Strategy
-
-Use branches to keep main code stable:
+For a larger task, create a branch. A branch is a separate line of work that teammates can review before it joins the main branch.
 
 ```bash
-# Create a new branch for your feature
-git checkout -b feature/autonomous-scoring
-
-# Work on your changes
-# ... edit files ...
-
-# Commit your work
-git add .
-git commit -m "Add autonomous scoring logic"
-
-# Push your branch
-git push -u origin feature/autonomous-scoring
-
-# When ready, merge back to main
-git checkout main
-git merge feature/autonomous-scoring
+git switch -c feature/arm-homing
+# Edit, test, review, and commit your change.
+git push -u origin feature/arm-homing
 ```
 
-**Branch naming conventions:**
-- `feature/description` - New features
-- `fix/description` - Bug fixes
-- `test/description` - Experimental code
-- `docs/description` - Documentation updates
+Open a pull request or use your team's agreed review process. Ask another programmer to read the change and, when relevant, watch the robot test. Merge only after the team understands what the new behavior does.
 
-### What to Commit
+If two people change the same lines, Git may show a **merge conflict**. Read both versions, decide what the final code should do, then build and test that result. Do not automatically keep one side without understanding the other.
 
-**Do commit:**
-- Source code (.java, .kt files)
-- Configuration files
-- Documentation (README.md, comments)
-- Build files (build.gradle)
+## A short review checklist
 
-**Don't commit:**
-- Build outputs (.apk, .class files)
-- IDE settings (.idea/, .vscode/)
-- Personal configurations
-- Large binary files (videos, CAD files)
+- Does the code compile, and is the changed behavior tested on the robot?
+- Do hardware names match the Robot Controller configuration?
+- Are motor direction, power, and servo limits safe for this mechanism?
+- Can another student understand the intent from names and short comments?
+- Did the commit include only the intended files?
 
-**Use .gitignore:**
-```
-# Build outputs
-build/
-*.apk
-*.class
+Keep generated build files and personal secrets out of commits. The FTC SDK project includes a `.gitignore`; review it before adding a new kind of generated file. If a team accidentally commits a secret, remove or rotate the secret in its original service as well as correcting the repository history.
 
-# IDE files
-.idea/
-.vscode/
-*.iml
+## Help a new teammate
 
-# OS files
-.DS_Store
-Thumbs.db
+Pair on one small task: one student edits while the other asks what each line does and watches the test. Switch roles after the first working change. Keep a short README with the robot configuration names, how to build the project, and the steps for a safe test.
 
-# Personal notes
-PERSONAL_NOTES.txt
-```
+## References
 
-## Code Reviews
-
-Code reviews catch bugs and spread knowledge across the team.
-
-### Before Submitting Code
-
-**Self-review checklist:**
-- Does it compile without errors?
-- Did you test it on the robot?
-- Are variable names clear?
-- Did you remove debug statements?
-- Is the code formatted consistently?
-- Did you add comments for complex logic?
-
-### Reviewing Someone Else's Code
-
-**What to look for:**
-- Logic errors or edge cases
-- Potential performance issues
-- Code clarity and readability
-- Consistency with team conventions
-- Missing error handling
-
-**Good review comments:**
-```
-"What happens if the sensor returns null here?"
-
-"Consider extracting these 20 lines into a separate method
-called calculateArmPower() for clarity."
-
-"Nice solution! One suggestion: using a constant instead of 0.8
-would make this more maintainable."
-
-"This looks good. Did you test it with the actual robot?"
-```
-
-**Bad review comments:**
-```
-"This is wrong."
-"Why did you do it this way?"
-"I would have done it differently."
-"This code is bad."
-```
-
-**Be constructive:**
-- Point out what's good, not just problems
-- Suggest improvements, don't just critique
-- Ask questions instead of making demands
-- Remember you're reviewing code, not the person
-
-### Pair Programming
-
-Two programmers, one computer:
-
-**Driver (keyboard):**
-- Types the code
-- Focuses on tactical implementation
-- Asks questions when stuck
-
-**Navigator (thinking):**
-- Reviews code as it's written
-- Thinks about strategy and approach
-- Spots mistakes early
-- Looks up documentation
-
-**Benefits:**
-- Catch bugs immediately
-- Share knowledge between programmers
-- Onboard new team members faster
-- Higher code quality
-
-**Tips:**
-- Switch roles every 20-30 minutes
-- Communicate constantly
-- Navigator shouldn't micromanage ("type this...")
-- Both should understand the code being written
-
-## Communication
-
-### Code Comments for Teammates
-
-Leave helpful comments when your code affects others:
-
-```java
-// TODO: @Sarah - Need your help calibrating this value
-private static final double STRAFE_COEFFICIENT = 1.1;
-
-// NOTE: This assumes the arm is in travel position. 
-// Make sure autonomous calls arm.moveToTravel() first.
-public void startIntake() {
-    // ...
-}
-
-// BREAKING CHANGE: Renamed driveDistance() to driveForward()
-// Update all autonomous OpModes to use new name
-@Deprecated
-public void driveDistance(double inches) {
-    driveForward(inches);
-}
-```
-
-### Slack/Discord/Teams
-
-Keep team communication organized:
-
-**Channels:**
-- `#programming` - Code questions and discussions
-- `#robot` - Hardware and mechanical updates
-- `#competition` - Event schedules and planning
-- `#general` - Everything else
-
-**When to use chat vs. in-person:**
-- Chat: Quick questions, sharing links/code snippets
-- In-person: Complex debugging, design decisions, teaching
-
-**Pin important messages:**
-- Drive station login
-- Robot configuration names
-- Competition schedule
-- Calibration values
-
-### Documentation
-
-Keep a programming notebook or wiki:
-
-**Document:**
-- Calibration procedures and values
-- Known bugs and workarounds
-- Testing procedures
-- Robot capabilities and limitations
-- Design decisions and why
-
-**Example entries:**
-```markdown
-## 2025-02-10: Track Width Calibration
-
-Performed 10-rotation test with new mecanum wheels.
-Robot rotated 10 times, measured 359.5 inches traveled.
-
-Calculation:
-- Circumference = 359.5 / 10 = 35.95"
-- Track width = 35.95 / π = 11.44"
-
-Updated Constants.TRACK_WIDTH to 11.44
-
-## 2025-02-08: Color Sensor Issue
-
-REV Color Sensor V3 occasionally returns 0 for all RGB values.
-Workaround: Read sensor twice, discard first reading.
-See commit a3d5f2e for implementation.
-
-TODO: Contact REV support about this issue.
-```
-
-## Handling Conflicts
-
-### Merge Conflicts
-
-When two people edit the same code:
-
-```
-<<<<<<< HEAD
-motor.setPower(0.8);
-=======
-motor.setPower(0.6);
->>>>>>> feature/slower-arm
-```
-
-**To resolve:**
-1. Discuss with your teammate which version is correct
-2. Edit the file to keep the right code
-3. Remove the conflict markers (`<<<<`, `====`, `>>>>`)
-4. Test that it works
-5. Commit the resolved conflict
-
-```bash
-# After manually fixing conflicts
-git add .
-git commit -m "Resolve merge conflict in arm power"
-git push
-```
-
-### Code Conflicts
-
-When you disagree on implementation:
-
-**Good approach:**
-- Explain your reasoning
-- Ask questions to understand their perspective
-- Test both approaches if possible
-- Involve a mentor or lead programmer
-- Focus on what's best for the robot, not who's right
-
-**Example discussion:**
-```
-Programmer A: "I think we should use PID for the arm."
-Programmer B: "I think we should just use RUN_TO_POSITION."
-
-A: "Why do you prefer RUN_TO_POSITION?"
-B: "It's simpler and we understand it better."
-A: "That's fair. But PID gives us more control over speed."
-
-Together: "Let's try both and see which performs better in testing."
-```
-
-## Onboarding New Team Members
-
-Help new programmers get started:
-
-### Setup Checklist
-
-```markdown
-## New Programmer Onboarding
-
-- [ ] Install Android Studio
-- [ ] Clone team repository from GitHub
-- [ ] Set up Driver Station on laptop
-- [ ] Connect to robot Control Hub
-- [ ] Run a simple TeleOp to verify setup
-- [ ] Read team coding conventions document
-- [ ] Complete FTC tutorial OpModes
-- [ ] Shadow experienced programmer for a meeting
-- [ ] Make first code contribution (with review)
-```
-
-### Starter Tasks
-
-Give new programmers manageable tasks:
-
-**Good first tasks:**
-- Add telemetry display for a sensor
-- Adjust a constant value (motor power, servo position)
-- Create a test OpMode for a single motor
-- Add a new button binding to TeleOp
-- Document an existing function
-
-**Not good first tasks:**
-- Rewrite entire autonomous system
-- Implement complex path following
-- Debug intermittent hardware issues
-- Refactor subsystem architecture
-
-### Mentoring
-
-**As a mentor:**
-- Pair program to demonstrate workflow
-- Explain your thought process out loud
-- Let them drive (type) while you guide
-- Answer questions patiently
-- Review their code quickly
-- Celebrate their progress
-
-**As a new programmer:**
-- Ask questions when stuck
-- Take notes on setup and processes
-- Read existing code to learn patterns
-- Test your changes thoroughly
-- Don't be afraid to make mistakes
-- Contribute ideas even as a beginner
-
-## Competition Day Best Practices
-
-### Before Competition
-
-**Code freeze:**
-- No major changes 1-2 days before competition
-- Only critical bug fixes
-- Test everything thoroughly
-
-**Pre-competition checklist:**
-```markdown
-- [ ] All code committed and pushed
-- [ ] Robot configuration matches code
-- [ ] Autonomous modes tested
-- [ ] TeleOp controls verified
-- [ ] Bring backup laptop with code
-- [ ] Charge all batteries
-- [ ] Print driver controls diagram
-```
-
-### During Competition
-
-**Match preparation:**
-- Don't modify code between matches unless critical bug
-- Keep laptop charged and ready
-- Have backup phone/tablet with Driver Station
-- Document any issues that occur
-
-**If something breaks:**
-- Stay calm
-- Identify the problem clearly
-- Make minimal changes
-- Test before next match
-- Have a rollback plan
-
-**Division of labor:**
-- One programmer monitors robot during matches
-- One programmer ready to debug if needed
-- Don't have 5 people crowded around one laptop
-
-## Quick Tips
-
-**Do:**
-- Pull before you start working
-- Commit working code frequently
-- Write descriptive commit messages
-- Test your changes on the robot
-- Communicate with your team
-- Review code before pushing
-- Ask for help when stuck
-
-**Don't:**
-- Commit broken code
-- Force push to main branch
-- Ignore merge conflicts
-- Make major changes right before competition
-- Work on the same file simultaneously without coordination
-- Delete someone else's code without asking
-- Blame teammates for bugs
-
-## Next Steps
-
-Review all the principles in this section by returning to the **[Introduction](/docs/cegp)**.
-
-You now have the foundations for writing clean, collaborative FTC robot code!
+- [Git basics: recording changes](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)
+- [Git basics: branching](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)
+- [FTC SDK project](https://github.com/FIRST-Tech-Challenge/FtcRobotController)
