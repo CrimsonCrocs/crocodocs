@@ -25,7 +25,7 @@ public class AutoShoot extends LinearOpMode {
 }`}</pre>
     </div>
     <div className="pointer-events-none absolute bottom-24 left-[18%] z-0 hidden rounded-full border border-[#E43437]/20 bg-card/95 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/70 shadow-xl backdrop-blur-md lg:block dark:bg-black/45 dark:text-[#ffb3ad] animate-drift-gentle [animation-delay:-5s]">
-      // code_stable
+      {"// code_stable"}
     </div>
     <div className="pointer-events-none absolute bottom-36 right-[20%] z-0 hidden rounded-full border border-[#E43437]/20 bg-card/90 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-foreground shadow-xl backdrop-blur-md lg:block dark:bg-white/80 dark:text-black animate-drift-slow [animation-delay:-4s]">
       FTC 16075
@@ -167,7 +167,7 @@ public class AutoShoot extends LinearOpMode {
               Central Control Hub
             </h3>
             <p className="max-w-3xl text-base leading-relaxed text-muted-foreground lg:text-lg">
-              One single source of truth for your team's code standards, logic flows, and hardware integration maps. Built to sustain team knowledge across seasons.
+              One single source of truth for your team&apos;s code standards, logic flows, and hardware integration maps. Built to sustain team knowledge across seasons.
             </p>
           </div>
 

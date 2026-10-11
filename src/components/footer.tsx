@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const Footer = () => {
   return (
@@ -21,12 +22,12 @@ const Footer = () => {
         <div className="flex flex-col gap-5 sm:gap-6">
         <span className="text-xs font-black uppercase tracking-[0.3em] text-foreground">RESOURCES</span>
         <a className="text-sm font-bold uppercase text-muted-foreground transition-all hover:text-primary" href="https://github.com/upsidedly/myFIRSTjournal" target="_blank" rel="noreferrer">GitHub repository</a>
-        <a className="text-sm font-bold uppercase text-muted-foreground transition-all hover:text-primary" href="/docs">Documentation</a>
+        <Link className="text-sm font-bold uppercase text-muted-foreground transition-all hover:text-primary" href="/docs">Documentation</Link>
         <a className="text-sm font-bold uppercase text-muted-foreground transition-all hover:text-primary" href="https://ftc-resources.firstinspires.org/ftc/programming" target="_blank" rel="noreferrer">Official FTC resources</a>
         </div>
         <div className="flex flex-col gap-5 sm:gap-6">
         <span className="text-xs font-black uppercase tracking-[0.3em] text-foreground">THE TEAM</span>
-        <a className="text-sm font-bold uppercase text-muted-foreground transition-all hover:text-primary" href="/docs">About CrocoDocs</a>
+        <Link className="text-sm font-bold uppercase text-muted-foreground transition-all hover:text-primary" href="/docs">About CrocoDocs</Link>
         <a className="text-sm font-bold uppercase text-muted-foreground transition-all hover:text-primary" href="https://github.com/upsidedly/myFIRSTjournal/issues" target="_blank" rel="noreferrer">Report an issue</a>
         </div>
         </div>
