@@ -25,6 +25,6 @@ The project-local [StudyVault Article Writer skill](./.agents/skills/studyvault-
 
 ## Deploy on Vercel
 
-Import the `upsidedly/myFIRSTjournal` GitHub repository into Vercel and set the production branch to `main`. Vercel should detect Next.js automatically. Use the install command `bun install` if the project is configured for Bun; the build command is `bun run build`, and the output is the Next.js default. Add `OPENROUTER_API_KEY` only if the AI endpoint is enabled. Check the Vercel deployment log for the commit SHA and build errors when a GitHub push does not appear on the live site.
+Import the `CrimsonCrocs/crocodocs` GitHub repository into Vercel and set the production branch to `main`. Vercel should detect Next.js automatically. Use the install command `bun install` if the project is configured for Bun; the build command is `bun run build`, and the output is the Next.js default. Add `OPENROUTER_API_KEY` only if the AI endpoint is enabled. Check the Vercel deployment log for the commit SHA and build errors when a GitHub push does not appear on the live site.
 
 The Vercel project and its Git integration are configured in the Vercel dashboard; this repository has no checked-in `vercel.json` or project-link metadata.

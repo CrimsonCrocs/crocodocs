@@ -13,8 +13,8 @@ export default function Footer() {
           <Link href="/docs/engineering" className="inline-flex min-h-11 items-center hover:text-primary">Engineering</Link>
           <Link href="/docs" className="inline-flex min-h-11 items-center hover:text-primary">Programming</Link>
           <Link href="/docs/portfolio" className="inline-flex min-h-11 items-center hover:text-primary">Portfolio</Link>
-          <a href="https://github.com/upsidedly/myFIRSTjournal" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">GitHub</a>
-          <a href="https://github.com/upsidedly/myFIRSTjournal/issues" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">Report an issue</a>
+          <a href="https://github.com/CrimsonCrocs/crocodocs" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://github.com/CrimsonCrocs/crocodocs/issues" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">Report an issue</a>
           <a href="https://www.crimsoncrocs.org" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">Crimson Crocs</a>
           <a href="https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">Official FTC resources</a>
         </nav>

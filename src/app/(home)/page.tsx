@@ -23,7 +23,7 @@ export default function HomePage() {
               <Link href="/docs" className="brand-button">
                 Get started <ArrowRight size={18} aria-hidden="true" />
               </Link>
-              <a href="https://github.com/upsidedly/myFIRSTjournal" className="inline-flex size-11 items-center justify-center self-center rounded-full text-muted-foreground transition-colors hover:text-foreground" target="_blank" rel="noreferrer" aria-label="View CrocoDocs on GitHub">
+              <a href="https://github.com/CrimsonCrocs/crocodocs" className="inline-flex size-11 items-center justify-center self-center rounded-full text-muted-foreground transition-colors hover:text-foreground" target="_blank" rel="noreferrer" aria-label="View CrocoDocs on GitHub">
                 <GithubLogo size={28} weight="fill" aria-hidden="true" />
               </a>
             </div>

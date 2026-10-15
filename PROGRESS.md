@@ -91,3 +91,11 @@ Mercurial v2 source: FTC bindings tag `2.0.1-beta1` (`97469ab`), published core/
 - [x] Replace 47 broken internal-link occurrences across six overview pages and the obsolete official programming URL in the shared footer. Preserve the linked topics and document every old target, replacement, and reason in `docs/audits/link-audit.md`.
 - [x] Verify the final production-build graph: 1,268 distinct URLs/fragments, 464 destinations, no unresolved targets. The docs check and production build pass; phone-width Slothboard navigation and desktop Community software → Blaze FTC navigation pass. Focused Intentional Verify: **ACCEPT**.
 - [x] Publish `309939a`; the canonical Vercel deployment succeeded. Fresh production HTML verifies all 48 replacements across the six overview pages and homepage footer, with the old targets absent. The local dev server is restored on port 3000.
+
+## Repository ownership
+
+- [x] Transfer and rename the original public repository to `CrimsonCrocs/crocodocs`, preserving repository ID `1023463810`, commit history, and `main`. Update the local `origin` remote and current GitHub / issue links.
+- [x] Confirm Vercel automatically followed the transfer: canonical project `prj_wURFGAfKlh1Hlzx5zhKzpDrambxv` now links `CrimsonCrocs/crocodocs`, repository ID `1023463810`, production branch `main`.
+- [ ] Verify a production deployment triggered by a push to the organization repository.
+
+The separate legacy `cc-software-engineering/my-first-journal` Vercel project is not accessible with the current connector or CLI account. It has not been changed. The canonical production project is `mantaworks/crocodocs`, serving `crocodocs.crimsoncrocs.org`.
