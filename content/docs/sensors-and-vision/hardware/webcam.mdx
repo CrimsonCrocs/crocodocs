@@ -4,19 +4,19 @@ description: Choose, mount, configure, and test a USB webcam on an FTC robot
 icon: Camera
 ---
 
-## What the camera does
+## Overview [#what-the-camera-does]
 
 A webcam sends images to the Robot Controller. A vision program can then look for a color, shape, or AprilTag in those images. The camera alone does not tell the robot where to drive; your code must interpret what it sees.
 
 ![A webcam sends frames through USB to the Robot Controller, where a vision processor turns image pixels into a result for the OpMode.](/guides/webcam-signal-flow.svg)
 
-## 1. Choose a camera
+## Camera selection [#1-choose-a-camera]
 
-For a Control Hub, choose a **USB Video Class (UVC)** compatible webcam. FIRST lists **Logitech C270, C310, and C920** among cameras it has tested and calibrated. Its [webcam reference](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_webcams/visionportal-webcams.html) includes supported resolutions, frame rates, and field of view.
+For a Control Hub, choose a **USB Video Class (UVC)** compatible webcam. FIRST lists **Logitech C270, C310, and C920** among cameras it has tested and calibrated. Its webcam reference includes supported resolutions, frame rates, and field of view.
 
 Start with a camera your team already owns if it appears on that list. More pixels are not automatically better: a higher resolution can add processing work, and a wider view makes a distant target smaller in the image. Check what your vision task needs before buying or changing cameras.
 
-## 2. Mount it for the task
+## Mounting [#2-mount-it-for-the-task]
 
 - Aim it at the part of the field you need to observe. Test that a target stays in view while the robot turns and approaches it.
 - Keep the camera and USB cable firmly attached. A moving camera changes the relationship between image position and robot position.
@@ -25,15 +25,15 @@ Start with a camera your team already owns if it appears on that list. More pixe
 
 For color detection, test under the lighting you expect at an event. For AprilTag pose, also follow the [AprilTag guide](../visionportal/apriltag-detection) for camera calibration and coordinate conventions.
 
-## 3. Add the webcam to the robot configuration
+## Configuration [#3-add-the-webcam-to-the-robot-configuration]
 
 1. Connect the webcam to the Control Hub's USB port, or to a supported powered USB hub when your setup needs one.
-2. In the Robot Controller configuration, add the webcam as a USB device and save the configuration. FIRST's [external webcam configuration guide](https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/configuring_external_webcam/configuring-external-webcam.html) shows the screens.
+2. In the Robot Controller configuration, add the webcam as a USB device and save the configuration. FIRST's external webcam configuration guide shows the screens.
 3. Give it a clear name, such as `Webcam 1`. Your code must use **that exact name** when it looks up the camera.
 
-## 4. Run one camera test
+## Camera testing [#4-run-one-camera-test]
 
-Use a webcam sample OpMode included with the [FTC SDK](https://github.com/FIRST-Tech-Challenge/FtcRobotController) or follow the [VisionPortal setup guide](../visionportal/vision-portal). Confirm that the preview shows a live image before adding detection logic.
+Use a webcam sample OpMode included with the FTC SDK or follow the [VisionPortal setup guide](../visionportal/vision-portal). Confirm that the preview shows a live image before adding detection logic.
 
 | If you see… | Check this first |
 | --- | --- |
@@ -44,13 +44,18 @@ Use a webcam sample OpMode included with the [FTC SDK](https://github.com/FIRST-
 
 Change one thing at a time and test again. That makes it easier to tell which change helped.
 
-## Continue learning
+## Next steps [#continue-learning]
 
 - [Vision basics](../vision-basics) explains image coordinates and the steps from pixels to a detection.
 - [VisionPortal](../visionportal/vision-portal) is the SDK's camera and processor framework.
 - [EasyOpenCV](../easyopencv/easyopencv-basics) is a separate option for custom image pipelines.
 
-## Official references
+<footer className="article-sources">
+
+## Sources [#official-references]
 
 - [Configuring an external webcam with a Control Hub](https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/configuring_external_webcam/configuring-external-webcam.html)
 - [Webcams for VisionPortal](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_webcams/visionportal-webcams.html)
+- [FTC SDK](https://github.com/FIRST-Tech-Challenge/FtcRobotController)
+
+</footer>

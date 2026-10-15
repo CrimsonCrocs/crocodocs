@@ -1,16 +1,16 @@
 ---
-title: EasyOpenCV Basics
+title: EasyOpenCV basics
 description: Open a camera and understand how a custom OpenCV pipeline receives frames
 icon: Package
 ---
 
-# When should you use EasyOpenCV?
+<span id="when-should-you-use-easyopencv" className="heading-alias" />
 
 The FTC SDK already includes **EasyOpenCV** for supported SDK versions (SDK 8.2 and later). For that setup, you do not need to add a separate Maven repository, download a native library, or copy a `.so` file to the Control Hub. Those instructions appear in older tutorials and are not the normal setup for a current FTC project.
 
-EasyOpenCV gives your OpMode a camera stream and a place to run your own OpenCV code. Choose it when you need a custom pipeline. If the built-in FTC Color Locator or AprilTag processor already answers your question, begin with [VisionPortal](../visionportal/vision-portal); it has fewer moving parts.
+EasyOpenCV gives your OpMode a camera stream and a place to run your own OpenCV code. Choose it when you need a custom pipeline. If the built-in FTC Color Locator or AprilTag processor already answers your question, begin with [VisionPortal](../visionportal/vision-portal); it requires less custom processing code.
 
-## What happens when the camera runs?
+## Camera lifecycle [#what-happens-when-the-camera-runs]
 
 1. Your OpMode finds a camera by the name in Robot Configuration.
 2. EasyOpenCV opens that camera asynchronously. “Asynchronously” means the open result arrives later in a callback, so the robot loop does not wait for the camera to open.
@@ -20,19 +20,19 @@ EasyOpenCV gives your OpMode a camera stream and a place to run your own OpenCV 
 
 ![OpenCV stages on an official BIOBUZZ Pollen photo: source image, yellow HSV mask, cleaned candidate, and measured blob.](/guides/vision-color-blob-pipeline.png)
 
-*Source photo: [AndyMark BIOBUZZ scoring elements](https://andymark.com/products/biobuzz-scoring-elements). The mask is a learning example; tune your pipeline against your live camera image.*
+*The mask is a learning example from a controlled product photo; tune your pipeline against your live camera image.*
 
 The vision illustration shows the stages after a frame reaches your pipeline. EasyOpenCV itself manages camera frames and pipeline calls; it does not choose what object to detect. Your OpenCV code does that.
 
-## Step 1: Configure a webcam
+## Webcam configuration [#step-1-configure-a-webcam]
 
 In the Robot Controller configuration, add the webcam and give it a simple name such as `Webcam 1`. That name is part of your program's hardware configuration. If your code asks for `Webcam 1` but the configured device is named `Front Camera`, `hardwareMap` cannot find it.
 
 Connect the camera to the Control Hub or Robot Controller device, then use a preview sample to confirm that the image is live and correctly rotated before you write detection logic.
 
-## Step 2: Find the camera and attach a pipeline
+## Camera setup [#step-2-find-the-camera-and-attach-a-pipeline]
 
-This short setup is the part that belongs in your `LinearOpMode`. `PreviewPipeline` is the small custom class you will build in [Writing Pipelines](./writing-pipelines).
+This short setup is the part that belongs in your `LinearOpMode`. `PollenTargetPipeline` is the small custom class you will build in [Writing Pipelines](./writing-pipelines).
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
@@ -44,7 +44,8 @@ int monitorViewId = hardwareMap.appContext.getResources().getIdentifier(
 WebcamName cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
 OpenCvCamera camera = OpenCvCameraFactory.getInstance()
     .createWebcam(cameraName, monitorViewId);
-camera.setPipeline(new PreviewPipeline());
+PollenTargetPipeline pipeline = new PollenTargetPipeline();
+camera.setPipeline(pipeline);
 ```
 
 </Tab>
@@ -58,17 +59,20 @@ val monitorViewId = hardwareMap.appContext.resources.getIdentifier(
 val cameraName = hardwareMap.get(WebcamName::class.java, "Webcam 1")
 val camera = OpenCvCameraFactory.getInstance()
     .createWebcam(cameraName, monitorViewId)
-camera.setPipeline(PreviewPipeline())
+val pipeline = PollenTargetPipeline()
+camera.setPipeline(pipeline)
 ```
 
 </Tab>
 </Tabs>
 
-The first lines find the preview container used by the Driver Station. The `hardwareMap.get(...)` line connects your Java variable to the named camera. `setPipeline(...)` tells EasyOpenCV which class should process the images.
+The first lines find a local preview container on the Robot Controller Android screen. The Driver Station Camera Stream is a separate stream; it does not require that local view. The `hardwareMap.get(...)` line connects your Java variable to the named camera. `setPipeline(...)` tells EasyOpenCV which class should process the images.
 
 Use the `OpenCvCameraFactory` and callback signatures from the sample bundled with your installed FTC SDK. EasyOpenCV and SDK APIs have changed over time; the SDK sample is the version-matched reference.
 
-## Step 3: Open asynchronously and handle both outcomes
+## Asynchronous opening [#step-3-open-asynchronously-and-handle-both-outcomes]
+
+Declare `private volatile String cameraError = "";` as a Java OpMode field, or `@Volatile private var cameraError = ""` in Kotlin. In the OpMode loop, display it with `telemetry.addData("Camera error", cameraError)`. The callback writes it from another thread.
 
 Opening a camera can take time or fail. EasyOpenCV reports success in `onOpened()` and failure in `onError()`. Start streaming only after success:
 
@@ -111,19 +115,19 @@ camera.openCameraDeviceAsync(object : OpenCvCamera.AsyncCameraOpenListener {
 
 The `640 × 480` size and `UPRIGHT` rotation are examples, not universal settings. Start with a resolution supported by your camera; more pixels can take more processing time. Do not try to start streaming inside the OpMode before `onOpened()` runs.
 
-## Step 4: Keep the OpMode alive, then clean up
+## Shutdown [#step-4-keep-the-opmode-alive-then-clean-up]
 
-After starting the stream, the OpMode must continue running while you read pipeline results. Keep the result visible in telemetry during the first test. When the OpMode stops, stop streaming and close the device according to the SDK-matched EasyOpenCV sample.
+After starting the stream, the OpMode must continue running while you read pipeline results. Keep the result visible in telemetry during the first test. Use `try/finally` around the loop. With EasyOpenCV 1.7.3, call `camera.closeCameraDevice()` in `finally`, then `pipeline.release()`. This synchronous close stops processing before returning. The pipeline in [Writing Pipelines](./writing-pipelines) releases its own working Mats; it leaves the camera-owned input alone. This differs from the asynchronous `VisionPortal.close()` wrapper.
 
 Do not run a drivetrain based on an untested camera result. First confirm the preview, then confirm that the pipeline result changes as you move a target in front of the camera.
 
-## A note about pixel channel order
+## Pixel channel order [#a-note-about-pixel-channel-order]
 
-EasyOpenCV supplies pipeline frames in **RGBA** order. Some desktop OpenCV examples use BGR instead. When converting a frame to HSV, use the conversion code that matches the frame you actually receive, such as `COLOR_RGBA2HSV`; copying `COLOR_BGR2HSV` from a desktop tutorial can produce incorrect colors.
+EasyOpenCV supplies pipeline frames in **RGBA** order. Some desktop OpenCV examples use BGR instead. When converting a frame to HSV, use the conversion code that matches the frame you actually receive, such as `COLOR_RGB2HSV` (which accepts RGB or RGBA input and ignores alpha); copying `COLOR_BGR2HSV` from a desktop tutorial can produce incorrect colors.
 
 You will apply that conversion one step at a time in [Writing Pipelines](./writing-pipelines).
 
-## If the camera does not open
+## Troubleshooting [#if-the-camera-does-not-open]
 
 - Confirm that the configured camera name exactly matches the name in `hardwareMap.get(...)`.
 - Check the cable, adapter, and USB connection.
@@ -131,9 +135,14 @@ You will apply that conversion one step at a time in [Writing Pipelines](./writi
 - Read `onError` telemetry and the Robot Controller log.
 - Try the version-matched FTC/EasyOpenCV sample before changing resolution or adding image processing.
 
-## References
+<footer className="article-sources">
+
+## Sources [#references]
 
 - [OpenFTC EasyOpenCV repository and installation notes](https://github.com/OpenFTC/EasyOpenCV)
 - [OpenFTC EasyOpenCV camera initialization guide](https://github.com/OpenFTC/EasyOpenCV/blob/master/doc/user_docs/camera_initialization_overview.md)
 - [OpenFTC EasyOpenCV pipeline guide](https://github.com/OpenFTC/EasyOpenCV/blob/master/doc/user_docs/pipelines_overview.md)
 - [FTC VisionPortal overview](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_overview/visionportal-overview.html)
+- [AndyMark: BIOBUZZ scoring elements — source photo](https://andymark.com/products/biobuzz-scoring-elements)
+
+</footer>

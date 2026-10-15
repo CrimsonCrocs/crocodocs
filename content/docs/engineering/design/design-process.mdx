@@ -1,0 +1,70 @@
+---
+icon: engineering:ArrowsClockwise
+title: Design process
+description: Set requirements, compare designs, build prototypes, and test the decisions you make.
+---
+
+The **engineering design process** uses requirements, alternative designs, prototypes, and tests to decide what to build. Each revision should answer a question about the design.
+
+## Design requirements [#define-success-before-choosing-a-mechanism]
+
+"Build an intake" already assumes a solution. "Acquire the object while the robot approaches with imperfect alignment" identifies a problem several mechanisms might solve.
+
+Separate **constraints**, which a design must satisfy, from **targets**, which can be traded against other goals. Legal dimensions, the available workshop, and a fixed delivery date are constraints. Acquisition time, mass, and acceptable miss rate are targets until the team makes them acceptance criteria.
+
+| Requirement | Verification |
+| --- | --- |
+| Object stays captured during the intended turn | Drive the same turn with a retained object |
+| Intake tolerates the chosen approach offset | Test marked lateral and angular offsets |
+| Module can be replaced between practice runs | Time a replacement with the actual tools |
+
+The specific target values should come from your strategy and measurements.
+
+## Concept comparison [#compare-different-ways-to-solve-the-problem]
+
+Sketch concepts that differ in how they constrain or move the object. Three cosmetic versions of one claw do not investigate whether a roller intake would be better.
+
+Reject concepts that violate a constraint before scoring them in a decision table. Compare the remaining options on criteria such as capture tolerance, packaging, build time, and repair access. Label scores as judgments until tests replace them.
+
+Keep the reason for rejecting an option. That record prevents the same unworkable idea returning when a new student joins.
+
+## Prototyping [#prototype-the-uncertain-part]
+
+A prototype is a tool for answering a question. Use a cardboard envelope to check packaging, an adjustable roller mount to find compression, or a simple shaft fixture to test load. It need not resemble the final robot if it preserves the physics under investigation.
+
+For example, an intake experiment might vary roller gap while keeping roller material, speed, object, approach path, and fixture constant. Test several object orientations at each gap. Record capture, rejection, damage, and recovery; do not record only successful attempts.
+
+CAD is valuable for geometry and interference. Physical tests reveal friction, compliance, wear, and manufacturing variation. Neither alone establishes full robot performance.
+
+## Design decisions [#turn-observations-into-a-decision]
+
+Write down the hypothesis, setup, independent variable, measured outputs, and stop conditions before the test. Afterward, compare the result with the acceptance criterion. Separate an observation, such as "the object rotated out of the gap," from an explanation, such as "the contact force was too high."
+
+If the explanation is uncertain, design the next experiment to distinguish causes. Reducing speed, changing compression, and replacing the roller simultaneously may improve pickup without revealing which change helped.
+
+Use this compact record:
+
+```text
+Question: Which roller gap captures the chosen range of object orientations?
+Revision: intake fixture A, roller material and dimensions recorded
+Variable: gap at the contact region
+Controlled conditions: speed command, approach fixture, object set
+Measurements: attempts, captures, acquisition time, damage, recovery
+Decision: selected geometry and reason, or further test needed
+Evidence: dated photos, video, and raw trial table
+```
+
+## Integration testing [#retest-after-integration]
+
+A mechanism that passes on a bench can fail when chassis flex changes its alignment or another mechanism consumes the same space. Repeat the relevant test on the assembled robot, with the intended payload and simultaneous motion.
+
+Experienced teams should attach requirements to subsystem interfaces: mounting datums, acceptable flex, travel envelope, power demand, sensor meaning, and software ownership. A change to one of those interfaces invalidates the tests that depend on it, even if the individual part still works.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Engineering design process](https://gm0.org/en/latest/docs/design-skills/engineering-design-process.html)
+- [FTC Wiki: Design philosophy](https://www.ftcwiki.org/how-to-build-competitive-robots/how-to-compete/design-philosophy)
+
+</footer>

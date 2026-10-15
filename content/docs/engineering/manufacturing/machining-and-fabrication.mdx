@@ -1,0 +1,59 @@
+---
+icon: engineering:Factory
+title: Machining and fabrication
+description: Select a fabrication process, release clear drawings, design for tool access, and inspect the first part.
+---
+
+**Subtractive manufacturing** removes material from stock to make a part. Cutting, drilling, milling, and turning each impose constraints on geometry, accuracy, tools, and the order of operations.
+
+## Process selection [#select-the-process-before-final-geometry]
+
+| Process | Suits | Constraint to design around |
+| --- | --- | --- |
+| Hand cutting and drilling | Simple stock modifications and prototypes | Accurate layout, workholding, and repeatability |
+| CNC milling or routing | Profiles, pockets, and features reachable by a cutter | Tool radius, reach, workholding, and setup |
+| Lathe turning | Shafts and other rotationally symmetric parts | Axis access, workholding, and feature sequence |
+| Laser or waterjet service | Suitable sheet profiles | Approved materials, kerf or taper, feature limits |
+| Sheet forming | Brackets and enclosures made from bent stock | Bend radius, relief, hole placement, and tooling |
+
+You can use kit structure and make only the custom interfaces the robot needs.
+
+## Manufacturing drawings [#make-the-drawing-useful-to-the-operator]
+
+Specify material and thickness, units, revision, reference surfaces, critical dimensions, hole types, and threads. Distinguish a clearance hole from a tapped hole. A tap-drill hole is smaller than the nominal thread diameter because material remains to form the thread.
+
+Use a verified tap-drill table or the tool manufacturer's guidance. Thread type, material, and cutting versus forming tap affect selection. The operator's process controls the actual tool choice.
+
+Do not specify tight tolerance on every feature. Identify the bearing locations, mating datums, or stack dimensions that determine function. Loose cosmetic dimensions and tight functional dimensions have different costs.
+
+## Tool geometry [#respect-the-cutters-geometry]
+
+A round milling cutter leaves a radius at an internal corner. If a square mating tab must enter it, add an intentional relief or redesign the joint. Thin ribs and deep pockets may deflect or be inaccessible to the chosen tool.
+
+Design tool access and workholding together. Ask where the stock is clamped and whether a later cut removes the surface used to locate it. Keep support for narrow features through the planned machining sequence.
+
+For cut sheet, confirm whether the service handles kerf compensation, holes, bends, and deburring. A CAD model of a bent part and a flat cutting file are different deliverables; use the fabricator's bending requirements for the flat pattern.
+
+## Workshop procedures [#use-the-workshops-approved-procedure]
+
+Machine operation needs trained supervision, suitable workholding, eye protection, and the equipment's own operating procedure. Do not hold a drilling workpiece by hand or improvise feeds and speeds from a general robotics article.
+
+For lasers, get approval for the **exact material** from the machine operator. Do not cut unknown plastic or PVC; harmful emissions and machine damage are possible. A material suitable for a robot part is not necessarily suitable for a laser. Follow the machine's ventilation, fire-control, and material policy.
+
+## First-part inspection [#inspect-the-first-part-before-committing]
+
+Check units, stock thickness, critical dimensions, hole spacing, burrs, and edges. Test mating parts on the intended hardware before manufacturing a batch. A visual match to the CAD screenshot does not establish a correct fit.
+
+Record any adjustment made during assembly. If every copy needs the same filing operation, update the drawing or process instead of leaving that knowledge with one builder. Keep a revised replacement file, the approved material specification, and the measured result together.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Machining](https://gm0.org/en/latest/docs/custom-manufacturing/machining.html)
+- [GM0: Laser cutting](https://gm0.org/en/latest/docs/custom-manufacturing/laser-cutting.html)
+- [FTC Wiki: Additive and subtractive methods](https://www.ftcwiki.org/manufacturing-and-assembly/additive-vs-subtractive-manufacturing)
+- [FTC Wiki: Threading introduction](https://www.ftcwiki.org/manufacturing-and-assembly/fasteners-and-tooling/threading-and-tapping)
+- [FTC Wiki: Laser guide](https://www.ftcwiki.org/manufacturing-and-assembly/subtractive-manufacturing/laser-cutters)
+
+</footer>

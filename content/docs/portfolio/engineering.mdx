@@ -1,0 +1,67 @@
+---
+title: Engineering evidence
+description: Explain design decisions with alternatives, calculations, test results, and lessons.
+icon: phosphor:CompassTool
+---
+
+Engineering pages explain why the team chose a design and how it performed. Use prototypes, comparisons, calculations, and tests to show how you reached the decision.
+
+## Design decisions
+
+Start with the task and its constraints. For a lift, these might be travel, load, available space, extension time, and the tools the team can use. Identify which of those mattered most before describing the chosen hardware.
+
+Compare the alternatives you considered, including their drawbacks:
+
+| Question | Evidence to collect |
+| --- | --- |
+| Could each concept complete the task? | Prototype observations, reach, load, or required motion |
+| Which constraint separated them? | A measured difference in speed, packaging, reliability, or repair time |
+| What did the chosen design give up? | A limitation the team accepted |
+| Did it work on the complete robot? | Integrated testing, including the failures |
+
+If you use a weighted decision matrix, explain the scale and weights. Identify which values came from measurements and which were judgments. Check that the criteria reflect the problem you were trying to solve.
+
+## Iterations
+
+Choose revisions that taught you something. Show the failure, its suspected cause, the change, and the following test. Include a revision number or event date so readers can follow the sequence.
+
+For example, **this hypothetical test** compares a lift before and after a pulley alignment change:
+
+| Version | Same test: twenty full-travel cycles with the same load | Interpretation |
+| --- | --- | --- |
+| Earlier pulley position | Eight cycles completed without the string leaving its intended path | Alignment was a significant reliability problem |
+| Revised pulley position | Eighteen cycles completed; two still needed intervention | The change helped, but the system needed further work |
+
+Set the pass conditions for your own mechanism; the example does not prescribe a success rate. Count failed trials and test under the conditions the mechanism will encounter.
+
+## Measurements
+
+State what you measured, how many trials you ran, and the conditions. Distinguish a best run from a typical run and a bench test from a match result. For cycle time, identify the start and end events; a lift's extension time is only one part of an entire scoring cycle.
+
+Check percentage claims. A time falling from 3.4 seconds to 1.1 seconds is about a **68% reduction in time**. The earlier duration is about **3.1 times** the new duration. Calling the change a 309% time reduction would misstate it.
+
+If several parts changed together, describe the improvement as the result of the combined revision. A before-and-after comparison alone cannot tell you which individual change caused the result.
+
+## Calculations
+
+Show what you needed to work out, the inputs and units, the calculation, and the decision you made from it. If a torque estimate led to a different reduction, explain the expected change in speed and how the actual lift behaved.
+
+Keep assumptions visible. A calculation based on estimated mass or ideal efficiency is a prediction. A test result checks that prediction. A simulation image needs its load case, constraints, and what the team changed after interpreting it.
+
+Use the [design process](/docs/engineering/design/design-process), [CAD](/docs/engineering/design/cad), and [testing](/docs/engineering/team/testing-and-reliability) articles for the underlying engineering work.
+
+## Whole-robot design
+
+Include a labelled overview showing how the intake, transfer, scoring mechanism, drivetrain, and controls fit together. Explain shared constraints such as center of mass, wire routing, access to fasteners, and the space needed for motion.
+
+To explain maintenance, show which component comes out, what must be disconnected, and how the repair changed. Keep the rest of the robot visible enough for the reader to understand the procedure.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FIRST: BIOBUZZ Section 6, TU04, Think, Innovate, and Design criteria](https://ftc-resources.firstinspires.org/ftc/archive/2027/game/manual-06)
+- [Community advice: comparisons, statistics, and outcomes](https://discord.com/channels/1443377051305508896/1443405895055704146/1551311640924917861)
+- [Rebel Robotics: INTO THE DEEP portfolio, content pages 9–10](https://drive.google.com/file/d/1BwbpyaX3YCZ-lo-9cuNhbTGD0glnTJQr/view)
+
+</footer>

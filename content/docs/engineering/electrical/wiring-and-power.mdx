@@ -1,0 +1,59 @@
+---
+icon: engineering:Plug
+title: Wiring and power
+description: Plan power distribution, connectors, moving cables, current demand, battery checks, and disconnect diagnosis.
+---
+
+Robot wiring carries power and information through a moving machine. A reliable harness keeps connections protected, allows the full range of motion, and makes each device traceable to its controller port.
+
+## Electrical diagram [#draw-the-electrical-map-first]
+
+Record battery, main switch, controllers, power distribution, motors, servos, and sensors. Label device names, port numbers, connector types, and cable routes. The physical labels should match the robot configuration and software names.
+
+Use FIRST's Robot Wiring Guide as the primary reference, alongside the exact controller and actuator documentation.
+
+Do not copy connector pinouts by appearance. A compatible-looking connector can carry a different voltage or signal order. Check the Control Hub documentation and third-party sensor compatibility before connecting a device.
+
+## Connector retention [#treat-connections-as-mechanical-parts]
+
+Use compatible rated wire and connectors, with the specified termination tools. Provide **strain relief** so a pull on the cable is carried by the structure rather than the terminal. Check seating, retention, polarity, and insulation before power-up.
+
+Route cables away from gears, rollers, wheels, sharp edges, and pinch points. Use enough slack for movement without creating a loop that catches on an object. Sweep each mechanism through its complete travel with power disconnected and check combined positions.
+
+Keep service connectors accessible. A replaceable intake is less useful if its cable must be extracted from every other bundle. Separate power and sensitive signal runs where practical and follow the device guidance for noise suppression.
+
+## Current demand [#budget-simultaneous-current]
+
+Individual tests do not reveal the demand of driving, lifting, holding servos, and feeding at the same time. Make a table of plausible simultaneous actions, then measure representative combined use without deliberately holding stalled actuators.
+
+Voltage loss along a resistive path follows $\Delta V = IR$, and heating follows $P = I^2R$. In an illustrative path with 0.04 Ω total resistance, 10 A produces 0.4 V loss and 4 W of heating. At 20 A, the same path loses 0.8 V and dissipates 16 W. These numbers demonstrate why a poor connection becomes more troublesome at high load.
+
+Select wire size and power distribution from current FIRST requirements and component ratings. Do not raise a fuse rating or bypass protection to make a reset disappear. A high-current fault may begin with a binding slide or a servo commanded into a stop.
+
+## Power faults and ESD [#distinguish-power-faults-from-esd]
+
+A reset during repeated high-load motion can indicate voltage sag, a poor connection, or a shared supply overload. A disruption associated with contact or movement on a dry surface can involve **electrostatic discharge (ESD)**. Similar symptoms still require diagnosis rather than a guess.
+
+Check the battery, switch, power connections, controller logs, and the action occurring at failure. Inspect retention and wire damage. Follow FIRST's ESD guidance for supported mitigation. Do not improvise direct frame grounding or treat the event field yourself.
+
+## Battery care [#manage-batteries-consistently]
+
+Secure the battery against movement and keep replacement access clear. Label batteries and record useful test observations so comparisons are not confused by an unknown power source. Use the approved charger and the battery manufacturer's handling and charging instructions.
+
+Inspect packs, leads, and connectors for damage; stop using a suspect pack until the responsible mentor has assessed it. Open-circuit voltage alone does not establish performance under load. Use representative loaded testing and a consistent rotation procedure. Follow the battery manufacturer's handling and troubleshooting guidance.
+
+Before an event, verify the switch is accessible, labels match the configuration, cable travel is clear, power connections are retained, and combined motion works with the actual payload. Keep the wiring diagram with the [service record](/docs/engineering/team/assembly-and-serviceability).
+
+<footer className="article-sources">
+
+## Sources
+
+- [FIRST: Robot Wiring Guide](https://ftc-docs.firstinspires.org/en/latest/robot_building/wiring_guide/wiring-guide.html)
+- [FTC Wiki: Wiring principles](https://www.ftcwiki.org/design-style/design-guidelines/wiring)
+- [GM0: Wiring guide](https://gm0.org/en/latest/docs/power-and-electronics/wiring.html)
+- [REV: Control Hub](https://docs.revrobotics.com/duo-control/control-system-overview/control-hub-basics)
+- [REV: Third-party sensor compatibility](https://docs.revrobotics.com/duo-control/sensors/5v-sensors)
+- [FIRST: ESD guidance](https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/managing_esd/managing-esd.html)
+- [REV: Battery guidance](https://docs.revrobotics.com/duo-control/troubleshooting-the-control-system/12v-battery-best-practices-and-troubleshooting)
+
+</footer>

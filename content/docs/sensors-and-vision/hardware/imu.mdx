@@ -1,0 +1,80 @@
+---
+title: IMU setup
+description: Configure hub orientation, read yaw, and align it with a field heading
+icon: phosphor:CompassTool
+---
+
+An **IMU** measures orientation and motion-related signals. FTC code commonly uses its yaw for robot heading. It does not directly measure field X/Y position; wheel or other position measurements are still needed for localization.
+
+Use the universal `IMU` interface for supported modern FTC hubs. Older `BNO055IMU` examples have different initialization and orientation conventions. The class below uses FTC SDK 12 APIs.
+
+## Mounting orientation
+
+The SDK needs to know how the hub is mounted. `RevHubOrientationOnRobot` describes the hub's logo and USB facing directions in the robot frame. The example assumes the logo faces UP and USB ports face FORWARD. Change both directions to match the **physical hub**, not the robot heading you wish to report. For non-orthogonal mounting, follow the SDK's non-orthogonal example.
+
+## Yaw reader
+
+Save as `ImuReader.java`. Verify the IMU configuration name is `imu`.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.IMU;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
+@TeleOp(name = "IMU Reader", group = "Practice")
+public class ImuReader extends LinearOpMode {
+    @Override
+    public void runOpMode() {
+        IMU imu = hardwareMap.get(IMU.class, "imu");
+        RevHubOrientationOnRobot mounting = new RevHubOrientationOnRobot(
+            RevHubOrientationOnRobot.LogoFacingDirection.UP,
+            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
+        if (!imu.initialize(new IMU.Parameters(mounting))) {
+            telemetry.addLine("IMU initialization failed");
+            telemetry.update();
+            return;
+        }
+        telemetry.addLine("Place the robot at the chosen zero heading before START.");
+        telemetry.update();
+        waitForStart();
+        if (!opModeIsActive()) return;
+        imu.resetYaw(); // Intentional local zero for this exercise.
+        while (opModeIsActive()) {
+            double yawDegrees = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+            telemetry.addData("Yaw (degrees)", "%.1f", yawDegrees);
+            telemetry.update();
+            idle();
+        }
+    }
+}
+```
+
+With the configured mounting, rotate the robot counterclockwise viewed from above and verify the yaw sign. Test around the -180/180-degree boundary. Read radians instead when passing the value to `Math.sin()` or `Math.cos()`.
+
+## Field heading
+
+Yaw zero is a reference, not a physical field direction. The SDK can retain yaw between OpModes; calling `initialize()` alone does not make it match your chosen field axes. This exercise explicitly resets yaw after the robot is placed, but a localizer must also account for its desired starting heading.
+
+If the robot starts facing field +Y in a convention where +X is zero, its field start heading is +90 degrees. Use `fieldHeading = startHeading + wrapped(rawYaw - initialRawYaw)`, then wrap the result. Record initial yaw and encoder baselines before movement. See the [odometry implementation](../../autonomous/odometry).
+
+## Wrapped error
+
+For counterclockwise-positive angles, target +179 degrees and measurement -179 degrees need a **-2-degree** correction, not +358 degrees. With `errorRadians = targetRadians - measuredRadians`, use `Math.atan2(Math.sin(errorRadians), Math.cos(errorRadians))` for the signed shortest error. The reverse target/measurement pair gives +2 degrees. Reject nonfinite values before using the result.
+
+## Testing
+
+Confirm mounting, units, sign, zero, and wrap behavior while pushing the unpowered robot by hand. If a turn controller spins the wrong way, stop and check the output convention before increasing gains. A smooth yaw trace does not establish that X/Y localization is accurate.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC SDK 12 IMU examples](https://github.com/FIRST-Tech-Challenge/FtcRobotController/tree/e14c2aeb33e84d4ea21697beeea9ac49557be870/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples) — `SensorIMUOrthogonal.java` and `SensorIMUNonOrthogonal.java`.
+- [FIRST universal IMU documentation](https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html)
+- [CTRL ALT FTC: angle wrapping](https://www.ctrlaltftc.com/practical-examples/controlling-heading)
+
+</footer>

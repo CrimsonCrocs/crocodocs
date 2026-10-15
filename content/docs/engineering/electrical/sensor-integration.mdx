@@ -1,0 +1,73 @@
+---
+icon: engineering:Eye
+title: Sensor integration
+description: Mount, protect, reference, and validate sensors so their measurements describe the intended physical quantity.
+---
+
+A sensor reading needs a known relationship to what the robot is measuring. Mounting, reference position, field of view, electrical compatibility, and calibration all affect that relationship.
+
+## Sensor requirements [#define-the-physical-meaning]
+
+Distinguish a motor encoder's rotation from a slide's extension, a switch contact from successful homing, and a camera detection from confirmed capture. Each requires a physical relationship between sensor and mechanism.
+
+| Sensor | Integration question |
+| --- | --- |
+| Motor encoder | Which shaft is measured, and what ratio relates it to the output? |
+| Limit switch | What touches it, at what repeatable position, and can it be overdriven? |
+| Distance or color sensor | What surfaces, angles, and lighting are inside its useful range? |
+| Tracking wheel | Does it maintain contact through the intended robot motion? |
+| Camera | Is the mount rigid and is the target visible in all necessary positions? |
+
+Use the exact manufacturer datasheet to define operating range, electrical connections, device compatibility, and any need for level conversion.
+
+## Measurement quality
+
+| Term | What to check |
+| --- | --- |
+| Bias | An estimated systematic offset from a suitable reference. Repetition alone does not remove it. |
+| Precision | Agreement between repeated measurements under specified conditions. Record the spread, not just one reading. |
+| Resolution | The smallest change in the physical quantity that produces a discernible change in indication. Extra decimal places do not establish it. |
+
+For an illustrative 100 mm reference, readings of 102, 102, 103, 102, and 102 mm average 102.2 mm. Their small spread does not remove the estimated +2.2 mm offset. Test across the useful range before choosing a calibration correction; one offset cannot fix every scale, mounting, or geometry error.
+
+## Sensor mounting [#protect-the-reference-geometry]
+
+Mount the sensor to a stable datum and keep adjustment deliberate. A camera calibrated in one pose cannot be treated as unchanged after its bracket bends. A limit switch that moves whenever its cable is pulled cannot provide a repeatable zero.
+
+Leave clearance for the connector and strain relief. Keep cables out of the object's path and the mechanism's moving envelope. Make replacement possible without silently changing the reference position.
+
+For passive odometry, mounting height, contact force, and wheel alignment affect what is measured. The [odometry article](/docs/autonomous/odometry) connects the physical arrangement to localization.
+
+## Calibration [#calibrate-against-an-independent-measurement]
+
+For an encoder-based extension, command several positions across travel and compare encoder readings with a ruler or other suitable reference. Record units, exact ratio, spool geometry, and the direction convention. Check both approach directions to expose backlash or slack.
+
+If the sensor reports the motor rather than the final output, deliberately inspect cases in which the relationship changes, such as belt skipping or a hub slipping. The software should not interpret an internally consistent encoder reading as proof of successful mechanism motion.
+
+## Measurement timing
+
+A fast control loop does not make a slow sensor produce fresh readings. Record the sensor's update timing separately from the OpMode loop period. Camera exposure, communication, filtering, and scheduling can all add delay before a measurement affects motor output.
+
+For an illustrative target moving at 0.8 m/s, a total delay of 50 ms corresponds to 40 mm of travel. A stable but delayed detection can therefore miss a small acquisition window. Measure the whole sensing-to-action delay under representative load rather than relying only on the advertised sensor rate.
+
+Keep acquisition timestamps or sequence numbers where available. Repeatedly reading one cached result does not supply independent measurements to a filter. Use measured loop intervals in controller calculations and test variable timing as well as the average period.
+
+## Sensor failures [#test-absence-and-failure-as-well-as-presence]
+
+Verify what happens when a switch is disconnected, an object is absent, a camera is obscured, or a target leaves the useful range. Choose a timeout and recovery behavior suited to the task. A failed home reference should stop motion safely instead of letting the actuator drive indefinitely.
+
+Test the exact sensor and processor on the robot under expected lighting, vibration, and simultaneous electrical load. [Vision overview](/docs/sensors-and-vision/vision-overview) contains programming guidance; use the official wiring guide for electrical integration.
+
+Version the mounting transform, calibration values, and hardware revision together. Repeat the affected calibration after replacement, bracket adjustment, or a change to transmission geometry.
+
+<footer className="article-sources">
+
+## Sources
+
+- [REV: Sensor compatibility documentation](https://docs.revrobotics.com/duo-control/sensors/5v-sensors)
+- [GM0: Dead-wheel guide](https://gm0.org/en/latest/docs/common-mechanisms/dead-wheels.html)
+- [FIRST: Wiring guide](https://ftc-docs.firstinspires.org/en/latest/robot_building/wiring_guide/wiring-guide.html)
+- [Tyler Veness: Controls Engineering in FRC](https://file.tavsys.net/control/controls-engineering-in-frc.pdf) — §7.2 on sampling and delay; §9.6.9 on asynchronous measurements.
+- JCGM vocabulary: [bias](https://jcgm.bipm.org/vim/en/2.18.html), [precision](https://jcgm.bipm.org/vim/en/2.15.html), [resolution](https://jcgm.bipm.org/vim/en/4.14.html).
+
+</footer>

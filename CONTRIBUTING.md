@@ -18,7 +18,11 @@ icon: BookOpen
 Write the page content here.
 ```
 
-Use an icon name exported by Lucide (`src/lib/source.ts` reads `lucide-react`). Add the page name to the folder's `meta.json` if the sidebar order is explicit. Nested directories with their own `meta.json` keep related pages together.
+Use a registered Phosphor name with the `phosphor:` prefix, such as `icon: phosphor:BookOpen`. Register any additional names in `src/lib/source.ts`. Legacy Lucide names are still supported for existing pages. Add the page name to the folder's `meta.json` if the sidebar order is explicit. Nested directories with their own `meta.json` keep related pages together.
+
+Engineering pages use the existing Phosphor library through the `engineering:` prefix, for example `icon: engineering:Wrench`. The supported names are registered in `src/lib/source.ts`; they share the red sidebar treatment. Engineering's root `meta.json` uses `---Section heading---` and `...folder` entries to show grouped article links, matching the Programming sidebar.
+
+Portfolio is a separate root at `content/docs/portfolio/`, with registered `phosphor:` icons and grouped navigation. Its editorial and source register is [docs/portfolio-corpus.md](docs/portfolio-corpus.md). Case studies must distinguish season, division versus overall awards, and team-reported outcomes from independently verified results. Keep original reference PDFs and redacted material out of public assets.
 
 ## MDX features available here
 
@@ -27,6 +31,7 @@ Use an icon name exported by Lucide (`src/lib/source.ts` reads `lucide-react`). 
 - `<Tabs items={['Java', 'Kotlin']}>` with matching `<Tab value="Java">` and `<Tab value="Kotlin">` children for equivalent code examples.
 - `<LinkedCards data={[{ title, description, href }]}/>` for link cards on the introduction page.
 - `<Wordmark />` for the CrocoDocs wordmark.
+- `<FTCPlayground example="java-numbers" />` for an FTC Simulator example. The five prepared sections are currently commented out pending the simulator's Blocks and light-mode update. See [the playground handoff](docs/audits/playgrounds.md) before enabling them. Example source and IDs live in `src/lib/playground-examples.ts`; use complete OpModes and match the simulator's hardware configuration.
 - Math using `$...$` inline or `$$...$$` on its own line (KaTeX renders it).
 
 These project-specific components are registered in `src/mdx-components.tsx` and `src/app/docs/[[...slug]]/page.tsx`. Check those files before adding another component name.
@@ -37,11 +42,14 @@ Use relative links between nearby handbook pages when possible; the docs rendere
 
 Do not use `href="#"` as a placeholder. Link to a real route or remove the link until its destination exists. Check link targets when moving or renaming pages.
 
+Use short topic headings such as “Encoder scale” or “Handoff geometry”. When renaming an existing heading, preserve its fragment with Fumadocs custom-ID syntax: `## Handoff geometry [#keep-the-handoff-constrained]`. Do not include a second H1 in the article body; frontmatter supplies the page title.
+
 ## Writing guidance
 
 - Separate general robotics concepts from season-specific facts.
-- For APIs, use the official project's current documentation and show the version context. Link the exact upstream page near the example.
-- For game rules or scoring, link the current official Competition Manual and Team Updates. Label older seasons as archives.
+- Put citations in one compact **Sources** section at the bottom of the article, inside `<footer className="article-sources">`. Use a short linked list with descriptive source names; keep source links and attribution out of explanatory paragraphs and image captions. Keep internal article links and navigation links in resource directories where they help the reader.
+- For APIs, use the official project's current documentation and show the version context beside the example. List the exact upstream page in Sources.
+- For game rules or scoring, include the current official Competition Manual and Team Updates in Sources. Keep rule IDs and qualifications in the explanation, and label older seasons as archives.
 - State assumptions and hardware requirements. Avoid claims such as “always,” “guaranteed,” or exact performance numbers unless the cited source supports them.
 - Keep each code sample focused. Make clear when it is illustrative and when it is ready to compile.
 - Prefer short sections, descriptive headings, diagrams with alt text, and comparison tables where they make a choice easier.

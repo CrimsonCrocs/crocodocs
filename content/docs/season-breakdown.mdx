@@ -1,59 +1,142 @@
 ---
-title: FTC Season Breakdown
-description: A sourced overview of the 2026–27 FIRST Tech Challenge game, BIOBUZZ
+title: BIOBUZZ game overview
+description: Match timing, scoring, field setup, and the rules that shape a BIOBUZZ robot
 icon: Trophy
 ---
 
-# BIOBUZZ presented by RTX
+**BIOBUZZ presented by RTX** is the 2026–27 FIRST Tech Challenge game. Two teams form each alliance. Robots collect yellow **POLLEN** and their alliance-colored **NECTAR**, launch pieces into pivoting **HIVES**, and compete for **FLOWER** ownership. Pieces in alliance **GARDENS** and robots parked in **LOADING ZONES** also score.
 
-BIOBUZZ is the 2026–27 FIRST Tech Challenge game in the FIRST CANOPY season. Two alliances, each made up of two teams, collect **POLLEN** and **NECTAR**, launch them into their alliance's **HIVE**, place game pieces into **FLOWERS**, and score in their **GARDEN**.
+Reviewed **October 14, 2026**, against the English **TU04 Competition Manual**, updated October 8, all published Team Updates through TU04, and the current answered Q&A. The linked manual endpoints can change during the season; these values describe that reviewed version.
 
-This is a guide to the game at a glance. The [official Competition Manual](https://ftc-resources.firstinspires.org/ftc/archive/2027/game) is the source of truth. At the time this page was reviewed, the current manual was **TU04**, updated October 8, 2026. Recheck the [current game resources](https://ftc-resources.firstinspires.org/ftc/game) for later Team Updates before every event.
-
-<Callout type="warn" title="Rules change during the season">
-This page summarizes the game and is not a substitute for the manual. The official manual says its rule wording and later Team Updates take precedence. Check the current scoring table, Ranking Point thresholds, and robot rules before building or competing.
+<Callout title="Official rules">
+Use the current manual, Team Updates, and official Q&A before an event. Exact rule text takes precedence over summaries and explanatory boxes. Q&A helps interpret the manual and does not replace it.
 </Callout>
 
-## Match flow
+## Match timing [#match-flow]
 
-A match consists of a **30-second AUTO period**, an **8-second transition**, and a **2-minute TELEOP period**. During AUTO, robots run pre-programmed instructions. During TELEOP, drivers control the robots. As the match progresses, teams launch game pieces to tip their HIVE, earn access to additional NECTAR, fill FLOWERS, and park in the LOADING ZONE.
+| Period | Duration | Robot control |
+| --- | --- | --- |
+| AUTO | 30 seconds | Pre-programmed behavior; no driver control |
+| Transition | 8 seconds | No powered robot or mechanism movement |
+| TELEOP | 2 minutes | Driver control |
 
-![BIOBUZZ match timeline showing 30 seconds of autonomous play, an 8-second transition, and 2 minutes of driver-controlled play.](/guides/biobuzz-match-timeline.svg)
+![BIOBUZZ timeline with 30 seconds of AUTO, an 8-second transition, and 2 minutes of TELEOP.](/guides/biobuzz-match-timeline.svg)
 
-The transition separates the two scoring periods; drivers begin controlling their robots in TELEOP. See [Section 10.4 of the manual](https://ftc-resources.firstinspires.org/ftc/archive/2027/game) for the official timing.
+G403 prohibits powered movement during the transition, including a mechanism twitch caused by TELEOP initialization. If INIT causes movement, wait until TELEOP begins to initialize it. G404 also requires powered movement to end when TELEOP ends.
 
-## Game pieces and field elements
+## Field setup [#game-pieces-and-field-elements]
 
-- **POLLEN** is the yellow game piece.
-- **NECTAR** is alliance-colored red or blue.
-- **HIVE** is the alliance structure with two pivoting **CELLS**. Launching into the upward-facing CELL can tip the HIVE.
-- **FLOWERS** are field structures filled with POLLEN and NECTAR. Alliance ownership and scoring depend on placement defined in the manual.
-- **GARDEN** is an alliance scoring area for POLLEN and NECTAR.
-- **LOADING ZONE** is also where robots can earn PARK points.
+The field is approximately 12 feet square. Each alliance has a HIVE with two pivoting **CELLS**, a GARDEN, and a LOADING ZONE. Four FLOWERS provide shared scoring opportunities. Use the official field drawings and CAD for dimensions and tolerances.
 
-The manual describes field setup, object dimensions, legal interactions, and scoring volumes in Sections 9–11. Use those diagrams for mechanism design rather than relying on this short glossary.
+| Piece | Standard starting distribution |
+| --- | --- |
+| 40 POLLEN | Four in each of four FLOWERS; four in each GARDEN; four preloads touching each robot |
+| 8 red and 8 blue NECTAR | Three in each alliance's upward-facing CELL; five staged in each ALLIANCE AREA |
 
-## Scoring at a glance
+POLLEN are approximately 2.8 inches in diameter; NECTAR are approximately 3.6 inches. Their different sizes affect intake clearance and storage. Championship and Premier Event piece distributions may be modified under §15.2; check event materials.
 
-The manual awards points for HIVE tips, game pieces in CELLS, game pieces in FLOWERS and GARDENS, LEAVE, and PARK. For example, its current point table assigns **20 points per HIVE TIP**, **2 points per POLLEN or NECTAR remaining in an upward-facing CELL at the end**, and **5 points for the bottom-NECTAR FLOWER bonus**. The exact conditions matter: read the scoring criteria and game rules before treating a piece as scored.
+## Starting position
 
-BIOBUZZ has three game-specific Ranking Points—**SWARM RP**, **POLLINATOR 1 RP**, and **POLLINATOR 2 RP**—as well as the match WIN/TIE Ranking Points. The latest manual table lists Championship thresholds as to be announced and thresholds for other events; Team Updates may change these numbers. Check the live manual before setting season goals.
+Under **G304**, each robot starts wholly on its alliance half, touching the perimeter wall, outside the LOADING ZONE, and neither touching nor occupying a FLOWER scoring volume. It must be in its starting configuration and stationary after initialization.
 
-## Strategy and programming
+Each robot must contact **exactly four POLLEN preloads**, wholly on its own alliance half. They can be in or on the robot, or on the tiles touching it; all four do not have to fit inside a magazine. Select and INIT an OpMode even if the team will not run AUTO. An AUTO OpMode needs the Driver Station's 30-second timer enabled under G304–G305.
 
-Start by making a robot that can complete one repeatable task safely. Then test a short AUTO routine, measure cycle time, and coordinate with your alliance partner. HIVE tipping and FLOWER scoring have timing and interaction rules, so design the mechanism around the official drawings and criteria rather than an animation alone.
+## Scoring [#scoring-at-a-glance]
 
-For software, separate hardware control from match logic, log sensor and mechanism state during testing, and make autonomous behavior stop safely when a sensor reading or mechanism state is unexpected. See [Autonomous](./autonomous), [Vision](./sensors-and-vision/vision-overview), and [Control Systems](./control-systems) for general programming concepts. These pages are season-independent unless they explicitly say otherwise.
+These are **match points**, distinct from Ranking Points. Values are from TU04 Table 10-2, printed manual page 91.
 
-## Official resources
+| Achievement | AUTO | TELEOP |
+| --- | ---: | ---: |
+| LEAVE, per robot | 3 | — |
+| PARK, per robot | 5 | 5 |
+| Completed HIVE TIP | 20 | 20 |
+| Each POLLEN or NECTAR left in an upward CELL | — | 2 |
+| Each qualifying piece in an owned FLOWER | — | 2 |
+| Bottom NECTAR bonus, per FLOWER | — | 5 |
+| Each qualifying piece in an alliance GARDEN | — | 1 |
 
-- [2026–27 BIOBUZZ game and season materials](https://ftc-resources.firstinspires.org/ftc/archive/2027/game) — manual, Team Updates, animation, and field resources
-- [Current FTC game resources](https://ftc-resources.firstinspires.org/ftc/game) — use this page to find the latest update
-- [FTC programming resources](https://ftc-resources.firstinspires.org/ftc/programming) — official programming references
-- [FTC SDK source repository](https://github.com/FIRST-Tech-Challenge/FtcRobotController)
+LEAVE and AUTO PARK are assessed **at the end of AUTO**. TELEOP PARK is assessed at match end. Final piece scoring follows the manual's assessment conditions after robots and pieces come to rest. A TIP completed before TELEOP starts is assessed as AUTO.
 
-## AprilTag clusters in BIOBUZZ
+### LEAVE and PARK
 
-BIOBUZZ uses AprilTag **clusters** on HIVE CELLS. Each CELL has a four-tag cluster; FTC documents four defined clusters for the game and no standalone game tags. The SDK reports a visible cluster as one `AprilTagClusterDetection`, even if it sees one or several of that cluster's printed tags. The cluster's pose can point toward the CELL opening rather than toward the center of a printed tag. This matters when using camera pose to line up a scoring action.
+LEAVE requires the robot to be off the perimeter wall at its assessment. Leaving early and then touching a wall again at the end of AUTO does **not** earn LEAVE. PARK requires the robot to be at least partly in its LOADING ZONE. The same robot can earn AUTO PARK and TELEOP PARK at their respective assessments.
 
-SDK 12.0 and later return both single-tag and cluster detection types. Check the type before reading type-specific fields; cluster results have a name and `percentClusterFound`, not a single tag ID. See the [step-by-step AprilTag guide](./sensors-and-vision/visionportal/apriltag-detection) and [official FTC cluster guide](https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html).
+### HIVE TIPS
+
+Launch pieces into the **upward-facing CELL**. A completed TIP requires the HIVE to change stable states and the previously non-contacting damper to begin contacting the frame. A partial swing or a presumed piece count is insufficient. G417 prohibits inducing or disrupting HIVE motion through other manipulation, such as a held-piece push or deliberate ramming.
+
+There is no universal “load this many balls” scoring threshold in the manual. Piece placement and the HIVE's motion matter. Each TIP can release pieces back onto the field, allowing later collection under G409.
+
+### FLOWERS
+
+A qualifying piece is at least partly inside the scoring volume **between the top and middle rings**. At final assessment:
+
+- The alliance with the **topmost qualifying NECTAR** owns the FLOWER and receives two points for every qualifying piece there, regardless of who placed it.
+- The alliance with the **bottommost qualifying NECTAR** receives the five-point bottom bonus. It can be a different alliance from the owner.
+
+For example, a FLOWER with five qualifying pieces, blue as its topmost NECTAR, and red as its bottommost NECTAR awards blue 10 ownership points and red 5 bonus points.
+
+**G410 specifically prohibits NECTAR entering the FLOWER scoring volume before the final 60 seconds.** Use that exact restriction when planning; do not expand its wording to a blanket ban on all POLLEN placement or all FLOWER contact. G418 permits entry through the top and removal of **POLLEN only through the bottom**. It does not permit deliberate NECTAR extraction.
+
+### GARDENS
+
+A piece at least partly in a GARDEN scores for that GARDEN's alliance, regardless of who placed it or the NECTAR's color. GARDENS are not protected zones. The restriction on controlling opponent NECTAR still applies to robots collecting pieces.
+
+## Piece control
+
+**G407 limits each robot to four controlled pieces total**, combining POLLEN and NECTAR. CONTROL can include supported, trapped, or intentionally herded pieces, including indirect contact through other pieces. A four-slot magazine does not prevent a fifth piece becoming controlled elsewhere on the robot.
+
+**G408 prohibits CONTROL of opponent NECTAR.** Incidental contact and CONTROL are different, but there is no automatic momentary grace period for holding a fifth piece or opponent NECTAR. Brief accidental CONTROL can still violate the rule. Use the current manual for penalty wording.
+
+**G409 prohibits catching or deflecting HIVE discharge before it contacts something other than that receiving robot.** The stated intent is floor contact before collection. Do not design an intake to catch the spill directly. Incidental deflection is also addressed in the official Q&A. Read G407–G410 with the glossary's CONTROL definition when reviewing an intake.
+
+## Human loading
+
+Each TIP of an alliance's corresponding HIVE unlocks **one additional NECTAR** from its five staged pieces. It can be introduced later; immediate entry is optional. At 60 seconds remaining, all remaining staged NECTAR may enter. An own-colored NECTAR that leaves the field may be re-entered under the loading rules without consuming another fresh-piece unlock.
+
+The human must release the own-colored NECTAR so it contacts the tile inside the own LOADING ZONE **before** a robot or another field element. Do not hand it directly into an intake. TIP-unlocked loading is permitted during AUTO as well as TELEOP under G424–G428.
+
+## Ranking Points
+
+A WIN earns 3 RP and a TIE earns 1 RP. Each game achievement below adds 1 RP when the alliance meets its threshold. TU04 Table 10-3 gives:
+
+| Achievement | All other events | Regional Championships | FIRST Championship |
+| --- | --- | --- | --- |
+| SWARM | At least 16 combined LEAVE + PARK points | TBA | TBA |
+| POLLINATOR 1 | At least 4 TIPS | TBA | TBA |
+| POLLINATOR 2 | At least 7 TIPS | TBA | TBA |
+
+Premier Events may choose their own thresholds. Do not assume 16/4/7 applies to a Regional Championship, including Jamaica's championship. Check the event's current requirements and Table 10-3.
+
+## AprilTag clusters [#apriltag-clusters-in-biobuzz]
+
+BIOBUZZ uses the 36h11 family with 3.25-inch tags. Each CELL carries a four-tag cluster, for four clusters and sixteen distinct tags. They move with the tipping CELLS; these are not stationary wall targets.
+
+| CELL location | Printed IDs |
+| --- | --- |
+| Red, opposite audience | 30–33 |
+| Red, audience side | 34–37 |
+| Blue, audience side | 38–41 |
+| Blue, opposite audience | 42–45 |
+
+The SDK's cluster pose can be referenced toward a CELL opening rather than an individual printed tag center. SDK 12 returns distinct single-tag and cluster detection types; check the type before accessing fields. Use the [AprilTag programming guide](./sensors-and-vision/visionportal/apriltag-detection) for implementation details. Download practice targets from official field resources; the manual's illustrations are not print-ready targets.
+
+## Robot development [#strategy-and-programming]
+
+For a new team, first test a legal intake, controlled storage, and one repeatable scoring action. Coordinate the task with the alliance partner before adding more mechanisms. Experienced teams can measure complete cycles, recovery time, placement error, and reliability with realistic piece distributions. These are development suggestions, not an official recommended strategy.
+
+Use current CAD for clearances. TU01 corrected the illustrated bottom-of-HIVE height to **30.6 inches**, replacing V1's 25.5 inches; neither number is the upward CELL opening height. Measure against the correct feature in §9.6.2.
+
+Software should track piece count and mechanism state, handle invalid or stale sensor data, and stop safely on a failed move. A measured timeout is useful, but it does not prove an action succeeded. Start with [Autonomous](./autonomous), [Control systems](./control-systems), and [Engineering testing](./engineering/team/testing-and-reliability).
+
+<footer className="article-sources">
+
+## Sources [#official-resources]
+
+- [BIOBUZZ Competition Manual, TU04](https://ftc-resources.firstinspires.org/ftc/game/manual): [field (§9)](https://ftc-resources.firstinspires.org/ftc/game/manual-09), [gameplay and scoring (§10)](https://ftc-resources.firstinspires.org/ftc/game/manual-10), [rules (§11)](https://ftc-resources.firstinspires.org/ftc/game/manual-11).
+- [Combined Team Updates through TU04](https://ftc-resources.firstinspires.org/ftc/game/tu-combined)
+- [Official game Q&A](https://game-qa.firstinspires.org/boards/2027/FTC/QA): [3](https://game-qa.firstinspires.org/boards/2027/FTC/QA/qa/3), [6](https://game-qa.firstinspires.org/boards/2027/FTC/QA/qa/6), [11](https://game-qa.firstinspires.org/boards/2027/FTC/QA/qa/11), [17](https://game-qa.firstinspires.org/boards/2027/FTC/QA/qa/17), [21](https://game-qa.firstinspires.org/boards/2027/FTC/QA/qa/21), [23](https://game-qa.firstinspires.org/boards/2027/FTC/QA/qa/23).
+- [Official field drawings and CAD](https://ftc-resources.firstinspires.org/ftc/game) · [BIOBUZZ season materials](https://ftc-resources.firstinspires.org/ftc/archive/2027/game)
+- [FIRST: AprilTag cluster guide](https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html)
+
+</footer>

@@ -1,0 +1,67 @@
+---
+icon: engineering:FlowArrow
+title: Arms and linkages
+description: Size gravity and acceleration loads, support pivots, and understand four-bar geometry and changing mechanical advantage.
+---
+
+An **arm** positions a load by rotating about a joint. A **linkage** uses connected members to shape the motion or force between an actuator and an output.
+
+## Arm torque [#find-the-difficult-position]
+
+An arm's gravity torque depends on the horizontal distance from the pivot to each mass. For an arm angle $\theta$ measured from horizontal, a simple load contributes $mgr\cos\theta$. Horizontal is the largest gravity demand for this model; vertical reduces that contribution.
+
+Include the arm itself, gripper, sensors, and payload. For several masses:
+
+$$
+\tau_g = g\sum_i m_i r_i\cos\theta
+$$
+
+Suppose a uniform 0.4 kg arm is 0.35 m long and carries a 0.3 kg end load. When horizontal, its approximate gravity torque is:
+
+$$
+9.81\left(0.4\frac{0.35}{2}+0.3(0.35)\right)
+\approx 1.72\ \mathrm{N\cdot m}
+$$
+
+![A horizontal arm has its own weight acting at its center and a payload weight acting farther from the pivot; both create gravity torque.](/guides/engineering/arm-load.svg)
+
+This is a static estimate, excluding friction and acceleration. Starting or stopping requires additional torque $I\alpha$, where $I$ is rotational inertia and $\alpha$ is angular acceleration. Moving mass farther from the pivot increases inertia, often substantially.
+
+Allow for support and shock loads. Size the gearbox from rated operating behavior, not stall torque alone.
+
+## Pivot support and stops [#support-the-pivot-and-soften-stops]
+
+Use a shaft and bearings appropriate to radial, axial, and overturning loads. A belt, chain, or gear can let the motor transmit torque while separate bearings support the arm. Check the load path into the chassis.
+
+Use controlled acceleration and deceleration to limit impact at travel endpoints. [Motion profiling](/docs/control-systems/motion-profiling) and gravity compensation can improve behavior after the structure and transmission work correctly. Neither removes the need for protective limits and safe stop behavior.
+
+Counterweights or springs can reduce gravity demand. A counterweight adds mass and inertia; a spring has a force and moment arm that change with position. Compare their effect over the entire travel instead of checking one balance point.
+
+## Four-bar linkages [#understand-four-bar-motion]
+
+A **four-bar linkage** has four connected links, including the fixed frame. A parallelogram arrangement can keep the output link at a constant orientation as the side links swing, provided the geometry and assembly stay on the intended branch.
+
+Not every four-bar preserves orientation. Different link lengths produce different paths, and pivots with clearance add error. A **virtual four-bar** uses a suitably arranged transmission, often belts or chain, to constrain output orientation without the extra parallel physical link.
+
+Compare linkage layouts, then check your exact mechanism in CAD and physically. A linkage's output follows a path that may move both vertically and horizontally; reserve its full swept volume.
+
+## Mechanical advantage [#mechanical-advantage-changes-with-angle]
+
+For a linkage, an actuator force produces torque through its perpendicular moment arm. Near a position where links align, small geometry changes can create large force requirements or a difficult reversal. An over-center arrangement may resist backdriving but must be deliberately designed with a recovery path.
+
+For a simple driven arm, a point at radius $r$ has tangential speed $v = r\omega$ and a perpendicular force corresponds to $\tau = Fr$. These relations help explain why a longer servo horn gives more motion but less available force at its tip.
+
+## Loaded testing [#run-a-loaded-sweep]
+
+Support the mechanism, start with small commands, and check stow, pickup, transfer, and placement positions with the intended payload. Record current, settling, deflection, and any point of binding. Keep people outside the swept volume and support the arm before removing power if gravity can move it.
+
+Compare measured holding effort against angle. Unexpected peaks can expose friction, an incorrect center-of-mass estimate, cable pull, or linkage geometry. Resolve those causes before increasing control gains.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Arm guide](https://gm0.org/en/latest/docs/common-mechanisms/arms.html)
+- [GM0: Linkage guide](https://gm0.org/en/latest/docs/common-mechanisms/linkages.html)
+
+</footer>

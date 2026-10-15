@@ -1,6 +1,6 @@
 # CrocoDocs
 
-CrocoDocs is a student-written guide to FIRST Tech Challenge (FTC) robot programming. It is built with Next.js, TypeScript, Tailwind CSS, and Fumadocs MDX.
+CrocoDocs is a student-written guide to FIRST Tech Challenge (FTC) engineering and robot programming. It is built with Next.js, TypeScript, Tailwind CSS, and Fumadocs MDX.
 
 ## Run locally
 
@@ -18,6 +18,10 @@ The optional `/api/ai` route requires an `OPENROUTER_API_KEY` environment variab
 ## Content
 
 Handbook pages are MDX files in `content/docs/`. Navigation order and groups are defined in `meta.json`. See [CONTRIBUTING.md](./CONTRIBUTING.md) for frontmatter, components, images, links, and content review guidance.
+
+The docs sidebar switches between **Programming** (`/docs`, with existing page URLs preserved), **Engineering** (`/docs/engineering`), and **Portfolio** (`/docs/portfolio`). Engineering includes a first-build path, mechanical fundamentals, mechanisms, manufacturing, electrical integration, and team testing. Portfolio includes planning, award evidence, writing, judging, and four Inspire case studies. Source and editorial notes are in [docs/engineering-corpus.md](./docs/engineering-corpus.md) and [docs/portfolio-corpus.md](./docs/portfolio-corpus.md).
+
+The project-local [StudyVault Article Writer skill](./.agents/skills/studyvault-article-writer/SKILL.md) is adapted for CrocoDocs. Regenerate its original engineering diagrams with `node scripts/build-engineering-figures.mjs`. Validate content with `bun run check:docs` and `bun run build`.
 
 ## Deploy on Vercel
 

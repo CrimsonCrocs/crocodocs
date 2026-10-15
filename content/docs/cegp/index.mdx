@@ -1,10 +1,10 @@
 ---
-title: Overview
+title: Code practices
 description: Write robot code that your teammates can read, test, and improve
 icon: Code
 ---
 
-## Code is a team tool
+## Team code [#code-is-a-team-tool]
 
 Robot code is read by more than the person who wrote it. A teammate may need to fix it between matches, change it for a new mechanism, or explain it to a new student. Clear code makes those jobs easier.
 
@@ -14,7 +14,7 @@ You do not need a large architecture to start. For your first OpMode, focus on t
 2. **Keep each step easy to find.** Map hardware, wait for START, then run the control loop.
 3. **Explain unusual decisions.** A short comment can record why a motor is reversed or why a power limit exists.
 
-## A small example
+## Example [#a-small-example]
 
 This fragment shows the idea. It belongs **inside** an OpMode after `leftDriveMotor` has been mapped and START has been pressed:
 
@@ -26,14 +26,14 @@ leftDriveMotor.setPower(safePower);
 
 The names say what the values mean. The `0.25` limit makes the first drive test slower. If that limit is temporary, explain when the team should change it.
 
-## Keep changes understandable
+## Small changes [#keep-changes-understandable]
 
 - Change one behavior at a time when testing a new robot.
 - Build the project, then test the changed behavior on the real robot with a safe setup.
 - Review `git diff` before committing so unrelated changes do not slip in.
 - Record configuration names and important measurements where teammates can find them.
 
-## Choose a focused guide
+## Topics [#choose-a-focused-guide]
 
 | If you need to… | Read… |
 | --- | --- |

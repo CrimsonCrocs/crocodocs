@@ -8,7 +8,7 @@ Pure Pursuit is a path-following idea: instead of steering toward the next point
 
 This page explains the geometry. It is not a complete drivetrain controller: encoder localization, motor control, path planning, and safety stops still need to be handled. Most FTC teams should learn the idea, then use a maintained library for the robot-specific implementation.
 
-## The parts of the problem
+## Path and pose [#the-parts-of-the-problem]
 
 You need two things:
 
@@ -17,7 +17,7 @@ You need two things:
 
 Pure Pursuit uses the pose to choose a point on the path ahead of the robot. That point is the **lookahead point**. Its distance from the robot is the **lookahead distance**.
 
-## Step 1: Look ahead, not behind
+## Lookahead point [#step-1-look-ahead-not-behind]
 
 At each update, find the part of the path near the robot and look for a point about one lookahead distance ahead. A line segment may cross a circle around the robot between two stored path points, so implementations often calculate the intersection instead of choosing the nearest stored point.
 
@@ -25,7 +25,7 @@ If there is no useful point ahead, the robot may be at the end of the path or it
 
 ![A robot on a planned curve with its lookahead circle and a selected forward intersection.](/guides/pure-pursuit-lookahead.png)
 
-## Step 2: Express the point relative to the robot
+## Curvature [#step-2-express-the-point-relative-to-the-robot]
 
 For the steering calculation, describe the lookahead point in robot-centered coordinates:
 
@@ -34,15 +34,15 @@ For the steering calculation, describe the lookahead point in robot-centered coo
 
 For a differential-drive robot, the point defines an arc. The curvature needed for that arc is:
 
-```math
+$$
 \kappa = \frac{2y}{x^2 + y^2}
-```
+$$
 
 Curvature is signed: with the convention above, a point to one side asks for a turn toward that side. For example, a target at `(10, 5)` gives `κ = 10 / 125 = 0.08` per distance unit. This is a geometry example, not a motor-power setting.
 
 The drivetrain controller turns curvature and a chosen speed into wheel commands. That last step depends on whether the robot is tank, mecanum, or another drive type; Pure Pursuit alone does not define it.
 
-## Step 3: Choose a lookahead distance
+## Lookahead distance [#step-3-choose-a-lookahead-distance]
 
 Lookahead distance changes how sharply the robot follows the path:
 
@@ -54,7 +54,7 @@ Lookahead distance changes how sharply the robot follows the path:
 
 Begin slowly with one broad curve. Change lookahead a little at a time and watch the robot's actual track against the planned path. There is no value that works for every robot, speed, and field surface.
 
-## Step 4: Test one path at a time
+## Path testing [#step-4-test-one-path-at-a-time]
 
 1. Check the localization estimate while the robot is still. Make sure the field axes and heading direction match your path coordinates.
 2. Lift the robot and verify that each motor command turns the wheels in the expected direction.
@@ -64,160 +64,81 @@ Begin slowly with one broad curve. Change lookahead a little at a time and watch
 
 Never test a new path at full speed near people or field elements. Keep the robot easy to stop and have a mentor check the test area.
 
-## Step 5: Implement the geometry in small Java methods
+## Geometry helpers
 
-The following helper code implements the part Pure Pursuit contributes: find where each path segment crosses a circle around the robot, pick the furthest valid crossing along the path, and calculate curvature. It assumes field coordinates use `+X` forward at heading zero and `+Y` to the robot's left. Keep your odometry and path points in this same convention.
+The following class contains only geometry. Save it as `PurePursuitGeometry.java`. It does not choose a route segment, update progress, or command motors. Coordinates use field +X forward at heading zero and +Y left; distances must share one unit.
 
-Start with a simple point type and the circle/segment intersection. For a segment from `a` to `b`, parameter `t = 0` is its start and `t = 1` is its end:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
+`circleIntersections()` returns the segment parameters `t` where a segment crosses the lookahead circle. A result in `[0, 1]` lies on the segment. A tangent may return the same value twice. `forwardCurvature()` rejects targets at or behind the robot; a forward-only controller must stop or enter an explicit recovery state in that case.
 
 ```java
-static final class Point2 {
-    final double x;
-    final double y;
-    Point2(double x, double y) { this.x = x; this.y = y; }
-}
+public final class PurePursuitGeometry {
+    private PurePursuitGeometry() {}
 
-static Point2 furthestLookahead(List<Point2> path, double robotX, double robotY,
-                                double radius) {
-    Point2 result = null;
-    double radiusSquared = radius * radius;
-
-    for (int i = 0; i < path.size() - 1; i++) {
-        Point2 a = path.get(i);
-        Point2 b = path.get(i + 1);
-        double dx = b.x - a.x;
-        double dy = b.y - a.y;
-        double fx = a.x - robotX;
-        double fy = a.y - robotY;
-
-        double quadraticA = dx * dx + dy * dy;
-        if (quadraticA == 0.0) continue; // Ignore duplicate consecutive points.
-        double quadraticB = 2.0 * (fx * dx + fy * dy);
-        double quadraticC = fx * fx + fy * fy - radiusSquared;
-        double discriminant = quadraticB * quadraticB
-            - 4.0 * quadraticA * quadraticC;
-        if (discriminant < 0.0) continue; // This segment misses the circle.
-
+    public static double[] circleIntersections(
+            double ax, double ay, double bx, double by,
+            double robotX, double robotY, double radius) {
+        if (!Double.isFinite(ax) || !Double.isFinite(ay)
+                || !Double.isFinite(bx) || !Double.isFinite(by)
+                || !Double.isFinite(robotX) || !Double.isFinite(robotY)
+                || !Double.isFinite(radius) || radius <= 0.0) {
+            throw new IllegalArgumentException("Finite coordinates and positive radius required");
+        }
+        double dx = bx - ax, dy = by - ay;
+        double fx = ax - robotX, fy = ay - robotY;
+        double a = dx * dx + dy * dy;
+        if (a == 0.0) return new double[0];
+        double b = 2.0 * (fx * dx + fy * dy);
+        double c = fx * fx + fy * fy - radius * radius;
+        double discriminant = b * b - 4.0 * a * c;
+        if (discriminant < 0.0) return new double[0];
         double root = Math.sqrt(discriminant);
-        double t1 = (-quadraticB - root) / (2.0 * quadraticA);
-        double t2 = (-quadraticB + root) / (2.0 * quadraticA);
-        double t = Double.NaN;
-        if (t1 >= 0.0 && t1 <= 1.0) t = t1;
-        if (t2 >= 0.0 && t2 <= 1.0 && (Double.isNaN(t) || t2 > t)) t = t2;
-        if (!Double.isNaN(t)) result = new Point2(a.x + t * dx, a.y + t * dy);
+        double first = (-b - root) / (2.0 * a);
+        double second = (-b + root) / (2.0 * a);
+        boolean firstOnSegment = first >= 0.0 && first <= 1.0;
+        boolean secondOnSegment = second >= 0.0 && second <= 1.0;
+        if (firstOnSegment && secondOnSegment) return new double[] { first, second };
+        if (firstOnSegment) return new double[] { first };
+        if (secondOnSegment) return new double[] { second };
+        return new double[0];
     }
-    return result;
-}
-```
 
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-import kotlin.math.sqrt
-
-data class Point2(val x: Double, val y: Double)
-
-fun furthestLookahead(path: List<Point2>, robotX: Double, robotY: Double,
-                     radius: Double): Point2? {
-    var result: Point2? = null
-    val radiusSquared = radius * radius
-
-    for (i in 0 until path.size - 1) {
-        val a = path[i]
-        val b = path[i + 1]
-        val dx = b.x - a.x
-        val dy = b.y - a.y
-        val fx = a.x - robotX
-        val fy = a.y - robotY
-
-        val quadraticA = dx * dx + dy * dy
-        if (quadraticA == 0.0) continue // Ignore duplicate consecutive points.
-        val quadraticB = 2.0 * (fx * dx + fy * dy)
-        val quadraticC = fx * fx + fy * fy - radiusSquared
-        val discriminant = quadraticB * quadraticB - 4.0 * quadraticA * quadraticC
-        if (discriminant < 0.0) continue // This segment misses the circle.
-
-        val root = sqrt(discriminant)
-        val t1 = (-quadraticB - root) / (2.0 * quadraticA)
-        val t2 = (-quadraticB + root) / (2.0 * quadraticA)
-        var t = Double.NaN
-        if (t1 in 0.0..1.0) t = t1
-        if (t2 in 0.0..1.0 && (t.isNaN() || t2 > t)) t = t2
-        if (!t.isNaN()) result = Point2(a.x + t * dx, a.y + t * dy)
+    public static double forwardCurvature(
+            double targetX, double targetY, double robotX, double robotY,
+            double headingRadians) {
+        if (!Double.isFinite(targetX) || !Double.isFinite(targetY)
+                || !Double.isFinite(robotX) || !Double.isFinite(robotY)
+                || !Double.isFinite(headingRadians)) {
+            throw new IllegalArgumentException("Finite pose and target required");
+        }
+        double dx = targetX - robotX, dy = targetY - robotY;
+        double localX = Math.cos(headingRadians) * dx + Math.sin(headingRadians) * dy;
+        double localY = -Math.sin(headingRadians) * dx + Math.cos(headingRadians) * dy;
+        double distanceSquared = localX * localX + localY * localY;
+        if (localX <= 0.0 || distanceSquared < 1e-9) {
+            throw new IllegalArgumentException("No forward target; stop or recover");
+        }
+        return 2.0 * localY / distanceSquared;
     }
-    return result
 }
 ```
 
-</Tab>
-</Tabs>
+For the segment `(0, 0)` to `(10, 0)`, robot `(5, 0)`, and radius 2, the intersections are `t = 0.3` and `0.7`: field points `(3, 0)` and `(7, 0)`. If the robot faces +X, only `(7, 0)` is ahead. At robot `(11, 0)`, the remaining circle intersection `(9, 0)` is behind; it must not produce a positive straight-drive command.
 
-This checks every segment and remembers the last valid intersection in path order. If it returns `null`, do not reuse an old target: stop or handle the path endpoint explicitly.
+## Path progress
 
-Next, rotate that field point into robot coordinates and turn curvature into left/right commands for a **differential drive**:
+A complete follower needs a progress policy in addition to those helpers:
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
+1. Track the robot's projected progress on the current segment. Advance it monotonically within a bounded nearby part of the route.
+2. Search the current and selected upcoming segments, discarding intersections earlier than that progress. Searching the entire path can jump to another branch at a crossing.
+3. Choose a forward candidate in route order. Keep measured progress separate from the chosen lookahead: aiming farther ahead does not mean the robot has already travelled there.
+4. Near the final segment, use the endpoint when it lies inside the lookahead circle. The curvature denominator must use the target's actual squared distance, as above, because that point is not necessarily on the circle.
+5. Finish within measured position/heading tolerances. If the endpoint is behind after an overshoot, stop and use a defined recovery; do not keep driving forward or reuse an old target.
 
-```java
-static double[] tankPowers(Point2 lookahead, double robotX, double robotY,
-                           double headingRadians, double lookaheadRadius,
-                           double trackWidthInches, double maxSpeedInchesPerSecond) {
-    double dx = lookahead.x - robotX;
-    double dy = lookahead.y - robotY;
+For differential drive, a speed `v`, curvature `κ`, and track width `w` give ideal wheel speeds `vLeft = v × (1 - κw/2)` and `vRight = v × (1 + κw/2)`. Those are velocities, not motor powers. Use calibrated velocity control/feedforward and acceleration limits to turn them into hardware commands. Dividing by a guessed maximum speed is only an approximate power mapping.
 
-    // Robot coordinates: x forward, y left.
-    double localX = Math.cos(headingRadians) * dx + Math.sin(headingRadians) * dy;
-    double localY = -Math.sin(headingRadians) * dx + Math.cos(headingRadians) * dy;
-    double curvature = 2.0 * localY / (lookaheadRadius * lookaheadRadius);
+A maintained follower handles progress, endpoints, and drivetrain commands. Use these geometry helpers to understand and test its behavior; they do not replace the full controller.
 
-    double speed = 6.0; // Slow example speed; tune for your robot.
-    double turnSpeed = speed * curvature * trackWidthInches / 2.0;
-    double left = (speed - turnSpeed) / maxSpeedInchesPerSecond;
-    double right = (speed + turnSpeed) / maxSpeedInchesPerSecond;
-    double largest = Math.max(1.0, Math.max(Math.abs(left), Math.abs(right)));
-    return new double[] { left / largest, right / largest };
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
-
-fun tankPowers(lookahead: Point2, robotX: Double, robotY: Double,
-               headingRadians: Double, lookaheadRadius: Double,
-               trackWidthInches: Double, maxSpeedInchesPerSecond: Double): DoubleArray {
-    val dx = lookahead.x - robotX
-    val dy = lookahead.y - robotY
-
-    // Robot coordinates: x forward, y left.
-    val localX = cos(headingRadians) * dx + sin(headingRadians) * dy
-    val localY = -sin(headingRadians) * dx + cos(headingRadians) * dy
-    val curvature = 2.0 * localY / (lookaheadRadius * lookaheadRadius)
-
-    val speed = 6.0 // Slow example speed; tune for your robot.
-    val turnSpeed = speed * curvature * trackWidthInches / 2.0
-    val left = (speed - turnSpeed) / maxSpeedInchesPerSecond
-    val right = (speed + turnSpeed) / maxSpeedInchesPerSecond
-    val largest = maxOf(1.0, abs(left), abs(right))
-    return doubleArrayOf(left / largest, right / largest)
-}
-```
-
-</Tab>
-</Tabs>
-
-In the OpMode loop, call `furthestLookahead(...)` with the current localized pose. If a point is returned, call `tankPowers(...)` and send the result to the left and right motor groups. Stop when the robot is within a measured endpoint tolerance; stop immediately if the OpMode is no longer active. This conversion is for tank/differential drive only. Mecanum drive needs a different mapping, and a complete competition implementation also needs path progress tracking, endpoint behavior, timeouts, and a calibrated localizer.
-
-## Common reasons it does not follow the path
+## Troubleshooting [#common-reasons-it-does-not-follow-the-path]
 
 - **The pose drifts:** Pure Pursuit cannot fix bad odometry. Calibrate the localization system first.
 - **The robot turns the wrong way:** Check the sign convention for heading, sideways position, and curvature.
@@ -225,14 +146,18 @@ In the OpMode loop, call `furthestLookahead(...)` with the current localized pos
 - **It jitters:** Increase lookahead modestly, reduce speed, and check for noisy pose measurements.
 - **It never finishes:** Define what “at the end” means and stop the drivetrain when the endpoint condition is met.
 
-## Use a library for the full controller
+## Pathing libraries [#use-a-library-for-the-full-controller]
 
 The geometry is useful for understanding what a path follower is doing, but robust FTC code also needs localization, speed limits, endpoint handling, drivetrain-specific control, and safe stop behavior. See the [Pedro Pathing guide](../libraries/pedro-pathing) for a maintained FTC pathing option. Check its official documentation for current installation and APIs; those change between major versions.
 
 Continue with [Odometry](./odometry) to understand pose estimates, [Motion Planning](./motion-planning) to choose a route, or [Sensor Fusion](./sensor-fusion) to combine measurements.
 
-## Further reading
+<footer className="article-sources">
+
+## Sources [#further-reading]
 
 - [Pedro Pathing documentation](https://pedropathing.com)
-- [Purdue SIGBots: Pure Pursuit](https://wiki.purduesigbots.com/software/control-algorithms/pure-pursuit)
+- [Coulter: Pure Pursuit technical report](https://publications.ri.cmu.edu/implementation-of-the-pure-pursuit-path-tracking-algorithm)
 - [gm0: Odometry](https://gm0.org/en/latest/docs/software/concepts/odometry.html)
+
+</footer>

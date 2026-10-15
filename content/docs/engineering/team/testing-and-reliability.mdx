@@ -1,0 +1,57 @@
+---
+icon: engineering:TestTube
+title: Testing and reliability
+description: Build reproducible tests, isolate failures, interpret trial results, and qualify the integrated robot.
+---
+
+**Reliability** is the ability to perform the intended task under stated conditions repeatedly. A demonstration shows that success is possible; a test program investigates how often it happens and why it fails.
+
+## Repeatable tests [#write-a-test-that-someone-else-can-repeat]
+
+Record the robot and software revisions, battery, payload, surface, object set, starting pose, commanded action, measurement method, and pass criterion. Keep failed runs in the record. Choose a sample size before testing so one encouraging result does not end the test early.
+
+Separate subsystem tests from integrated tests. A bench intake can pass its pickup test while a complete robot fails because the lift blocks the object's path. Repeat the affected task after integration and after changes to shared interfaces.
+
+## Results and recovery time [#measure-outcomes-and-the-cost-of-recovery]
+
+For a cycle task, record success, time, miss type, jam, damage, and recovery. Look at the spread of times as well as the average. An occasional long jam can matter more than a small improvement in the typical successful cycle.
+
+For an illustrative 20-run test with 18 successes, the observed success fraction is 90%. That is a description of those runs, not proof that every match has a 90% success probability. Similar starts, one driver, a fresh battery, and a small sample limit what can be inferred.
+
+Broaden conditions deliberately: different object orientations, reasonable start errors, the actual payload, repeated operation, and simultaneous mechanism use. Change one factor first to understand its effect, then test realistic combinations.
+
+## Fault diagnosis [#diagnose-from-physical-evidence]
+
+Start with the symptom and identify what is known. "Lift stopped at half travel" is an observation. "Motor is weak" is a hypothesis.
+
+| Symptom | Useful first checks |
+| --- | --- |
+| High effort with little motion | Binding guide, cable snag, hard stop, overloaded linkage |
+| Encoder moves but output does not | Loose hub, slipping transmission, broken string, wrong measured shaft |
+| Fault only during simultaneous actions | Shared current demand, voltage drop, interference, physical collision |
+| Failure after replacement | Wrong revision, spacer stack, direction, reference position, calibration |
+| Position changes after a collision | Loose joint, bent mount, shifted sensor, lost reference |
+
+Use a known working part, cable, battery, or code revision as a controlled substitution where appropriate. Avoid changing several components together unless immediate safe shutdown requires it.
+
+## Failure priorities [#prioritize-failures-before-polishing-speed]
+
+List credible failure modes and their consequences. Give attention to failures that disable the robot, cause damage, create unsafe motion, or cannot be recovered from during a match. Include how the failure is detected and what the operator or software should do.
+
+A transfer timeout may return to a known holding state. A failed home switch may require stopping the lift and alerting the driver. A broken retention clip may require a physical design change. A retry is useful only when its starting state and attempt limit are defined.
+
+## Robot testing [#qualify-the-complete-robot]
+
+Run representative match sequences with the intended driver, payload, simultaneous actions, and battery routine. Inspect the robot between runs for wear, loose fasteners, hot components, shifted mounts, and string damage.
+
+Repeat the affected tests after repairs. Preserve the passing evidence for unchanged behavior, but rerun anything whose geometry, code, power demand, or calibration changed. Keep the raw results so a new student can distinguish a measured limit from team folklore.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Engineering design process](https://gm0.org/en/latest/docs/design-skills/engineering-design-process.html)
+- [FTC Wiki: Prototype workflow](https://www.ftcwiki.org/how-to-build-competitive-robots/how-to-compete/design-workflow)
+- [REV: General troubleshooting guide](https://docs.revrobotics.com/duo-control/troubleshooting-the-control-system/troubleshooting-the-control-system)
+
+</footer>

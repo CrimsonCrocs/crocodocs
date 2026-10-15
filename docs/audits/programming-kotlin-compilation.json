@@ -1,0 +1,92 @@
+[
+  {
+    "page": "content/docs/autonomous/motion-planning.mdx",
+    "class": "ScoreAndParkAuto",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/autonomous/odometry.mdx",
+    "class": "DifferentialOdometry",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/autonomous/sensor-fusion.mdx",
+    "class": "FusedOdometry",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/autonomous/time-vs-encoder.mdx",
+    "class": "TimedDriveTest",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/autonomous/time-vs-encoder.mdx",
+    "class": "EncoderDriveTest",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/control-systems/joystick-mapping.mdx",
+    "class": "TankDrive",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/control-systems/kalman-filter.mdx",
+    "class": "ScalarKalmanFilter",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/control-systems/motion-profiling.mdx",
+    "class": "ProfileState",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/control-systems/pid-control.mdx",
+    "class": "GuidedPidArm",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/libraries/ftclib.mdx",
+    "class": "FTCLibMotorTest",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/libraries/mercurial.mdx",
+    "class": "MercurialMotorTest",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/sensors-and-vision/easyopencv/writing-pipelines.mdx",
+    "class": "PollenTargetPipeline",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/sensors-and-vision/visionportal/color-blob-locator.mdx",
+    "class": "GuidedColorLocator",
+    "exit": 0,
+    "diagnostics": "/tmp/crocodocs-final-kotlin/color-blob-locator/GuidedColorLocator.kt:36:44: warning: 'static fun filterByArea(p0: Double, p1: Double, p2: (Mutable)List<ColorBlobLocatorProcessor.Blob!>!): Unit' is deprecated. Deprecated in Java.\n            ColorBlobLocatorProcessor.Util.filterByArea(50.0, 20000.0, blobs)\n                                           ^^^^^^^^^^^^\n/tmp/crocodocs-final-kotlin/color-blob-locator/GuidedColorLocator.kt:37:44: warning: 'static fun sortByArea(p0: SortOrder!, p1: (Mutable)List<ColorBlobLocatorProcessor.Blob!>!): Unit' is deprecated. Deprecated in Java.\n            ColorBlobLocatorProcessor.Util.sortByArea(\n                                           ^^^^^^^^^^\n"
+  },
+  {
+    "page": "content/docs/sensors-and-vision/visionportal/vision-portal.mdx",
+    "class": "BlueCenterProcessor",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/libraries/nextftc.mdx",
+    "class": "Claw, Robot, ClawPractice",
+    "exit": 0,
+    "diagnostics": ""
+  }
+]

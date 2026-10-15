@@ -1,0 +1,82 @@
+---
+title: Your first OpMode
+description: Read the FTC lifecycle and run a complete telemetry-only Java program
+icon: phosphor:BookOpen
+---
+
+An **OpMode** is a robot program selected on the Driver Station. It runs on the Robot Controller, which talks to the motors, sensors, and gamepads. The Driver Station selects, initializes, starts, and stops that program.
+
+Begin with telemetry rather than a moving mechanism. **Telemetry** is information your program sends to the Driver Station. It lets you check that the right program is installed and see what an input is doing.
+
+## File structure
+
+In Android Studio, create `HelloRobot.java` inside `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`. For OnBot Java, create the corresponding Java OpMode using its editor. The public class and file names must match.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+@TeleOp(name = "Hello Robot", group = "Practice")
+public class HelloRobot extends LinearOpMode {
+    @Override
+    public void runOpMode() {
+        telemetry.addLine("Initialized. Press START to read the stick.");
+        telemetry.update();
+
+        waitForStart();
+        if (!opModeIsActive()) return;
+
+        while (opModeIsActive()) {
+            double forward = -gamepad1.left_stick_y;
+            telemetry.addData("Forward request", "%.2f", forward);
+            telemetry.addData("A pressed", gamepad1.a);
+            telemetry.update();
+            idle();
+        }
+    }
+}
+```
+
+The `package` identifies where the class belongs. Imports bring SDK types into scope. `@TeleOp` registers a driver-controlled program and gives it a Driver Station name. `extends LinearOpMode` selects the lifecycle used by this example. The SDK calls `runOpMode()`; you do not call it yourself.
+
+{/* Playground paused until Blocks embedding and light mode are ready.
+
+## Telemetry playground
+
+Run the same program below. **Play** compiles, initializes, and starts the OpMode; the real Driver Station has separate INIT and START steps. The robot stays still because the code only reads inputs and sends telemetry.
+
+After pressing Play, click the simulator and hold **W** or **S**. Watch **Forward request** change. **Space** maps to gamepad A. On a small screen, use the on-screen gamepad. Press **Stop**, change the telemetry label in the code, then press Play again to see your edit.
+
+<FTCPlayground example="first-opmode" />
+*/}
+
+## INIT, START, and STOP
+
+Code before `waitForStart()` runs during **INIT**. Use it to map hardware, configure directions, and report readiness. A motor command here can run before START; initialization is not an automatic motion barrier.
+
+`waitForStart()` waits for START or a stop request. The following active check handles STOP during that wait. `while (opModeIsActive())` repeats the robot's work while it is allowed to run. `idle()` gives other work a chance to run; it is not a fixed timestep. Every inner movement loop also needs a stop check and a measured deadline.
+
+For output devices, put shutdown in `finally` around the active work so an exception also removes motor power. See the [motor example](./motors-and-servos). Do not put a long calculation or an unguarded `while (true)` between stop checks.
+
+## Iterative OpModes
+
+An iterative `OpMode` exposes `init()`, optional `init_loop()`, `start()`, repeated `loop()`, and `stop()`. Each `loop()` call should finish promptly so the SDK can call it again. A `LinearOpMode` gives you one method and lets you write your own active loop. Both can run responsive code; neither makes a blocking mechanism routine concurrent by itself.
+
+## First test
+
+Build and deploy the **TeamCode** application in Android Studio, or build in OnBot Java. Select **Hello Robot** on the Driver Station. INIT should display the readiness message; START should display changing stick and button values. Move the left stick forward: the negated Y value should become positive. Press STOP and confirm the program ends.
+
+Change the telemetry label, redeploy, and verify that the new label appears. This checks the edit–build–install loop before hardware adds another possible failure.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC SDK 12 samples](https://github.com/FIRST-Tech-Challenge/FtcRobotController/tree/e14c2aeb33e84d4ea21697beeea9ac49557be870/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples) — `BasicOpMode_Linear.java` and `BasicOpMode_Iterative.java`.
+- [FTC programming documentation](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
+- [Learn Java for FTC](https://github.com/alan412/LearnJavaForFTC) — a longer beginner course. This page's explanation and example are original; the book's examples have their own version context.
+- [Crimson Crocs FTC Simulator playground](https://ftcsimulator.crimsoncrocs.org/embed) — keyboard controls and the embedded execution environment.
+
+</footer>

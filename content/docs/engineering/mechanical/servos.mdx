@@ -1,0 +1,52 @@
+---
+icon: engineering:ArrowsClockwise
+title: Servos
+description: Select servo mode, torque, speed, range, and support while respecting the electrical supply.
+---
+
+A **positional servo** uses internal feedback to move toward a commanded angle. A **continuous-rotation servo** usually interprets the same style of signal as a direction and speed command, so it does not provide the same position control.
+
+## Servo requirements [#specify-the-motion-first]
+
+For a gate or wrist, record required travel, load, lever length, move time, holding time, and likely collisions. Confirm whether the device operates in positional or continuous mode and whether programming hardware is needed to change that mode.
+
+Check mounting size, output spline or shaft, horn compatibility, cable length, supported pulse range, and rated supply voltage. Two servos of the same external size may have different travel and electrical requirements.
+
+## Torque calculation [#convert-ratings-into-a-useful-load-estimate]
+
+Servo torque is often written in kg·cm, meaning kilogram-force centimeters. Convert it using $1\ \mathrm{kgf\cdot cm} \approx 0.0981\ \mathrm{N\cdot m}$. It is a torque unit, not the mass a servo can lift regardless of arm length.
+
+For a perpendicular load, $\tau = Fr$. An illustrative 8 N force applied 40 mm from the axis requires $8(0.040) = 0.32$ N·m before friction or acceleration. Doubling the lever length doubles this demand. In a linkage, the effective lever changes with angle, so evaluate the difficult part of the travel.
+
+A quoted stall torque describes a stationary endpoint at a specified voltage. Choose operating margin and validate under repeated load. Do not command the horn continuously into a mechanical stop.
+
+## Mechanical support [#support-the-mechanism-independently]
+
+Mount a pivot or wrist so an external bearing or suitable supported joint carries impact and side loads where practical. Let the servo transmit torque through a horn, linkage, belt, or gear. A long cantilever attached directly to its output magnifies collision loads.
+
+Provide a mechanical stop that protects the mechanism, then set command limits that avoid driving hard against it. With power disconnected, check the allowed motion; during powered bring-up, approach endpoints cautiously and stop if the servo binds or buzzes under an immovable load.
+
+## Speed and voltage [#compare-speed-at-the-correct-voltage]
+
+A rating such as seconds per 60 degrees is a time, so a lower value means faster rotation under the rating's test conditions. It does not establish the speed of a loaded linkage. Compare products at the voltage they will actually receive.
+
+The REV Control Hub supplies 5 V to servos, with 2 A shared per port pair and 5 A shared across servo and auxiliary 5 V outputs. Those limits mean several lightly loaded servos can work individually yet overload the supply during simultaneous moves. Verify the specifications for your controller revision.
+
+## Combined loads [#test-the-combined-load]
+
+List which servos can move or hold at the same time. Measure the representative combined behavior, including a partially jammed mechanism without intentionally sustaining a stall. Watch for resets, loss of motion, hot wiring, and servo heating.
+
+If more supply capacity is needed, select an approved solution compatible with the servo voltage and current. Follow the current rules and the device's wiring instructions for power injection and protection; a stronger supply cannot fix an overloaded gearbox or bad linkage.
+
+Record the calibrated usable angle range, safe software endpoints, mechanism reference position, and any external position feedback. Check the actual horn position; a command alone does not confirm that it reached the target.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC Wiki: Servo modes](https://www.ftcwiki.org/transmitting-power/servos)
+- [GM0: Choosing a servo](https://gm0.org/en/latest/docs/power-and-electronics/servo-guide/choosing-servo.html)
+- [REV Control Hub specification](https://docs.revrobotics.com/duo-control/control-system-overview/control-hub-basics)
+- [REV: Servo Power Module](https://docs.revrobotics.com/rev-crossover-products/servo/spm)
+
+</footer>

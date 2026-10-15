@@ -1,10 +1,10 @@
 ---
-title: Getting Started
+title: Getting started
 description: Choose an FTC programming tool and find the official setup guides
 icon: Rocket
 ---
 
-## Start here
+## Programming tools [#start-here]
 
 FIRST recommends beginning with **Blocks**, including for students who have programmed before. It is a quick way to learn the FTC Control System and test simple OpModes. When you are ready to write text, choose **OnBot Java** or **Android Studio**.
 
@@ -16,21 +16,30 @@ FIRST recommends beginning with **Blocks**, including for students who have prog
 
 These are FTC programming tools. Android Studio is an IDE; Java and Blocks are programming languages/tools. Kotlin is possible in Android Studio with the required project setup, but it is not one of the three standard programming tools in FIRST's current comparison guide.
 
-## Learn the robot workflow
+## Robot workflow [#learn-the-robot-workflow]
 
 Each program is an **OpMode** that runs on the Robot Controller after a team selects it on the Driver Station. Before writing code, configure the robot's motors and sensors in the Robot Controller app. Use the same device names in the program as in the hardware configuration.
 
 Start with one motor or servo, then add gamepad input and sensor feedback. Test mechanisms with the robot safely supported and keep motor power limited while bringing up new code.
 
-## Choose a path
+## Setup guides [#choose-a-path]
 
 - [Blocks](./blocks) — create an OpMode using visual blocks in a browser.
 - [OnBot Java](./onbot-java) — edit and build Java OpModes in a browser.
 - [Android Studio](./android-studio) — work in the official FTC Android Studio project.
 
-## Official setup and references
+## Programming lessons
+
+After setup, work through [Your first OpMode](./first-opmode), [Java basics](./java-basics), [Motors and servos](./motors-and-servos), and [Nonblocking code](./nonblocking-code). Keep [Debugging robot code](./debugging) open while testing. The [limit-switch](../sensors-and-vision/hardware/limit-switches) and [IMU](../sensors-and-vision/hardware/imu) lessons introduce sensors before camera processing.
+
+<footer className="article-sources">
+
+## Sources [#official-setup-and-references]
 
 - [Choose a programming tool](https://ftc-docs.firstinspires.org/en/latest/programming_resources/shared/choosing_program_lang/choosing-program-lang.html)
 - [FTC programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
 - [FTC SDK repository](https://github.com/FIRST-Tech-Challenge/FtcRobotController)
 - [Current FTC SDK releases](https://github.com/FIRST-Tech-Challenge/FtcRobotController/releases)
+- [Alan G. Smith: Learn Java for FTC](https://github.com/alan412/LearnJavaForFTC) — a longer course; check the repository's SDK version before copying older APIs. CrocoDocs uses original explanations and checks current FTC calls separately.
+
+</footer>

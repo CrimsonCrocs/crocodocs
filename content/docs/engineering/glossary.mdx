@@ -1,0 +1,84 @@
+---
+icon: engineering:BookOpen
+title: Engineering glossary
+description: Quick definitions for mechanical design, manufacturing, electrical integration, and testing terms.
+---
+
+Engineering terms describe different physical relationships. Use the definitions with a sketch, units, or an example from the robot whenever a team decision depends on their meaning.
+
+## Motion and power
+
+| Term | Meaning |
+| --- | --- |
+| Torque | Turning effect of a force about an axis; for a perpendicular force, $\tau = Fr$ |
+| Power | Rate of energy transfer; rotational mechanical power is $P = \tau\omega$ |
+| Reduction | Here, input speed divided by output speed; a value above one lowers output speed |
+| Free speed | Motor speed with very little external load at a stated supply voltage |
+| Stall torque | Motor torque at zero speed; a high-current endpoint, not a continuous operating rating |
+| Duty cycle | The pattern or fraction of time a device spends operating under stated conditions |
+| Backdriving | An external output load causing the transmission or actuator input to move |
+| Inertia | Resistance to a change in motion; rotational inertia depends on how mass is distributed about an axis |
+| Backlash | Clearance that allows output movement when transmission direction reverses |
+
+Use [motors and gearing](/docs/engineering/mechanical/motors-and-gearing) for ratio conventions and [arms](/docs/engineering/mechanisms/arms-and-linkages) for gravity and acceleration loads.
+
+## Structure and moving assemblies
+
+| Term | Meaning |
+| --- | --- |
+| Load path | Route through which forces pass from their application to the supports |
+| Strength | Resistance to yielding or other failure under load |
+| Stiffness | Resistance to deflection under load |
+| Compliance | Deformation under load; sometimes deliberately used to accommodate variation |
+| Preload | Force introduced during assembly, such as a screw's initial clamping force |
+| Cantilever | Member supported at one end, carrying load away from that support |
+| Radial load | Load perpendicular to a shaft or bearing axis |
+| Axial load | Load parallel to that axis |
+| Live axle | Rotating axle that transmits torque to attached components |
+| Dead axle | Fixed axle around which supported components rotate |
+| Racking | Skewing caused by uneven movement or alignment, often in parallel slides |
+| Capture envelope | Range of object positions and orientations a mechanism can acquire under stated conditions |
+
+See [structure and fasteners](/docs/engineering/mechanical/structure-and-fasteners), [shafts and bearings](/docs/engineering/mechanical/shafts-and-bearings), and [intakes](/docs/engineering/mechanisms/intakes-and-grippers) for applications.
+
+## Design and manufacturing
+
+| Term | Meaning |
+| --- | --- |
+| Constraint | Requirement a feasible design must satisfy |
+| Datum | Reference used to locate geometry or define measurements |
+| Nominal dimension | Stated target size before its allowed variation is considered |
+| Tolerance | Permitted dimensional variation |
+| Clearance fit | Fit with a gap between mating features over the specified limits |
+| Interference fit | Fit in which assembly relies on dimensional interference between mating features |
+| Tolerance stack | Combined variation of dimensions affecting one functional relationship |
+| Kerf | Width of material removed during a cutting operation |
+| Anisotropy | Dependence of a material or manufactured part's properties on direction |
+| Creep | Time-dependent deformation under sustained stress |
+| Bill of materials | Controlled list of parts, quantities, and identifying specifications |
+| Revision | Identified state of a design, part, document, or configuration |
+
+Use [CAD](/docs/engineering/design/cad) and [fits and tolerances](/docs/engineering/manufacturing/fits-and-tolerances) for worked examples.
+
+## Electrical and verification
+
+| Term | Meaning |
+| --- | --- |
+| Strain relief | Mechanical support that prevents cable forces reaching a terminal or connector |
+| Voltage sag | Drop in supply voltage under load |
+| ESD | Electrostatic discharge, a transfer of accumulated electric charge |
+| Calibration | Establishing a measurement or command relationship against a reference |
+| Homing | Establishing a known reference position for a mechanism |
+| Acceptance criterion | Observable condition used to decide whether a test passes |
+| Failure mode | Specific way a part or process can fail to perform its intended function |
+| Recovery | Defined action that returns a failed or uncertain task to an understood state |
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Design glossary](https://gm0.org/en/latest/docs/design-skills/design-glossary.html)
+- [GM0: Power transmission glossary](https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/power-transmission-glossary.html)
+- [GM0: Manufacturing glossary](https://gm0.org/en/latest/docs/custom-manufacturing/manufacturing-glossary.html)
+
+</footer>

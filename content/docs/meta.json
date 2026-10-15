@@ -1,21 +1,24 @@
 {
-  "title": "Home",
+  "title": "Programming",
+  "description": "Robot code, control, autonomous, and vision",
   "root": true,
   "pages": [
     "---Introduction---",
     "index",
     "season-breakdown",
-    "---Getting Started---",
+    "---Getting started---",
     "...getting-started",
-    "---Control Systems---",
+    "---Control systems---",
     "...control-systems",
     "---Autonomous---",
     "...autonomous",
-    "---Codebase Etiquette and Good Practices---",
+    "---Code practices---",
     "...cegp",
     "---Libraries---",
     "...libraries",
-    "---Sensors and Vision---",
-    "...sensors-and-vision"
+    "---Sensors and vision---",
+    "...sensors-and-vision",
+    "engineering",
+    "portfolio"
   ]
 }

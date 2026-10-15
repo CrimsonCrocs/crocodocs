@@ -1,0 +1,70 @@
+---
+icon: engineering:Lightning
+title: Motors and gearing
+description: Calculate reduction, speed, torque, power, and a loaded motor operating point without confusing free speed and stall torque.
+---
+
+A motor's useful output depends on the load and the transmission between it and the mechanism. **Gearing** trades rotational speed for torque; it does not create mechanical power.
+
+## Gear ratio [#define-the-ratio-before-calculating]
+
+Here, **reduction** $G$ means input speed divided by output speed:
+
+$$
+G = \frac{n_{in}}{n_{out}} = \frac{N_{driven}}{N_{driver}}
+$$
+
+For a simple gear, sprocket, or toothed-pulley pair, $N$ is tooth count. A 16-tooth driver turning a 48-tooth driven part has $G = 3$. The output rotates once for every three input revolutions.
+
+Ignoring losses, $n_{out} = n_{in}/G$ and $\tau_{out} = G\tau_{in}$. With transmission efficiency $\eta$, use $\tau_{out} \approx \eta G\tau_{in}$. Multiply reductions for stages that share intermediate shafts. Include the gearmotor's internal ratio and any external reduction.
+
+Ratio conventions vary between references. Use the explicit definition above for both speed and torque calculations.
+
+## Motor operating points [#free-speed-and-stall-are-different-endpoints]
+
+**Free speed** is the speed with very little external load. **Stall torque** is torque at zero speed, where current and heating are high. A motor cannot provide its free speed and stall torque simultaneously.
+
+A simplified brushed DC motor model at fixed voltage is:
+
+$$
+\tau \approx \tau_{stall}\left(1-\frac{n}{n_{free}}\right)
+$$
+
+Mechanical power is $P = \tau\omega$, with $\omega = 2\pi n/60$ for $n$ in RPM. Power is zero at both idealized endpoints: at free speed the external torque tends toward zero, and at stall the speed is zero. The model's peak power occurs halfway between them. That point is **not** automatically a safe continuous operating point; thermal limits, gearbox ratings, and duty cycle still apply.
+
+![A normalized ideal DC motor model shows torque decreasing with speed and mechanical power peaking between stall and free speed.](/guides/engineering/motor-model.svg)
+
+The figure is a mathematical illustration, not a measured curve. Use supplier test data for your voltage and gearmotor.
+
+## Drivetrain comparison [#worked-drivetrain-comparison]
+
+Suppose a gearmotor output has a stated **no-load** speed of 300 RPM and drives a 96 mm wheel through a further 2:1 reduction. Ideal wheel speed is 150 RPM. Ignoring slip:
+
+$$
+v = \frac{\pi Dn}{60}
+= \frac{\pi(0.096)(150)}{60}
+\approx 0.754\ \mathrm{m/s}
+$$
+
+If that output shaft supplies an illustrative 0.6 N·m at a particular loaded operating point and the external stage is 85% efficient, wheel torque is $0.85(2)(0.6) = 1.02$ N·m. At radius 0.048 m, the corresponding tangential force is $1.02/0.048 \approx 21.3$ N. **Do not pair this loaded torque with the no-load speed** to claim the robot's actual operating performance.
+
+Actual acceleration also depends on robot mass, traction, battery voltage, other loads, and rotational inertia. Compare complete drive tests rather than selecting a ratio from top speed alone.
+
+## Motor selection [#size-from-the-mechanism-backward]
+
+Estimate the required output force or torque, desired motion speed, travel, and duty cycle. Then select a reduction that places the motor in a useful loaded range. Check shaft compatibility, gearbox torque, shock loading, available mounting space, and encoder resolution at the final output.
+
+A gearmotor's advertised ratio may be nominal. Use the exact ratio for distance and angle calculations, especially when adding encoder feedback. Check the manufacturer's stage ratios and load limits.
+
+Stop a test when motion stalls, a transmission skips, or the assembly heats abnormally. Sustained stall is not a valid way to demonstrate a successful lifting design. Check current, temperature, loaded speed, and battery voltage during representative repeated use.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC Wiki: Gear-ratio page](https://www.ftcwiki.org/transmitting-power/gears/gear-ratios)
+- [GM0: Motor guidance](https://gm0.org/en/latest/docs/power-and-electronics/motor-guide/choosing-motor.html)
+- [GM0: Motor power discussion](https://gm0.org/en/latest/docs/power-and-electronics/motor-guide/motor-power.html)
+- [REV: UltraPlanetary ratios and load limits](https://docs.revrobotics.com/rev-crossover-products/ultraplanetary)
+
+</footer>

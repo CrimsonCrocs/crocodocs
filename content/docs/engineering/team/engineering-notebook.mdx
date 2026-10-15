@@ -1,0 +1,64 @@
+---
+icon: engineering:ClipboardText
+title: Engineering notebook
+description: Record requirements, decisions, calculations, test results, revisions, and handoffs without turning the notebook into a transcript.
+---
+
+An **engineering notebook** preserves the evidence behind a robot's design. Its practical purpose is to let another team member understand a decision, reproduce a test, or rebuild a mechanism after the original builder leaves.
+
+## Decision records [#record-decisions-when-they-happen]
+
+Keep the problem, requirements, alternatives, calculation assumptions, prototype observations, and chosen action together. Include dates, responsible students, and the hardware and software revisions involved.
+
+A photo helps identify the assembly. A labeled sketch explains geometry. A trial table supports a reliability claim. Each should answer a question that the surrounding text cannot answer as efficiently.
+
+Older notebook guides can offer ideas for documenting mechanisms and decisions, but their judging context may be historical. Current submission requirements must come from official FIRST season documents.
+
+## Record template [#use-a-compact-decision-record]
+
+```text
+Problem: Retained object falls during a fast turn.
+Requirements: Keep the current release path and maintain service access.
+Alternatives: Change finger geometry, add compliance, reduce turn acceleration.
+Evidence: Trial table and video, robot revision, battery and payload.
+Reasoning: Which observation supports or weakens each explanation?
+Decision: Selected change and the conditions under which it is accepted.
+Verification: Repeated loaded turns and a release test after the change.
+Follow-up: Any unresolved condition and the next test needed.
+```
+
+This is a template for observations, not a claim that those tests have been performed. Replace the example with actual evidence and include unsuccessful alternatives when they explain the choice.
+
+## Calculations [#make-calculations-inspectable]
+
+Show units, input measurements, equations, assumptions, and the result. Label whether a number is measured, taken from a datasheet, estimated, or selected as a target. A static torque estimate should not be presented as a tested continuous lifting capacity.
+
+Keep exact part numbers and source links with the relevant calculation. Record the date when relying on a changing specification or game requirement. If the mechanism changes, revise the inputs rather than copying the old result into the new build page.
+
+## Team handover [#preserve-enough-detail-to-transfer-ownership]
+
+For each mechanism, retain the current CAD version, bill of materials, assembly notes, wiring map, calibration procedure, safe limits, known faults, and replacement checks. Link to source files rather than pasting several inconsistent copies.
+
+Connect the written record with the physical modules through consistent naming. Use names the team actually uses at the robot.
+
+## Judging material [#prepare-judging-material-from-the-evidence]
+
+A concise portfolio or presentation can select the strongest examples from the engineering record: a clear requirement, a meaningful tradeoff, a tested iteration, and the students' actual contributions. Do not invent improved percentages, hours saved, or outcomes to make a page look complete.
+
+Use the [Portfolio section](/docs/portfolio) for page planning, award evidence, writing, interview preparation, and detailed Inspire case studies.
+
+Verify current portfolio, notebook, judging, and submission requirements in FIRST's game and season materials. Review community portfolio examples for communication ideas, while checking their season and respecting their authorship.
+
+End each build session with the state of the robot, the next unresolved decision, and one concrete test or task another student can pick up. That small handoff is often more useful than a long meeting transcript.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Notebook discussion](https://gm0.org/en/latest/docs/awards/notebook.html)
+- [FTC Wiki: Naming conventions](https://www.ftcwiki.org/design-style/design-guidelines/naming-conventions)
+- [FTC Wiki: Modularity](https://www.ftcwiki.org/design-style/design-guidelines/modularity)
+- [FIRST: Game and season materials](https://www.firstinspires.org/resource-library/ftc/game-and-season-info)
+- [community portfolio examples](https://portfolios.hivemindrobotics.net/)
+
+</footer>

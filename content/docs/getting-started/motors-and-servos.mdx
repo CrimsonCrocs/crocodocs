@@ -1,0 +1,108 @@
+---
+title: Motors and servos
+description: Map an output, understand motor modes, and distinguish servo position from motion
+icon: phosphor:GearSix
+---
+
+A configured device name connects a program to hardware. The string in `hardwareMap.get()` must match the active Robot Controller configuration exactly. Motor direction, encoder scale, servo linkage, and travel limits belong to the assembled robot; tutorial values are practice values.
+
+## Motor power
+
+`DcMotor.setPower()` accepts a normalized request from -1 to 1. It is not a speed in revolutions per minute. Battery voltage, load, gearing, friction, and run mode affect the motion produced by a given value.
+
+Save this complete file as `MotorPractice.java`. Configure an unloaded motor as `testMotor`, support the robot, and verify direction at low power before connecting a mechanism.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+@TeleOp(name = "Motor Practice", group = "Practice")
+public class MotorPractice extends LinearOpMode {
+    @Override
+    public void runOpMode() {
+        DcMotor motor = hardwareMap.get(DcMotor.class, "testMotor");
+        motor.setDirection(DcMotor.Direction.FORWARD); // Verify on your assembly.
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        telemetry.addLine("Unloaded test. Left stick controls up to 0.20 power.");
+        telemetry.update();
+        waitForStart();
+        if (!opModeIsActive()) return;
+        try {
+            while (opModeIsActive()) {
+                double power = -gamepad1.left_stick_y * 0.20;
+                motor.setPower(power);
+                telemetry.addData("Requested power", "%.2f", power);
+                telemetry.addData("Encoder ticks", motor.getCurrentPosition());
+                telemetry.update();
+                idle();
+            }
+        } finally {
+            motor.setPower(0.0);
+        }
+    }
+}
+```
+
+`BRAKE` resists coasting at zero power; `FLOAT` allows coasting. BRAKE is not an active position hold and cannot be relied upon to support a falling arm. Changing motor direction also changes the logical encoder sign. Establish direction first, then calibrate counts versus physical movement.
+
+{/* Playground paused until Blocks embedding and light mode are ready.
+
+## Power playground
+
+This example applies the same power to all four motors of the simulator's tank drivetrain for one second. The hardware names and right-side reversal match that template. Its `setDrivePower()` helper writes the requested power to each motor.
+
+Press **Play** at `0.25`, then change `power` to `-0.25` and run again. The sign changes direction. Try `0.5` and compare the travel over the same duration. Press **Reset** between trials so each run starts at the same position. Motor power is still a request, not a distance or a measured speed.
+
+<FTCPlayground example="motor-power" />
+
+The simulated robot uses its own motor and physics configuration. Use your real hardware names and measured limits when adapting the program to a robot.
+*/}
+
+## Encoder modes
+
+| Mode | Purpose |
+| --- | --- |
+| `RUN_WITHOUT_ENCODER` | Apply power without the hub's encoder velocity regulation; encoder readings are still available |
+| `RUN_USING_ENCODER` | Use the motor controller's encoder-based velocity regulation |
+| `RUN_TO_POSITION` | Move toward a target count using the controller's position behavior |
+| `STOP_AND_RESET_ENCODER` | Stop and make the current encoder position zero; does not physically home the mechanism |
+
+For `RUN_TO_POSITION`, set the target **before** selecting the mode, then use a positive power magnitude; the target determines direction. Check stop state, both sides of a drivetrain, and a deadline. The [encoder movement guide](../autonomous/time-vs-encoder) provides a complete example. Reaching an encoder target does not prove that a slipping wheel reached the intended field location.
+
+A relative encoder needs a known physical reference before software travel limits are meaningful. Record a known reference or home against a suitable switch; do not zero an arm at an arbitrary angle and assume the bottom stop is zero.
+
+## Positional servos
+
+A `Servo` receives a normalized position command, usually between 0 and 1. The mapping to shaft angle depends on the servo's configured range and model; 0.5 does not universally mean 90 degrees. Measure safe linkage endpoints before choosing open/closed values.
+
+```java
+// Import com.qualcomm.robotcore.hardware.Servo.
+// During setup:
+Servo claw = hardwareMap.get(Servo.class, "claw");
+
+// Inside an active loop after START, with measured safe positions:
+if (gamepad1.a) claw.setPosition(0.35);
+if (gamepad1.b) claw.setPosition(0.55);
+```
+
+These are fragments inside an OpMode, not a complete file. The command returns before the servo physically arrives. `getPosition()` reports the commanded position; it is not feedback proving arrival. A timed wait is an estimate unless a sensor confirms the mechanism state.
+
+A **CRServo** is a continuous-rotation output controlled by power and direction. It does not accept a positional angle target like `Servo`. Choose the type that matches the actual device.
+
+## Testing
+
+Check motor motion and reported encoder sign separately, then test STOP while the motor is running. For a servo, start with a disconnected or unloaded linkage, move through a small safe range, and watch for binding before widening it. A small power or position range reduces test exposure but does not establish that a mechanism is safe.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC SDK 12 source](https://github.com/FIRST-Tech-Challenge/FtcRobotController/tree/e14c2aeb33e84d4ea21697beeea9ac49557be870/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples) — motor and servo samples.
+- [RobotCore 12.0.0 source archive](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/RobotCore/12.0.0/RobotCore-12.0.0-sources.jar) — `DcMotor`, `DcMotorImpl`, `Servo`, and `CRServo` contracts.
+- [Crimson Crocs FTC Simulator playground](https://ftcsimulator.crimsoncrocs.org/embed) — the tank template and its motor configuration.
+
+</footer>

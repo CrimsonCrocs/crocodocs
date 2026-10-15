@@ -1,10 +1,10 @@
 ---
-title: VisionBench (formerly EOCV-Sim)
+title: VisionBench
 description: Test an EasyOpenCV pipeline on your computer before using the robot
 icon: Monitor
 ---
 
-## What is VisionBench?
+## Overview [#what-is-visionbench]
 
 **VisionBench** is the current name of EOCV-Sim. It runs vision code on your computer using a saved image, video, or webcam as the input. This lets you inspect and tune a pipeline without repeatedly installing robot code.
 
@@ -12,15 +12,15 @@ icon: Monitor
 
 It simulates the vision parts of the FTC SDK; it is **not** a full robot simulator. You still need to test camera exposure, lighting, speed, and robot behavior on the real robot.
 
-## 1. Install it
+## Installation [#1-install-it]
 
-1. Follow the [official VisionBench download instructions](https://docs.deltacv.org/visionbench/downloading-visionbench). The current release requires **Java 25 or newer**. Check with `java -version` before launching it.
+1. Follow the official VisionBench download instructions. The current release requires **Java 25 or newer**. Check with `java -version` before launching it.
 2. Download the file for your operating system from the linked release page.
 3. Launch the downloaded JAR. If double-clicking does nothing, open a terminal in the download folder and run `java -jar` followed by the **actual filename** you downloaded.
 
 The Java version needed to **run VisionBench on your computer** is separate from the Java and Android Gradle settings used to build your FTC Robot Controller app.
 
-## 2. Make a small Java pipeline
+## Pipeline example [#2-make-a-small-java-pipeline]
 
 For a first test, use a saved photo of a field object. Create a Java workspace through **Workspace → External → Create Gradle Workspace**. Open that folder in VS Code or IntelliJ, then add `PassThroughPipeline.java` under `src/main/java`:
 
@@ -38,28 +38,37 @@ public class PassThroughPipeline extends OpenCvPipeline {
 
 `processFrame` receives one image frame. Returning `input` shows the frame without changing it. Once this works, try the [one-color pipeline lesson](./writing-pipelines).
 
-The [official workspace guide](https://docs.deltacv.org/visionbench/workspaces/vscode-and-intellij) shows the current menu and file locations. If the pipeline does not appear, read the build error in VisionBench and check that the Java filename matches the class name.
+The official workspace guide shows the current menu and file locations. If the pipeline does not appear, read the build error in VisionBench and check that the Java filename matches the class name.
 
-## 3. Test and tune
+## Testing [#3-test-and-tune]
 
 1. Choose an **image input source** and open your test photo.
 2. Select **PassThroughPipeline** in the pipeline list. The preview should show the same photo.
 3. Change one part of the pipeline, save the file, and compare the new preview with the original.
-4. When you add thresholds, expose supported **public, non-final Java fields** to adjust them in the [variable tuner](https://docs.deltacv.org/eocv-sim/features/variable-tuner-1). Record the values you choose in your code.
+4. When you add thresholds, expose supported **public, non-final Java fields** to adjust them in the variable tuner. Record the values you choose in your code.
 
 Use several photos, including different lighting and object positions. A color range that works on one image may fail on another.
 
-## Using an existing robot pipeline
+## Robot pipeline import [#using-an-existing-robot-pipeline]
 
-VisionBench can load a folder of pipeline classes from an Android Studio project, but those classes should not depend on motor or other unsupported robot hardware APIs. Follow its [Android Studio workspace guide](https://docs.deltacv.org/visionbench/workspaces/android-studio) to select only the vision package.
+VisionBench can load a folder of pipeline classes from an Android Studio project, but those classes should not depend on motor or other unsupported robot hardware APIs. Follow its Android Studio workspace guide to select only the vision package.
 
-Java workspaces are the simplest supported route. The [pipeline guide](https://docs.deltacv.org/visionbench/introduction/pipelines/how-it-works) says Kotlin and other JVM languages require building VisionBench from source, so do not expect a `.kt` file placed in a Java workspace to appear automatically.
+Java workspaces are the simplest supported route. The pipeline guide says Kotlin and other JVM languages require building VisionBench from source, so do not expect a `.kt` file placed in a Java workspace to appear automatically.
 
-## Next step
+## Next steps [#next-step]
 
 After the computer test works, move the pipeline into your FTC project, connect it to [EasyOpenCV on the robot](./easyopencv-basics), and test with the robot's camera. Keep your first robot test slow and simple.
 
-## Official references
+<footer className="article-sources">
+
+## Sources [#official-references]
 
 - [VisionBench repository and releases](https://github.com/deltacv/VisionBench)
 - [VisionBench documentation](https://docs.deltacv.org/visionbench/)
+- [VisionBench download instructions](https://docs.deltacv.org/visionbench/downloading-visionbench)
+- [VisionBench: Workspace guide](https://docs.deltacv.org/visionbench/workspaces/vscode-and-intellij)
+- [VisionBench: Variable tuner](https://docs.deltacv.org/eocv-sim/features/variable-tuner-1)
+- [VisionBench: Android Studio workspace guide](https://docs.deltacv.org/visionbench/workspaces/android-studio)
+- [VisionBench: Pipeline guide](https://docs.deltacv.org/visionbench/introduction/pipelines/how-it-works)
+
+</footer>

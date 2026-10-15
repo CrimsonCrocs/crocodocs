@@ -1,4 +1,5 @@
 import { source } from "@/lib/source";
+import type { ComponentProps } from "react";
 import {
   DocsPage,
   DocsBody,
@@ -14,6 +15,7 @@ import ToBeAdded from "@/components/tba";
 import { Card, Cards } from "fumadocs-ui/components/card";
 import { SeeMain } from "@/components/see-main";
 import { Icon } from "@/components/icon";
+import { siteDescription, socialMetadata } from "@/lib/social-metadata";
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
@@ -25,24 +27,16 @@ export default async function Page(props: {
   const MDXContent = page.data.body;
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
-      <DocsTitle>
-        {!params.slug ? (
-          <>
-            What is <Wordmark className="inline mr-0.5" />?
-          </>
-        ) : (
-          page.data.title
-        )}
-      </DocsTitle>
+    <DocsPage key={page.url} toc={page.data.toc} full={page.data.full} article={{ id: 'main-content', tabIndex: -1, className: 'docs-article' }}>
+      <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
         <MDXContent
           components={getMDXComponents({
             // this allows you to link to other pages with relative file paths
             a: createRelativeLink(source, page),
-            Wordmark: ({ className, textOnly }: { className?: string, textOnly?: boolean }) => (
-              <Wordmark className={cn("inline", className)} textOnly={textOnly} />
+            Wordmark: ({ className, ...props }: ComponentProps<typeof Wordmark>) => (
+              <Wordmark {...props} className={cn("article-wordmark", className)} />
             ),
             TBA: ToBeAdded,
             LinkedCards: ({
@@ -86,5 +80,6 @@ export async function generateMetadata(props: {
   return {
     title: page.data.title,
     description: page.data.description,
+    ...socialMetadata(`${page.data.title} | CrocoDocs`, page.data.description ?? siteDescription, page.url),
   };
 }

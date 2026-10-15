@@ -1,10 +1,10 @@
 ---
-title: Vision Overview
+title: Vision overview
 description: Choose and use camera-based vision tools in FTC
 icon: ScanEye
 ---
 
-## What computer vision does
+## Computer vision [#what-computer-vision-does]
 
 Computer vision turns camera images into information a robot program can use, such as a detected tag ID, a color region, or an estimated pose. Results depend on camera calibration, lighting, image quality, processing load, and how the robot uses the measurements.
 
@@ -18,7 +18,7 @@ VisionPortal is the FTC SDK camera and processor interface. It manages camera se
 
 EasyOpenCV is a community library built around OpenCV. It is useful when a team needs custom image processing or an existing OpenCV pipeline. It is not the same API as VisionPortal, and the two should not be mixed without following the integration guidance for the libraries involved.
 
-## A practical workflow
+## Workflow [#a-practical-workflow]
 
 1. Choose the simplest processor that answers the robot's actual question.
 2. Test camera access and image quality before writing detection logic.
@@ -28,12 +28,20 @@ EasyOpenCV is a community library built around OpenCV. It is useful when a team 
 
 AprilTag IDs, cluster layouts, and scoring elements can be season-specific. Do not hardcode an old season's IDs or colors into a current robot without checking the current Competition Manual and FTC SDK tag library.
 
-## Continue learning
+## Next steps [#continue-learning]
 
 - [VisionPortal](./visionportal/vision-portal)
 - [AprilTag detection](./visionportal/apriltag-detection)
+- [EasyOpenCV basics](./easyopencv/easyopencv-basics)
+- [EOCV-Sim](./easyopencv/eocv-sim)
+- [Hive Vision](../libraries/hive-vision) — the BIOBUZZ neural model and a stationary detection preview for Limelight 3A.
+
+<footer className="article-sources">
+
+## Sources
+
 - [FTC color processing](https://ftc-docs.firstinspires.org/en/latest/color_processing/index.html)
 - [FTC VisionPortal overview](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_overview/visionportal-overview.html)
 - [FTC programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
-- [EasyOpenCV basics](./easyopencv/easyopencv-basics)
-- [EOCV-Sim](./easyopencv/eocv-sim)
+
+</footer>

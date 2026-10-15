@@ -1,0 +1,20 @@
+[
+  {
+    "page": "content/docs/libraries/solverslib.mdx",
+    "class": "SolversCommandPreview",
+    "sha256": "bf1b5097fb29c813740ee0e8180a3524e2c693252ecd12d11dcc3c9b77f1255c",
+    "evidence": "Exact source matches compiled research example; validation paths in new-library-source-review.md"
+  },
+  {
+    "page": "content/docs/libraries/openloop.mdx",
+    "class": "OpenLoopShortAuto",
+    "sha256": "b3b58c4bd5a1d95949350017e0413441ea05e7b30300db0060a522cafda9237e",
+    "evidence": "Exact source matches compiled research example; validation paths in new-library-source-review.md"
+  },
+  {
+    "page": "content/docs/libraries/hive-vision.mdx",
+    "class": "HiveDetectionPreview",
+    "sha256": "e7c8da187bc49d396331ac570000b996a32e0510c18e31e8597266390cb49c49",
+    "evidence": "Exact source matches compiled research example; validation paths in new-library-source-review.md"
+  }
+]

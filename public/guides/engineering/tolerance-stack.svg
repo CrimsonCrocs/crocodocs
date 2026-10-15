@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="330" viewBox="0 0 800 330" role="img" aria-labelledby="title desc">
+<title id="title">Worst-case spacer tolerance stack</title><desc id="desc">Three spacers each nominally 10.0 mm with plus or minus 0.1 mm variation produce a total nominal length of 30.0 mm with worst-case variation of plus or minus 0.3 mm.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M0 0L8 4L0 8Z" fill="#b42629"/></marker></defs>
+<rect width="800" height="330" rx="12" fill="#fff"/>
+<g fill="#242424" font-family="Arial, sans-serif" font-size="20">
+<text x="24" y="36" font-size="23">Individual variation adds along the functional stack</text>
+<g stroke="#242424" stroke-width="3"><rect x="100" y="90" width="200" height="85" fill="#ededed"/><rect x="300" y="90" width="200" height="85" fill="#fbe6e6"/><rect x="500" y="90" width="200" height="85" fill="#ededed"/></g>
+<text x="125" y="141" font-size="18">10.0 ± 0.1 mm</text><text x="325" y="141" font-size="18">10.0 ± 0.1 mm</text><text x="525" y="141" font-size="18">10.0 ± 0.1 mm</text>
+<line x1="100" y1="215" x2="700" y2="215" stroke="#b42629" stroke-width="3" /><line x1="100" y1="200" x2="100" y2="230" stroke="#b42629" stroke-width="3" /><line x1="700" y1="200" x2="700" y2="230" stroke="#b42629" stroke-width="3" />
+<text x="272" y="253" font-size="23">30.0 ± 0.3 mm total</text>
+<text x="230" y="283" font-size="18">Worst-case range: 29.7 to 30.3 mm</text>
+</g>
+<text x="24" y="313" font-family="Arial, sans-serif" font-size="14" fill="#555">CrocoDocs · Original illustration · Not to scale</text></svg>

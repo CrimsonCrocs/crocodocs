@@ -1,12 +1,12 @@
 ---
-title: Code Organization
+title: Code organization
 description: Keep an FTC project easy to navigate as the robot grows
 icon: FolderTree
 ---
 
-## Begin with TeamCode
+## TeamCode [#begin-with-teamcode]
 
-In the [official FTC Android Studio project](https://github.com/FIRST-Tech-Challenge/FtcRobotController), your team's Java files belong under:
+In the official FTC Android Studio project, your team's Java files belong under:
 
 ```text
 TeamCode/src/main/java/org/firstinspires/ftc/teamcode/
@@ -26,7 +26,7 @@ teamcode/
 
 The diagram is a **possible team layout**, not an extra folder structure required by the SDK. A file in `mechanisms/` needs a matching package declaration, such as `package org.firstinspires.ftc.teamcode.mechanisms;`.
 
-## Give each file a clear job
+## File responsibilities [#give-each-file-a-clear-job]
 
 The OpMode should decide **when** an action happens. A mechanism class can decide **how** to control its hardware. For example, the OpMode reads a button and asks the arm to move; the arm class owns the motor and its power limit.
 
@@ -54,7 +54,7 @@ public class Arm {
 
 Inside an OpMode in the `teamcode` package, import `Arm`, construct it **before** `waitForStart()`, then call `arm.move(...)` in the active loop. This is a pattern for separating jobs; it still needs the usual OpMode setup and a matching `arm_motor` configuration.
 
-## Split only when it helps
+## When to split files [#split-only-when-it-helps]
 
 Move code into a new method or class when you can give it a clear name and use it without copying the same logic. Examples:
 
@@ -64,10 +64,18 @@ Move code into a new method or class when you can give it a clear name and use i
 
 Keep season-specific scoring decisions in the autonomous or match logic, so a reusable motor helper does not silently depend on one game.
 
-## Check the result
+## Review [#check-the-result]
 
 Can a new teammate find the code that controls a motor in under a minute? Can they see where its configuration name and power limit live? If yes, the structure is doing its job. Build after moving files; package and import mistakes show up immediately.
 
-## Continue
+## Next steps [#continue]
 
 Use [naming conventions](./naming-conventions) to make the files readable and [comments](./comments) to explain decisions that names cannot show.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC Android Studio project](https://github.com/FIRST-Tech-Challenge/FtcRobotController)
+
+</footer>

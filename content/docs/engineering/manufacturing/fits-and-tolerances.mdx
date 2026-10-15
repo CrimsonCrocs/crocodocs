@@ -1,0 +1,60 @@
+---
+icon: engineering:Ruler
+title: Fits and tolerances
+description: Distinguish nominal dimensions, clearance, interference, and tolerance stacks, then calibrate fits with test parts.
+---
+
+A **tolerance** is the allowed variation in a dimension. A **fit** describes the resulting relationship between mating parts, such as a shaft and a hole.
+
+## Nominal and actual size [#nominal-size-does-not-guarantee-fit]
+
+Two features modeled at exactly the same diameter have no specified allowance for manufacturing variation. A sliding shaft needs clearance; a retained bearing may need a different housing fit. The required relationship depends on function, material, load, and how the component is retained.
+
+In a **clearance fit**, the smallest allowed hole remains larger than the largest allowed shaft. In an **interference fit**, the fitted part is larger than its mating opening over the specified relationship. A **transition fit** may produce clearance or interference depending on the actual dimensions.
+
+Printed and cut features can differ from CAD. Treat published example allowances as starting ideas, not universal manufacturing specifications.
+
+## Dimensional limits [#work-from-the-limits]
+
+Suppose an illustrative shaft measures $8.00 \pm 0.02$ mm and a hole is specified as $8.10 \pm 0.03$ mm. Minimum diametral clearance is:
+
+$$
+c_{min} = 8.07 - 8.02 = 0.05\ \mathrm{mm}
+$$
+
+Maximum diametral clearance is $8.13 - 7.98 = 0.15$ mm. Those numbers describe clearance across the diameter; radial clearance is half that value for concentric parts. They are not a recommendation for a particular bearing or manufacturing process.
+
+For bearing seats, use the bearing and housing supplier's fit recommendations. For a removable printed spacer or guide, print a coupon and test the actual mating hardware.
+
+## Tolerance stacks [#add-tolerances-along-the-functional-path]
+
+A **tolerance stack** combines dimensional variations that affect a final relationship. If three spacers are each $10.0 \pm 0.1$ mm long, the worst-case stack is $30.0 \pm 0.3$ mm. A bearing assembly with less available allowance may bind at one end of that range.
+
+![Three spacer dimensions form a stack; each individual tolerance contributes to the possible final length.](/guides/engineering/tolerance-stack.svg)
+
+Worst-case addition is conservative and useful when any allowed combination must assemble. Statistical methods need justified assumptions about manufacturing distributions and independence; they do not replace controlled measurements in a small team-built assembly.
+
+Locate critical features from common datums to reduce unnecessary chains. Use a controlled shim, adjustment, or compliant feature where variation must be accommodated. Do not make every hole tighter when only one alignment relationship matters.
+
+## Process calibration [#calibrate-your-process]
+
+For a printed fit coupon, create several labeled hole sizes around the intended diameter and print them with the final material, orientation, and settings. Measure with suitable tools, then test the actual shaft or fastener. Record which dimensions give the intended function.
+
+Recheck when the printer, material, nozzle, orientation, or relevant slicer settings change.
+
+For laser cutting, **kerf** is the material removed by the cut. For milling, tool diameter and runout affect features and corners. Ask the fabricator which compensation it applies. Adding your own correction on top of its correction can move the result in the wrong direction.
+
+## Fit inspection [#inspect-before-forcing-assembly]
+
+Measure critical stock thickness, hole location, and support spacing before tightening an assembly. A screw used to pull misaligned plates together can hide the error while bending a shaft or preloading bearings.
+
+Record a fit by its measured result and function, such as "removable by hand with no noticeable rocking," as well as its nominal CAD value. For experienced teams, place critical tolerances on the released drawing and inspect the first manufactured part before approving the rest of the batch.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC Wiki: Tolerance article](https://www.ftcwiki.org/manufacturing-and-assembly/machining/tolerances)
+- [Prusa: Design-for-printing guidance](https://help.prusa3d.com/article/modeling-with-3d-printing-in-mind_164135)
+
+</footer>

@@ -1,0 +1,99 @@
+---
+title: SolversLib
+description: Install SolversLib core and run a command sequence with a responsive OpMode
+icon: phosphor:Stack
+---
+
+SolversLib groups robot actions into commands that a scheduler advances during each OpMode loop. It is a maintained fork of FTCLib with its own packages, releases, and changes. Begin with a sequence that prints telemetry before adding moving hardware.
+
+## Version and setup
+
+Checked **14 October 2026**: the current published core artifact is **0.3.6**. Recent source changes include a Pedro 3 migration, controller fixes, and a stop-during-INIT lifecycle fix. These changes show recent maintenance; test compatibility with your robot configuration.
+
+In an Android Studio FTC project, add the repository and core dependency to the appropriate Gradle configuration:
+
+```groovy
+repositories {
+    maven { url 'https://repo.dairy.foundation/releases' }
+}
+
+dependencies {
+    implementation 'org.solverslib:core:0.3.6'
+}
+```
+
+The artifact group is `org.solverslib`, while Java imports begin with `com.seattlesolvers.solverslib`. If migrating from FTCLib, remove its core dependency and deliberately migrate the imports and lifecycle.
+
+The optional `pedroPathing` and `photon` modules are separate dependencies. Core is enough for this exercise. The Pedro module's 0.3.6 line targets Pedro 3; older 0.3.5 integration examples use Pedro 2. Follow the matching module setup when adding path following.
+
+## Command lifecycle
+
+An instant command performs one action when initialized. A wait command completes after its specified duration while the scheduler continues running. A sequential group starts each command after the previous one finishes.
+
+**Scheduling can initialize a command immediately.** A command that sets motor power can therefore move hardware during INIT if scheduled there. In this example, `initialize()` prepares the OpMode and `preRun()` schedules the sequence after START.
+
+`CommandOpMode` owns the `runOpMode()` lifecycle. Keep `super.run()` in an overridden `run()` method so the scheduler advances. Do not add a second `runOpMode()` or a separate `waitForStart()` to this subclass.
+
+## First sequence
+
+Save this complete Java example as `SolversCommandPreview.java` in the TeamCode package shown below. Its signatures were checked against the published SolversLib 0.3.6 artifact and FTC SDK 12. It does not map or command a motor.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.seattlesolvers.solverslib.command.CommandOpMode;
+import com.seattlesolvers.solverslib.command.InstantCommand;
+import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
+import com.seattlesolvers.solverslib.command.WaitCommand;
+
+@TeleOp(name = "Solvers Command Preview")
+public class SolversCommandPreview extends CommandOpMode {
+    private String stage = "Waiting for START";
+
+    @Override public void initialize() {
+        telemetry.addLine(stage);
+        telemetry.update();
+    }
+
+    @Override public void initialize_loop() {
+        idle();
+    }
+
+    @Override public void preRun() {
+        schedule(new SequentialCommandGroup(
+                new InstantCommand(() -> stage = "First command"),
+                new WaitCommand(1000),
+                new InstantCommand(() -> stage = "Finished")
+        ));
+    }
+
+    @Override public void run() {
+        super.run(); // Runs the command scheduler.
+        telemetry.addData("Stage", stage);
+        telemetry.update();
+        idle();
+    }
+}
+```
+
+Select the TeleOp, press INIT, then START. The stage changes to `First command`, waits about one second, then changes to `Finished`. `WaitCommand(1000)` uses **milliseconds**. The wait is scheduler-driven; the OpMode loop still updates telemetry.
+
+Change the wait to 2000 ms and repeat. Then press STOP during the wait. The framework handles its end/reset lifecycle in cleanup; the example does not need a separate scheduler thread.
+
+## Adding a mechanism
+
+A command that operates a motor needs a subsystem requirement so conflicting commands cannot control the same hardware simultaneously. Define its completion condition and interrupted cleanup before adding it to a sequence. Cancellation should leave the mechanism in an intentional state; zero motor power alone may not support a vertical load.
+
+Use [FTCLib](./ftclib) for a comparison of command composition, and [nonblocking code](../getting-started/nonblocking-code) for the underlying state-machine idea. SolversLib's APIs and lifecycle must still be checked independently of FTCLib examples.
+
+<footer className="article-sources">
+
+## Sources
+
+- [SolversLib installation](https://docs.seattlesolvers.com/installation)
+- [SolversLib 0.3.6 source](https://github.com/FTC-23511/SolversLib/tree/93ff730965655b3a55f6648ce5e0f1c0b820206b)
+- [Published core metadata](https://repo.dairy.foundation/releases/org/solverslib/core/maven-metadata.xml) · [0.3.6 source archive](https://repo.dairy.foundation/releases/org/solverslib/core/0.3.6/core-0.3.6-sources.jar)
+- [Project licence notices](https://github.com/FTC-23511/SolversLib/blob/93ff730965655b3a55f6648ce5e0f1c0b820206b/23511-LICENSE) · [inherited source notice](https://github.com/FTC-23511/SolversLib/blob/93ff730965655b3a55f6648ce5e0f1c0b820206b/FIRST-LICENSE)
+
+</footer>

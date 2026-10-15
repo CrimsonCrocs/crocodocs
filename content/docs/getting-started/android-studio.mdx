@@ -4,7 +4,7 @@ description: Set up the FTC project and run one small Java OpMode
 icon: Laptop
 ---
 
-## What you will do
+## Overview [#what-you-will-do]
 
 Android Studio is the computer app used to edit and build the FTC Robot Controller project. Your team's programs live in its **TeamCode** module. This path is useful when your team wants a full code editor, Git, or libraries that need changes to the Android Studio project.
 
@@ -14,11 +14,11 @@ If this is your first time programming a robot, [start with Blocks](./blocks) to
 
 The **Robot Controller** runs your program. The **Driver Station** selects the program and starts or stops it. Building code on your computer does not put it on the robot; you must install the built app on the Robot Controller.
 
-## 1. Get the right software
+## Software setup [#1-get-the-right-software]
 
-Install [Android Studio](https://developer.android.com/studio). The [current FTC SDK release notes](https://github.com/FIRST-Tech-Challenge/FtcRobotController/releases) list the minimum Android Studio version. For SDK **12.0**, that is **Narwhal 3 Feature Drop or later**. Use the release notes again when your team updates the SDK.
+Install Android Studio. The current FTC SDK release notes list the minimum Android Studio version. For SDK **12.0**, that is **Narwhal 3 Feature Drop or later**. Use the release notes again when your team updates the SDK.
 
-Download the [official FTC Robot Controller project](https://github.com/FIRST-Tech-Challenge/FtcRobotController). You can use **Code → Download ZIP** and extract it, or clone the repository if you already use Git. A ZIP is enough for this first exercise; Git is not required just to open the project.
+Download the official FTC Robot Controller project. You can use **Code → Download ZIP** and extract it, or clone the repository if you already use Git. A ZIP is enough for this first exercise; Git is not required just to open the project.
 
 Open the project folder in Android Studio and allow its **Gradle sync** to finish. Gradle downloads the software the project needs. Your first sync can take longer because it needs an internet connection.
 
@@ -26,7 +26,7 @@ Open the project folder in Android Studio and allow its **Gradle sync** to finis
 Before changing SDK versions, copy or commit your TeamCode work and read the release notes for breaking changes. An SDK update can change an API used by an older OpMode.
 </Callout>
 
-## 2. Find TeamCode
+## TeamCode [#2-find-teamcode]
 
 In Android Studio, open this folder:
 
@@ -36,7 +36,7 @@ TeamCode/src/main/java/org/firstinspires/ftc/teamcode/
 
 `TeamCode` is your team's module. `FtcRobotController` contains the controller app and SDK samples. Put the new Java file below in the `teamcode` package, and name it **OneMotor.java**.
 
-## 3. Try one motor
+## Motor example [#3-try-one-motor]
 
 First, configure a motor on the Robot Controller and name it `test_motor`. The text inside `hardwareMap.get(..., "test_motor")` must match that configuration name exactly, including capitalization.
 
@@ -78,20 +78,26 @@ Read the code in this order:
 
 The sign of “forward” depends on how your motor is mounted. If the motor turns the opposite way from what you expect, check its direction rather than removing the power limit.
 
-## 4. Build, install, and test
+## Deployment and testing [#4-build-install-and-test]
 
 1. Use **Build → Make Project**. Fix any error shown in the Build window before continuing.
-2. Connect your Robot Controller to Android Studio using your team's supported USB or wireless deployment setup, then run the **FtcRobotController** app configuration. See the [official Android Studio tutorial](https://ftc-docs.firstinspires.org/en/latest/programming_resources/android_studio_java/Android-Studio-Tutorial.html) for the connection and install steps.
+2. Connect your Robot Controller to Android Studio using your team's supported USB or wireless deployment setup, then run the **TeamCode** app configuration. See the official Android Studio tutorial for the connection and install steps.
 3. On the Driver Station, select **One Motor**, press **INIT**, then **START**.
 4. Move the left stick slightly and check both the motor and the **Motor power** telemetry value. Press **STOP** when finished.
 
 If **One Motor** does not appear, confirm that the build succeeded, the new app was installed on the correct Robot Controller, and the file is in TeamCode. If initialization fails with a hardware-name error, compare `test_motor` with the active robot configuration.
 
-## Next step
+## Next steps [#next-step]
 
 Try [joystick mapping](../control-systems/joystick-mapping) once one motor responds correctly. Add a second motor only after you can explain what each line above does.
 
-## Official references
+<footer className="article-sources">
+
+## Sources [#official-references]
 
 - [FTC Android Studio tutorial](https://ftc-docs.firstinspires.org/en/latest/programming_resources/android_studio_java/Android-Studio-Tutorial.html)
 - [FTC SDK project and release notes](https://github.com/FIRST-Tech-Challenge/FtcRobotController)
+- [Android Studio](https://developer.android.com/studio)
+- [FTC SDK release notes](https://github.com/FIRST-Tech-Challenge/FtcRobotController/releases)
+
+</footer>

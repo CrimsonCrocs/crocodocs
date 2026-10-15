@@ -1,0 +1,61 @@
+---
+icon: engineering:Books
+title: Engineering resources
+description: A task-based guide to GM0, FTC Wiki, official FIRST references, manufacturer documentation, CAD, and fabrication resources.
+---
+
+Choose a reference for the design question you need to answer. Use official rules for legality, manufacturer documentation for component ratings, and handbooks for explanations and examples.
+
+## Handbooks [#start-with-these-two-handbooks]
+
+| Resource | Best use | Limitation |
+| --- | --- | --- |
+| [Game Manual 0](https://gm0.org/en/latest/) | Broad FTC design and mechanism explanations, diagrams, and examples | Community guidance; historical examples and advice need context |
+| [GM0 useful resources](https://gm0.org/en/latest/docs/useful-resources.html) | Finding deeper references, CAD libraries, calculators, and team resources | Some outgoing links move or become outdated |
+| [FTC Wiki](https://www.ftcwiki.org/) | Assembly, material selection, construction styles, and manufacturing concepts | Some pages are incomplete; verify equations and specifications independently |
+
+This Engineering section was developed from those starting points and selected linked references. It includes original explanations and worked examples. It does not cover everything on either site or every linked resource.
+
+## Rules and specifications [#use-primary-sources-for-changing-requirements]
+
+- [FIRST game and season materials](https://www.firstinspires.org/resource-library/ftc/game-and-season-info): current manuals, updates, and inspection information.
+- [Official FTC Q&A](https://ftc-qa.firstinspires.org/): published rule clarifications for the relevant season.
+- [FTC Docs](https://ftc-docs.firstinspires.org/en/latest/): official configuration, programming, build, and troubleshooting guidance.
+- [FIRST Robot Wiring Guide](https://ftc-docs.firstinspires.org/en/latest/robot_building/wiring_guide/wiring-guide.html): electrical layout, connections, and integration.
+- [FIRST ESD guidance](https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/managing_esd/managing-esd.html): supported discharge mitigation and the distinction between team and event-host actions.
+
+A community parts list or a robot video does not establish current legality. Check exact part numbers and current rules before committing a design to them.
+
+## Hardware references [#look-up-the-hardware-you-actually-own]
+
+- [REV documentation](https://docs.revrobotics.com/): controller specifications, build instructions, actuator details, and troubleshooting. Use the page for the exact product.
+- [REV battery guidance](https://docs.revrobotics.com/duo-control/troubleshooting-the-control-system/12v-battery-best-practices-and-troubleshooting): handling and troubleshooting context for REV's 12 V system.
+- [goBILDA](https://www.gobilda.com/): product drawings, dimensions, ratios, compatible hardware, and build instructions attached to specific products.
+- [KHK gear reference](https://khkgears.net/gear-knowledge/gear-technical-reference/calculation-gear-dimensions/): gear geometry, reference dimensions, and distinctions between gear systems.
+- [SDP/SI timing-belt handbook](https://sdp-si.com/D820/PDFS/Technical-Section.pdf): pulley geometry, center distance, tension, alignment, and drive selection. Use [GM0's calculator](https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/belt.html#belt-calculator) for an initial belt-length comparison.
+
+Use datasheets for voltage, current, torque, temperature, and load ratings. An illustrative calculation in this handbook does not override a component's rating.
+
+## CAD and manufacturing [#learn-cad-and-design-for-manufacture]
+
+- [Onshape Learning Center](https://learn.onshape.com/): tool-specific instruction in modeling and assemblies.
+- [FTC Onshape library](https://ftconshape.com/): discover reusable models and CAD workflow resources. Check critical geometry against the supplier drawing.
+- [Onshape for FIRST Robotics teams](https://www.onshape.com/en/education/robotics): education access, team onboarding, robotics training, and FTC model links. Verify the model's season and the account's plan eligibility.
+- [Prusa design-for-printing guide](https://help.prusa3d.com/article/modeling-with-3d-printing-in-mind_164135): orientation, feature design, and iteration.
+- [Prusa filament material guide](https://help.prusa3d.com/filament-material-guide): material and printer requirements; qualify the actual part separately.
+- [NASA RAP Robotics Design Guide](https://robotics.nasa.gov/nasa-rap-robotics-design-guide/): a broader competitive-robotics reference linked by GM0. It includes other competition contexts, so separate general engineering from FTC-specific assumptions.
+
+For a first exercise, use the [sensor-bracket CAD task](/docs/engineering/design/cad). For a fit problem, use the [tolerance coupon method](/docs/engineering/manufacturing/fits-and-tolerances). For a structural print, use the [printing qualification workflow](/docs/engineering/manufacturing/3d-printing).
+
+## Engineering theory
+
+- [Thaddeus Hughes: Mechatronics](https://raw.githubusercontent.com/Thaddeus-Maximus/mechatronics_book/master/mechatronics.pdf): a broad reference for mechanisms, electronics, and measurement. It contains some technical errors; check specifications and equations against the exact manufacturer reference before applying them.
+- [Bartosz Ciechanowski: Gears](https://ciechanow.ski/gears/): interactive explanations of pitch circles, tooth profiles, pressure angle, and gear trains. Use it to understand the geometry, then use the supplier's ratings for a real assembly.
+
+## Testing and community support [#keep-evidence-and-ask-useful-questions]
+
+- [Community portfolio library](https://portfolios.hivemindrobotics.net/): examples of engineering communication. Treat them as authored work and check the season before applying submission conventions.
+
+When asking a mentor, vendor, or community for help, provide the exact hardware, a labeled photo or sketch, the observed symptom, the expected behavior, and the tests already performed. A short video showing the whole motion is often more useful than a close-up of the failed endpoint.
+
+The source selection was reviewed on **14 October 2026**. Live pages can change afterward. Each article lists its supporting references in a Sources section at the bottom; current official and manufacturer information takes priority when they disagree.

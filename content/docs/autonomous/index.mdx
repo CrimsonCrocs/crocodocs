@@ -1,14 +1,14 @@
 ---
-title: Autonomous Programming
+title: Autonomous
 description: Build and test routines that run without driver input
 icon: BookOpen
 ---
 
-## What is autonomous?
+## Overview [#what-is-autonomous]
 
 An autonomous OpMode runs without driver input for the **30-second AUTO period** of an FTC match. It can read sensors, move mechanisms, and make decisions based on its program. The exact game tasks and scoring change each season; see the [current season guide](../season-breakdown) and current Competition Manual for those details.
 
-A useful autonomous routine is repeatable, stops safely, and accounts for uncertainty in localization and game-piece interaction. More steps do not guarantee a better routine.
+Build an autonomous routine that repeats reliably, stops safely, and handles errors in localization and game-piece interaction. Adding steps can reduce reliability if each step is not tested.
 
 ## Core concepts
 
@@ -19,7 +19,7 @@ A useful autonomous routine is repeatable, stops safely, and accounts for uncert
 
 These components affect each other. A path follower cannot compensate for a badly calibrated localizer, and an AprilTag pose is an estimate whose quality depends on visibility and camera calibration.
 
-## A reliable build-up
+## Learning order [#a-reliable-build-up]
 
 1. Test individual hardware safely.
 2. Make one short movement and verify motor direction, encoder direction, and stopping behavior.

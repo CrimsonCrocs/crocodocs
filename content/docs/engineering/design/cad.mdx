@@ -1,0 +1,68 @@
+---
+icon: engineering:CompassTool
+title: CAD and robot integration
+description: Model parts and assemblies around datums, motion envelopes, manufacturing, and service access.
+---
+
+**Computer-aided design (CAD)** describes parts and assemblies before you make them. In FTC, it helps you find collisions, missing clearances, and assembly problems before cutting parts.
+
+## Model scope [#model-what-answers-a-question]
+
+A new team can begin with a layout of the chassis, battery, electronics, and major mechanism envelopes. Add detail where it affects fit, load, manufacture, or access. A complete model is useful only if it stays consistent with the robot being built.
+
+Learn the chosen CAD tool through its own documentation. Check education account terms directly with the provider.
+
+For Onshape, the FIRST education programme includes team onboarding, a robotics curriculum, and FTC parts and field documents. Choose resources labelled FTC and verify their season; FRC field models and hardware libraries have different geometry. Check current plan eligibility with the provider.
+
+## Reference geometry [#begin-with-reference-geometry]
+
+A **datum** is a reference used to locate other features. Choose a robot coordinate system and a few stable references, such as the chassis center plane and a main mounting surface. Locate mechanism interfaces from those references rather than from a chain of edges likely to change.
+
+Constrain sketches to express intent: symmetry, parallel lines, shared centers, and dimensions. An unconstrained sketch can move unexpectedly when edited. Avoid fixing every point in place merely to make the solver report success; preserve the relationships you want future edits to maintain.
+
+Build reusable parts as separate components. Use assembly joints or mates to represent the actual allowed motion. A revolute joint should describe a pivot; it should not conceal two plates occupying the same space.
+
+## Clearances and access [#include-the-inconvenient-parts]
+
+Import vendor models for purchased parts and check their units. A model imported in inches as millimeters can be internally consistent and still be completely wrong. Parts libraries help with discovery, but compare critical dimensions with the vendor drawing for the exact part.
+
+Include screw heads, nuts, shaft collars, connectors, and cable bend space. Model the path of the hex driver used to remove a screw. A fastener that is visible but cannot be reached remains a service problem.
+
+Sweep mechanisms through stow, pickup, transfer, scoring, and recovery positions. Check combinations too: a wrist may clear the chassis until the lift retracts. Use simplified volumes for the objects being manipulated and for the permitted robot envelope.
+
+## Manufacturing drawings [#release-usable-manufacturing-information]
+
+| Output | Include |
+| --- | --- |
+| Printed part | Export units, orientation notes, material, critical fits, revision |
+| Cut plate | Material and thickness, finished geometry, hole definitions, revision |
+| Machined part | Datums, critical dimensions and tolerances, threads, finish where functional |
+| Purchased component | Exact supplier part number and quantity |
+
+Do not add compensation to every dimension by instinct. Ask the manufacturer which allowances its process handles and use a [fit coupon](/docs/engineering/manufacturing/fits-and-tolerances) for uncertain local processes.
+
+## CAD exercise [#run-a-first-cad-exercise]
+
+Model a small bracket that mounts a real sensor to a piece of your kit. Measure the mounting pattern, body, connector, screw heads, and cable exit. Assemble it virtually, print or fabricate a prototype, and record where reality differs from the model.
+
+Revise the parameter responsible for each mismatch. This small project gives you practice with units, sketch constraints, assembly placement, and manufacturing variation, as well as a reusable part.
+
+## Revision control [#keep-design-and-robot-revisions-connected]
+
+Name parts by function and revision, and keep a bill of materials with quantities. Freeze a named CAD version before ordering or cutting parts. Mark any hand modification on the build record and update the model before manufacturing replacements.
+
+Before releasing an assembly, check mounting datums, fastener access, swept volumes, cable routing, center-of-mass estimates, and the removal sequence.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: CAD introduction](https://gm0.org/en/latest/docs/design-skills/cad.html)
+- [FTC Wiki: CAD setup](https://www.ftcwiki.org/intro-to-cad/onshape-setup)
+- [Onshape Learning Center](https://learn.onshape.com/)
+- [FTC Onshape parts library](https://ftconshape.com/)
+- [FTC Wiki: Naming conventions](https://www.ftcwiki.org/design-style/design-guidelines/naming-conventions)
+- [FTC Wiki: Modularity](https://www.ftcwiki.org/design-style/design-guidelines/modularity)
+- [Onshape for FIRST Robotics teams](https://www.onshape.com/en/education/robotics) — education access, onboarding, curriculum, and FTC models.
+
+</footer>

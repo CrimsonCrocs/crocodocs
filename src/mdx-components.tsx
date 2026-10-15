@@ -5,6 +5,7 @@ import { source } from './lib/source';
 import { Bracket } from './components/bracket';
 import { Wordmark } from './components/wordmark';
 import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+import { FTCPlayground } from './components/ftc-playground';
 
 // use this function to get MDX components, you will need it for rendering MDX
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
@@ -15,6 +16,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Wordmark,
     Tabs,
     Tab,
+    FTCPlayground,
     ...components,
   };
 }

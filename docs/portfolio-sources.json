@@ -1,0 +1,72 @@
+{
+  "reviewed": "2026-10-14",
+  "official_manual": {
+    "season": "2026–27 BIOBUZZ",
+    "section": "6 Awards",
+    "version": "TU04",
+    "updated": "2026-10-08",
+    "url": "https://ftc-resources.firstinspires.org/ftc/archive/2027/game/manual-06",
+    "sha256": "0fb7723224ef10b09a28e7675c6c2beb9a9afaabec8af0d9e9e082b47f29f1a7"
+  },
+  "portfolios": [
+    {
+      "team": 18139,
+      "name": "Rebel Robotics",
+      "season": "2024–25 INTO THE DEEP",
+      "url": "https://drive.google.com/file/d/1BwbpyaX3YCZ-lo-9cuNhbTGD0glnTJQr/view",
+      "bytes": 2234949,
+      "sha256": "d568f2994ac0728c170ea3a08eae443daf969ade7d9a99a035b44c7b2bd752b3",
+      "pdf_pages": 16,
+      "content_pages_reviewed": "1–15",
+      "award_verified": "Overall Championship Inspire and Franklin Division Inspire, 2025",
+      "award_source": "https://ftc-events.firstinspires.org/2024/team/18139",
+      "review": "Full extracted text/OCR and visual page inspection. Team outcomes remain team-reported. No original PDF or page artwork redistributed."
+    },
+    {
+      "team": 6417,
+      "name": "Blu Cru",
+      "season": "2025–26 DECODE",
+      "url": "https://drive.google.com/file/d/1wnucpLEzxrLYH6uO9_v3LXjHI8i9jVK7/view",
+      "bytes": 25912009,
+      "sha256": "122f7d540ecd15c4e9fa0eaa0acabe797c8ded2bac68d41d6ad3a38439afd256",
+      "pdf_pages": 16,
+      "content_pages_reviewed": "1–15",
+      "award_verified": "Goodall Division Inspire, 2026",
+      "award_source": "https://ftc-events.firstinspires.org/2025/team/6417",
+      "review": "Full extracted text/OCR and visual page inspection. Team outcomes remain team-reported. No original PDF or page artwork redistributed."
+    },
+    {
+      "team": 7477,
+      "name": "Super 7",
+      "season": "2025–26 DECODE",
+      "url": "https://drive.google.com/file/d/1vXc7HtoYnBhZ8VZUYlZZGtNKuT_e-ftd/view",
+      "bytes": 10153558,
+      "sha256": "cba55346ee999f4bf430304801ff0af1e3c99a6ccef1745ee4caaf8f9678d5fd",
+      "pdf_pages": 16,
+      "content_pages_reviewed": "1–15",
+      "award_verified": "Edison Division Inspire, 2026",
+      "award_source": "https://ftc-events.firstinspires.org/2025/team/7477",
+      "review": "Full extracted text/OCR and visual page inspection. Team outcomes remain team-reported. No original PDF or page artwork redistributed."
+    },
+    {
+      "team": 23511,
+      "name": "Seattle Solvers",
+      "season": "2025–26 DECODE",
+      "url": "https://drive.google.com/file/d/1jCnEVCMHPD42UgGrJsthdqCmEf6Ljgfe/view",
+      "bytes": 8632259,
+      "sha256": "972fa70f732f40bb243466a73bc6fb6fe30142186008e2e1a71f19159fd4d109",
+      "pdf_pages": 16,
+      "content_pages_reviewed": "1–15",
+      "award_verified": "Lovelace Division Inspire second place, 2026",
+      "award_source": "https://ftc-events.firstinspires.org/2025/team/23511",
+      "review": "Full extracted text/OCR and visual page inspection. Team outcomes remain team-reported. No original PDF or page artwork redistributed."
+    }
+  ],
+  "limitations": [
+    "Private/reference sharing unchanged; public access is not asserted.",
+    "Original PDFs stay outside the repository.",
+    "No inference from redacted material.",
+    "No claim that portfolio content caused awards.",
+    "The Hive, IronEagles, and Brickbot files were discovered but not read for detailed case studies."
+  ]
+}

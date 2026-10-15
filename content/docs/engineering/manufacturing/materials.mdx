@@ -1,0 +1,58 @@
+---
+icon: engineering:Cube
+title: Materials
+description: Choose materials from stiffness, impact, wear, manufacturing, and repair requirements rather than strength claims alone.
+---
+
+**Material selection** matches a part's loads and environment to a material and manufacturing process. The best choice also fits the team's tools, time, budget, and replacement plan.
+
+## Material properties [#distinguish-the-properties]
+
+**Stiffness** controls elastic deflection. **Strength** limits loads before yielding or failure. **Toughness** describes resistance to fracture while absorbing energy. **Hardness** concerns local indentation or wear. These properties are related but are not interchangeable.
+
+Geometry matters too. A deeper section can resist bending more efficiently than extra material near its center. For a simple rectangular section bending about its thickness direction, the second moment of area is $I = bh^3/12$. Doubling thickness $h$ multiplies this geometric quantity by eight while doubling mass, assuming the other dimensions and material remain unchanged. Holes, joints, load direction, and local failure still need checking.
+
+## Material selection [#choose-from-likely-uses]
+
+| Material | Common useful role | Limitation to investigate |
+| --- | --- | --- |
+| Aluminum alloy | Frames, plates, brackets, and structural members | Alloy and temper, joint stiffness, bendability, fatigue |
+| Steel | Shafts, wear surfaces, and compact highly loaded parts | Mass, corrosion, machinability, and exact grade |
+| Polycarbonate | Impact-tolerant guards and shaped guides | Flex, scratching, creep, and fabrication method |
+| Acetal or HDPE | Low-friction guides, spacers, and machined plastic parts | Stiffness, creep, retention, and dimensional change |
+| Printed thermoplastic | Custom guides, fixtures, adapters, and cable relief | Layer direction, temperature, fit, and repeatability |
+| Flexible TPU | Compliant fingers, rollers, and contact surfaces | Grip, wear, deformation, and printing setup |
+| Carbon-fiber composite | Selected lightweight structural parts | Directional properties, edge damage, joining, and dust handling |
+
+Use supplier data for numerical properties; generic material names do not specify a rated part.
+
+## Stock specifications [#specify-the-actual-stock]
+
+"Aluminum" is incomplete purchasing information. Record alloy, temper, thickness, form, and tolerances where relevant. A bendable sheet alloy and a heat-treated structural plate can behave differently during forming even if both look similar.
+
+Use supplier data to decide a drawing's material specification. Do not transfer a property table from one alloy or temper to another.
+
+For polymers, distinguish solid stock from a printed part. A filament supplier's material properties do not establish the strength of your layer orientation, infill, holes, and screw joints. Test the manufactured part under the load direction it will experience.
+
+## Mass reduction [#reduce-mass-without-losing-the-load-path]
+
+Removing material from a plate can reduce mass, but every cutout changes stiffness and stress distribution. Preserve support around bearings, fasteners, and high-load interfaces. Avoid sharp internal corners and narrow bridges unless their load has been assessed.
+
+A decorative pattern is not evidence of an optimized structure. Compare loaded deflection and failure behavior before and after a mass reduction.
+
+## Part testing [#validate-a-candidate-part]
+
+Make a representative sample with the actual process and joints. Check fit first, then introduce a safe load gradually. Test repeated cycles, impact where relevant, and time under load when creep matters. Keep people clear and contain a possible failure.
+
+Record stock or filament identity, dimensions, revision, process, load, and result. New teams can begin with established kit members and use custom materials for small low-risk interfaces. Experienced teams should retain a known working replacement until a new material has passed equivalent tests.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Materials guide](https://gm0.org/en/latest/docs/custom-manufacturing/materials-guide.html)
+- [FTC Wiki: Material overview](https://www.ftcwiki.org/manufacturing-and-assembly/materials/material-choice)
+- [FTC Wiki: Aluminum alloys](https://www.ftcwiki.org/manufacturing-and-assembly/materials/aluminum-alloys)
+- [FTC Wiki: Pocketing discussion](https://www.ftcwiki.org/design-style/weight-savings-pocketing)
+
+</footer>

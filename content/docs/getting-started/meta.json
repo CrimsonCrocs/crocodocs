@@ -1,9 +1,14 @@
 {
-    "pages": [
-        "index",
-        "blocks",
-        "onbot-java",
-        "android-studio"
-    ],
-    "icon": "Rocket"
+  "pages": [
+    "index",
+    "blocks",
+    "onbot-java",
+    "android-studio",
+    "first-opmode",
+    "java-basics",
+    "motors-and-servos",
+    "nonblocking-code",
+    "debugging"
+  ],
+  "icon": "Rocket"
 }

@@ -1,0 +1,162 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "title": "CrocoDocs \u2014 FTC Engineering, Programming, and Portfolios",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/awards-and-inspire",
+    "status": 200,
+    "title": "Awards and Inspire | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/case-studies/blu-cru",
+    "status": 200,
+    "title": "Blu Cru | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/case-studies",
+    "status": 200,
+    "title": "Inspire case studies | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/case-studies/rebel-robotics",
+    "status": 200,
+    "title": "Rebel Robotics | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/case-studies/seattle-solvers",
+    "status": 200,
+    "title": "Seattle Solvers | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/case-studies/super-7",
+    "status": 200,
+    "title": "Super 7 | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/engineering",
+    "status": 200,
+    "title": "Engineering evidence | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio",
+    "status": 200,
+    "title": "Portfolio | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/interviews",
+    "status": 200,
+    "title": "Interviews | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/layout",
+    "status": 200,
+    "title": "Layout and writing | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/outreach",
+    "status": 200,
+    "title": "Outreach and impact | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/planning",
+    "status": 200,
+    "title": "Planning | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/programming",
+    "status": 200,
+    "title": "Programming evidence | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/review",
+    "status": 200,
+    "title": "Final review | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/portfolio/team",
+    "status": 200,
+    "title": "Team development | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/libraries/nextftc",
+    "status": 200,
+    "title": "NextFTC | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/control-systems/pid-control",
+    "status": 200,
+    "title": "PID control | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/engineering/mechanisms/drivetrains",
+    "status": 200,
+    "title": "Drivetrains | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  },
+  {
+    "path": "/docs/getting-started/dictionary-demo",
+    "status": 200,
+    "title": "Dictionary examples | CrocoDocs",
+    "has_article": true,
+    "has_sources": true,
+    "katex_error": false
+  }
+]

@@ -1,0 +1,85 @@
+---
+title: Feedforward
+description: Add a measured gravity term to an arm controller and check its assumptions
+icon: phosphor:Lightning
+---
+
+Feedback reacts to error. **Feedforward** estimates the command needed for a known load or requested motion before that error grows. An arm holding a game piece against gravity needs some motor effort even when its measured angle equals the target. A gravity term can supply that effort while feedback corrects the remaining error.
+
+Read [PID control](./pid-control) first. This page adds a gravity model; it does not replace motor-direction checks, homing, travel limits, or measured tuning.
+
+## Arm gravity
+
+For an ideal rigid arm with a fixed center of mass, gravity torque varies with `cos(angle)`, when **angle is measured from horizontal**. It is largest in magnitude near horizontal and approaches zero when the arm is vertical. A different angle reference requires a corresponding phase offset.
+
+A simple normalized-power model is:
+
+```text
+gravity power = kG × cos(measured angle from horizontal)
+requested power = feedback power + gravity power
+```
+
+`kG` is a measured power coefficient for the actual arm, gearing, voltage conditions, and load. There is no universal value. An extending arm or changing payload changes the torque; one fixed coefficient may be insufficient. Friction and motor deadband also limit the simple model.
+
+## Controller fragment
+
+Place this calculation in the active control loop **after** obtaining a valid measured angle and feedback output. It assumes positive logical motor power raises the defined arm angle. Use radians inside trigonometric functions. `angleDegrees` is measured from horizontal, not an arbitrary encoder zero.
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+```java
+// kG is measured for this arm. feedbackPower comes from the position controller.
+double angleRadians = Math.toRadians(angleDegrees);
+double gravityPower = kG * Math.cos(angleRadians);
+double requestedPower = feedbackPower + gravityPower;
+double limitedPower = Math.max(-0.25, Math.min(0.25, requestedPower));
+// Apply measured travel limits before writing limitedPower to the motor.
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+```kotlin
+// kG is measured for this arm. feedbackPower comes from the position controller.
+val angleRadians = Math.toRadians(angleDegrees)
+val gravityPower = kG * kotlin.math.cos(angleRadians)
+val requestedPower = feedbackPower + gravityPower
+val limitedPower = requestedPower.coerceIn(-0.25, 0.25)
+// Apply measured travel limits before writing limitedPower to the motor.
+```
+
+</Tab>
+</Tabs>
+
+The 0.25 cap is a practice bound, not proof that the arm can safely hold or move. If the mechanism needs more power than the cap allows, the command saturates and feedback cannot produce its requested correction. A vertical slide has approximately constant gravity load for a fixed payload, so copying an arm's cosine term into it is generally the wrong model.
+
+## Measurement and tuning
+
+Support the arm and use a controlled test procedure appropriate to the mechanism. With integral gain zero, measure the small command needed to hold several known angles under a representative load. Compare the trend with the cosine model and investigate a wrong sign or zero reference before changing gains.
+
+Log measured angle, target, feedback term, gravity term, unclamped request, and actual output. Test unloaded and loaded cases, several angles, and realistic battery conditions. Use a hold policy and physical support that remain safe if the OpMode stops or power is lost.
+
+Velocity and acceleration feedforward can be added for a motion profile (`kV × velocity` and `kA × acceleration`) when the model and units support them. That is a separate identification problem; do not reuse unrelated gains because their names match.
+
+[System identification](./system-identification) develops that measurement process: fit a voltage model, test it against separate recordings, then convert its output to FTC motor power. Keep voltage-based gains separate from the normalised-power `kG` used in the arm fragment above.
+
+## Integral saturation
+
+A finite integral-state cap reduces windup, but a blocked arm can still accumulate error while output is saturated. An optional anti-windup policy accepts a new integral update only when the output is unsaturated or the error would bring it back toward the allowed range. Account for feedforward and other terms when calculating the remaining output range.
+
+Watch the **I contribution**, not only the stored integral: its effect depends on `kI`. Reset or manage controller state when disabling control, changing modes, or changing references. Test a blocked or unreachable target before relying on recovery behavior; do not intentionally stall an unsupported mechanism to tune it.
+
+The fragments here use actual Java/Kotlin syntax but still require the robot-specific measurements and controller context described above.
+
+<footer className="article-sources">
+
+## Sources
+
+- [CTRL ALT FTC: feedforward](https://www.ctrlaltftc.com/feedforward-control)
+- [CTRL ALT FTC: practical PID improvements](https://www.ctrlaltftc.com/the-pid-controller/practical-improvements-to-pid)
+- [Author source and pseudocode notice](https://github.com/BenCaunt/CTRL-ALT-FTC/tree/0bc0c90c96461b4e92ededc08ff1c26809126f6d)
+
+CTRL ALT FTC is a conceptual guide; its examples are explicitly pseudocode.
+
+</footer>

@@ -1,14 +1,14 @@
 ---
-title: Dictionary Reference Example
-description: Cool interactive definitions! ✨
+title: Dictionary examples
+description: Examples of inline definitions in CrocoDocs articles
 icon: BookOpen
 ---
 
-# 📖 Dictionary Reference Example
+<span id="-dictionary-reference-example" className="heading-alias" />
 
 This page demonstrates the dictionary reference feature using double brackets.
 
-## How It Works
+## How it works [#how-it-works]
 
 When you write a word in double brackets like [[robot]], it will become an interactive term that shows a definition when you hover over it.
 
@@ -20,7 +20,7 @@ Here are some examples:
 
 - A [[servo]] is used for precise angular control
 - [[FTC]] is a robotics competition for middle and high school students
-- The [[First Tech Challenge|ftc]] is great for learning robotics
+- Students learn robotics through the [[First Tech Challenge|ftc]]
 - During [[autonomous]], the robot operates without driver input
 - [[TeleOp]] is when drivers control the robot
 - A [[motor]] converts electrical energy to motion
@@ -28,18 +28,18 @@ Here are some examples:
 - [[Odometry]] helps track robot position
 - [[Sensor]] devices detect environmental inputs
 
-## Custom Display Text
+## Display text [#custom-display-text]
 
 You can display different text while still using the dictionary definition:
 
-- The [[proportional-integral-derivative controller|pid]] is essential for smooth motion
+- The [[proportional-integral-derivative controller|pid]] uses feedback to control motion
 - We use [[motors|motor]] and [[servos|servo]] in our robot
 - The [[driver-controlled period|teleop]] comes after autonomous
 
-## Undefined Terms
+## Undefined terms [#undefined-terms]
 
 If you reference a term that's not in the dictionary, like [[undefined-term]], it will just display in brackets without the interactive tooltip.
 
-## Add More Terms
+## Adding terms [#add-more-terms]
 
 You can add more dictionary entries in `src/lib/dictionary.ts`.

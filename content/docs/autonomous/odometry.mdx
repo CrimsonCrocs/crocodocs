@@ -4,15 +4,15 @@ description: Estimate where your robot is from measured movement
 icon: MapPin
 ---
 
-An autonomous robot needs an estimate of where it is. **Odometry** builds that estimate by measuring how the robot moved since the previous update. It is like keeping a running travel log: each measurement adds a little movement to the robot's current position.
+An autonomous robot needs an estimate of where it is. **Odometry** builds that estimate by measuring how the robot moved since the previous update. Each update adds the measured movement to the previous pose estimate.
 
-Odometry is an estimate, not GPS. Small measurement errors add up over a route, and wheel slip can make the estimate wrong even when the code is correct.
+Small measurement errors add up over a route, and wheel slip can make the estimate wrong even when the code is correct.
 
 ![Top-down view of the BIOBUZZ field.](/guides/biobuzz-field.png)
 
 *For the coordinate examples below, use the lower-left as the origin, +X to the right, and +Y toward the top of the field. This is the convention used in this guide; libraries may choose different axes.*
 
-## Odometry and localization are related
+## Odometry and localization [#odometry-and-localization-are-related]
 
 **Localization** is the broader task of estimating the robot's field position and heading (its *pose*). **Odometry** estimates changes in that pose by integrating measured robot movement. An encoder is only a sensor: it reports shaft rotation. It does not know the robot's field position by itself.
 
@@ -38,7 +38,7 @@ An IMU measures orientation changes; it does not measure field X/Y position. An 
 
 An IMU can be paired with drive encoders or dead wheels. A camera or another known field reference can add position measurements and correct accumulated drift; that combination is covered in [Sensor Fusion](./sensor-fusion).
 
-## Step 1: Convert encoder counts to distance
+## Encoder scale [#step-1-convert-encoder-counts-to-distance]
 
 For a drive-motor encoder, measure or calculate these values for your exact motor, gearing, and drive wheel. For a tracking wheel, use that pod's encoder and wheel instead; include any gearing between them:
 
@@ -57,7 +57,7 @@ distance moved = encoder count change ÷ counts per inch
 
 Do not copy a `countsPerInch` value from another robot. Different motors, encoders, gears, wheel compression, and mounting change it. A practical check is to roll the robot a measured distance and compare it with the encoder estimate.
 
-## Step 2: Record changes, not the lifetime total
+## Encoder deltas [#step-2-record-changes-not-the-lifetime-total]
 
 At the start, save the current encoder readings as a baseline. Each loop, subtract the previous readings from the new ones. Those differences are the movement since the last update. Then save the new readings for the next loop.
 
@@ -86,7 +86,7 @@ previousCount = currentCount
 
 Here, `countsPerInch` must be the value calibrated for your robot, and `previousCount` must be updated every loop. This snippet converts one encoder's change to a distance; it is not a full position tracker.
 
-## Step 3: Turn robot movement into field movement
+## Field coordinates [#step-3-turn-robot-movement-into-field-movement]
 
 Encoders measure movement relative to the robot. Field coordinates are fixed to the playing field. To update field position, the program needs the robot's heading as well as its forward and sideways movement.
 
@@ -112,18 +112,29 @@ public final class DifferentialOdometry {
     private boolean initialized;
     private double x;
     private double y;
+    private final double startHeadingRadians;
+    private double initialRawYaw;
 
-    public DifferentialOdometry(double countsPerInch, double startX, double startY) {
+    public DifferentialOdometry(double countsPerInch, double startX, double startY,
+                                double startHeadingRadians) {
+        if (!Double.isFinite(countsPerInch) || countsPerInch <= 0.0
+                || !Double.isFinite(startX) || !Double.isFinite(startY)
+                || !Double.isFinite(startHeadingRadians)) {
+            throw new IllegalArgumentException("Finite pose and positive scale required");
+        }
+        this.startHeadingRadians = startHeadingRadians;
         this.countsPerInch = countsPerInch;
         this.x = startX;
         this.y = startY;
     }
 
     public void update(int leftTicks, int rightTicks, double headingRadians) {
+        if (!Double.isFinite(headingRadians)) throw new IllegalArgumentException("Finite yaw required");
         if (!initialized) {
             previousLeft = leftTicks;
             previousRight = rightTicks;
-            initialized = true; // First call records a baseline only.
+            initialRawYaw = headingRadians;
+            initialized = true; // First call records encoder and yaw baselines.
             return;
         }
 
@@ -133,8 +144,11 @@ public final class DifferentialOdometry {
         previousRight = rightTicks;
 
         double forward = (left + right) / 2.0;
-        x += forward * Math.cos(headingRadians);
-        y += forward * Math.sin(headingRadians);
+        double fieldHeading = startHeadingRadians
+            + Math.atan2(Math.sin(headingRadians - initialRawYaw),
+                         Math.cos(headingRadians - initialRawYaw));
+        x += forward * Math.cos(fieldHeading);
+        y += forward * Math.sin(fieldHeading);
     }
 
     public double x() { return x; }
@@ -146,11 +160,21 @@ public final class DifferentialOdometry {
 <Tab value="Kotlin">
 
 ```kotlin
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+
 class DifferentialOdometry(
     private val countsPerInch: Double,
     startX: Double,
-    startY: Double
+    startY: Double,
+    private val startHeadingRadians: Double
 ) {
+    init {
+        require(countsPerInch.isFinite() && countsPerInch > 0.0)
+        require(startX.isFinite() && startY.isFinite() && startHeadingRadians.isFinite())
+    }
+    private var initialRawYaw = 0.0
     private var previousLeft = 0
     private var previousRight = 0
     private var initialized = false
@@ -158,10 +182,12 @@ class DifferentialOdometry(
     private var y = startY
 
     fun update(leftTicks: Int, rightTicks: Int, headingRadians: Double) {
+        require(headingRadians.isFinite())
         if (!initialized) {
             previousLeft = leftTicks
             previousRight = rightTicks
-            initialized = true // First call records a baseline only.
+            initialRawYaw = headingRadians
+            initialized = true // First call records encoder and yaw baselines.
             return
         }
 
@@ -171,8 +197,10 @@ class DifferentialOdometry(
         previousRight = rightTicks
 
         val forward = (left + right) / 2.0
-        x += forward * cos(headingRadians)
-        y += forward * sin(headingRadians)
+        val fieldHeading = startHeadingRadians +
+            atan2(sin(headingRadians - initialRawYaw), cos(headingRadians - initialRawYaw))
+        x += forward * cos(fieldHeading)
+        y += forward * sin(fieldHeading)
     }
 
     fun x() = x
@@ -183,7 +211,7 @@ class DifferentialOdometry(
 </Tab>
 </Tabs>
 
-Create this object after choosing the robot's measured starting position. In the OpMode loop, pass the latest encoder counts and IMU yaw in radians, then display the estimate:
+Create this object with a measured starting pose, including field heading: for example `new DifferentialOdometry(100.0, 0.0, 0.0, Math.PI / 2.0)` in Java, or `DifferentialOdometry(100.0, 0.0, 0.0, kotlin.math.PI / 2.0)` in Kotlin, for a robot facing field +Y. The scale 100 is only an example. Call `update()` once **before movement** to baseline encoders and raw yaw. FTC IMU yaw can persist between OpModes; initialization alone does not align it with field +X. The helper subtracts initial yaw and adds the selected starting heading. To reset pose, create a new estimate and baseline all readings together. In the OpMode loop, pass the latest encoder counts and IMU yaw in radians, then display the estimate:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
@@ -212,7 +240,7 @@ telemetry.update()
 
 This simple version uses the current heading for each small movement. It is a good first exercise for straight segments; the [Sensor Fusion example](./sensor-fusion) adds an encoder-based heading change and a mid-step heading estimate. Do not apply this two-encoder translation to a mecanum robot's sideways motion.
 
-## Step 4: Calibrate with short tests
+## Calibration [#step-4-calibrate-with-short-tests]
 
 Keep the robot on blocks for direction checks, then test at low speed in a clear area:
 
@@ -224,7 +252,7 @@ Keep the robot on blocks for direction checks, then test at low speed in a clear
 
 If the error grows more over a longer test, check the scale. If it changes unpredictably, inspect wheel slip, loose mounts, encoder direction, and heading readings before changing math.
 
-## Compare the setups
+## Setup comparison [#compare-the-setups]
 
 | Setup | What it contributes to a pose estimate | Main limitation |
 | --- | --- | --- |
@@ -234,7 +262,7 @@ If the error grows more over a longer test, check the scale. If it changes unpre
 
 These are starting points, not accuracy guarantees. The best setup depends on drivetrain, mounting, budget, and the route your autonomous needs to run.
 
-## When to use a localization library
+## Localization libraries [#when-to-use-a-localization-library]
 
 Maintaining robot pose requires careful coordinate math, encoder calibration, heading handling, and drift correction. For a robot that needs to follow field paths, use a current localization/path-following library such as [Pedro Pathing](../libraries/pedro-pathing), and follow the setup guide for your installed version. Learn the measurements in this page so you can understand its telemetry and tune it.
 

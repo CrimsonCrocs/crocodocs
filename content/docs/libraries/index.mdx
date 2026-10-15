@@ -4,7 +4,7 @@ description: A sourced directory of tools used in FTC robot software
 icon: Package
 ---
 
-## Start with the problem
+## Overview [#start-with-the-problem]
 
 A library is optional code maintained outside your robot project. It can save implementation time, but it also adds APIs, dependencies, version compatibility, and maintenance work. Read the project's current installation guide and check which FTC SDK version it supports before adding it.
 
@@ -14,25 +14,49 @@ This directory covers tools with their own pages here. API examples and release 
 
 - [Pedro Pathing](./pedro-pathing) — build and follow a first field path with Pedro 3; the page includes a Java OpMode example.
 - [Road Runner](./road-runner) — build a Road Runner 1.0 route with the official FTC Quickstart.
+- [OpenLoop](./openloop) — calibrate a short timed move and measure how its actual travel differs from the request.
 
 ## Robot architecture and control
 
-- [NextFTC](./nextftc) — create mechanisms, connect gamepad triggers, and run commands. The page includes servo and intake examples for v2.
-- [Mercurial](./mercurial) — create and schedule a command with the Dairy Foundation framework.
+- [NextFTC](./nextftc) — create mechanisms, connect gamepad triggers, and run commands. The page includes a claw-servo example for v2.
+- [Mercurial](./mercurial) — create and schedule a command with the legacy Mercurial v1 API; check the version before using it.
 - [FTCLib](./ftclib) — compose and schedule commands with FTCLib's command framework.
+- [SolversLib](./solverslib) — use the maintained FTCLib fork and run a first scheduler-driven sequence.
 
 ## Tuning and development
 
 - [FTC Dashboard](./ftc-dashboard) — add telemetry and tune live configuration variables with code.
 - [Panels](./panels) — expose a live-tunable value and inspect robot telemetry.
 - [Sloth](./sloth) — deploy eligible TeamCode changes with its Gradle task; use a full install for dependencies and other unsupported changes.
+- [Slothboard](./sloth#slothboard) — use Dairy's maintained Dashboard fork with hot-reloaded configuration and OpModes.
 
 ## Vision
 
 - [EasyOpenCV](../sensors-and-vision/easyopencv/easyopencv-basics) — OpenCV pipelines integrated with FTC camera workflows. It is a community library; follow its upstream documentation and check compatibility with your SDK.
 - [VisionPortal and AprilTags](../sensors-and-vision/vision-overview) — FTC SDK vision APIs and related guides.
+- [Hive Vision](./hive-vision) — load the v2 BIOBUZZ detector onto a Limelight 3A and inspect results before using them to drive.
 
-## Before you install
+## Reviewed versions
+
+Publication and maintenance checked **14 October 2026**. These are release scopes, not interchangeable version numbers. Each article explains its setup and source-check limits.
+
+| Project | Reviewed publication |
+| --- | --- |
+| NextFTC v2 | 0.2.1; 0.3.0-SNAPSHOT remains development code |
+| FTCLib | 2.1.1; older stable release, slow release activity |
+| SolversLib | 0.3.6; separately maintained fork |
+| Pedro Pathing | 3.0.1 |
+| Road Runner | Core/actions 1.0.1; FTC 0.1.25 |
+| FTC Dashboard | 0.6.0 |
+| Panels | FullPanels 1.0.18 |
+| Sloth / Load | 0.3.2 |
+| Slothboard | 0.3.2+0.6.0 |
+| Mercurial | Legacy v1 1.0.3; new generation 2.0.1-beta1 |
+| EasyOpenCV | 1.7.3; also used by FTC SDK 12 Vision |
+| OpenLoop | Source commit `b67b403`; no numbered release |
+| Hive Vision | v2.0.0 model release |
+
+## Installation checks [#before-you-install]
 
 1. Confirm the FTC SDK version used by your robot project.
 2. Read the library's current official installation and migration instructions.
@@ -42,8 +66,17 @@ This directory covers tools with their own pages here. API examples and release 
 
 A version number copied from an old article can stop resolving or pull incompatible code. Where versions change often, these pages link to the official release page instead of guessing a version.
 
-## Community resources
+<footer className="article-sources">
 
-- [FIRST Tech Challenge programming resources](https://ftc-resources.firstinspires.org/ftc/programming)
+## Sources [#community-resources]
+
+- [FIRST Tech Challenge programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
 - [FTC SDK source repository](https://github.com/FIRST-Tech-Challenge/FtcRobotController)
 - [Game Manual 0](https://gm0.org/)
+- Publication metadata: [NextFTC](https://repo.maven.apache.org/maven2/dev/nextftc/v2/robot/maven-metadata.xml), [Pedro](https://repo.maven.apache.org/maven2/com/pedropathing/core/maven-metadata.xml), [Road Runner FTC](https://maven.brott.dev/com/acmerobotics/roadrunner/ftc/maven-metadata.xml), [Dashboard](https://maven.brott.dev/com/acmerobotics/dashboard/dashboard/maven-metadata.xml).
+- [Panels release details](https://panels.bylazar.com/docs/com.bylazar.fullpanels/) · [Sloth metadata](https://repo.dairy.foundation/releases/dev/frozenmilk/sinister/Sloth/maven-metadata.xml) · [Slothboard metadata](https://repo.dairy.foundation/releases/com/acmerobotics/slothboard/dashboard/maven-metadata.xml).
+- [SolversLib metadata](https://repo.dairy.foundation/releases/org/solverslib/core/maven-metadata.xml) · [MercurialFTC beta release](https://github.com/Dairy-Foundation/MercurialFTC/releases/tag/2.0.1-beta1).
+- [FTCLib releases](https://github.com/FTCLib/FTCLib/releases) · [FTC Vision 12 dependencies](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/Vision/12.0.0/Vision-12.0.0.pom).
+- [Hive Vision v2.0.0](https://github.com/hivevisionftc/Hive-Vision/releases/tag/v2.0.0) · [inspected OpenLoop source](https://github.com/AbhiPixeld/OpenLoop/tree/b67b4034fd9a64e35f2a6f061f09d2432db85128).
+
+</footer>

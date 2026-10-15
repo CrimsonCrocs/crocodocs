@@ -1,0 +1,52 @@
+---
+icon: engineering:Swap
+title: Transfers
+description: Control an object during a handoff with alignment, capture overlap, sensing, and defined recovery states.
+---
+
+A **transfer** moves an object from one mechanism to another. Reliability depends on maintaining control during the handoff, including when the two mechanisms are slightly misaligned.
+
+## Handoff geometry [#keep-the-handoff-constrained]
+
+Describe the object's position and orientation at entry, the path through the handoff, and its final retained pose. Decide which surfaces constrain it at every stage. An unsupported gap allows motion that the receiving mechanism may not tolerate.
+
+Align donor and receiver so the object follows a short, predictable path. A guide or passive funnel can absorb some error, but it must not wedge the object.
+
+## Concurrent motion [#overlap-control-when-the-geometry-allows-it]
+
+For a claw-to-claw handoff, the receiver can establish retention before the donor releases. The overlap must not make the two mechanisms fight over incompatible positions. Check contact geometry, compliance, and the order of motion.
+
+![A handoff progresses from donor retention to shared capture, then receiver retention; a separate failed-capture path returns to a known safe state.](/guides/engineering/transfer-sequence.svg)
+
+The diagram shows control ownership, not a universal timing sequence. A roller transfer, a gravity chute, and a claw handoff require different physical evidence.
+
+## Alignment tolerance [#budget-alignment-error]
+
+The CAD nominal position is only one point in a range. Include chassis flex, slide play, arm deflection, backlash, assembly variation, and the object's position inside the donor. A narrow receiver may work on a bench and miss after the robot turns.
+
+For an illustrative one-dimensional check, suppose combined lateral error can reach 3 mm on either side. A capture opening with only 2 mm allowance per side is insufficient even if the nominal centers coincide. The final geometry also needs angular and vertical checks, and the guide must retain the object without excessive force.
+
+Use datums shared by both mechanisms where practical. Tune the receiving geometry rather than requiring a software offset for every hand-assembled revision.
+
+## Mechanism states [#give-programmers-physical-states]
+
+Define states using what the mechanism has established: donor holding, aligned, receiver capturing, capture confirmed, donor releasing, and transfer complete. A command to close a claw establishes a request, not necessarily successful retention.
+
+A beam break, limit switch, camera, or other suitable sensor can provide evidence, but each has an operating range and possible false readings. Define what a sensor detects and how it is validated. See [sensor integration](/docs/engineering/electrical/sensor-integration) for mounting and measurement checks and [vision overview](/docs/sensors-and-vision/vision-overview) for programming context.
+
+If confirmation is unavailable, use tested timing with an honest timeout and recovery path. Do not label an uncertain handoff as confirmed. A retry should return the mechanism to a physically understood state before trying again.
+
+## Failure testing [#test-the-edge-conditions]
+
+Vary object orientation, donor position, receiver offset, payload, and simultaneous robot motion one factor at a time before testing combinations. Include misses and deliberately incomplete capture. Verify that recovery does not throw the object into another mechanism.
+
+Record success rate, handoff time, jams, and recovery outcomes alongside the robot revision. Also test worn guides and the least favorable allowed mechanism positions. A freshly adjusted handoff at its nominal position can hide failures that occur during a match.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Transfer fundamentals](https://gm0.org/en/latest/docs/common-mechanisms/transfers/transfer-design.html)
+- [GM0: Transfer types](https://gm0.org/en/latest/docs/common-mechanisms/transfers/transfer-types.html)
+
+</footer>

@@ -1,0 +1,50 @@
+---
+icon: engineering:Crosshair
+title: Turrets
+description: Rotate a mechanism independently of the chassis while managing bearing loads, cable travel, reference position, and control error.
+---
+
+A **turret** rotates a mechanism in yaw, allowing it to aim or position independently of the drivetrain. That freedom adds a rotating support, transmission, position reference, and cable-management problem.
+
+## Turret selection [#decide-whether-rotation-earns-its-cost]
+
+A small rotating gripper can reduce alignment work without moving the whole robot. A base turret carrying slides or a shooter can offer a larger workspace, but it carries more mass and overturning load.
+
+Compare the complete task with chassis-only alignment. Include acquisition and transfer geometry, settling time, driver workload, and the space swept by the mechanism.
+
+## Bearing loads [#support-all-relevant-loads]
+
+The rotating support may experience vertical load, radial load, and a moment from an offset mechanism. Choose a bearing arrangement rated for those loads. A low-friction turntable intended for vertical load is not automatically suitable for a long arm or sudden side impact.
+
+For a simple static example, a 20 N load located 150 mm from the rotation axis produces a 3 N·m overturning moment. Moving the same load closer to the axis reduces that demand. The drive gear's torque rating does not establish the support bearing's moment capacity.
+
+Possible arrangements include a central bearing, a suitable turntable bearing, or a deliberately designed perimeter support. Each needs retention and alignment. Check the actual bearing manufacturer's rating and installation method rather than choosing by visual similarity.
+
+## Travel and cables [#define-travel-and-cable-behavior]
+
+Decide whether the turret has limited or continuous travel. For limited rotation, route cables so the full allowed sweep cannot pull connectors, pinch wires, or wind them around a shaft. Include mechanism extension and chassis motion in that check.
+
+Mechanical stops protect against overtravel, while software limits should stop normal motion before impact. For continuous travel, an electrical rotary interface may be needed. Its current, signal compatibility, and current-season legality require separate verification; ordinary wires do not permit indefinite rotation.
+
+## Homing [#establish-a-reference]
+
+An incremental encoder needs a known reference after startup. Choose a home sensor, an absolute-position sensor, or a repeatable manual reference procedure suited to the mechanism. Confirm the sensor's mounting rigidity and what happens if homing fails.
+
+Account for the exact transmission ratio and backlash. Motor-shaft feedback can report motion while output slack is being taken up. Output sensing can expose that difference if the task needs it.
+
+## Pointing accuracy [#check-pointing-error-where-it-matters]
+
+A small angular error produces a larger lateral error at a distant target. For small angles in radians, lateral error is approximately $e = R\delta\theta$. At an illustrative 1.5 m distance, a 1-degree error is about $1.5(\pi/180) = 0.026$ m, or 26 mm.
+
+That estimate excludes target motion, chassis localization error, projectile behavior, and mechanism flex. It helps allocate an angular tolerance; it does not establish aiming accuracy.
+
+Test homing, reversals, travel endpoints, cable clearance, and loaded settling across the allowed rotation. Repeat after a typical impact or reassembly and check whether the zero reference and pointing remain repeatable.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Mini turrets](https://gm0.org/en/latest/docs/common-mechanisms/turrets/mini-turret.html)
+- [GM0: Full turrets](https://gm0.org/en/latest/docs/common-mechanisms/turrets/full-turret.html)
+
+</footer>

@@ -1,10 +1,10 @@
 ---
-title: Team Collaboration
+title: Team collaboration
 description: Share robot code without losing changes or confusing teammates
 icon: Users
 ---
 
-## Why use Git?
+## Version control [#why-use-git]
 
 Git keeps a history of code changes. A **commit** is a saved point in that history. A **remote** is a shared copy, often on GitHub, that teammates can fetch from and push to.
 
@@ -12,7 +12,7 @@ Git keeps a history of code changes. A **commit** is a saved point in that histo
 
 Before a new programmer edits the robot project, agree on who owns the shared repository and how the team checks changes on the robot. A successful code build does not prove that motors, servos, and sensors behave correctly.
 
-## One small change, step by step
+## Git workflow [#one-small-change-step-by-step]
 
 Use these commands in your team's project folder. If you use Android Studio's Git buttons, the same ideas still apply.
 
@@ -25,7 +25,7 @@ Use these commands in your team's project folder. If you use Android Studio's Gi
 
 This example path is only illustrative; use your actual file path. A commit message should say what behavior changed. If a change needs context, explain the reason in the commit body or team review.
 
-## Work together without stepping on changes
+## Branches and reviews [#work-together-without-stepping-on-changes]
 
 For a larger task, create a branch. A branch is a separate line of work that teammates can review before it joins the main branch.
 
@@ -39,7 +39,7 @@ Open a pull request or use your team's agreed review process. Ask another progra
 
 If two people change the same lines, Git may show a **merge conflict**. Read both versions, decide what the final code should do, then build and test that result. Do not automatically keep one side without understanding the other.
 
-## A short review checklist
+## Review checklist [#a-short-review-checklist]
 
 - Does the code compile, and is the changed behavior tested on the robot?
 - Do hardware names match the Robot Controller configuration?
@@ -49,12 +49,16 @@ If two people change the same lines, Git may show a **merge conflict**. Read bot
 
 Keep generated build files and personal secrets out of commits. The FTC SDK project includes a `.gitignore`; review it before adding a new kind of generated file. If a team accidentally commits a secret, remove or rotate the secret in its original service as well as correcting the repository history.
 
-## Help a new teammate
+## Onboarding [#help-a-new-teammate]
 
 Pair on one small task: one student edits while the other asks what each line does and watches the test. Switch roles after the first working change. Keep a short README with the robot configuration names, how to build the project, and the steps for a safe test.
 
-## References
+<footer className="article-sources">
+
+## Sources [#references]
 
 - [Git basics: recording changes](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository)
 - [Git basics: branching](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)
 - [FTC SDK project](https://github.com/FIRST-Tech-Challenge/FtcRobotController)
+
+</footer>

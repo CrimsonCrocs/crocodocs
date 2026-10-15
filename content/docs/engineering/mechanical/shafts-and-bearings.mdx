@@ -1,0 +1,54 @@
+---
+icon: engineering:CircleNotch
+title: Shafts and bearings
+description: Support rotating mechanisms, distinguish live and dead axles, and retain shafts without binding bearings.
+---
+
+A **shaft** transfers torque; a **bearing** supports motion while limiting unwanted movement. Reliable rotation requires both a way to transmit torque and a way to carry the forces applied to the assembly.
+
+## Drive and support [#separate-drive-from-support]
+
+A motor turns a wheel, but the wheel also carries robot weight and collision loads. Mounting the wheel far from the gearbox adds a bending moment to its output shaft. External bearings can carry that load while a transmission carries torque.
+
+For a simplified overhung load, the bending moment at the support is $M = Fd$, where $F$ is the perpendicular force and $d$ its distance from the support. An illustrative 40 N load at 60 mm produces $2.4$ N·m; moving it to 20 mm reduces that moment to $0.8$ N·m. This is a geometry comparison, not a shaft load rating.
+
+![An overhung wheel loads a single support with a bending moment; a wheel between two supports shares its load through both sides.](/guides/engineering/shaft-support.svg)
+
+Use the actual gearbox's radial, axial, and torque ratings. Overhung loading and shock loads affect gearbox capacity.
+
+## Live and dead axles [#live-axle-or-dead-axle]
+
+In a **live axle**, the shaft rotates and the mechanism is locked to it through a hub, key, hex profile, or other torque connection. Bearings support the rotating shaft in the frame.
+
+In a **dead axle**, the axle stays fixed while the wheel or mechanism rotates around it on bearings. A sprocket, pulley, or gear must drive the rotating component itself. The fixed axle can also connect structural plates when designed for that role.
+
+## Shaft interfaces [#match-every-interface]
+
+Check shaft profile and size, bearing inner diameter, bearing outer diameter, housing fit, and hub bore. A nominally round, hexagonal, D-shaped, or REX shaft needs compatible hardware; a near fit is not adequate torque transmission.
+
+Ball bearings have an **inner race** and **outer race** separated by rolling elements. Support and retain the correct races. When installing a bearing with an interference fit, apply installation force to the race being fitted, following the bearing supplier's instructions; avoid driving that force through the rolling elements.
+
+Align supports from common datums. Tightening a pair of plates around a crooked shaft can create friction that looks like a weak motor. Check shaft rotation as each structural joint is tightened.
+
+## Axial retention [#stop-axial-motion-without-squeezing-the-bearing]
+
+**Axial retention** prevents a shaft sliding along its length. Use compatible collars, retaining rings, shoulders, or end screws to constrain both directions. Retain the bearings in their housings too.
+
+Place spacers and shims so a rotating shaft's retention stack bears on the intended inner race without rubbing the stationary outer race or seal. Do not tighten a stack until it binds just to eliminate all visible clearance.
+
+## Friction checks [#diagnose-friction-in-stages]
+
+Disconnect power. Where the design permits, remove the belt or chain and compare the supported shaft alone, then add each hub, spacer, and transmission. A tight spot once per revolution suggests runout, a bent part, or an eccentric mount; resistance that appears only after tightening suggests alignment or an incorrect clamping stack.
+
+Mark the position of collars and hubs, run a controlled test, and recheck. Inspect shaft migration, bearing movement, dust from rubbing parts, and loose torque connections. Fix those causes before increasing motor command or retuning control gains.
+
+<footer className="article-sources">
+
+## Sources
+
+- [REV: UltraPlanetary load guidance](https://docs.revrobotics.com/rev-crossover-products/ultraplanetary/load-ratings)
+- [GM0: Motion mounting](https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/motion-mounting.html)
+- [FTC Wiki: Bearing explanation](https://www.ftcwiki.org/transmitting-power/introduction-to-motion/bearings)
+- [GM0: Shaft retention guide](https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/shaft-retention.html)
+
+</footer>

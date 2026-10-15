@@ -1,10 +1,10 @@
 ---
-title: Comments and Documentation
+title: Comments and documentation
 description: Explain decisions that code alone cannot show
 icon: MessageSquare
 ---
 
-## Write the reason
+## Reasons and constraints [#write-the-reason]
 
 A comment is useful when a teammate needs to know **why** the code uses a value or takes an unusual step. It is less useful when it only repeats the line below it.
 
@@ -15,7 +15,7 @@ A comment is useful when a teammate needs to know **why** the code uses a value 
 
 The second column gives context a reader cannot infer from `setPower` or `setDirection` alone. Keep the comment near the code it explains.
 
-## Show units and assumptions
+## Units and assumptions [#show-units-and-assumptions]
 
 Measurements are easy to misuse when their units or starting point are unclear:
 
@@ -27,7 +27,7 @@ private static final int ARM_UPPER_LIMIT_TICKS = 850;
 
 The value `850` is only an **illustration**. Your team must measure its own safe limit. A comment should record how a number was chosen, but it cannot replace testing.
 
-## Document a reusable method
+## Method documentation [#document-a-reusable-method]
 
 When teammates call a method from several OpModes, describe what they can pass and what the method guarantees:
 
@@ -44,17 +44,17 @@ public void moveArm(double requestedPower) {
 
 This fragment assumes `armMotor` has already been mapped. It is not a complete OpMode.
 
-## Keep notes honest
+## Comment maintenance [#keep-notes-honest]
 
 - Update a comment when behavior changes. A wrong comment can be worse than no comment.
 - Use `TODO` for a specific future task, such as `// TODO: Add a timeout to the homing routine before field testing.` Do not leave an unsafe loop in use just because it has a TODO.
 - Delete commented-out code once the team has a working replacement in Git history.
 - Put setup steps, robot configuration names, and test instructions in a short README instead of repeating them in every file.
 
-## A quick review
+## Review checklist [#a-quick-review]
 
 Read a comment without looking at the code beneath it. Does it explain a decision, unit, constraint, or expected behavior? If it only narrates syntax, improve the name or remove the comment.
 
-## Next step
+## Next steps [#next-step]
 
 See [team collaboration](./team-collaboration) for how to review and share these changes.

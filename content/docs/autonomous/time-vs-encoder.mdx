@@ -1,10 +1,10 @@
 ---
-title: Time vs Encoder-Based Movement
+title: Timed and encoder movement
 description: Make a timed move, then improve it with measured encoder feedback
 icon: Clock
 ---
 
-# Two ways to tell a robot to move
+<span id="two-ways-to-tell-a-robot-to-move" className="heading-alias" />
 
 A **time-based move** runs a motor for a chosen duration. An **encoder-based move** sets a target wheel rotation and checks when the motor reaches it. The first is quick to try; the second gives the program feedback about wheel rotation. Neither one tells the robot its exact field position if its wheels slip.
 
@@ -12,7 +12,7 @@ A **time-based move** runs a motor for a chosen duration. An **encoder-based mov
 
 The clock measures **how long power was applied**. An encoder measures **how far the motor shaft turned**. Try one method at a time so you can compare its result on the same robot.
 
-## Try a timed move first
+## Timed movement [#try-a-timed-move-first]
 
 This short `LinearOpMode` example drives two motors forward for one second. Replace the hardware names and direction settings to match your robot:
 
@@ -39,11 +39,14 @@ public class TimedDriveTest extends LinearOpMode {
         waitForStart();
         if (!opModeIsActive()) return;
 
-        left.setPower(0.25);
-        right.setPower(0.25);
-        sleep(1000); // milliseconds
-        left.setPower(0.0);
-        right.setPower(0.0);
+        try {
+            left.setPower(0.25);
+            right.setPower(0.25);
+            sleep(1000); // milliseconds
+        } finally {
+            left.setPower(0.0);
+            right.setPower(0.0);
+        }
     }
 }
 ```
@@ -73,11 +76,14 @@ class TimedDriveTest : LinearOpMode() {
         waitForStart()
         if (!opModeIsActive()) return
 
-        left.power = 0.25
-        right.power = 0.25
-        sleep(1000) // milliseconds
-        left.power = 0.0
-        right.power = 0.0
+        try {
+            left.power = 0.25
+            right.power = 0.25
+            sleep(1000) // milliseconds
+        } finally {
+            left.power = 0.0
+            right.power = 0.0
+        }
     }
 }
 ```
@@ -87,7 +93,7 @@ class TimedDriveTest : LinearOpMode() {
 
 `0.25` is motor power and `1000` is milliseconds. Measure the distance the robot actually moved, then repeat with a different battery or surface. The result can change because of battery voltage, friction, wheel slip, and load. Use timed movement to test direction or prototype an idea; do not assume one duration always means one distance.
 
-## What an encoder measures
+## Encoder counts [#what-an-encoder-measures]
 
 An encoder reports motor or wheel rotation as counts, often called ticks. To convert those counts into a wheel-distance estimate, calibrate **your assembled drivetrain**:
 
@@ -103,7 +109,7 @@ target counts   = desired inches × counts per inch
 
 The value depends on the motor encoder, gear reduction, wheel diameter, and how the motor is connected. A motor's published counts-per-motor-revolution is only one part of this calculation; do not copy a generic motor value as `COUNTS_PER_INCH`.
 
-## Drive to an encoder target
+## Encoder movement [#drive-to-an-encoder-target]
 
 `RUN_TO_POSITION` asks the FTC motor controller to move its encoder to a target count. Start with a short distance and low power. The values below are examples; measure your own `COUNTS_PER_INCH` and verify encoder signs before enabling a long move.
 
@@ -140,12 +146,16 @@ public class EncoderDriveTest extends LinearOpMode {
         waitForStart();
         if (!opModeIsActive()) return;
 
-        if (!driveInches(12.0, 0.25, left, right)) return;
-        left.setPower(0.0);
-        right.setPower(0.0);
+        try {
+            driveInches(12.0, 0.25, left, right);
+        } finally {
+            left.setPower(0.0);
+            right.setPower(0.0);
+        }
     }
 
     private boolean driveInches(double inches, double power, DcMotor left, DcMotor right) {
+        if (!opModeIsActive()) return false;
         int leftTarget = left.getCurrentPosition()
             + (int) Math.round(inches * COUNTS_PER_INCH);
         int rightTarget = right.getCurrentPosition()
@@ -211,12 +221,16 @@ class EncoderDriveTest : LinearOpMode() {
         waitForStart()
         if (!opModeIsActive()) return
 
-        if (!driveInches(12.0, 0.25, left, right)) return
-        left.power = 0.0
-        right.power = 0.0
+        try {
+            driveInches(12.0, 0.25, left, right)
+        } finally {
+            left.power = 0.0
+            right.power = 0.0
+        }
     }
 
     private fun driveInches(inches: Double, power: Double, left: DcMotor, right: DcMotor): Boolean {
+        if (!opModeIsActive()) return false
         val leftTarget = left.currentPosition + (inches * COUNTS_PER_INCH).roundToInt()
         val rightTarget = right.currentPosition + (inches * COUNTS_PER_INCH).roundToInt()
         left.targetPosition = leftTarget
@@ -251,11 +265,15 @@ Follow the example in stages: convert 12 inches to target counts, give both moto
 
 The example sets motor power to a positive magnitude because the FTC `RUN_TO_POSITION` mode chooses direction from the target error. For a reverse move, use a negative `inches` value to make a lower target. Verify both logical encoder readings change in the expected direction on blocks before trying it on the floor.
 
-## What encoders can and cannot tell you
+## Encoder limitations [#what-encoders-can-and-cannot-tell-you]
 
 Encoders measure rotation, not ground travel. They improve a straight distance move, but wheel slip or a collision can make the robot stop at a different field position than expected. Long routes also accumulate small scale errors. For field pose, heading correction, or curves, continue to [Odometry](./odometry), [Sensor Fusion](./sensor-fusion), and [Motion Planning](./motion-planning).
 
-## References
+<footer className="article-sources">
+
+## Sources [#references]
 
 - [FTC SDK programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
 - [Game Manual 0: Encoders](https://gm0.org/en/latest/docs/software/getting-started/common-hardware-components.html#encoders)
+
+</footer>

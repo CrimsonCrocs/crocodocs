@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="385" viewBox="0 0 800 385" role="img" aria-labelledby="title desc">
+<title id="title">Normalized ideal DC motor torque and power</title><desc id="desc">Torque falls linearly from stall to free speed. Mechanical power is zero at both endpoints and peaks at half free speed in this idealized fixed-voltage model.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto-start-reverse"><path d="M0 0L8 4L0 8Z" fill="#b42629"/></marker></defs>
+<rect width="800" height="385" rx="12" fill="#fff"/>
+<g fill="#242424" font-family="Arial, sans-serif" font-size="20">
+<text x="24" y="34" font-size="23">Ideal DC motor model at fixed voltage</text>
+<line x1="110" y1="260" x2="730" y2="260" stroke="#242424" stroke-width="3" /><line x1="110" y1="260" x2="110" y2="75" stroke="#242424" stroke-width="3" />
+<line x1="110" y1="105" x2="710" y2="260" stroke="#242424" stroke-width="3" />
+<polyline points="110,260 120,249.8388888888889 130,240.0222222222222 140,230.55 150,221.42222222222222 160,212.63888888888889 170,204.2 180,196.10555555555555 190,188.35555555555555 200,180.95 210,173.88888888888889 220,167.17222222222222 230,160.8 240,154.7722222222222 250,149.0888888888889 260,143.75 270,138.75555555555553 280,134.10555555555555 290,129.8 300,125.8388888888889 310,122.2222222222222 320,118.94999999999999 330,116.02222222222224 340,113.43888888888887 350,111.20000000000002 360,109.30555555555554 370,107.75555555555556 380,106.54999999999998 390,105.6888888888889 400,105.17222222222222 410,105 420.00000000000006,105.17222222222222 430,105.68888888888887 440,106.55000000000001 450,107.75555555555556 460,109.30555555555557 470,111.19999999999999 480,113.4388888888889 490,116.02222222222221 500,118.95000000000002 510,122.2222222222222 520,125.8388888888889 530,129.79999999999998 540,134.10555555555555 550,138.75555555555553 560,143.75 570,149.0888888888889 580,154.7722222222222 590,160.8 600,167.17222222222222 610,173.8888888888889 620,180.95 630,188.35555555555555 640,196.10555555555555 650,204.20000000000002 660,212.63888888888886 670,221.42222222222222 680,230.54999999999998 690,240.02222222222224 700,249.83888888888885 710,260" fill="none" stroke="#b42629" stroke-width="4"/>
+<text x="30" y="74" font-size="16">Relative</text><text x="30" y="94" font-size="16">output</text><text x="89" y="281" font-size="16">0</text>
+<text x="395" y="281" font-size="16">0.5</text><text x="698" y="281" font-size="16">1</text>
+<text x="250" y="309" font-size="18">Speed / free speed</text>
+<text x="470" y="80" font-size="18">Power / peak power</text><text x="148" y="148" font-size="18">Torque / stall torque</text>
+<line x1="410" y1="112" x2="410" y2="260" stroke="#aaa" stroke-width="3" />
+<text x="110" y="340" font-size="20">Stall: no rotation</text><text x="500" y="340" font-size="20">Free speed: near-zero load</text>
+</g>
+<text x="24" y="368" font-family="Arial, sans-serif" font-size="14" fill="#555">CrocoDocs · Original illustration · Not to scale</text></svg>

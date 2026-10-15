@@ -1,24 +1,24 @@
 ---
-title: Control Systems
+title: Control systems
 description: Learn how commands, sensors, and feedback affect robot motion
 icon: BookOpen
 ---
 
-## Start with a command
+## Motor commands [#start-with-a-command]
 
 A **control system** turns a goal into a robot action. For example, pushing a gamepad stick gives the drivetrain a command. Asking an arm to hold a position gives its motor a target.
 
-The first question is: **Does the program measure what actually happened?**
+Check whether the program measures the motion produced by its command.
 
 ![Open-loop control sends a command to a motor. Closed-loop control also reads a sensor and uses that measurement to adjust the next command.](/guides/control-loop-compare.svg)
 
-## Open loop: command only
+## Open-loop control [#open-loop-command-only]
 
 Suppose your code sets an arm motor to `0.3` power for half a second. The program has sent a command, but it has not measured the arm's final position. Battery voltage, friction, or an added game piece can change where it stops.
 
 Open-loop control is a good first step for learning motor direction and power. It can also work when exact position is unimportant. Test it at low power before using it on a mechanism.
 
-## Closed loop: command, measure, adjust
+## Closed-loop control [#closed-loop-command-measure-adjust]
 
 Now suppose the arm has an encoder. Your code compares the **target position** with the **measured position** and changes motor power based on the difference. That difference is called the **error**.
 
@@ -30,7 +30,7 @@ Now suppose the arm has an encoder. Your code compares the **target position** w
 
 Feedback helps a robot correct for changing conditions, but it needs a trustworthy measurement and careful tuning. A sensor reading alone does not make an action accurate.
 
-## Learn in this order
+## Learning order [#learn-in-this-order]
 
 1. [Joystick mapping](./joystick-mapping): turn driver input into motor commands.
 2. [PID control](./pid-control): use error to correct a motor or mechanism.
@@ -39,3 +39,17 @@ Feedback helps a robot correct for changing conditions, but it needs a trustwort
 5. [Kalman filtering](./kalman-filter): combine predictions and measurements when simpler filters are not enough.
 
 You do not need to master every technique at once. Begin with one motor and one measurement; add complexity only after you can observe what the robot is doing.
+
+For gravity-loaded mechanisms, continue from PID to [Feedforward](./feedforward).
+
+Once the mechanism's measurements and limits are reliable, [system identification](./system-identification) explains how to fit and validate a voltage model from test data. Keep the resulting units and hardware configuration with the coefficients.
+
+<footer className="article-sources">
+
+## Sources
+
+- [CTRL ALT FTC: Control theory (concepts and pseudocode)](https://www.ctrlaltftc.com/)
+- [Tyler Veness: Controls Engineering in FRC](https://file.tavsys.net/control/controls-engineering-in-frc.pdf) — deeper control theory; FRC-specific APIs need a separate FTC implementation.
+- [The Dairy Cookbook](https://cookbook.dairy.foundation/) — community recipes; check their measurements, lifecycle, and version assumptions before adapting code.
+
+</footer>

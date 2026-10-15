@@ -4,7 +4,7 @@ description: Create FTC OpModes with the browser-based visual programming tool
 icon: Blocks
 ---
 
-## What is Blocks?
+## Overview [#what-is-blocks]
 
 FTC Blocks is a visual programming tool served by the Robot Controller. You use a browser on a computer or compatible device to create, edit, save, and build OpModes with connected blocks. No separate editor installation is needed; the Robot Controller and browser must be connected through the robot's Program & Manage network.
 
@@ -19,13 +19,38 @@ FIRST recommends Blocks as the starting tool, including for teams that expect to
 
 The address depends on the Robot Controller device and network configuration. Use the address shown on the device rather than assuming an IP address.
 
-## Learn more
+{/* Playground paused until Blocks embedding and light mode are ready.
+
+## Sequence playground
+
+Blocks runs connected instructions in order. After **wait for start**, this sequence drives forward, pauses, reverses, and stops:
+
+<ol className="blocks-sequence">
+  <li>Forward at 0.25 for 700 ms</li>
+  <li>Stop for 300 ms</li>
+  <li>Reverse at −0.25 for 700 ms</li>
+  <li>Stop</li>
+</ol>
+
+The playground runs the Java equivalent of those Blocks actions. Press **Play** and watch the order. Change the first `sleep(700)` to `sleep(1400)`, then run it again: the forward part lasts longer, while the reverse part stays the same. Use **Reset** to return the robot to its starting position.
+
+<FTCPlayground example="blocks-sequence" />
+
+This embed edits Java, not `.blk` files. In FTC Blocks, make the same sequence with motor-power and sleep blocks. Set each drive motor's direction for your robot before START; the playground's setup matches its simulated tank drivetrain. Equal forward and reverse times do not guarantee an exact return to the starting point.
+*/}
+
+## Java transition [#moving-to-text-based-code]
+
+Blocks is its own visual programming environment. It can help you learn sequencing, conditions, loops, and hardware control, but it does not automatically make a Java project for Android Studio. When you move to text, learn the Java syntax and FTC SDK APIs using the official [OnBot Java](./onbot-java) or [Android Studio](./android-studio) guides.
+
+<footer className="article-sources">
+
+## Sources [#learn-more]
 
 - [Official Blocks Programming Tutorial](https://ftc-docs.firstinspires.org/en/latest/programming_resources/blocks/Blocks-Tutorial.html)
 - [Creating an OpMode with Blocks](https://ftc-docs.firstinspires.org/en/latest/programming_resources/tutorial_specific/blocks/creating_op_modes/Writing-an-Op-Mode-with-FTC-Blocks.html)
 - [Managing, downloading, and uploading Blocks OpModes](https://ftc-docs.firstinspires.org/en/latest/programming_resources/tutorial_specific/blocks/managing_opmodes/managing-opmodes.html)
 - [Official programming tool comparison](https://ftc-docs.firstinspires.org/en/latest/programming_resources/shared/choosing_program_lang/choosing-program-lang.html)
+- [Crimson Crocs FTC Simulator playground](https://ftcsimulator.crimsoncrocs.org/embed) — runs the Java equivalent with a simulated robot.
 
-## Moving to text-based code
-
-Blocks is its own visual programming environment. It can help you learn sequencing, conditions, loops, and hardware control, but it does not automatically make a Java project for Android Studio. When you move to text, learn the Java syntax and FTC SDK APIs using the official [OnBot Java](./onbot-java) or [Android Studio](./android-studio) guides.
+</footer>

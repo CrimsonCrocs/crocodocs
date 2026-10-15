@@ -1,0 +1,55 @@
+---
+icon: engineering:GearSix
+title: Drivetrains
+description: Choose tank, mecanum, omni, or swerve from field requirements, traction, packaging, and testing capacity.
+---
+
+A **drivetrain** moves the robot and supports the mechanisms carried by it. Test how reliably it reaches scoring positions with all mechanisms installed.
+
+## Drivetrain selection [#choose-from-the-movement-task]
+
+| Type | Movement | Main tradeoff |
+| --- | --- | --- |
+| Tank or skid-steer | Forward, reverse, and turning | Strong traction can also resist turning through scrub |
+| Mecanum | Forward, sideways, and rotation | Roller geometry permits strafing but changes traction and efficiency |
+| Omni arrangement | Depends on wheel layout; some permit sideways motion | Wheel orientation, packaging, and control must agree |
+| Swerve | Each driven wheel is steered | Extra steering hardware, sensing, calibration, and repair work |
+
+Choose from the needed approach angles, obstacles, scoring alignment, permitted interaction, and workshop capability. A complex drivetrain is useful only if its added movement helps the team's actual game tasks.
+
+## Traction and turning [#account-for-traction-and-turning]
+
+For a simplified traction estimate, $F_{max} \approx \mu N$, where $\mu$ is an effective friction coefficient and $N$ is normal load on the driven contacts. Motor torque cannot produce extra forward force once the wheels slip. Real contact, especially mecanum rollers, is more complicated than this model.
+
+Tank wheels must slide sideways during a skid-steer turn. A long wheelbase with high-traction contacts can make that expensive in current and mechanical load. Wheel layout, center drop where appropriate, and omni wheels at selected positions can change turning behavior. Follow the chosen manufacturer's geometry rather than adding a center drop arbitrarily.
+
+For mecanum, wheel handedness and roller orientation must match the intended layout and software. Verify the vendor's assembly diagram from the robot's top view. Turning a wheel over or placing it in the wrong corner changes the force direction even if motor commands are correct.
+
+## Robot mass [#design-for-the-finished-mass]
+
+Select wheel diameter and gearing using [motor and reduction calculations](/docs/engineering/mechanical/motors-and-gearing). Include the expected payload, mechanisms, and battery. A bare chassis that accelerates well may be sluggish after a lift and intake are installed.
+
+Keep the center of mass within the support region during intended motion. An extended arm shifts it toward the tipping edge; abrupt acceleration or braking adds dynamic load. A simple static check projects the center of mass onto the ground and compares it with the polygon formed by ground contacts. It does not establish dynamic tip resistance.
+
+Support wheel shafts against weight and collisions. Check that structural flex does not alter belt alignment, gear mesh, or tracking-wheel contact. Reserve clean mounting surfaces for the [localization hardware](/docs/autonomous/odometry).
+
+## Direction testing [#test-directions-separately]
+
+Start with wheels safely clear to verify each output, then test on the intended surface. Compare forward, reverse, turning, and strafing where supported. Record payload, battery state, surface, commanded action, measured motion, and faults.
+
+Investigate drift by checking mechanical freedom, wheel installation, motor direction, and equal loading before tuning software. An encoder can measure a spinning wheel even when that wheel slips against the floor.
+
+Measure time to a scoring position as well as top speed. Include settling time, driver correction, and arrival heading. Repeat with the major mechanism extended where safe; that configuration often exposes flex, stability, and current demand hidden in the stowed robot.
+
+Use a known working TeleOp for comparisons. Follow the manufacturer's build guide for the selected drivetrain.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Tank](https://gm0.org/en/latest/docs/common-mechanisms/drivetrains/tank.html)
+- [GM0: Holonomic](https://gm0.org/en/latest/docs/common-mechanisms/drivetrains/holonomic.html)
+- [REV channel drivetrain guide](https://docs.revrobotics.com/duo-build/channel-drivetrain-build-guide)
+- [GM0: Drivetrain overview](https://gm0.org/en/latest/docs/common-mechanisms/drivetrains/index.html)
+
+</footer>

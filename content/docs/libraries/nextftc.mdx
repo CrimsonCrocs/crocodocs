@@ -4,7 +4,7 @@ description: Current NextFTC v2 modules, robot structure, triggers, and command 
 icon: Code
 ---
 
-## What is NextFTC?
+## Overview [#what-is-nextftc]
 
 NextFTC is an open-source library for FTC robot code. The current documentation covers **NextFTC v2**, a Kotlin-first library with Java interoperability. Its modules cover robot lifecycle and command bindings (`robot`), hardware wrappers (`hardware`), and control theory (`control`). Check which major version your project uses before copying an example: v1 code is not interchangeable with v2.
 
@@ -12,9 +12,11 @@ NextFTC is an open-source library for FTC robot code. The current documentation 
 This page describes v2. Do not mix it with older v1 examples such as `NextFTCOpMode`, `CommandManager`, `NextBindings`, `setStart`, or `setUpdate`. The official docs warn that keeping v1 dependencies alongside v2 can cause duplicate-class build errors.
 </Callout>
 
-## Install v2
+## Installation [#install-v2]
 
-In `TeamCode/build.gradle`, use the current version listed by the [official installation guide](https://nextftc.dev/introduction/installation/). Replace `VERSION` with the Maven Central version shown there (without a leading `v`). Add the Dairy Maven repository when using `hardware` or `robot`:
+Checked **14 October 2026**: published v2 modules **0.2.1** remain the latest release. The development branch is `0.3.0-SNAPSHOT`; its later motor-stop and field-centric changes are not part of 0.2.1. This guide uses the published artifacts.
+
+In `TeamCode/build.gradle`, add the modules you use and the Dairy Maven repository for `hardware` or `robot`:
 
 ```groovy
 repositories {
@@ -22,15 +24,15 @@ repositories {
 }
 
 dependencies {
-    implementation 'dev.nextftc.v2:control:VERSION'
-    implementation 'dev.nextftc.v2:hardware:VERSION'
-    implementation 'dev.nextftc.v2:robot:VERSION'
+    implementation 'dev.nextftc.v2:control:0.2.1'
+    implementation 'dev.nextftc.v2:hardware:0.2.1'
+    implementation 'dev.nextftc.v2:robot:0.2.1'
 }
 ```
 
 You can use `control` or `hardware` by itself. Read the official installation page for the current requirements and migration status before changing an existing v1 project.
 
-## How v2 is organized
+## Modules and lifecycle [#how-v2-is-organized]
 
 - **`NextRobot`** lists the robot's `Mechanism` instances. NextFTC discovers exactly one `NextRobot` implementation at runtime and supplies it to each OpMode.
 - **`Mechanism`** groups hardware owned by one part of the robot and can define commands that require that mechanism.
@@ -38,13 +40,13 @@ You can use `control` or `hardware` by itself. Read the official installation pa
 - **Commands** in the robot module use Ivy, Pedro Pathing's command library. NextFTC v2 does not provide its own separate command framework.
 - **Triggers** poll buttons and conditions and schedule or cancel commands. NextFTC advances triggers and the scheduler during the OpMode loop; you do not call a `BindingManager.update()` loop yourself.
 
-See the official [robot module guide](https://nextftc.dev/robot/), [project structure](https://nextftc.dev/robot/project-structure/), and [commands page](https://nextftc.dev/robot/commands/) for full details.
+## Claw example [#build-a-small-claw-example-in-stages]
 
-## Build a small claw example in stages
+The examples below were source-checked against the published v2 modules **0.2.1**. Save the three Java classes in separate `Claw.java`, `Robot.java`, and `ClawPractice.java` files in the same package, for example `org.firstinspires.ftc.teamcode`; put that package declaration before the imports in each file. Kotlin uses the corresponding `.kt` files and the same package.
 
-We will make one button close a claw. This example assumes you have installed the `robot` and `hardware` modules, added the claw servo to your Robot Controller configuration as `clawServo`, and selected a robot profile that includes the servo.
+This example makes one button close a claw. This example assumes you have installed the `robot` and `hardware` modules, added the claw servo to your Robot Controller configuration as `clawServo`, and selected a robot profile that includes the servo.
 
-### Step 1: Give the claw two actions
+### Claw commands [#step-1-give-the-claw-two-actions]
 
 Create one `Mechanism` that owns the servo. An action describes what should happen; it moves the servo only when a trigger schedules it. The positions are practice values that you must tune for your linkage.
 
@@ -52,6 +54,10 @@ Create one `Mechanism` that owns the servo. An action describes what should happ
 <Tab value="Java">
 
 ```java
+import com.pedropathing.ivy.Command;
+import dev.nextftc.hardware.actuators.NextServo;
+import dev.nextftc.robot.Mechanism;
+
 public class Claw implements Mechanism {
     private final NextServo servo = new NextServo("clawServo");
 
@@ -69,6 +75,9 @@ public class Claw implements Mechanism {
 <Tab value="Kotlin">
 
 ```kotlin
+import dev.nextftc.hardware.actuators.NextServo
+import dev.nextftc.robot.Mechanism
+
 class Claw : Mechanism {
     private val servo = NextServo("clawServo")
 
@@ -82,7 +91,7 @@ class Claw : Mechanism {
 
 The string `clawServo` must match the configured device name. `instant` makes a command that runs its action once and then finishes.
 
-### Step 2: List the claw on your robot
+### Robot configuration [#step-2-list-the-claw-on-your-robot]
 
 `NextRobot` is the shared place where NextFTC finds the mechanisms. Add the claw to `mechanisms`; otherwise the OpMode will not receive it through the robot object.
 
@@ -90,12 +99,17 @@ The string `clawServo` must match the configured device name. `instant` makes a 
 <Tab value="Java">
 
 ```java
+import java.util.Collections;
+import java.util.Set;
+import dev.nextftc.robot.Mechanism;
+import dev.nextftc.robot.NextRobot;
+
 public class Robot implements NextRobot {
     private final Claw claw = new Claw();
 
     @Override
     public Set<Mechanism> getMechanisms() {
-        return Set.of(claw);
+        return Collections.singleton(claw);
     }
 
     public Claw getClaw() {
@@ -108,6 +122,8 @@ public class Robot implements NextRobot {
 <Tab value="Kotlin">
 
 ```kotlin
+import dev.nextftc.robot.NextRobot
+
 class Robot : NextRobot {
     val claw = Claw()
     override val mechanisms = setOf(claw)
@@ -119,7 +135,7 @@ class Robot : NextRobot {
 
 NextFTC discovers one public `NextRobot` implementation at runtime and supplies that instance to each `NextOpMode`. You do not create a second `Robot` inside the OpMode.
 
-### Step 3: Bind the A button to the close action
+### Button binding [#step-3-bind-the-a-button-to-the-close-action]
 
 Now the OpMode can use the shared claw. `onTrue` schedules `close()` once when the A button changes from released to pressed.
 
@@ -127,6 +143,10 @@ Now the OpMode can use the shared claw. `onTrue` schedules `close()` once when t
 <Tab value="Java">
 
 ```java
+import dev.nextftc.robot.opmode.NextOpMode;
+import dev.nextftc.robot.opmode.NextTeleop;
+import dev.nextftc.robot.triggers.CommandGamepad;
+
 @NextTeleop(name = "Claw Practice")
 public class ClawPractice extends NextOpMode {
     public ClawPractice(Robot robot) {
@@ -141,6 +161,10 @@ public class ClawPractice extends NextOpMode {
 <Tab value="Kotlin">
 
 ```kotlin
+import dev.nextftc.robot.opmode.NextOpMode
+import dev.nextftc.robot.opmode.NextTeleop
+import dev.nextftc.robot.triggers.CommandGamepad
+
 @NextTeleop(name = "Claw Practice")
 class ClawPractice(private val robot: Robot) : NextOpMode(robot) {
     override fun start() {
@@ -153,9 +177,9 @@ class ClawPractice(private val robot: Robot) : NextOpMode(robot) {
 </Tab>
 </Tabs>
 
-NextFTC checks the trigger and advances the command during the OpMode loop. You do not add a separate scheduler-update loop. For the full package imports and current Java/Kotlin signatures, follow the official [mechanism](https://nextftc.dev/robot/mechanisms/), [NextOpMode](https://nextftc.dev/robot/nextopmode/), and [trigger](https://nextftc.dev/robot/triggers/) examples.
+NextFTC checks the trigger and advances the command during the OpMode loop. You do not add a separate scheduler-update loop. Check the version-specific mechanism, NextOpMode, and trigger examples for full package imports and current Java/Kotlin signatures.
 
-### Step 4: Try it safely
+### Testing [#step-4-try-it-safely]
 
 1. Check that the servo name in the Robot Controller configuration is exactly `clawServo`.
 2. With the robot lifted or the claw disconnected from anything it could pinch, select the OpMode and press INIT.
@@ -164,21 +188,23 @@ NextFTC checks the trigger and advances the command during the OpMode loop. You 
 
 The positions `0.2` and `0.8` are examples, not safe or correct positions for every claw. Start with low-risk values and tune them for your linkage.
 
-## Controls, hardware, and feedback
+## Module APIs [#controls-hardware-and-feedback]
 
-A `CommandGamepad` wraps an FTC `Gamepad`. Buttons expose `Trigger`s such as `onTrue` (schedule on a rising edge) and `whileTrue` (schedule while active, cancel when released). Stick axes and analog triggers expose range values and threshold helpers. Bind commands in the OpMode lifecycle and let NextFTC poll them.
+A `CommandGamepad` wraps an FTC `Gamepad`. Buttons expose `Trigger`s such as `onTrue` (schedule on a rising edge) and `whileTrue` (schedule on the rising edge and cancel on the falling edge). A command that finishes while the button remains held is not automatically rescheduled. Stick axes and analog triggers expose range values and threshold helpers. Bind commands in the OpMode lifecycle and let NextFTC poll them.
 
-The `hardware` module wraps FTC SDK devices and resolves them lazily. Device wrappers can be created from a configured name or a hub/port. The `control` module is usable on its own and includes feedback controllers, feedforward, filters, motion profiles, geometry, and typed units. Start with the official [hardware](https://nextftc.dev/hardware/) and [control](https://nextftc.dev/control/) references before adding a controller to a robot.
+The `hardware` module wraps FTC SDK devices and resolves them lazily. Device wrappers can be created from a configured name or a hub/port. The `control` module is usable on its own and includes feedback controllers, feedforward, filters, motion profiles, geometry, and typed units. Start with the official hardware and control references before adding a controller to a robot.
 
 ## Java support
 
 NextFTC is written in Kotlin but designed for Java interoperability. The official docs include Java and Kotlin tabs for core examples; use those examples instead of translating Kotlin syntax by guesswork. Confirm annotations, constructor visibility, and generated Kotlin property accessors for your selected version.
 
-## Choosing NextFTC
+## Team fit [#choosing-nextftc]
 
 NextFTC can help when a team wants shared mechanisms, scheduled commands, reusable controls, or its hardware/control wrappers. It adds dependencies and concepts, so a small project may be easier to understand with the FTC SDK alone. Compare the actual APIs and maintenance needs with alternatives before adopting it.
 
-## Official references
+<footer className="article-sources">
+
+## Sources [#official-references]
 
 - [NextFTC documentation](https://nextftc.dev/)
 - [Installation](https://nextftc.dev/introduction/installation/)
@@ -187,4 +213,11 @@ NextFTC can help when a team wants shared mechanisms, scheduled commands, reusab
 - [Triggers and RangeTriggers](https://nextftc.dev/robot/triggers/)
 - [Hardware module](https://nextftc.dev/hardware/)
 - [Control module](https://nextftc.dev/control/)
-- [NextFTC GitHub organization](https://github.com/NextFTC)
+- [NextFTC Suite 0.2.1 source](https://github.com/NextFTC/NextFTCSuite/tree/83606d2b8ab4c628b1585bd23561e6f91f2475c4)
+- [NextFTC: Robot module guide](https://nextftc.dev/robot/)
+- [NextFTC: Mechanism](https://nextftc.dev/robot/mechanisms/)
+- [NextFTC: NextOpMode](https://nextftc.dev/robot/nextopmode/)
+- [Published v0.2.1 release](https://github.com/NextFTC/NextFTCSuite/releases/tag/v0.2.1) · [Maven publication metadata](https://repo.maven.apache.org/maven2/dev/nextftc/v2/robot/maven-metadata.xml)
+- [Inspected development version](https://github.com/NextFTC/NextFTCSuite/blob/585b89ceabeb745340f4398f41ab5a97b37af2a8/gradle.properties)
+
+</footer>

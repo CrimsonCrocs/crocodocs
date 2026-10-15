@@ -1,0 +1,62 @@
+---
+icon: engineering:Nut
+title: Structure and fasteners
+description: Understand load paths, frame stiffness, construction styles, screw selection, and joint reliability.
+---
+
+A robot's **structure** carries forces between wheels, mechanisms, and the ground. Its joints must preserve alignment as the robot accelerates, handles objects, and contacts its surroundings.
+
+## Load paths [#follow-the-load-path]
+
+A **load path** is the route a force takes through an assembly. For a lift, trace the payload through the carriage, slide bearings, mounting brackets, chassis, and wheels. A strong slide mounted to a flexible bracket still produces a flexible system.
+
+**Strength** is resistance to failure. **Stiffness** is resistance to deflection. A frame can survive a load while bending enough to disturb gear mesh or a transfer. Reinforce the joint or geometry causing movement before making every member thicker.
+
+Use triangulation, gussets, suitable cross-members, and short unsupported spans where they help resist the expected loads. Check the extended mechanism as well as its stowed position.
+
+## Construction methods [#choose-a-construction-style]
+
+| Style | Useful when | Main design burden |
+| --- | --- | --- |
+| Kit channel or extrusion | The team needs adjustable, reusable assembly | Compatible hole patterns, brackets, and joints |
+| Parallel plates and standoffs | Shafts and bearings need defined spacing | Plate alignment, cross-bracing, access to inner parts |
+| Box tube | A long member needs efficient bending resistance | Accurate holes, joint design, access inside the tube |
+| Tabs and slots | Cut parts need repeatable location during assembly | Process-specific fit and a joint that actually retains them |
+
+Plate and standoff, box tube, and tab and slot are common construction methods. None is automatically rigid: a plate assembly with poorly placed connections can twist, while a carefully braced kit frame can work well.
+
+## Fastener specifications [#identify-a-screw-completely]
+
+A screw specification includes thread diameter, pitch, length, head, and material or grade where required. **M4 × 0.7** describes a metric thread with a 4 mm nominal major diameter and a 0.7 mm pitch. An imperial **#6-32** thread has 32 threads per inch. Similar diameter does not make metric and imperial threads compatible.
+
+Identify the thread and fastener size before assembly. Keep common sizes in separate labeled bins and use the correct driver to avoid rounding heads.
+
+For most screw heads, length is measured from beneath the head; countersunk screws are measured including the head. Confirm the convention on the supplier drawing.
+
+## Clamped joints [#build-a-clamped-joint]
+
+A tightened fastener creates **preload**, a clamping force between parts. In a properly designed joint, friction between the clamped surfaces can resist motion before the screw shank bears against a hole. Loose screws lose that benefit and can let parts shift.
+
+Select a screw long enough for the required thread engagement but short enough not to bottom out or enter a motor. There is no single engagement or torque value suitable for steel nuts, aluminum threads, printed plastic, and motor mounting holes. Use the component specification.
+
+Washers spread load and protect softer surfaces. Thin plastic may creep under clamping force; a spacer or metal compression sleeve can keep a screw from crushing it. Keep rotating components out of a structural clamping stack unless their bearing or bushing arrangement is designed for it.
+
+Use compatible removable threadlocker on suitable metal threads or appropriate locking nuts where vibration threatens retention. Check chemical compatibility before threadlocker touches plastic. Do not use locking compound as a substitute for correct screw length, alignment, or joint design.
+
+## Frame testing [#inspect-a-loaded-frame]
+
+With power off and the robot safely supported, apply a representative load gradually and observe where movement occurs. Mark joint positions so slipping is distinguishable from member flex. Compare diagonals and check shaft alignment after tightening.
+
+For a repeatable exercise, measure an unloaded mounting point, apply a known test load within the assembly's safe capacity, and measure deflection. Repeat after changing one brace or joint. Record geometry and load with the result; "feels stronger" is not a transferable measurement.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Design strategy](https://gm0.org/en/latest/docs/design-skills/design-strategy.html)
+- [FTC Wiki: Plate and standoff](https://www.ftcwiki.org/design-style/design-methodologies/plate-and-standoff-construction)
+- [FTC Wiki: Box tube](https://www.ftcwiki.org/design-style/design-methodologies/boxtube-construction)
+- [FTC Wiki: Tab and slot](https://www.ftcwiki.org/design-style/design-methodologies/slots-and-tabs)
+- [GM0: Fastener guide](https://gm0.org/en/latest/docs/hardware-components/fastener-guide.html)
+
+</footer>

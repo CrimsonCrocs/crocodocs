@@ -1,0 +1,68 @@
+[
+  {
+    "route": "/docs/libraries/solverslib",
+    "http": 200,
+    "article": true,
+    "katex_errors": false
+  },
+  {
+    "route": "/docs/libraries/openloop",
+    "http": 200,
+    "article": true,
+    "katex_errors": false
+  },
+  {
+    "route": "/docs/libraries/hive-vision",
+    "http": 200,
+    "article": true,
+    "katex_errors": false
+  },
+  {
+    "route": "/docs/control-systems/system-identification",
+    "http": 200,
+    "article": true,
+    "katex_errors": false
+  },
+  {
+    "route": "/docs/engineering/mechanical/gears",
+    "http": 200,
+    "article": true,
+    "katex_errors": false
+  },
+  {
+    "route": "/docs/engineering/electrical/sensor-integration",
+    "http": 200,
+    "article": true,
+    "katex_errors": false
+  },
+  {
+    "route": "/docs/libraries/panels",
+    "http": 200,
+    "article": true,
+    "katex_errors": false
+  },
+  {
+    "route": "/docs/libraries/sloth",
+    "http": 200,
+    "article": true,
+    "katex_errors": false
+  },
+  {
+    "route": "/docs/libraries/nextftc",
+    "http": 200,
+    "article": true,
+    "katex_errors": false
+  },
+  {
+    "route": "/docs/libraries",
+    "http": 200,
+    "article": true,
+    "katex_errors": false
+  },
+  {
+    "route": "/docs/engineering/design/cad",
+    "http": 200,
+    "article": true,
+    "katex_errors": false
+  }
+]

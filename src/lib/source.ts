@@ -2,6 +2,21 @@ import { docs } from '@/.source';
 import { loader } from 'fumadocs-core/source';
 import { icons } from 'lucide-react';
 import { createElement } from 'react';
+import {
+  ArrowsClockwise, BookOpen, Books, BracketsCurly, CircleNotch, ClipboardText,
+  CompassTool, Crosshair, Cube, Eye, Factory, FlowArrow, GearSix,
+  HandGrabbing, Lightning, ListChecks, Notebook, Nut, PencilSimple, Plug,
+  PresentationChart, Printer, Ruler, Stack, Swap, TestTube, Toolbox, Trophy,
+  UsersThree, Wrench,
+} from '@phosphor-icons/react/ssr';
+
+const phosphorIcons = {
+  ArrowsClockwise, BookOpen, Books, BracketsCurly, CircleNotch, ClipboardText,
+  CompassTool, Crosshair, Cube, Eye, Factory, FlowArrow, GearSix,
+  HandGrabbing, Lightning, ListChecks, Notebook, Nut, PencilSimple, Plug,
+  PresentationChart, Printer, Ruler, Stack, Swap, TestTube, Toolbox, Trophy,
+  UsersThree, Wrench,
+};
 
 // See https://fumadocs.vercel.app/docs/headless/source-api for more info
 export const source = loader({
@@ -10,21 +25,24 @@ export const source = loader({
   source: docs.toFumadocsSource(),
   icon(icon) {
     if (!icon) return;
+
+    if (icon.startsWith('engineering:') || icon.startsWith('phosphor:')) {
+      const name = icon.slice(icon.indexOf(':') + 1);
+      if (name in phosphorIcons) {
+        return createElement(phosphorIcons[name as keyof typeof phosphorIcons], {
+          className: 'text-primary',
+          size: 16,
+          'aria-hidden': true,
+        });
+      }
+      return;
+    }
     
     if (icon in icons) {
-      // All icons use the CrocoDocs red #E43437
-      const colorMap: Record<string, string> = {
-        'Rocket': 'text-[#E43437]',
-        'Eye': 'text-[#E43437]',
-        'Target': 'text-[#E43437]',
-        'BookOpen': 'text-[#E43437]',
-      };
-      
-      const className = colorMap[icon] || 'text-red-500';
-      
       return createElement(icons[icon as keyof typeof icons], { 
-        className,
+        className: 'text-primary',
         size: 16,
+        'aria-hidden': true,
       });
     }
   },

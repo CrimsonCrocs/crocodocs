@@ -1,0 +1,57 @@
+---
+icon: engineering:HandGrabbing
+title: Intakes and grippers
+description: Design capture geometry, compliance, retention, and jam recovery around the objects your robot handles.
+---
+
+An **intake** brings an object into controlled contact with the robot. A **gripper** retains it for manipulation. Both need to work with the object's actual shape, surface, orientation, and permitted handling conditions.
+
+## Capture area [#define-the-capture-region]
+
+Specify the object set and the range of lateral offsets, approach angles, and initial orientations the mechanism should tolerate. That range is the **capture envelope**. If an intake only collects carefully placed objects, the driver must align the robot for every pickup.
+
+Use guides, funnels, rollers, or shaped fingers to direct the object toward a repeatable retained position. Keep the path visible or provide reliable sensing.
+
+## Active and passive intakes [#choose-active-or-passive-contact]
+
+| Approach | Useful when | Watch for |
+| --- | --- | --- |
+| Roller or belt intake | Objects need to be drawn through a capture path | Compression, rejection, entanglement, and jams |
+| Actuated claw | The object needs a defined pose or controlled release | Driver alignment, closing geometry, and load on the servo |
+| Passive fingers or scoop | Geometry can retain the object without continuous actuation | Approach tolerance, release, and impact forces |
+
+For passive intakes and claws, compare complete acquisition and release behavior; part count alone does not choose the best mechanism.
+
+## Compliance [#use-compliance-deliberately]
+
+**Compliance** is controlled deformation under load. A flexible roller or finger can accommodate object variation, increase contact, and absorb impact. Excessive deformation can also reduce positional consistency or let the object escape.
+
+Roller compression is the interference between the unloaded roller geometry and the object path. Too little may not provide useful traction; too much raises load, damages objects, or stalls the mechanism. Tune spacing using adjustable mounts and representative objects.
+
+Roller surface speed is $v = \pi Dn/60$. For an illustrative 50 mm roller at 500 RPM, it is about 1.31 m/s. The object's actual speed will differ because contact slips and deforms. A higher roller speed can increase rejection if the downstream space cannot control the object.
+
+## Retention and release [#retain-and-release-predictably]
+
+Check what happens when the robot brakes, turns, or raises the retained object. A grip that survives a stationary test may lose the object when inertia changes the load direction.
+
+For a simplified friction grip with two opposing contacts, each pressing with normal force $N$, the available tangential force is roughly $2\mu N$. This assumes stable friction and suitable contact geometry. Use it to see which quantities matter, then test the actual object; compliant materials and irregular surfaces rarely match a single fixed coefficient.
+
+Release should produce a repeatable pose and path. Make room for fingers to open without colliding with a scoring target or the robot. A passive retention feature can reduce holding current, but it must still permit the intended release.
+
+## Jam recovery [#design-recovery-before-speed]
+
+Provide a way to reverse rollers, reopen a claw, or return to an acquisition position. Avoid a pocket that traps an object where no actuator can reach it. Protect cables and fingers from rollers and pinch points.
+
+Use a test grid with lateral offset on one axis and object angle on the other. Record captures, time, rejects, jams, and successful recoveries for each condition. Fix geometry that fails a whole region before trying to hide it with a longer timeout.
+
+Compare the distribution of acquisition times and driver corrections as well as the average. A few long jams can account for much of the time spent collecting.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Intake principles](https://gm0.org/en/latest/docs/common-mechanisms/active-intake/principles-of-an-intake.html)
+- [GM0: Intake types](https://gm0.org/en/latest/docs/common-mechanisms/active-intake/types-of-intakes.html)
+- [GM0: Passive intakes and claws](https://gm0.org/en/latest/docs/common-mechanisms/passive-intake-claw.html)
+
+</footer>

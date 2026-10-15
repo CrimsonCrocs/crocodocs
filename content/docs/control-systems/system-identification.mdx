@@ -1,0 +1,100 @@
+---
+title: System identification
+description: Measure a mechanism's voltage, speed, and acceleration to fit and test a feedforward model
+icon: phosphor:TestTube
+---
+
+**System identification** estimates a mechanism's behaviour from recorded inputs and measurements. For motor feedforward, it turns test data into coefficients that predict the voltage needed for a requested motion. The result belongs to the tested mechanism, units, load, and operating range.
+
+Start with [feedforward](./feedforward) and a trustworthy position or velocity measurement. This lesson explains a voltage model; it does not require installing the FRC WPILib runtime in an FTC project.
+
+## Voltage model
+
+For a simple mechanism without a significant gravity load, a useful model is:
+
+$$
+V = k_S\operatorname{sgn}(v) + k_Vv + k_Aa
+$$
+
+Here, $V$ is applied voltage, $v$ is velocity, and $a$ is acceleration. The static term approximates friction, the velocity term accounts for speed-dependent demand, and the acceleration term accounts for changing speed. Each term contributes **volts**.
+
+| Coefficient | With velocity in m/s |
+| --- | --- |
+| $k_S$ | V |
+| $k_V$ | V·s/m |
+| $k_A$ | V·s²/m |
+
+Radians or encoder ticks can also be used, but their gains have different units. A radians-based coefficient cannot be applied to a degrees-per-second target unchanged. Keep the encoder scale and transmission ratio with the fitted model.
+
+A vertical slide needs a gravity term; an arm's gravity term varies with angle. Payload changes, flex, backlash, and asymmetric friction may require a different model or separate fitted cases. Near zero speed, the sign/friction model also needs a deliberate policy; a stationary mechanism does not automatically need the same command as one moving slowly.
+
+## Test data
+
+Log timestamps, measured position or velocity, commanded power, and bus voltage together. If estimating applied voltage as `motor power × bus voltage`, label it as an approximation: it is not a direct measurement of the motor terminals. Controller losses and saturation can affect the relationship.
+
+Use a bounded test appropriate to the mechanism's travel, support, load, and current limits:
+
+1. Apply a slowly increasing command to collect near-steady motion at several speeds. This helps separate friction from the velocity term.
+2. Use short acceleration tests to make the acceleration term observable. Steady-speed data alone cannot identify $k_A$.
+3. Repeat in both directions where the mechanism permits it. Check the sign conventions before combining those samples.
+4. Keep separate runs for validation rather than fitting every recorded sample.
+
+Estimate acceleration using the actual time interval between velocity samples. Differentiation magnifies noise; a smoother trace may also introduce delay. Check timestamps and measurement freshness before attributing a poor fit to the mechanism.
+
+## Fitting the coefficients
+
+Each recorded sample supplies a row of the form:
+
+$$
+\begin{bmatrix}\operatorname{sgn}(v_i)&v_i&a_i\end{bmatrix}
+\begin{bmatrix}k_S\\k_V\\k_A\end{bmatrix}
+\approx V_i
+$$
+
+With many samples, least squares chooses coefficients that minimise the summed squared voltage residuals. Use a numerical least-squares solver rather than explicitly inverting a matrix. The data must contain enough variation to distinguish the coefficients; many nearly identical samples do not solve that problem.
+
+The following **invented data** illustrates the arithmetic for positive motion without gravity. It is not a robot test or a set of recommended gains.
+
+| Velocity (m/s) | Acceleration (m/s²) | Applied voltage (V) |
+| ---: | ---: | ---: |
+| 0.5 | 0 | 1.3 |
+| 1.0 | 0 | 2.3 |
+| 1.0 | 2.0 | 3.1 |
+
+The first two rows give $k_V=(2.3-1.3)/(1.0-0.5)=2.0$ V·s/m. Substituting either row gives $k_S=0.3$ V. The third row then gives $k_A=(3.1-0.3-2.0)/2.0=0.4$ V·s²/m.
+
+At a desired 0.8 m/s and 1.5 m/s², this model predicts $0.3+2.0(0.8)+0.4(1.5)=2.5$ V. A new measured trial should test that prediction before the model is used to control motion.
+
+## Validation
+
+For the held-out runs, compare predicted voltage with the recorded applied-voltage estimate. Plot the residual against velocity, acceleration, direction, and time. A direction-dependent residual suggests a missing asymmetry; an error that grows with speed may indicate a scale or velocity-term problem.
+
+Also test the resulting velocity response with feedback enabled at a bounded output. A good fit to one recording does not establish safe control over the full travel. Keep hard limits, timeouts, invalid-sensor handling, and the stop policy outside the model fit.
+
+## FTC motor power
+
+FTC `setPower()` takes a normalised command whose meaning depends on the motor mode. This voltage conversion belongs to a custom controller using **`RUN_WITHOUT_ENCODER`**. In `RUN_USING_ENCODER` or `RUN_TO_POSITION`, power participates in the SDK's velocity/position behaviour instead; do not assume it is the same voltage command.
+
+For the open-loop/custom-controller path, convert approximately using:
+
+```text
+requested volts = feedforward volts + feedback volts
+requested power = requested volts / measured bus volts
+```
+
+Validate the voltage measurement against the controller's expected operating range before dividing. An invalid or stale measurement should disable the command rather than produce a large output. Apply the mechanism's travel limits and final power cap after combining the terms. Log both the requested and clipped output so saturation is visible.
+
+For the illustrative 2.5 V request, the conversion gives about 0.208 at 12 V and 0.250 at 10 V. It cannot create voltage the battery and controller cannot supply. A clipped command means the requested model input was not delivered.
+
+During control, feed the model the **desired** velocity and acceleration from a [motion profile](./motion-profiling). During identification, fit against the **measured** motion. Keep those two uses distinct, and refit after a meaningful change to gearing, payload, or mechanism geometry.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Tyler Veness: Controls Engineering in FRC](https://file.tavsys.net/control/controls-engineering-in-frc.pdf) — §14.1–14.2, printed pages 227–229; voltage normalisation in §6.10.6. Reviewed edition generated October 4, 2026.
+- [WPILib: Introduction to system identification](https://docs.wpilib.org/en/stable/docs/software/advanced-controls/system-identification/introduction.html)
+- [WPILib: Feedforward control](https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/feedforward.html) — model terms and units; its robot APIs belong to FRC.
+- [FTC SDK 12 Hardware source](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/Hardware/12.0.0/Hardware-12.0.0-sources.jar) — `LynxDcMotorController` motor-mode handling.
+
+</footer>

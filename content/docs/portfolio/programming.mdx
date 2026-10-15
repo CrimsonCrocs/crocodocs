@@ -1,0 +1,72 @@
+---
+title: Programming evidence
+description: Explain control systems through their inputs, behavior, testing, and recovery.
+icon: phosphor:BracketsCurly
+---
+
+Explain the problem your code solves, what the robot senses, and what it does with the reading. Then show how you tested it.
+
+## Control systems
+
+For BIOBUZZ Control, Table 6-8 calls for the control components, the challenges they solve, their functions, and a solution using external feedback to improve robot performance. Full source code is not the portfolio deliverable.
+
+A table can keep the components and their jobs together:
+
+| Component | Problem | Feedback and action |
+| --- | --- | --- |
+| Lift encoder and controller | The lift must stop at a requested height | Compare measured position with the target and adjust motor output |
+| Home switch | The lift needs a known reference position | Detect home and establish the position reference through the team's homing routine |
+| Camera and aiming routine | The launcher must aim despite changing robot position | Use a valid target observation to adjust aiming, with a defined response when observations are unavailable |
+
+These are illustrative systems, not a recommended parts list. Describe the system on your own robot, including whether a feature runs in autonomous, TeleOp, or both.
+
+## Software choices
+
+Name the libraries you used and explain your team's work: hardware setup, models, controller tuning, recovery logic, sensor integration, or comparisons with other approaches.
+
+Credit library authors for their code. Describe why you selected a library, how you configured it, what you changed, and how it performed on your robot.
+
+Use a feedback diagram or state table to explain behavior. Define technical terms where the reader needs them to follow the decision. Keep general programming explanations brief enough to leave room for your team's work.
+
+## Autonomous
+
+Show the intended route and the decisions that can change it. Label the starting conditions, scoring actions, sensor checks, and stopping or recovery behavior. Explain how the team accommodates an alliance partner where that affects the routine.
+
+Report complete routine success separately from individual actions. A route completed without its intended scoring action is still a failed routine. State the pass conditions, number of attempts, and robot/software version tested.
+
+When comparing routines, keep setup and scoring definitions consistent. Distinguish a selected best run from a set of repeated trials.
+
+## Testing and graphs
+
+Choose a graph that answers the actual question:
+
+| Question | Useful comparison |
+| --- | --- |
+| Does the lift settle at the target? | Requested and measured position against time, with units |
+| Does launcher speed recover between shots? | Measured speed around successive launches, with the recovery criterion defined |
+| Does localization stay useful? | Position error over a defined route, measured against a reference |
+| Does the routine finish reliably? | Successful complete runs out of all attempts, with failure categories |
+
+Explain what you learned from the graph and what you changed afterward. Keep update rate, accuracy, subsystem success, and whole-robot reliability separate; they measure different things.
+
+## Failure and recovery
+
+Describe what happens when a sensor reading is missing, a mechanism jams, or an operator requests the wrong action. Identify the safe state or manual recovery path and how the team tested it.
+
+The [Blu Cru case study](/docs/portfolio/case-studies/blu-cru) examines a state diagram alongside manual overrides. The [Seattle Solvers study](/docs/portfolio/case-studies/seattle-solvers) follows successive localization approaches and distinguishes a performance target from the latest reported result.
+
+## Driver controls
+
+Explain which driver actions the automation combines, which sensor conditions it checks, and how the driver interrupts it. Measure the same task before and after if you claim a time saving, and state the test conditions.
+
+For implementation, use [nonblocking code](/docs/getting-started/nonblocking-code), [PID control](/docs/control-systems/pid-control), and [sensor fusion](/docs/autonomous/sensor-fusion). The portfolio should explain the evidence from your implementation.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FIRST: BIOBUZZ Section 6, TU04, Table 6-8](https://ftc-resources.firstinspires.org/ftc/archive/2027/game/manual-06)
+- [FIRST: Judging Question Bank, revision 26–27.1, Control](https://ftc-resources.firstinspires.org/ftc/event/question-bank)
+- [Community discussion: explain the team's technical problem and response](https://discord.com/channels/1443377051305508896/1443405895055704146/1557954017479495763)
+
+</footer>

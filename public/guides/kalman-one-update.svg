@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="240" viewBox="0 0 800 240" role="img" aria-labelledby="title desc">
+<title id="title">One scalar Kalman correction</title><desc id="desc">A prediction of 50 centimetres moves five ninths of the way toward a 54 centimetre measurement, giving an estimate of approximately 52.22 centimetres.</desc>
+<rect width="800" height="240" rx="16" fill="#f4f4f4"/>
+<g font-family="system-ui, sans-serif" fill="#272727"><text x="40" y="40" font-size="18" font-weight="600">Prediction + gain × innovation</text><path d="M80 135H720" stroke="#626262" stroke-width="2"/>
+<path d="M100 126v18m333-18v18m267-18v18" stroke="#626262" stroke-width="2"/>
+<circle cx="100" cy="135" r="7" fill="#626262"/><circle cx="433.3" cy="135" r="9" fill="#b40013"/><circle cx="700" cy="135" r="7" fill="#626262"/>
+<path d="M100 100H433" stroke="#b40013" stroke-width="3"/><path d="m422 94 11 6-11 6" fill="none" stroke="#b40013" stroke-width="2"/>
+<text x="100" y="178" text-anchor="middle" font-size="16">50 cm</text><text x="100" y="204" text-anchor="middle" font-size="14">Prediction</text>
+<text x="433" y="178" text-anchor="middle" font-size="16" font-weight="600" fill="#b40013">≈ 52.22 cm</text><text x="433" y="204" text-anchor="middle" font-size="14">Updated estimate</text>
+<text x="700" y="178" text-anchor="middle" font-size="16">54 cm</text><text x="700" y="204" text-anchor="middle" font-size="14">Measurement</text>
+<text x="266" y="83" text-anchor="middle" font-size="14">K = 5/9</text></g></svg>

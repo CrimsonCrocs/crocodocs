@@ -1,0 +1,449 @@
+{
+  "reviewed": "2026-10-14",
+  "date_policy": {
+    "cutoff_local": "2026-10-14T23:59:59-05:00",
+    "future_dated_metadata_excluded": [],
+    "notes": "GitHub updated_at and pushed_at are not used as proof of source maintenance. Explicit beta naming overrides a false prerelease flag. Source main branches are distinguished from published artifacts."
+  },
+  "libraries": [
+    {
+      "name": "Panels",
+      "repository": "https://github.com/ftcontrol/ftcontrol-panels",
+      "archived": false,
+      "default_branch": "main",
+      "default_head": {
+        "sha": "ed2d9f6ae464974df6a1e54358b2cb03f1b4c3d1",
+        "committed_at": "2026-10-07T07:06:02Z",
+        "message": "fix(docs): require Kotlin 2.4.10 for consumers; release Docs 1.0.9 and FullPanels 1.0.18",
+        "url": "https://github.com/ftcontrol/ftcontrol-panels/commit/ed2d9f6ae464974df6a1e54358b2cb03f1b4c3d1",
+        "kind": "source"
+      },
+      "latest_github_release": null,
+      "latest_published_version": "FullPanels 1.0.18",
+      "publication_evidence": {
+        "url": "https://panels.bylazar.com/docs/com.bylazar.fullpanels/",
+        "date": "2026-10-07",
+        "maven_metadata": "https://raw.githubusercontent.com/ftcontrol/ftcontrol-maven/main/releases/com/bylazar/fullpanels/maven-metadata.xml",
+        "last_updated": "20261007070335"
+      },
+      "status": "active; published, unarchived",
+      "sdk_context": "Current source/Quickstart target FTC SDK12.0.0; default compileSdk30/minSdk24 retained. Author requires kotlin-gradle-plugin>=2.4.10 for Kotlin consumers.",
+      "latest_meaningful_activity": {
+        "sha": "ed2d9f6ae464974df6a1e54358b2cb03f1b4c3d1",
+        "committed_at": "2026-10-07T07:06:02Z",
+        "message": "fix(docs): require Kotlin 2.4.10 for consumers; release Docs 1.0.9 and FullPanels 1.0.18",
+        "url": "https://github.com/ftcontrol/ftcontrol-panels/commit/ed2d9f6ae464974df6a1e54358b2cb03f1b4c3d1",
+        "kind": "source"
+      },
+      "article_action": "Fix Java singleton accessor to PanelsTelemetry.INSTANCE.getTelemetry(); pin current setup and both Maven repositories; use official com.bylazar artifacts with integrated Sloth, not old com.bylazar.sloth replacements."
+    },
+    {
+      "name": "Sloth",
+      "repository": "https://github.com/Dairy-Foundation/Sloth",
+      "archived": false,
+      "default_branch": "master",
+      "default_head": {
+        "sha": "30a169dbba5c73e5abf71eea0af1abd3191c7574",
+        "committed_at": "2026-09-17T04:49:15Z",
+        "message": "fix: typo",
+        "url": "https://github.com/Dairy-Foundation/Sloth/commit/30a169dbba5c73e5abf71eea0af1abd3191c7574",
+        "kind": "source"
+      },
+      "latest_github_release": null,
+      "latest_published_version": "0.3.2",
+      "publication_evidence": {
+        "url": "https://repo.dairy.foundation/releases/dev/frozenmilk/sinister/Sloth/maven-metadata.xml",
+        "last_updated": "20260917043355"
+      },
+      "status": "active; Maven-published, unarchived",
+      "sdk_context": "SDK12 build tooling (12.0.0-1.2.1); Sinister2.3.0; Load0.3.2 plugin targets AGP8.13.2.",
+      "latest_meaningful_activity": {
+        "sha": "7b8ba6c914366b61b9d12402da6b0257ca02d007",
+        "committed_at": "2026-09-17T04:27:49Z",
+        "message": "fix: improved removal of old sloth loads",
+        "url": "https://github.com/Dairy-Foundation/Sloth/commit/7b8ba6c914366b61b9d12402da6b0257ca02d007",
+        "kind": "source"
+      },
+      "article_action": "Add named Slothboard option. Ordinary official Panels>=1.0.16 has native Sloth support. Keep deploy/remove task workflow; Load source auto-wires removal before Gradle installDebug/installRelease; Android Studio before-launch still documented."
+    },
+    {
+      "name": "Slothboard (Dairy FTC Dashboard fork)",
+      "repository": "https://github.com/Dairy-Foundation/ftc-dashboard",
+      "archived": false,
+      "default_branch": "master",
+      "default_head": {
+        "sha": "4f98686b3f1cf9de1e1fb1c2d8e41d5e6d43e83d",
+        "committed_at": "2026-09-17T04:46:27Z",
+        "message": "chore: update gradle versions",
+        "url": "https://github.com/Dairy-Foundation/ftc-dashboard/commit/4f98686b3f1cf9de1e1fb1c2d8e41d5e6d43e83d",
+        "kind": "source"
+      },
+      "latest_github_release": null,
+      "latest_published_version": "0.3.2+0.6.0",
+      "publication_evidence": {
+        "url": "https://repo.dairy.foundation/releases/com/acmerobotics/slothboard/dashboard/maven-metadata.xml",
+        "last_updated": "20260917044821",
+        "pom": "https://repo.dairy.foundation/releases/com/acmerobotics/slothboard/dashboard/0.3.2%2B0.6.0/dashboard-0.3.2%2B0.6.0.pom"
+      },
+      "status": "active fork; Maven-published, unarchived",
+      "sdk_context": "SDK12 build tooling (12.0.0-1.2.2); published POM depends on Sloth0.3.2 and kotlin-stdlib2.4.10.",
+      "latest_meaningful_activity": {
+        "sha": "4f98686b3f1cf9de1e1fb1c2d8e41d5e6d43e83d",
+        "committed_at": "2026-09-17T04:46:27Z",
+        "message": "chore: update gradle versions",
+        "url": "https://github.com/Dairy-Foundation/ftc-dashboard/commit/4f98686b3f1cf9de1e1fb1c2d8e41d5e6d43e83d",
+        "kind": "runtime/build integration"
+      },
+      "article_action": "Use com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0 from Dairy Maven as replacement, excluding ordinary Dashboard transitives. README0.3.1 example is stale; Maven and Sloth README agree on0.3.2."
+    },
+    {
+      "name": "NextFTC Suite",
+      "repository": "https://github.com/NextFTC/NextFTCSuite",
+      "archived": false,
+      "default_branch": "main",
+      "default_head": {
+        "sha": "585b89ceabeb745340f4398f41ab5a97b37af2a8",
+        "committed_at": "2026-10-11T19:06:08Z",
+        "message": "fix field-centric drive math (#49)",
+        "url": "https://github.com/NextFTC/NextFTCSuite/commit/585b89ceabeb745340f4398f41ab5a97b37af2a8",
+        "kind": "source"
+      },
+      "latest_github_release": {
+        "tag": "v0.2.1",
+        "published_at": "2026-09-17T18:04:25Z",
+        "prerelease_flag": false,
+        "url": "https://github.com/NextFTC/NextFTCSuite/releases/tag/v0.2.1"
+      },
+      "latest_published_version": "0.2.1 (v2 modules)",
+      "publication_evidence": {
+        "url": "https://repo.maven.apache.org/maven2/dev/nextftc/v2/robot/maven-metadata.xml",
+        "last_updated": "20260917181332",
+        "release_commit": "83606d2b8ab4c628b1585bd23561e6f91f2475c4"
+      },
+      "status": "active; published non-prerelease0.2.1; main0.3.0-SNAPSHOT unreleased",
+      "sdk_context": "Release catalog: FTC12.0.0, Kotlin2.3.0, Sloth0.3.2, Ivy1.1.1.",
+      "latest_meaningful_activity": {
+        "sha": "585b89ceabeb745340f4398f41ab5a97b37af2a8",
+        "committed_at": "2026-10-11T19:06:08Z",
+        "message": "fix field-centric drive math (#49)",
+        "url": "https://github.com/NextFTC/NextFTCSuite/commit/585b89ceabeb745340f4398f41ab5a97b37af2a8",
+        "kind": "source"
+      },
+      "article_action": "Existing0.2.1 claw APIs remain current and compile. Pin install coordinates; distinguish unreleased Oct11 motor-stop/field-centric fixes and main0.3.0-SNAPSHOT from published0.2.1."
+    },
+    {
+      "name": "NextFTC v1 repository",
+      "repository": "https://github.com/NextFTC/NextFTC",
+      "archived": false,
+      "default_branch": "main",
+      "default_head": {
+        "sha": "d1b2a1a07773c6743ed52834ee5c9eabadeea96d",
+        "committed_at": "2026-05-30T02:20:52Z",
+        "message": "Update README",
+        "url": "https://github.com/NextFTC/NextFTC/commit/d1b2a1a07773c6743ed52834ee5c9eabadeea96d",
+        "kind": "source"
+      },
+      "latest_github_release": {
+        "tag": "v1.1.0",
+        "published_at": "2026-02-23T03:42:03Z",
+        "prerelease_flag": false,
+        "url": "https://github.com/NextFTC/NextFTC/releases/tag/v1.1.0"
+      },
+      "latest_published_version": "1.1.0",
+      "publication_evidence": {
+        "url": "https://github.com/NextFTC/NextFTC/releases/tag/v1.1.0",
+        "date": "2026-02-23"
+      },
+      "status": "legacy line; unarchived",
+      "sdk_context": "Different artifact namespace/model from v2.",
+      "latest_meaningful_activity": {
+        "sha": "91ddc7aba457eca4a78364e8b3c156e3d8ed9c09",
+        "committed_at": "2026-02-23T03:33:06Z",
+        "message": "release version 1.1 (#94)",
+        "url": "https://github.com/NextFTC/NextFTC/commit/91ddc7aba457eca4a78364e8b3c156e3d8ed9c09",
+        "kind": "source"
+      },
+      "article_action": "No v2 article API downgrade; retain migration/duplicate-class warning."
+    },
+    {
+      "name": "FTCLib",
+      "repository": "https://github.com/FTCLib/FTCLib",
+      "archived": false,
+      "default_branch": "master",
+      "default_head": {
+        "sha": "1c8995d09413b406e0f4aff238ea4edc2bb860c4",
+        "committed_at": "2023-02-22T19:10:13Z",
+        "message": "Release v2.1.1",
+        "url": "https://github.com/FTCLib/FTCLib/commit/1c8995d09413b406e0f4aff238ea4edc2bb860c4",
+        "kind": "source"
+      },
+      "latest_github_release": {
+        "tag": "v2.1.1",
+        "published_at": "2023-02-22T17:12:12Z",
+        "prerelease_flag": false,
+        "url": "https://github.com/FTCLib/FTCLib/releases/tag/v2.1.1"
+      },
+      "latest_published_version": "2.1.1",
+      "publication_evidence": {
+        "url": "https://github.com/FTCLib/FTCLib/releases/tag/v2.1.1",
+        "date": "2023-02-22"
+      },
+      "status": "older stable release; slow development, unarchived",
+      "sdk_context": "Released source compiles against FTC SDK7.1.0 and targets minSdk24. Prior audit demonstrated shown command snippets compile with RobotCore12, not full-library certification.",
+      "latest_meaningful_activity": {
+        "sha": "cd966af550aafa1d7ca51e171eafe1b7778c6d16",
+        "committed_at": "2024-03-04T18:43:46Z",
+        "message": "Further Motor and MotorEx merging",
+        "url": "https://github.com/FTCLib/FTCLib/commit/cd966af550aafa1d7ca51e171eafe1b7778c6d16",
+        "kind": "unreleased dev branch source"
+      },
+      "article_action": "No newer release found. Keep explicit compatible-version wording and Pure Pursuit warning; describe latest release age without claiming archived or abandoned."
+    },
+    {
+      "name": "Pedro Pathing",
+      "repository": "https://github.com/Pedro-Pathing/PedroPathing",
+      "archived": false,
+      "default_branch": "main",
+      "default_head": {
+        "sha": "9c95f86d1d141bedde002c81bac021c6b1ff5351",
+        "committed_at": "2026-10-11T18:26:35Z",
+        "message": "velocity.linSpeed(), twist.linSpeed()",
+        "url": "https://github.com/Pedro-Pathing/PedroPathing/commit/9c95f86d1d141bedde002c81bac021c6b1ff5351",
+        "kind": "source"
+      },
+      "latest_github_release": {
+        "tag": "v3.0.1",
+        "published_at": "2026-09-18T21:06:34Z",
+        "prerelease_flag": false,
+        "url": "https://github.com/Pedro-Pathing/PedroPathing/releases/tag/v3.0.1"
+      },
+      "latest_published_version": "3.0.1",
+      "publication_evidence": {
+        "url": "https://repo.maven.apache.org/maven2/com/pedropathing/core/maven-metadata.xml",
+        "last_updated": "20260918211905"
+      },
+      "status": "active; stable published3.0.1, unarchived",
+      "sdk_context": "Current revhub source/catalog and Quickstart use FTC12.0.0; published revhub3.0.1 depends core3.0.1 and Kotlin2.3.21.",
+      "latest_meaningful_activity": {
+        "sha": "9c95f86d1d141bedde002c81bac021c6b1ff5351",
+        "committed_at": "2026-10-11T18:26:35Z",
+        "message": "velocity.linSpeed(), twist.linSpeed()",
+        "url": "https://github.com/Pedro-Pathing/PedroPathing/commit/9c95f86d1d141bedde002c81bac021c6b1ff5351",
+        "kind": "source"
+      },
+      "article_action": "No new version/API correction needed beyond existing3.0.1 pin. Keep Pedro2 vs3 boundary, setup/tuning requirements and explicit cleanup."
+    },
+    {
+      "name": "Road Runner",
+      "repository": "https://github.com/acmerobotics/road-runner",
+      "archived": false,
+      "default_branch": "master",
+      "default_head": {
+        "sha": "5cf18fb625dcb5b17ce8c47af16a80f47b0f6bb1",
+        "committed_at": "2025-11-02T01:15:36Z",
+        "message": "Remove local.properties (#134)",
+        "url": "https://github.com/acmerobotics/road-runner/commit/5cf18fb625dcb5b17ce8c47af16a80f47b0f6bb1",
+        "kind": "source"
+      },
+      "latest_github_release": {
+        "tag": "v1.0.1",
+        "published_at": "2025-01-05T23:35:57Z",
+        "prerelease_flag": false,
+        "url": "https://github.com/acmerobotics/road-runner/releases/tag/v1.0.1"
+      },
+      "latest_published_version": "core/actions1.0.1; FTC0.1.25",
+      "publication_evidence": {
+        "core_release": "https://github.com/acmerobotics/road-runner/releases/tag/v1.0.1",
+        "core_date": "2025-01-05",
+        "ftc_metadata": "https://maven.brott.dev/com/acmerobotics/roadrunner/ftc/maven-metadata.xml",
+        "ftc_metadata_last_updated": "20250823032151"
+      },
+      "status": "stable published versions; unarchived, source changes after release",
+      "sdk_context": "FTC binding build min_sdk_version10.0.0; inspected Quickstart pins SDK11.0.0, not SDK12.",
+      "latest_meaningful_activity": {
+        "sha": "3011c70e5a24526fd9f18be93dbaf2e6630d46fd",
+        "committed_at": "2025-10-31T01:54:20Z",
+        "message": "Use `eval` to parse tuning page inputs (#29)",
+        "url": "https://github.com/acmerobotics/road-runner-ftc/commit/3011c70e5a24526fd9f18be93dbaf2e6630d46fd",
+        "kind": "FTC binding source"
+      },
+      "article_action": "Existing article versions remain current. Do not infer FTC binding latest from GitHub release list (v0.1.14); Maven publishes0.1.25. No API rewrite.",
+      "related_repository": "https://github.com/acmerobotics/road-runner-ftc",
+      "latest_core_source": {
+        "sha": "ef06b2b4fdc527e9c7ef259e7be0303b11c9b0c5",
+        "committed_at": "2025-04-18T04:30:38Z",
+        "message": "Remove some superfluous actions generated by TAB",
+        "url": "https://github.com/acmerobotics/road-runner/commit/ef06b2b4fdc527e9c7ef259e7be0303b11c9b0c5",
+        "kind": "source"
+      }
+    },
+    {
+      "name": "FTC Dashboard",
+      "repository": "https://github.com/acmerobotics/ftc-dashboard",
+      "archived": false,
+      "default_branch": "master",
+      "default_head": {
+        "sha": "a876f094dac392a949711b8219ca2ec8d4cc20c7",
+        "committed_at": "2026-09-07T20:06:06Z",
+        "message": "Fix lints and add CI enforcement",
+        "url": "https://github.com/acmerobotics/ftc-dashboard/commit/a876f094dac392a949711b8219ca2ec8d4cc20c7",
+        "kind": "source"
+      },
+      "latest_github_release": {
+        "tag": "v0.6.0",
+        "published_at": "2026-05-16T17:34:22Z",
+        "prerelease_flag": false,
+        "url": "https://github.com/acmerobotics/ftc-dashboard/releases/tag/v0.6.0"
+      },
+      "latest_published_version": "0.6.0",
+      "publication_evidence": {
+        "url": "https://maven.brott.dev/com/acmerobotics/dashboard/dashboard/maven-metadata.xml",
+        "last_updated": "20260516173312",
+        "release_url": "https://github.com/acmerobotics/ftc-dashboard/releases/tag/v0.6.0"
+      },
+      "status": "active maintenance; stable published0.6.0, unarchived",
+      "sdk_context": "Published build min_sdk_version10.0.0; Android minSdk24. Current telemetry APIs were previously compiled against SDK12.",
+      "latest_meaningful_activity": {
+        "sha": "a876f094dac392a949711b8219ca2ec8d4cc20c7",
+        "committed_at": "2026-09-07T20:06:06Z",
+        "message": "Fix lints and add CI enforcement",
+        "url": "https://github.com/acmerobotics/ftc-dashboard/commit/a876f094dac392a949711b8219ca2ec8d4cc20c7",
+        "kind": "source"
+      },
+      "article_action": "No upstream version change. Add Slothboard as separately named Sloth-compatible replacement and cross-link the Sloth article."
+    },
+    {
+      "name": "Mercurial",
+      "repository": "https://github.com/Dairy-Foundation/MercurialFTC",
+      "archived": false,
+      "default_branch": "master",
+      "default_head": {
+        "sha": "97469abec908bfc9eea342570ed9b95250047316",
+        "committed_at": "2026-10-14T05:44:29Z",
+        "message": "chore: update examples",
+        "url": "https://github.com/Dairy-Foundation/MercurialFTC/commit/97469abec908bfc9eea342570ed9b95250047316",
+        "kind": "source"
+      },
+      "latest_github_release": {
+        "tag": "2.0.1-beta1",
+        "published_at": "2026-10-14T07:23:01Z",
+        "prerelease_flag": false,
+        "url": "https://github.com/Dairy-Foundation/MercurialFTC/releases/tag/2.0.1-beta1"
+      },
+      "latest_published_version": "FTC bindings2.0.1-beta1; legacy1.0.3",
+      "publication_evidence": {
+        "url": "https://repo.dairy.foundation/releases/dev/frozenmilk/dairy/MercurialFTC/maven-metadata.xml",
+        "last_updated": "20261014054540",
+        "release_url": "https://github.com/Dairy-Foundation/MercurialFTC/releases/tag/2.0.1-beta1",
+        "released_at": "2026-10-14T07:23:01Z"
+      },
+      "status": "active v2 BETA; v1 legacy, both repos unarchived",
+      "sdk_context": "MercurialFTC uses SDK12 build tooling, Sloth0.3.2, Mercurial2.0.1-beta1; compileOnly Pedro core3.0.1 for optional wrappers.",
+      "latest_meaningful_activity": {
+        "sha": "e64238f9b1f2f9797ea9e5a3e2af1c7ab3dca2df",
+        "committed_at": "2026-10-14T05:39:29Z",
+        "message": "fix: make Context update telemetry",
+        "url": "https://github.com/Dairy-Foundation/MercurialFTC/commit/e64238f9b1f2f9797ea9e5a3e2af1c7ab3dca2df",
+        "kind": "source"
+      },
+      "article_action": "Keep current v1 tutorial explicitly legacy. Add dated v2-beta status/link; do not relabel v1 Lambda example as v2. GitHub prerelease=false contradicts beta name/readme: retain BETA label.",
+      "legacy_repository": "https://github.com/Dairy-Foundation/Mercurial",
+      "legacy_head": {
+        "sha": "207a360df3f90ff62f441aa543921107ddeed5c8",
+        "committed_at": "2025-01-26T19:44:16Z",
+        "message": "chore: version bump",
+        "url": "https://github.com/Dairy-Foundation/Mercurial/commit/207a360df3f90ff62f441aa543921107ddeed5c8",
+        "kind": "source"
+      },
+      "v2_core_branch": "https://github.com/Dairy-Foundation/Mercurial/tree/continuations",
+      "v2_core_head": {
+        "sha": "4db426053f5aea4e61181fd54c5ac0e644f3b968",
+        "committed_at": "2026-10-14T05:16:01Z",
+        "message": "test: add a test for the broken receive.after form",
+        "url": "https://github.com/Dairy-Foundation/Mercurial/commit/4db426053f5aea4e61181fd54c5ac0e644f3b968",
+        "kind": "source"
+      }
+    },
+    {
+      "name": "EasyOpenCV",
+      "repository": "https://github.com/OpenFTC/EasyOpenCV",
+      "archived": false,
+      "default_branch": "master",
+      "default_head": {
+        "sha": "9bb45b3d400a3818ad86d4a97f6ec35323abef39",
+        "committed_at": "2024-06-15T18:39:41Z",
+        "message": "v1.7.3",
+        "url": "https://github.com/OpenFTC/EasyOpenCV/commit/9bb45b3d400a3818ad86d4a97f6ec35323abef39",
+        "kind": "source"
+      },
+      "latest_github_release": {
+        "tag": "v1.7.3",
+        "published_at": "2024-06-15T18:44:40Z",
+        "prerelease_flag": false,
+        "url": "https://github.com/OpenFTC/EasyOpenCV/releases/tag/v1.7.3"
+      },
+      "latest_published_version": "1.7.3",
+      "publication_evidence": {
+        "url": "https://repo.maven.apache.org/maven2/org/openftc/easyopencv/maven-metadata.xml",
+        "last_updated": "20240615184230",
+        "release_url": "https://github.com/OpenFTC/EasyOpenCV/releases/tag/v1.7.3"
+      },
+      "status": "older stable release; no newer source/release observed; unarchived",
+      "sdk_context": "Source compiles against FTC9.0.1, author requires FTC9+; OpenCV4.10.0-A. Official Vision12.0.0 POM still directly depends on EasyOpenCV1.7.3.",
+      "latest_meaningful_activity": {
+        "sha": "9bb45b3d400a3818ad86d4a97f6ec35323abef39",
+        "committed_at": "2024-06-15T18:39:41Z",
+        "message": "v1.7.3",
+        "url": "https://github.com/OpenFTC/EasyOpenCV/commit/9bb45b3d400a3818ad86d4a97f6ec35323abef39",
+        "kind": "source"
+      },
+      "article_action": "No version update needed. Add actual commit9bb45b3 to source register and distinguish SDK12 dependency evidence from camera/runtime testing."
+    }
+  ],
+  "artifact_pins": {
+    "panels-telemetry": {
+      "url": "https://raw.githubusercontent.com/ftcontrol/ftcontrol-maven/main/releases/com/bylazar/telemetry/1.0.7/telemetry-1.0.7.aar",
+      "sha256": "4dbf2d59d6a2f2ec6f31c1e3990539819db67e6f9b0e3715143b663ace02ef42",
+      "bytes": 60211,
+      "path": "/tmp/crocodocs-library-refresh/artifacts/panels-telemetry.aar",
+      "pinned_url": "https://raw.githubusercontent.com/ftcontrol/ftcontrol-maven/5fa536ffff6f7570f846c1c20b3ae15a9548bf57/releases/com/bylazar/telemetry/1.0.7/telemetry-1.0.7.aar"
+    },
+    "panels-configurables": {
+      "url": "https://raw.githubusercontent.com/ftcontrol/ftcontrol-maven/main/releases/com/bylazar/configurables/1.0.7/configurables-1.0.7.aar",
+      "sha256": "4785dc0f1bebb871957cdbce4c2d0d2eeb28d8e94ba2a23eb4a159d5a76bcfa1",
+      "bytes": 495857,
+      "path": "/tmp/crocodocs-library-refresh/artifacts/panels-configurables.aar",
+      "pinned_url": "https://raw.githubusercontent.com/ftcontrol/ftcontrol-maven/5fa536ffff6f7570f846c1c20b3ae15a9548bf57/releases/com/bylazar/configurables/1.0.7/configurables-1.0.7.aar"
+    },
+    "panels-metadata": {
+      "url": "https://raw.githubusercontent.com/ftcontrol/ftcontrol-maven/main/releases/com/bylazar/fullpanels/maven-metadata.xml",
+      "sha256": "858cc73bcb9bd5ccc8601e6996dd61f162e5657aa00a7d1a2a57cf2ab3f49534",
+      "bytes": 928,
+      "path": "/tmp/crocodocs-library-refresh/artifacts/panels-metadata.xml",
+      "pinned_url": "https://raw.githubusercontent.com/ftcontrol/ftcontrol-maven/5fa536ffff6f7570f846c1c20b3ae15a9548bf57/releases/com/bylazar/fullpanels/maven-metadata.xml"
+    },
+    "slothboard": {
+      "url": "https://repo.dairy.foundation/releases/com/acmerobotics/slothboard/dashboard/0.3.2%2B0.6.0/dashboard-0.3.2%2B0.6.0.aar",
+      "sha256": "2f63fcd73474b40a80323d550ea5dc57922a816130983deb3d7c08c4fbbf9c32",
+      "bytes": 411197,
+      "path": "/tmp/crocodocs-library-refresh/artifacts/slothboard.aar"
+    }
+  },
+  "verification": {
+    "panels_java": "Published Telemetry/Configurables1.0.7: original static access failed; INSTANCE correction compiles with javac --release8 and RobotCore12.0.0/android30.",
+    "slothboard_java": "Packet/config fragment compiles using only fork dashboard+core0.3.2+0.6.0 (ordinary Dashboard removed from compilation classpath).",
+    "nextftc_java": "All three current article Java classes compile against published0.2.1.",
+    "not_performed": [
+      "Kotlin compilation in this refresh",
+      "full Android/Gradle build",
+      "library runtime or robot deployment",
+      "camera or Control Hub hardware tests"
+    ]
+  },
+  "official_maven_mirror": {
+    "repository": "https://github.com/ftcontrol/ftcontrol-maven",
+    "commit": "5fa536ffff6f7570f846c1c20b3ae15a9548bf57",
+    "committed_at": "2026-10-07T07:06:08Z",
+    "note": "Official author publication mirror used for Panels artifacts after direct Maven host rejected requests. Artifact SHA256 values independently recorded."
+  }
+}

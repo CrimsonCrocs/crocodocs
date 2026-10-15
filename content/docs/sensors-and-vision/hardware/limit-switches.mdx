@@ -1,0 +1,68 @@
+---
+title: Limit switches
+description: Read a touch sensor, distinguish logical state from wiring, and plan homing
+icon: phosphor:Plug
+---
+
+A limit switch reports whether a mechanism has reached a physical location. It can establish a repeatable reference for an encoder or prevent further travel toward a stop. Mounting, wiring, and a measured stopping distance matter as much as the boolean in code.
+
+## Sensor reading
+
+For a sensor supported by the SDK's `TouchSensor` interface, `isPressed()` supplies the logical pressed state. Configure it as `homeSwitch`, then save this complete file as `LimitSwitchReader.java`:
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+
+@TeleOp(name = "Limit Switch Reader", group = "Practice")
+public class LimitSwitchReader extends LinearOpMode {
+    @Override
+    public void runOpMode() {
+        TouchSensor homeSwitch = hardwareMap.get(TouchSensor.class, "homeSwitch");
+        waitForStart();
+        while (opModeIsActive()) {
+            telemetry.addData("Home switch pressed", homeSwitch.isPressed());
+            telemetry.update();
+            idle();
+        }
+    }
+}
+```
+
+Press and release the switch by hand with mechanism power disabled. Confirm the displayed state matches the physical state before using it to allow movement.
+
+## Digital wiring
+
+A raw `DigitalChannel` reports an electrical high/low state. Set its mode to INPUT and use the actual sensor's wiring specification. Some switches are active-low, so a low electrical state means pressed. That polarity is not universal, and `TouchSensor.isPressed()` already interprets the state for its driver.
+
+A broken wire can look like a released switch in some circuits. Choose wiring and fault detection deliberately; software cannot assume that false proves the mechanism is free to travel indefinitely. Follow the hub and sensor manufacturer's port/pin instructions.
+
+## Homing
+
+A homing routine moves slowly toward a reference, detects the switch, stops, and only then establishes an encoder zero. It needs:
+
+- A verified direction and low speed for that mechanism.
+- An active-OpMode guard and a maximum time or travel limit.
+- A pressed-state check before beginning movement.
+- A defined failure result when the switch does not activate.
+
+Do not set the encoder to zero merely because a timeout expired. That would convert an unknown position into a false known position. If switch bounce affects the result, require a measured period of consistent state without blocking the main loop. Test repeatability, approach direction, and stopping distance with the actual load.
+
+## Travel limits
+
+A pressed lower switch should block commands farther downward while allowing a safe move away from it. A second upper switch or calibrated soft limit may restrict the other direction. Soft limits depend on a valid home reference, encoder sign, and counts-to-distance scale; resetting an encoder at an arbitrary location invalidates them.
+
+For mounting and failure testing, see [Sensor integration](../../engineering/electrical/sensor-integration). For responsive state-based behavior, see [Nonblocking code](../../getting-started/nonblocking-code).
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC SDK sensor samples](https://github.com/FIRST-Tech-Challenge/FtcRobotController/tree/e14c2aeb33e84d4ea21697beeea9ac49557be870/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples) — `SensorDigitalTouch.java` and `SensorTouch.java`.
+- [REV sensor documentation](https://docs.revrobotics.com/rev-crossover-products/sensors)
+- [Learn Java for FTC](https://github.com/alan412/LearnJavaForFTC) — touch-sensor and digital-input exercises.
+
+</footer>

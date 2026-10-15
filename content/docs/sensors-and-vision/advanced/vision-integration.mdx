@@ -1,5 +1,5 @@
 ---
-title: Use Vision in Autonomous
+title: Vision in autonomous
 description: Turn a tested camera detection into a safe autonomous choice
 icon: Puzzle
 ---
@@ -8,7 +8,7 @@ The camera should answer a small question for the OpMode, such as “is the prac
 
 This lesson uses the FTC SDK **VisionPortal** and **ColorBlobLocatorProcessor**. It assumes you have already opened a camera and can read blobs. If not, complete [VisionPortal](../visionportal/vision-portal) and [Color Blob Locator](../visionportal/color-blob-locator) first.
 
-## The plan
+## Integration plan [#the-plan]
 
 1. Open the camera and processor during OpMode initialization.
 2. While the robot is still waiting to start, display the current detection.
@@ -18,15 +18,15 @@ This lesson uses the FTC SDK **VisionPortal** and **ColorBlobLocatorProcessor**.
 
 ![The source Pollen image used for the controlled color-detection example.](/guides/vision-stage-source.jpg)
 
-*The photo is from [AndyMark's BIOBUZZ scoring elements page](https://andymark.com/products/biobuzz-scoring-elements). It is a controlled example, not a camera calibration or field capture.*
+*This controlled product photo is not a camera calibration or field capture.*
 
-## Step 1: Decide what “left” means
+## Image regions [#step-1-decide-what-left-means]
 
 Image coordinates start at the top-left: `x = 0` is the left edge and larger `x` values are farther right. The exact width depends on the camera resolution. For example, if the frame is 640 pixels wide, the midpoint is 320.
 
 Do not start with game-specific colors or locations copied from an old season. Use a practice object and verify its measured position in the real camera preview.
 
-## Step 2: Reduce the frame to one label
+## Target classification [#step-2-reduce-the-frame-to-one-label]
 
 First define the possible answers and a variable to hold one of them:
 
@@ -96,7 +96,7 @@ This assumes `blobs` has already been sorted largest-first, as shown in the [Col
 
 The marker shows the result **after** detection: the object center becomes a simple label. The thirds are an example decision rule, not a built-in FTC feature. On the robot, verify the camera width and zone boundaries in the live preview before choosing an autonomous route.
 
-## Step 3: Display the answer before using it
+## Classification telemetry [#step-3-display-the-answer-before-using-it]
 
 During the INIT period, show the label and useful measurements in telemetry. This helps you check framing and thresholds while the robot is stationary. Do not command the drivetrain during this exercise.
 
@@ -123,13 +123,13 @@ telemetry.update()
 
 If the label flickers, check the camera mount, lighting, and color thresholds first. You can require the same label across several frames, but add that only after you can explain what the raw detections are doing.
 
-## Step 4: Keep the result when the match starts
+## Freezing the selection [#step-4-keep-the-result-when-the-match-starts]
 
 When the Driver Station starts autonomous, copy the current label into a separate `selectedPosition` value. Disable the color processor if you no longer need it. The choice should not silently change halfway through a route because a later frame saw a different blob.
 
 Always decide what to do for `NOT_FOUND`. A safe default can be a short, tested route or remaining still. Do not let a missing detection fall through to an uninitialized path.
 
-## Step 5: Use the label to select a route
+## Route selection [#step-5-use-the-label-to-select-a-route]
 
 The route-selection logic should be small and explicit:
 
@@ -170,13 +170,13 @@ when (selectedPosition) {
 
 These route methods stand for your tested drive code; they are not FTC SDK methods. Start with slow, short movements in a clear practice area, keep a stop condition in every loop, and have a mentor check the robot before testing near people or field elements.
 
-## Where the pieces belong
+## Code placement [#where-the-pieces-belong]
 
 For a first autonomous OpMode, keeping camera setup and the label logic together is easier to follow. Once several OpModes need the same camera behavior, move setup and detection into a small `Vision` class that exposes a result such as `LEFT`, `CENTER`, or `NOT_FOUND`. Keep route selection in the OpMode so it remains clear what the robot will do.
 
 Avoid copying old command-framework vision examples into a current project. FTC SDK camera APIs and library APIs evolve separately; this guide uses FTC SDK types and does not require Mercurial or NextFTC.
 
-## Before driving from a detection
+## Integration checks [#before-driving-from-a-detection]
 
 - [ ] The preview clearly shows the practice target.
 - [ ] Each target position produces the expected label during INIT.
@@ -186,3 +186,11 @@ Avoid copying old command-framework vision examples into a current project. FTC 
 - [ ] Drive loops stop when the OpMode is stopped or the target is reached.
 
 Next, review [AprilTag detection](../visionportal/apriltag-detection) for pose estimates, or [Vision Troubleshooting](./troubleshooting) if the camera result is unstable.
+
+<footer className="article-sources">
+
+## Sources
+
+- [AndyMark: BIOBUZZ scoring elements — source photo](https://andymark.com/products/biobuzz-scoring-elements)
+
+</footer>

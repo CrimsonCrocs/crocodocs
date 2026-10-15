@@ -1,35 +1,44 @@
 import localFont from "next/font/local";
 import "@/app/global.css";
-import "katex/dist/katex.css";
 import { RootProvider } from "fumadocs-ui/provider";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import { siteDescription, siteUrl, socialMetadata } from "@/lib/social-metadata";
 
-const poppins = localFont({
+const openSans = localFont({
   src: [
-    { path: "../../public/fonts/poppins-400.ttf", weight: "400", style: "normal" },
-    { path: "../../public/fonts/poppins-500.ttf", weight: "500", style: "normal" },
-    { path: "../../public/fonts/poppins-600.ttf", weight: "600", style: "normal" },
-    { path: "../../public/fonts/poppins-700.ttf", weight: "700", style: "normal" },
-    { path: "../../public/fonts/poppins-800.ttf", weight: "800", style: "normal" },
+    { path: "../../public/fonts/open-sans-normal-latin.woff2", weight: "400 700", style: "normal" },
+    { path: "../../public/fonts/open-sans-italic-latin.woff2", weight: "400 700", style: "italic" },
   ],
   display: "swap",
-  variable: "--font-poppins",
+  variable: "--font-open-sans",
+});
+
+const crocDisplay = localFont({
+  src: "../../public/fonts/haettenschweiler.woff2",
+  weight: "400",
+  display: "swap",
+  variable: "--font-croc-display",
 });
 
 export const metadata: Metadata = {
+  metadataBase: siteUrl,
   title: {
-    default: "CrocoDocs — FTC Robotics Programming Guide",
+    default: "CrocoDocs — FTC Engineering, Programming, and Portfolios",
     template: "%s | CrocoDocs",
   },
-  description: "A student-written guide to FIRST Tech Challenge robot programming, control systems, vision, and FTC libraries.",
+  description: siteDescription,
+  ...socialMetadata("CrocoDocs — The FTC handbook", siteDescription),
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={poppins.variable}>
+    <html lang="en" suppressHydrationWarning className={`${openSans.variable} ${crocDisplay.variable} antialiased`}>
       <body className="flex min-h-screen flex-col">
-        <RootProvider>{children}</RootProvider>
+        <RootProvider>
+          <a href="#main-content" className="skip-link">Skip to content</a>
+          {children}
+        </RootProvider>
       </body>
     </html>
   );

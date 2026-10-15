@@ -1,10 +1,10 @@
 ---
-title: Joystick Mapping
+title: Joystick mapping
 description: Turn gamepad input into simple, testable motor commands
 icon: Gamepad2
 ---
 
-## Read one input first
+## Gamepad input [#read-one-input-first]
 
 A gamepad stick gives a number between `-1` and `1`. Near the middle it is close to `0`. On a typical FTC gamepad, pushing the left stick **up** makes `left_stick_y` negative, so code often uses `-gamepad1.left_stick_y` to make forward positive.
 
@@ -18,7 +18,7 @@ The Driver Station labels connected gamepads as `gamepad1` and `gamepad2`. Check
 | Trigger | `0` to `1` | Gradually control an intake |
 | Button or D-pad | `true` or `false` | Open a claw or select a preset |
 
-## Drive two motors with two sticks
+## Tank drive [#drive-two-motors-with-two-sticks]
 
 **Tank drive** uses one stick for the left side and one for the right side. Configure the motors as `left_drive` and `right_drive` before running this example. Lift the drive wheels off the ground for the first test.
 
@@ -88,7 +88,7 @@ class TankDrive : LinearOpMode() {
 
 The `0.25` factor limits speed while you check motor direction. With both sticks forward, both wheels should move the robot forward. If one wheel turns backward, correct that motor's direction in hardware setup or code before raising the speed. Do not assume that the right motor must always be reversed; mounting varies.
 
-## Add a button after driving works
+## Button input [#add-a-button-after-driving-works]
 
 A button is either pressed or not pressed. Inside the same loop, a simple claw action could look like this **after** you have mapped and checked a servo named `claw`:
 
@@ -102,18 +102,23 @@ if (gamepad1.a) {
 
 `CLOSED_POSITION` and `OPEN_POSITION` are values your team must measure for its own claw, between `0.0` and `1.0`. This fragment illustrates the button logic; it is not a complete OpMode.
 
-## Make the controls easier to use
+## Control tuning [#make-the-controls-easier-to-use]
 
 - **Dead zone:** If a motor creeps while a stick is centered, treat a small input such as `abs(value) < 0.05` as zero. Measure the drift on your gamepad before choosing the cutoff.
 - **Speed limit:** Keep the `0.25` multiplier for initial tests, then raise it gradually if the robot is controllable.
 - **Telemetry:** Show stick input and motor power during debugging so you can see whether a problem begins at the gamepad or motor.
 
-Four-wheel mecanum and X-drive robots need a separate wheel-mixing calculation and careful checks of wheel order and direction. Once tank drive makes sense, use [Game Manual 0's drivetrain guide](https://gm0.org/en/latest/docs/robot-design/drivetrains/index.html) for the geometry of your actual drivetrain. Do not paste a wheel formula for a different layout into your robot.
+Four-wheel mecanum and X-drive robots need a separate wheel-mixing calculation and careful checks of wheel order and direction. Once tank drive makes sense, check the geometry of your actual drivetrain. Do not paste a wheel formula for a different layout into your robot.
 
-## Practice check
+## Practice [#practice-check]
 
 Push only the left stick, then only the right stick. Predict which wheel will move before each test. When both sticks move together, explain why the robot goes forward or turns.
 
-## Official reference
+<footer className="article-sources">
+
+## Sources [#official-reference]
 
 - [FTC's first gamepad-controlled motor example](https://ftc-docs.firstinspires.org/en/latest/programming_resources/tutorial_specific/android_studio/creating_op_modes/Creating-and-Running-an-Op-Mode-%28Android-Studio%29.html)
+- [GM0: Game Manual 0's drivetrain guide](https://gm0.org/en/latest/docs/robot-design/drivetrains/index.html)
+
+</footer>

@@ -1,0 +1,919 @@
+{
+  "reviewed": "2026-10-14",
+  "scope": "External references used by the original Engineering articles; review decisions are in engineering-corpus.md.",
+  "references": [
+    {
+      "url": "https://docs.revrobotics.com/",
+      "articles": [
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Welcome! | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/duo-build/channel-drivetrain-build-guide",
+      "articles": [
+        "content/docs/engineering/first-build.mdx",
+        "content/docs/engineering/mechanisms/drivetrains.mdx"
+      ],
+      "link_status": 200,
+      "title": "Channel Drivetrain | REV DUO Build System | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/duo-build/linear-motion-kit/three-stage-cascading-lift",
+      "articles": [
+        "content/docs/engineering/mechanisms/linear-slides.mdx"
+      ],
+      "link_status": 200,
+      "title": "Three Stage Cascading Lift | REV DUO Build System | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/duo-build/motion/linear-motion",
+      "articles": [
+        "content/docs/engineering/mechanisms/linear-slides.mdx"
+      ],
+      "link_status": 200,
+      "title": "Linear Motion | REV DUO Build System | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/duo-control/control-system-overview/control-hub-basics",
+      "articles": [
+        "content/docs/engineering/electrical/wiring-and-power.mdx",
+        "content/docs/engineering/mechanical/servos.mdx"
+      ],
+      "link_status": 200,
+      "title": "Control Hub Specifications | REV DUO Control System | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/duo-control/sensors/5v-sensors",
+      "articles": [
+        "content/docs/engineering/electrical/sensor-integration.mdx",
+        "content/docs/engineering/electrical/wiring-and-power.mdx"
+      ],
+      "link_status": 200,
+      "title": "Using 3rd Party Sensors | REV DUO Control System | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/duo-control/troubleshooting-the-control-system/12v-battery-best-practices-and-troubleshooting",
+      "articles": [
+        "content/docs/engineering/electrical/wiring-and-power.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "12V Battery Best Practices and Troubleshooting | REV DUO Control System | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/duo-control/troubleshooting-the-control-system/troubleshooting-the-control-system",
+      "articles": [
+        "content/docs/engineering/team/testing-and-reliability.mdx"
+      ],
+      "link_status": 200,
+      "title": "General Troubleshooting | REV DUO Control System | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/ftc-kickoff-concepts/decode-2025-26/programming-teleop/programming-flywheel-control",
+      "articles": [
+        "content/docs/engineering/mechanisms/flywheels.mdx"
+      ],
+      "link_status": 200,
+      "title": "Programming - Flywheel Control | FTC Kickoff Concepts | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/ftc-kickoff-concepts/ultimate-goal-2020-2021/shooter",
+      "articles": [
+        "content/docs/engineering/mechanisms/flywheels.mdx"
+      ],
+      "link_status": 200,
+      "title": "Flywheel Launcher | FTC Kickoff Concepts | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/rev-crossover-products/servo/spm",
+      "articles": [
+        "content/docs/engineering/mechanical/servos.mdx"
+      ],
+      "link_status": 200,
+      "title": "Servo Power Module | REV Crossover | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/rev-crossover-products/ultraplanetary",
+      "articles": [
+        "content/docs/engineering/mechanical/motors-and-gearing.mdx"
+      ],
+      "link_status": 200,
+      "title": "UltraPlanetary System Overview | REV Crossover | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://docs.revrobotics.com/rev-crossover-products/ultraplanetary/load-ratings",
+      "articles": [
+        "content/docs/engineering/mechanical/shafts-and-bearings.mdx"
+      ],
+      "link_status": 200,
+      "title": "Load Ratings | REV Crossover | REV Robotics Documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://ftc-docs.firstinspires.org/en/latest/",
+      "articles": [
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "FIRST Tech Challenge documentation \u2014 FIRST Tech Challenge Docs 0.3 documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/managing_esd/managing-esd.html",
+      "articles": [
+        "content/docs/engineering/electrical/wiring-and-power.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Managing Electrostatic Discharge Effects \u2014 FIRST Tech Challenge Docs 0.3 documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html",
+      "articles": [
+        "content/docs/engineering/first-build.mdx"
+      ],
+      "link_status": 200,
+      "title": "Programming Resources \u2014 FIRST Tech Challenge Docs 0.3 documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://ftc-docs.firstinspires.org/en/latest/robot_building/wiring_guide/wiring-guide.html",
+      "articles": [
+        "content/docs/engineering/electrical/sensor-integration.mdx",
+        "content/docs/engineering/electrical/wiring-and-power.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Robot Wiring Guide \u2014 FIRST Tech Challenge Docs 0.3 documentation",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://ftc-qa.firstinspires.org/",
+      "articles": [
+        "content/docs/engineering/index.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Team Q&A - FIRST Game Q&A",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://ftconshape.com/",
+      "articles": [
+        "content/docs/engineering/design/cad.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": "verified-through-web",
+      "title": "",
+      "note": "Local checker received HTTP 403; public page and library navigation retrieved by web tool."
+    },
+    {
+      "url": "https://gm0.org/en/latest/",
+      "articles": [
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/awards/notebook.html",
+      "articles": [
+        "content/docs/engineering/team/engineering-notebook.mdx"
+      ],
+      "link_status": 200,
+      "title": "Notebook Designs and Decisions - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/active-intake/principles-of-an-intake.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/intakes-and-grippers.mdx"
+      ],
+      "link_status": 200,
+      "title": "Principles of an Intake - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/active-intake/types-of-intakes.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/intakes-and-grippers.mdx"
+      ],
+      "link_status": 200,
+      "title": "Types of Intake - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/arms.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/arms-and-linkages.mdx"
+      ],
+      "link_status": 200,
+      "title": "Arms - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/dead-wheels.html",
+      "articles": [
+        "content/docs/engineering/electrical/sensor-integration.mdx"
+      ],
+      "link_status": 200,
+      "title": "Dead Wheels - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/drivetrains/holonomic.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/drivetrains.mdx"
+      ],
+      "link_status": 200,
+      "title": "Holonomic Drivetrains - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/drivetrains/index.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/drivetrains.mdx"
+      ],
+      "link_status": 200,
+      "title": "Drivetrains - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/drivetrains/tank.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/drivetrains.mdx"
+      ],
+      "link_status": 200,
+      "title": "Tank (Skid-Steer) Drivetrains - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/linear-motion-guide/index.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/linear-slides.mdx"
+      ],
+      "link_status": 200,
+      "title": "Linear Motion Guide - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/linear-motion-guide/rigging.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/linear-slides.mdx"
+      ],
+      "link_status": 200,
+      "title": "Rigging - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/linkages.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/arms-and-linkages.mdx"
+      ],
+      "link_status": 200,
+      "title": "Linkages - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/passive-intake-claw.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/intakes-and-grippers.mdx"
+      ],
+      "link_status": 200,
+      "title": "Passive Intake/Claw - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/belt.html",
+      "articles": [
+        "content/docs/engineering/mechanical/belts-and-chain.mdx"
+      ],
+      "link_status": 200,
+      "title": "Timing Belt - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/belt.html#belt-calculator",
+      "articles": [
+        "content/docs/engineering/mechanical/belts-and-chain.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Timing Belt - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/chain.html",
+      "articles": [
+        "content/docs/engineering/mechanical/belts-and-chain.mdx"
+      ],
+      "link_status": 200,
+      "title": "Roller Chain - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/gears.html",
+      "articles": [
+        "content/docs/engineering/mechanical/gears.mdx"
+      ],
+      "link_status": 200,
+      "title": "Gears - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/motion-mounting.html",
+      "articles": [
+        "content/docs/engineering/mechanical/shafts-and-bearings.mdx"
+      ],
+      "link_status": 200,
+      "title": "Motion Mounting - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/power-transmission-glossary.html",
+      "articles": [
+        "content/docs/engineering/glossary.mdx"
+      ],
+      "link_status": 200,
+      "title": "Power Transmission Glossary - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/shaft-retention.html",
+      "articles": [
+        "content/docs/engineering/mechanical/shafts-and-bearings.mdx"
+      ],
+      "link_status": 200,
+      "title": "Shaft Retention - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/transfers/transfer-design.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/transfers.mdx"
+      ],
+      "link_status": 200,
+      "title": "Transfer Design Fundamentals - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/transfers/transfer-types.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/transfers.mdx"
+      ],
+      "link_status": 200,
+      "title": "Types of Transfers - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/turrets/full-turret.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/turrets.mdx"
+      ],
+      "link_status": 200,
+      "title": "Full Turrets - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/common-mechanisms/turrets/mini-turret.html",
+      "articles": [
+        "content/docs/engineering/mechanisms/turrets.mdx"
+      ],
+      "link_status": 200,
+      "title": "Mini Turrets - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/custom-manufacturing/3d-printing.html",
+      "articles": [
+        "content/docs/engineering/manufacturing/3d-printing.mdx"
+      ],
+      "link_status": 200,
+      "title": "3D Printing - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/custom-manufacturing/laser-cutting.html",
+      "articles": [
+        "content/docs/engineering/manufacturing/machining-and-fabrication.mdx"
+      ],
+      "link_status": 200,
+      "title": "Laser Cutting - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/custom-manufacturing/machining.html",
+      "articles": [
+        "content/docs/engineering/manufacturing/machining-and-fabrication.mdx"
+      ],
+      "link_status": 200,
+      "title": "Machining - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/custom-manufacturing/manufacturing-glossary.html",
+      "articles": [
+        "content/docs/engineering/glossary.mdx"
+      ],
+      "link_status": 200,
+      "title": "Manufacturing Glossary - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/custom-manufacturing/materials-guide.html",
+      "articles": [
+        "content/docs/engineering/manufacturing/materials.mdx"
+      ],
+      "link_status": 200,
+      "title": "Materials Guide - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/design-skills/cad.html",
+      "articles": [
+        "content/docs/engineering/design/cad.mdx"
+      ],
+      "link_status": 200,
+      "title": "Computer-aided design (CAD) - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/design-skills/design-glossary.html",
+      "articles": [
+        "content/docs/engineering/glossary.mdx"
+      ],
+      "link_status": 200,
+      "title": "Design Glossary - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/design-skills/design-strategy.html",
+      "articles": [
+        "content/docs/engineering/design/game-strategy.mdx",
+        "content/docs/engineering/mechanical/structure-and-fasteners.mdx"
+      ],
+      "link_status": 200,
+      "title": "Design Strategy - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/design-skills/engineering-design-process.html",
+      "articles": [
+        "content/docs/engineering/design/design-process.mdx",
+        "content/docs/engineering/team/testing-and-reliability.mdx"
+      ],
+      "link_status": 200,
+      "title": "Engineering Design Process - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/hardware-components/fastener-guide.html",
+      "articles": [
+        "content/docs/engineering/mechanical/structure-and-fasteners.mdx"
+      ],
+      "link_status": 200,
+      "title": "Fastener Guide - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/hardware-components/kit-and-hardware-guide/index.html",
+      "articles": [
+        "content/docs/engineering/first-build.mdx"
+      ],
+      "link_status": 200,
+      "title": "Kit and Hardware Guide - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/power-and-electronics/motor-guide/choosing-motor.html",
+      "articles": [
+        "content/docs/engineering/mechanical/motors-and-gearing.mdx"
+      ],
+      "link_status": 200,
+      "title": "Choosing a Motor - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/power-and-electronics/motor-guide/motor-power.html",
+      "articles": [
+        "content/docs/engineering/mechanical/motors-and-gearing.mdx"
+      ],
+      "link_status": 200,
+      "title": "Motor Power - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/power-and-electronics/servo-guide/choosing-servo.html",
+      "articles": [
+        "content/docs/engineering/mechanical/servos.mdx"
+      ],
+      "link_status": 200,
+      "title": "Choosing a Servo - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/power-and-electronics/wiring.html",
+      "articles": [
+        "content/docs/engineering/electrical/wiring-and-power.mdx"
+      ],
+      "link_status": 200,
+      "title": "Wiring Guide - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://gm0.org/en/latest/docs/useful-resources.html",
+      "articles": [
+        "content/docs/engineering/index.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Useful Resources - Game Manual 0",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://help.prusa3d.com/article/modeling-with-3d-printing-in-mind_164135",
+      "articles": [
+        "content/docs/engineering/manufacturing/3d-printing.mdx",
+        "content/docs/engineering/manufacturing/fits-and-tolerances.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Modeling with 3D printing in mind | Prusa Knowledge Base",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://help.prusa3d.com/filament-material-guide",
+      "articles": [
+        "content/docs/engineering/manufacturing/3d-printing.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Filament Material Guide | Prusa Knowledge Base",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://khkgears.net/gear-knowledge/gear-technical-reference/calculation-gear-dimensions/",
+      "articles": [
+        "content/docs/engineering/mechanical/gears.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Calculation of Gear Dimensions | KHK",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://learn.onshape.com/",
+      "articles": [
+        "content/docs/engineering/design/cad.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Onshape Learning Center",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://portfolios.hivemindrobotics.net/",
+      "articles": [
+        "content/docs/engineering/resources.mdx",
+        "content/docs/engineering/team/engineering-notebook.mdx"
+      ],
+      "link_status": 200,
+      "title": "Portfolios",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://robotics.nasa.gov/nasa-rap-robotics-design-guide/",
+      "articles": [
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "NASA RAP Robotics Design Guide \u2013 Robotics Alliance Project",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://sdp-si.com/D820/PDFS/Technical-Section.pdf",
+      "articles": [
+        "content/docs/engineering/mechanical/belts-and-chain.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": "verified-through-web",
+      "title": "",
+      "note": "Publisher PDF retrieved by web tool, 89 pages; used as a technical reference, not republished."
+    },
+    {
+      "url": "https://www.firstinspires.org/resource-library/ftc/game-and-season-info",
+      "articles": [
+        "content/docs/engineering/design/game-strategy.mdx",
+        "content/docs/engineering/index.mdx",
+        "content/docs/engineering/resources.mdx",
+        "content/docs/engineering/team/assembly-and-serviceability.mdx",
+        "content/docs/engineering/team/engineering-notebook.mdx"
+      ],
+      "link_status": 200,
+      "title": "Current Game and Season Materials",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/",
+      "articles": [
+        "content/docs/engineering/index.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "Welcome to FTC WIKI | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/design-style/design-guidelines/how-to-design-a-clean-robot",
+      "articles": [
+        "content/docs/engineering/team/assembly-and-serviceability.mdx"
+      ],
+      "link_status": 200,
+      "title": "How to Design a Clean Robot | Design Style | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/design-style/design-guidelines/modularity",
+      "articles": [
+        "content/docs/engineering/design/cad.mdx",
+        "content/docs/engineering/team/assembly-and-serviceability.mdx",
+        "content/docs/engineering/team/engineering-notebook.mdx"
+      ],
+      "link_status": 200,
+      "title": "Modularity | Design Style | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/design-style/design-guidelines/naming-conventions",
+      "articles": [
+        "content/docs/engineering/design/cad.mdx",
+        "content/docs/engineering/team/engineering-notebook.mdx"
+      ],
+      "link_status": 200,
+      "title": "Naming Conventions | Design Style | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/design-style/design-guidelines/wiring",
+      "articles": [
+        "content/docs/engineering/electrical/wiring-and-power.mdx"
+      ],
+      "link_status": 200,
+      "title": "Wiring | Design Style | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/design-style/design-methodologies/boxtube-construction",
+      "articles": [
+        "content/docs/engineering/mechanical/structure-and-fasteners.mdx"
+      ],
+      "link_status": 200,
+      "title": "Boxtube construction | Design Style | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/design-style/design-methodologies/plate-and-standoff-construction",
+      "articles": [
+        "content/docs/engineering/mechanical/structure-and-fasteners.mdx"
+      ],
+      "link_status": 200,
+      "title": "Plate and standoff construction | Design Style | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/design-style/design-methodologies/slots-and-tabs",
+      "articles": [
+        "content/docs/engineering/mechanical/structure-and-fasteners.mdx"
+      ],
+      "link_status": 200,
+      "title": "Slots and Tabs | Design Style | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/design-style/optimizing-design-for-3d-printing",
+      "articles": [
+        "content/docs/engineering/manufacturing/3d-printing.mdx"
+      ],
+      "link_status": 200,
+      "title": "Optimizing Design for 3D Printing | Design Style | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/design-style/optimizing-design-for-3d-printing/filaments",
+      "articles": [
+        "content/docs/engineering/manufacturing/3d-printing.mdx"
+      ],
+      "link_status": 200,
+      "title": "Filaments | Design Style | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/design-style/weight-savings-pocketing",
+      "articles": [
+        "content/docs/engineering/manufacturing/materials.mdx"
+      ],
+      "link_status": 200,
+      "title": "Weight Savings (Pocketing) | Design Style | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/how-to-build-competitive-robots/how-to-compete/design-philosophy",
+      "articles": [
+        "content/docs/engineering/design/design-process.mdx"
+      ],
+      "link_status": 200,
+      "title": "Design Philosophy | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/how-to-build-competitive-robots/how-to-compete/design-workflow",
+      "articles": [
+        "content/docs/engineering/design/game-strategy.mdx",
+        "content/docs/engineering/team/testing-and-reliability.mdx"
+      ],
+      "link_status": 200,
+      "title": "Design Workflow | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/how-to-build-competitive-robots/how-to-compete/strategic-design",
+      "articles": [
+        "content/docs/engineering/design/game-strategy.mdx"
+      ],
+      "link_status": 200,
+      "title": "Strategic Design | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/intro-to-cad/onshape-setup",
+      "articles": [
+        "content/docs/engineering/design/cad.mdx"
+      ],
+      "link_status": 200,
+      "title": "Onshape setup | Intro to CAD (Under Constuction) | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/manufacturing-and-assembly/additive-manufacturing/3d-printing/fdm",
+      "articles": [
+        "content/docs/engineering/manufacturing/3d-printing.mdx"
+      ],
+      "link_status": 200,
+      "title": "FDM | Manufacturing and Assembly | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/manufacturing-and-assembly/additive-vs-subtractive-manufacturing",
+      "articles": [
+        "content/docs/engineering/manufacturing/machining-and-fabrication.mdx"
+      ],
+      "link_status": 200,
+      "title": "Additive vs Subtractive Manufacturing | Manufacturing and Assembly | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/manufacturing-and-assembly/assembly-order",
+      "articles": [
+        "content/docs/engineering/team/assembly-and-serviceability.mdx"
+      ],
+      "link_status": 200,
+      "title": "Assembly Order | Manufacturing and Assembly | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/manufacturing-and-assembly/fasteners-and-tooling/threading-and-tapping",
+      "articles": [
+        "content/docs/engineering/manufacturing/machining-and-fabrication.mdx"
+      ],
+      "link_status": 200,
+      "title": "Threading and Tapping | Manufacturing and Assembly | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/manufacturing-and-assembly/machining/tolerances",
+      "articles": [
+        "content/docs/engineering/manufacturing/fits-and-tolerances.mdx"
+      ],
+      "link_status": 200,
+      "title": "Tolerances | Manufacturing and Assembly | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/manufacturing-and-assembly/materials/aluminum-alloys",
+      "articles": [
+        "content/docs/engineering/manufacturing/materials.mdx"
+      ],
+      "link_status": 200,
+      "title": "Aluminum Alloys | Manufacturing and Assembly | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/manufacturing-and-assembly/materials/material-choice",
+      "articles": [
+        "content/docs/engineering/manufacturing/materials.mdx"
+      ],
+      "link_status": 200,
+      "title": "Material Choice | Manufacturing and Assembly | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/manufacturing-and-assembly/subtractive-manufacturing/laser-cutters",
+      "articles": [
+        "content/docs/engineering/manufacturing/machining-and-fabrication.mdx"
+      ],
+      "link_status": 200,
+      "title": "Laser Cutters | Manufacturing and Assembly | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/transmitting-power/gears",
+      "articles": [
+        "content/docs/engineering/mechanical/gears.mdx"
+      ],
+      "link_status": 200,
+      "title": "Gears | Transmitting Power | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/transmitting-power/gears/gear-ratios",
+      "articles": [
+        "content/docs/engineering/mechanical/motors-and-gearing.mdx"
+      ],
+      "link_status": 200,
+      "title": "Gear Ratios | Transmitting Power | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/transmitting-power/introduction-to-motion/bearings",
+      "articles": [
+        "content/docs/engineering/mechanical/shafts-and-bearings.mdx"
+      ],
+      "link_status": 200,
+      "title": "Bearings | Transmitting Power | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.ftcwiki.org/transmitting-power/servos",
+      "articles": [
+        "content/docs/engineering/mechanical/servos.mdx"
+      ],
+      "link_status": 200,
+      "title": "Servos | Transmitting Power | FTC WIKI",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://www.gobilda.com/",
+      "articles": [
+        "content/docs/engineering/resources.mdx"
+      ],
+      "link_status": 200,
+      "title": "goBILDA\u00ae",
+      "note": "HTTP reachability check; not by itself a content accuracy audit."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/Thaddeus-Maximus/mechatronics_book/master/mechatronics.pdf",
+      "title": "Thaddeus Hughes: Mechatronics, Rev B (March 2021)",
+      "commit": "fd58a2ed0ee1f36aec1bb48999ee2b14c92aaabb",
+      "sha256": "4fa25adba5a39c1c347f2e3d0ba4dc31731b2a3b4e616447c570ec3b9d2e02aa",
+      "articles": [
+        "content/docs/engineering/mechanical/gears.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "note": "Selected gear/sensor/design sections reviewed. Known source errors recorded in audits/resource-refresh.md; no text or figures copied."
+    },
+    {
+      "url": "https://ciechanow.ski/gears/",
+      "title": "Bartosz Ciechanowski: Gears",
+      "articles": [
+        "content/docs/engineering/mechanical/gears.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "note": "Full interactive article prose inspected for tooth geometry/line of action; original independent SVG, no animation/assets copied."
+    },
+    {
+      "url": "https://www.onshape.com/en/education/robotics",
+      "title": "Onshape for FIRST Robotics teams",
+      "articles": [
+        "content/docs/engineering/design/cad.mdx",
+        "content/docs/engineering/resources.mdx"
+      ],
+      "note": "Redirects to /education/first-robotics; public programme and onboarding inspected. Learning course units were not inspected."
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "observed_at": "2026-10-14",
+  "scope": "Bounded read-only primary-source review; repository mutation not authorized for this agent",
+  "sources": [
+    {
+      "repo": "hivevisionftc/Hive-Vision",
+      "url": "https://github.com/hivevisionftc/Hive-Vision",
+      "commit": "fd597b8cf42ab684f2f5a0e9f3e23da2aeef2cf7",
+      "default_branch": "main",
+      "archived": false,
+      "last_pushed_at": "2026-10-14T16:56:31Z",
+      "github_license_detection": {
+        "key": "other",
+        "name": "Other",
+        "spdx_id": "NOASSERTION",
+        "url": null,
+        "node_id": "MDc6TGljZW5zZTA="
+      },
+      "releases": [
+        {
+          "tag_name": "v2.0.0",
+          "published_at": "2026-10-12T00:54:53Z",
+          "html_url": "https://github.com/hivevisionftc/Hive-Vision/releases/tag/v2.0.0"
+        },
+        {
+          "tag_name": "v1.1.0",
+          "published_at": "2026-09-22T20:47:27Z",
+          "html_url": "https://github.com/hivevisionftc/Hive-Vision/releases/tag/v1.1.0"
+        }
+      ]
+    },
+    {
+      "repo": "FTC-23511/SolversLib",
+      "url": "https://github.com/FTC-23511/SolversLib",
+      "commit": "93ff730965655b3a55f6648ce5e0f1c0b820206b",
+      "default_branch": "master",
+      "archived": false,
+      "last_pushed_at": "2026-09-16T02:40:03Z",
+      "github_license_detection": {
+        "key": "bsd-3-clause",
+        "name": "BSD 3-Clause \"New\" or \"Revised\" License",
+        "spdx_id": "BSD-3-Clause",
+        "url": "https://api.github.com/licenses/bsd-3-clause",
+        "node_id": "MDc6TGljZW5zZTU="
+      },
+      "releases": []
+    },
+    {
+      "repo": "AbhiPixeld/OpenLoop",
+      "url": "https://github.com/AbhiPixeld/OpenLoop",
+      "commit": "b67b4034fd9a64e35f2a6f061f09d2432db85128",
+      "default_branch": "main",
+      "archived": false,
+      "last_pushed_at": "2026-10-04T07:32:32Z",
+      "github_license_detection": {
+        "key": "bsd-3-clause-clear",
+        "name": "BSD 3-Clause Clear License",
+        "spdx_id": "BSD-3-Clause-Clear",
+        "url": "https://api.github.com/licenses/bsd-3-clause-clear",
+        "node_id": "MDc6TGljZW5zZTIx"
+      },
+      "releases": []
+    }
+  ],
+  "hive_release": {
+    "version": "v2.0.0",
+    "source_commit": "5181638d3856124a09bff3f9c345d8eb21034c2a",
+    "release_date": "2026-10-12T00:54:53Z",
+    "model_contract": {
+      "file": "hive-v2.tflite",
+      "bytes": 5190408,
+      "sha256": "5ef2727847f9b1cff89b3c271e7a8416a67f797e43d533707037a9e41f1139dc",
+      "identifier": "TFL3",
+      "inputs": [
+        {
+          "index": 0,
+          "name": "serving_default_input:0",
+          "shape": [
+            1,
+            300,
+            300,
+            3
+          ],
+          "type_id": 3,
+          "quantization_scales": [
+            0.003921568859368563
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "index": 252,
+          "name": "StatefulPartitionedCall:1",
+          "shape": [],
+          "type_id": 0,
+          "quantization_scales": []
+        },
+        {
+          "index": 250,
+          "name": "StatefulPartitionedCall:3",
+          "shape": [],
+          "type_id": 0,
+          "quantization_scales": []
+        },
+        {
+          "index": 253,
+          "name": "StatefulPartitionedCall:0",
+          "shape": [],
+          "type_id": 0,
+          "quantization_scales": []
+        },
+        {
+          "index": 251,
+          "name": "StatefulPartitionedCall:2",
+          "shape": [],
+          "type_id": 0,
+          "quantization_scales": []
+        }
+      ]
+    },
+    "tracks": [
+      "Limelight 3A CPU TFLite model (current v2)",
+      "Control Hub Java HSV source-copy detector (compile/integration defects found)"
+    ],
+    "archived_tracks": [
+      "Lab chromaticity",
+      "PC YOLO/ONNX"
+    ]
+  },
+  "solvers_release": {
+    "version": "0.3.6",
+    "published_metadata_updated_at": "20260916031533",
+    "repository": "https://repo.dairy.foundation/releases",
+    "core_coordinate": "org.solverslib:core:0.3.6",
+    "api_package": "com.seattlesolvers.solverslib",
+    "minimum_android_api": 24,
+    "sdk_inspection": "Build uses Dairy Android library plugin 11.1.0-1.1.1 and compileOnly FTC SDK artifacts; examples signature-compiled against FTC12",
+    "published_core_aar_sha256": "8f59b9e17a8125587b79fb9a3d606e1c69fd6084769c1eafe193f3d8fddb803b",
+    "source_jar_sha256": "9fae28ceeb219491731b91dca35c14bdb50d4835f331e05ba4944f39fd9d0ffc"
+  },
+  "openloop_release": {
+    "version": null,
+    "reason": "No tags, releases or package version found; pin commit",
+    "source_commit": "b67b4034fd9a64e35f2a6f061f09d2432db85128",
+    "last_implementation_batch": "2026-09-27",
+    "last_documentation_change": "2026-10-04",
+    "sdk_dependency_version": "12.0.0",
+    "install": "Source-copy OpenLoopBackend plus calibration/debugger and suitable example; no third-party Maven dependency",
+    "motor_requirement": "Backend maps four DcMotor objects for both MECANUM and TANK; two-motor tank not supported by unmodified backend"
+  },
+  "validation": {
+    "toolchain": "javac17.0.18, android-36 android.jar, FTC12 actual AAR classes, SolversLib0.3.6 actual AAR classes, OpenCV4.10 Java source signatures",
+    "passed": [
+      "All six original OpenLoop Java files",
+      "HiveDetectionPreview.java (FTC Limelight SDK)",
+      "SolversCommandPreview.java (published Solvers0.3.6)",
+      "OpenLoopShortAuto.java + original backend"
+    ],
+    "failed": [
+      {
+        "scope": "Hive v2.0.0 original webcam BallBlobPipeline + BallDetectorPipeline",
+        "reason": "Cannot find org.firstinspires.ftc.vision.CameraCalibration"
+      }
+    ],
+    "not_performed": [
+      "Full Android Gradle build",
+      "Kotlin compilation",
+      "Limelight model inference",
+      "Camera or sensor operation",
+      "Robot movement",
+      "Competition legality certification"
+    ]
+  },
+  "article_recommendations": [
+    {
+      "slug": "hive-vision",
+      "title": "Detect BIOBUZZ balls with Hive Vision",
+      "exercise": "Upload v2 model+labels on Limelight3A and print class, tx, raw confidence; no drivetrain commands",
+      "caution": "Describe the separate HSV track with compile defects; do not present it as copy-and-run"
+    },
+    {
+      "slug": "solverslib",
+      "title": "Run a first command sequence with SolversLib",
+      "exercise": "Schedule instant telemetry state, 1000ms WaitCommand, final state in preRun; retain scheduler run"
+    },
+    {
+      "slug": "openloop",
+      "title": "Calibrate a short autonomous move with OpenLoop",
+      "exercise": "Configure motors, perform two timing calibration measurements, then compare a six-inch request with actual travel"
+    }
+  ]
+}

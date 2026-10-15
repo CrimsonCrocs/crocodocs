@@ -1,0 +1,120 @@
+---
+title: Java basics
+description: Values, scope, conditions, loops, methods, and classes in robot code
+icon: phosphor:BracketsCurly
+---
+
+Java code names values, makes decisions, and calls methods. Before adding a command framework or a controller, practice those operations in the telemetry loop from [Your first OpMode](./first-opmode). The examples on this page are small fragments with their placement stated.
+
+## Values and types
+
+A variable has a type, a name, and a value. Types determine which operations are allowed.
+
+```java
+// Inside runOpMode():
+int capturedPieces = 0;
+double targetInches = 12.5;
+boolean atLimit = false;
+String mechanismName = "intake";
+```
+
+`int` stores whole numbers. `double` stores floating-point values. `boolean` is `true` or `false`. `String` stores text. Use units in measurement names so a value in encoder ticks is not mistaken for inches. Java does not check physical units for you.
+
+`=` assigns a value; `==` compares primitive values. Compare String contents with `.equals()`, such as `"intake".equals(mechanismName)`, rather than `==`, which compares object references.
+
+```java
+telemetry.addData("Integer division", 1 / 2);       // 0
+telemetry.addData("Decimal division", 1.0 / 2.0); // 0.5
+```
+
+When both operands are integers, Java performs integer division. Converting the result afterward cannot recover the discarded fraction. This matters in encoder and gear-ratio calculations.
+
+{/* Playground paused until Blocks embedding and light mode are ready.
+
+## Division playground
+
+Press **Play** and read the telemetry: integer division gives `0`, while converting the numerator to `double` before dividing gives `0.5`. The robot stays still; this program only calculates and displays values.
+
+Stop the program and change `numerator` to `3`. Predict both results before pressing Play again. Then remove `(double)` from the decimal calculation: assigning an integer division result to a `double` does not restore the lost fraction.
+
+<FTCPlayground example="java-numbers" />
+*/}
+
+## Scope
+
+A **local variable** exists inside its method or block. A **field** belongs to an object and can keep state between method calls.
+
+```java
+// Inside the OpMode class, outside every method:
+private boolean previousA = false;
+
+// Inside the active loop:
+boolean currentA = gamepad1.a;
+boolean justPressed = currentA && !previousA;
+previousA = currentA;
+```
+
+`previousA` must survive the next loop. Declaring it as `false` inside that loop would erase the history on every pass. `currentA` can be local because only this pass needs it. `private` limits field access to its class. `final` prevents reassignment after initialization; it does not make a motor object physically immutable. `static` belongs to the class rather than each instance, so avoid static fields for ordinary OpMode hardware state.
+
+## Conditions
+
+```java
+// Inside an active loop, after defining these example values:
+boolean sensorValid = true;
+int capturedPieces = 3;
+if (sensorValid && capturedPieces < 4) {
+    telemetry.addLine("Collection permitted by this example's count check");
+} else {
+    telemetry.addLine("Stop collection or check the sensor");
+}
+```
+
+`&&` means both conditions must hold; `||` means at least one must hold; `!` negates a boolean. Both `&&` and `||` short-circuit, so the right operand is evaluated only when needed. A software counter is useful evidence, but it does not prove the robot's actual game-piece CONTROL is legal.
+
+For non-null objects, a guard such as `target != null && target.isVisible()` avoids calling a method through a null reference. Put the null check first.
+
+## Loops
+
+Use `while` when repetition depends on a condition and `for` for a bounded count. This fragment belongs inside a `LinearOpMode` after START:
+
+```java
+while (opModeIsActive()) {
+    telemetry.addData("Stick", gamepad1.left_stick_y);
+    telemetry.update();
+    idle();
+}
+```
+
+A separate inner loop can prevent the outer loop from reading buttons or updating another mechanism. Replace a long wait with a timestamp and state when other work must continue. See [Nonblocking code](./nonblocking-code).
+
+## Methods and classes
+
+A method names a calculation or operation. Parameters supply its inputs; `return` supplies its result. Put this helper at class scope, outside `runOpMode()`:
+
+```java
+private double ticksToInches(int ticks, double countsPerInch) {
+    if (!Double.isFinite(countsPerInch) || countsPerInch <= 0.0) {
+        throw new IllegalArgumentException("Positive finite encoder scale required");
+    }
+    return ticks / countsPerInch;
+}
+```
+
+Call it inside the loop with a measured scale. `ticksToInches(125, 50.0)` returns `2.5`; the helper does not reset an encoder or move a motor.
+
+A class groups related state and behavior. A constructor creates an instance and establishes its starting state. You already use an OpMode object; later a mechanism class can own its motor and expose operations such as setting a target. Keep physical ownership clear before introducing inheritance or a command scheduler. The [code organization guide](../cegp/code-organization) shows when a separate class helps a team.
+
+## Practice
+
+Predict `3 / 2`, `3 / 2.0`, and `3.0 / 2` before displaying them. Then add a field that counts **button presses**, using `justPressed` rather than the held button. Hold A for a second: the counter should increase once. If it increases every loop, inspect the state update and variable scope.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Oracle Java language basics](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/index.html)
+- [Oracle classes and objects](https://docs.oracle.com/javase/tutorial/java/javaOO/index.html)
+- [Learn Java for FTC](https://github.com/alan412/LearnJavaForFTC) — further exercises in values, control flow, methods, and classes.
+- [Crimson Crocs FTC Simulator playground](https://ftcsimulator.crimsoncrocs.org/embed) — the embedded Java editor and telemetry output.
+
+</footer>

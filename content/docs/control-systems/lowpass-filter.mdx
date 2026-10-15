@@ -1,16 +1,16 @@
 ---
-title: Low-Pass Filter
+title: Low-pass filter
 description: Smooth noisy sensor readings while understanding the delay you add
 icon: Waves
 ---
 
-# Smooth a noisy sensor reading
+<span id="smooth-a-noisy-sensor-reading" className="heading-alias" />
 
 Suppose a distance sensor says `10.0`, `9.4`, `10.3`, and `9.7 cm` while the robot is not moving. The target is steady, but the readings wobble. A low-pass filter smooths those quick changes so code can pay more attention to the general trend.
 
 A filter also adds delay. If you smooth too much, the reported value takes longer to catch up when the target really moves. Use it only when noise is causing a real problem, and compare the filtered result with the raw reading.
 
-## What the filter does
+## Exponential moving average [#what-the-filter-does]
 
 An exponential moving average blends the newest reading with the previous filtered value:
 
@@ -25,7 +25,7 @@ filtered = alpha × new reading + (1 - alpha) × previous filtered value
 
 ![A low-pass filter smooths fast sensor jitter while following the slower trend.](/guides/low-pass-filter.svg)
 
-## Step 1: Store the filter's state
+## Filter state [#step-1-store-the-filters-state]
 
 The filter must remember its last output. For the first reading, use the reading itself; otherwise a starting value of zero can create a fake jump.
 
@@ -48,13 +48,17 @@ private var filteredDistance = 0.0
 </Tab>
 </Tabs>
 
-## Step 2: Update it every time you read the sensor
+## Filter update [#step-2-update-it-every-time-you-read-the-sensor]
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
 private double filter(double newDistance, double alpha) {
+    if (!Double.isFinite(alpha) || alpha < 0.0 || alpha > 1.0
+            || !Double.isFinite(newDistance)) {
+        throw new IllegalArgumentException("Use a finite reading and alpha in [0, 1]");
+    }
     if (!hasReading) {
         filteredDistance = newDistance;
         hasReading = true;
@@ -71,6 +75,7 @@ private double filter(double newDistance, double alpha) {
 
 ```kotlin
 private fun filter(newDistance: Double, alpha: Double): Double {
+    require(newDistance.isFinite() && alpha.isFinite() && alpha in 0.0..1.0)
     if (!hasReading) {
         filteredDistance = newDistance
         hasReading = true
@@ -86,17 +91,26 @@ private fun filter(newDistance: Double, alpha: Double): Double {
 
 The first call initializes the filter. Each later call combines the new measurement with the last filtered output. Call it with one stream of measurements from one sensor; don't reuse the same state for unrelated signals.
 
-## Step 3: Compare raw and filtered values
+## Sensor integration [#step-3-compare-raw-and-filtered-values]
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
+// Example validated range for this test rig; measure your sensor's usable range.
+double minValidCm = 2.0;
+double maxValidCm = 150.0;
 double rawCm = distanceSensor.getDistance(DistanceUnit.CM);
-double smoothCm = filter(rawCm, 0.25);
-
-telemetry.addData("Raw cm", "%.1f", rawCm);
-telemetry.addData("Filtered cm", "%.1f", smoothCm);
+boolean valid = Double.isFinite(rawCm)
+    && rawCm != DistanceSensor.distanceOutOfRange
+    && rawCm >= minValidCm && rawCm <= maxValidCm;
+if (valid) {
+    double smoothCm = filter(rawCm, 0.25);
+    telemetry.addData("Raw cm", "%.1f", rawCm);
+    telemetry.addData("Filtered cm", "%.1f", smoothCm);
+} else {
+    telemetry.addLine("Invalid distance; filter state unchanged");
+}
 telemetry.update();
 ```
 
@@ -104,20 +118,30 @@ telemetry.update();
 <Tab value="Kotlin">
 
 ```kotlin
+// Example validated range for this test rig; measure your sensor's usable range.
+val minValidCm = 2.0
+val maxValidCm = 150.0
 val rawCm = distanceSensor.getDistance(DistanceUnit.CM)
-val smoothCm = filter(rawCm, 0.25)
-
-telemetry.addData("Raw cm", "%.1f", rawCm)
-telemetry.addData("Filtered cm", "%.1f", smoothCm)
+val valid = rawCm.isFinite() && rawCm != DistanceSensor.distanceOutOfRange &&
+    rawCm in minValidCm..maxValidCm
+if (valid) {
+    val smoothCm = filter(rawCm, 0.25)
+    telemetry.addData("Raw cm", "%.1f", rawCm)
+    telemetry.addData("Filtered cm", "%.1f", smoothCm)
+} else {
+    telemetry.addLine("Invalid distance; filter state unchanged")
+}
 telemetry.update()
 ```
 
 </Tab>
 </Tabs>
 
+These fragments assume a mapped `DistanceSensor` and imports for `com.qualcomm.robotcore.hardware.DistanceSensor` and `org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit`. The SDK unavailable sentinel is finite (`Double.MAX_VALUE`), and some sensor failures also return large finite values. Reject them **before** updating the filter. The 2–150 cm bounds describe an example test rig, not every sensor. An invalid reading leaves the estimate stale; do not present it as a fresh measurement.
+
 `0.25` is an example starting point, not a universally correct setting. Run the sensor without moving the target, then move it deliberately. Reduce `alpha` only if the jitter is troublesome and the added lag is acceptable.
 
-## When it helps—and when it does not
+## Uses and limitations [#when-it-helpsand-when-it-does-not]
 
 A low-pass filter can help with noisy distance, color, or encoder-derived signals. It does not correct sensor bias, bad calibration, a loose mount, or an incorrect unit conversion. Fix those causes first.
 
@@ -131,3 +155,12 @@ Avoid blindly filtering heading angles around the wrap boundary. For example, av
 4. Try a slightly higher and lower `alpha`. Choose the least smoothing that removes the jitter affecting your decision.
 
 A filter setting is a tradeoff between smoothness and response time. Test it at the same loop rate and sensor conditions where your robot will use it.
+
+<footer className="article-sources">
+
+## Sources
+
+- [CTRL ALT FTC: low-pass filters](https://www.ctrlaltftc.com/the-pid-controller/practical-improvements-to-pid) — its alpha weights the previous estimate; this page’s alpha weights the new reading.
+- [FTC SDK 12 RobotCore source archive](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/RobotCore/12.0.0/RobotCore-12.0.0-sources.jar) — `DistanceSensor.distanceOutOfRange`.
+
+</footer>

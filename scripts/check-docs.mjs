@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { compile } from "@mdx-js/mdx";
+import remarkMath from "remark-math";
 
 const root = resolve("content/docs");
 const publicRoot = resolve("public");
@@ -27,7 +28,7 @@ walk(root);
 for (const file of pages) {
   const source = readFileSync(file, "utf8");
   try {
-    await compile(source);
+    await compile(source, { remarkPlugins: [remarkMath] });
   } catch (error) {
     errors.push(`${file}: MDX syntax error: ${error.message}`);
   }

@@ -1,29 +1,69 @@
 ---
 title: FTCLib
-description: Organize FTC hardware actions with FTCLib commands
+description: Run a command sequence after START and clean up when it ends
 icon: Package
 ---
 
-FTCLib is a Java library with FTC utilities and a command-based framework. We will use it to run one safe motor test in order: set a low power, wait one second, then stop. This example teaches the command flow; it is not a drivetrain or a tuned mechanism controller.
+FTCLib provides FTC utilities and a command scheduler. A **command** describes an action; the scheduler initializes it, advances it, and checks whether it has finished. This page uses a short motor test to show that lifecycle.
 
-## Step 1: Add FTCLib
+## Installation
 
-Follow the current [FTCLib installation instructions](https://docs.ftclib.org/ftclib/installation) for your FTC SDK and project structure. Add one compatible release, sync Gradle, and build before copying imports from another project. FTCLib and FTC SDK versions must match.
+The example uses `org.ftclib.ftclib:core:2.1.1`. Follow the author's installation guide for repositories and project setup. FTCLib and the FTC SDK have independent version numbers; choose compatible releases. These Java APIs were checked against FTC SDK 12.0.0.
 
-## Step 2: Map the motor in a CommandOpMode
+Checked **14 October 2026**: 2.1.1 is still the latest release, originally published in February 2023. The repository is unarchived but release activity is slow. [SolversLib](./solverslib) is a separately maintained fork with different imports and lifecycle details; use its own installation and migration instructions if choosing that route.
 
-`CommandOpMode` gives the command scheduler a place to run. Add a device field and map it in `initialize()`. The configured name must match Robot Configuration.
+## Command sequence
+
+An `InstantCommand` runs its action once. `WaitCommand(1000)` waits one second while the scheduler continues running. A `SequentialCommandGroup` initializes the next command when the previous one finishes.
+
+**Scheduling can execute code immediately.** In FTCLib 2.1.1, `schedule()` calls the command's `initialize()`. A sequential group's first instant action can therefore run during the scheduling call. Constructing a sequence during INIT is fine; schedule this motor sequence only after START. Putting it in `CommandOpMode.initialize()` would request motor power during INIT.
+
+## Motor test
+
+Configure an unloaded motor as `testMotor`. Save the selected language's complete file as `FTCLibMotorTest.java` or `FTCLibMotorTest.kt` under `TeamCode`. The Kotlin tab requires Kotlin support in the robot project.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-private DcMotor testMotor;
+package org.firstinspires.ftc.teamcode;
 
-@Override
-public void initialize() {
-    testMotor = hardwareMap.get(DcMotor.class, "testMotor");
-    testMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+@Autonomous(name = "FTCLib: Timed Motor Test")
+public class FTCLibMotorTest extends LinearOpMode {
+    @Override
+    public void runOpMode() {
+        DcMotor motor = hardwareMap.get(DcMotor.class, "testMotor");
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Command sequence = new SequentialCommandGroup(
+            new InstantCommand(() -> motor.setPower(0.15)),
+            new WaitCommand(1000),
+            new InstantCommand(() -> motor.setPower(0.0))
+        );
+        CommandScheduler scheduler = CommandScheduler.getInstance();
+        telemetry.addLine("Test unloaded, then press START.");
+        telemetry.update();
+        waitForStart();
+        if (!opModeIsActive()) return;
+        try {
+            scheduler.schedule(sequence);
+            while (opModeIsActive() && scheduler.isScheduled(sequence)) {
+                scheduler.run();
+            }
+        } finally {
+            scheduler.cancel(sequence);
+            motor.setPower(0.0);
+            scheduler.reset();
+        }
+    }
 }
 ```
 
@@ -31,86 +71,67 @@ public void initialize() {
 <Tab value="Kotlin">
 
 ```kotlin
-private lateinit var testMotor: DcMotor
+package org.firstinspires.ftc.teamcode
 
-override fun initialize() {
-    testMotor = hardwareMap.get(DcMotor::class.java, "testMotor")
-    testMotor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+import com.arcrobotics.ftclib.command.CommandScheduler
+import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.SequentialCommandGroup
+import com.arcrobotics.ftclib.command.WaitCommand
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import com.qualcomm.robotcore.hardware.DcMotor
+
+@Autonomous(name = "FTCLib: Timed Motor Test")
+class FTCLibMotorTest : LinearOpMode() {
+    override fun runOpMode() {
+        val motor = hardwareMap.get(DcMotor::class.java, "testMotor")
+        motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        val sequence = SequentialCommandGroup(
+            InstantCommand({ motor.power = 0.15 }),
+            WaitCommand(1000),
+            InstantCommand({ motor.power = 0.0 })
+        )
+        val scheduler = CommandScheduler.getInstance()
+        telemetry.addLine("Test unloaded, then press START.")
+        telemetry.update()
+        waitForStart()
+        if (!opModeIsActive()) return
+        try {
+            scheduler.schedule(sequence)
+            while (opModeIsActive() && scheduler.isScheduled(sequence)) {
+                scheduler.run()
+            }
+        } finally {
+            scheduler.cancel(sequence)
+            motor.power = 0.0
+            scheduler.reset()
+        }
+    }
 }
 ```
 
 </Tab>
 </Tabs>
 
-Place this field and method inside a class that extends `CommandOpMode`. `BRAKE` asks the motor to resist coasting when power is zero; it does not make the mechanism safe by itself.
+INIT maps the device and builds the sequence. START allows scheduling. The active loop advances the scheduler until the sequence finishes or STOP is requested. The `finally` block cancels the sequence, writes zero, and resets this practice OpMode's scheduler even if execution exits with an exception.
 
-## Step 3: Make the first command
+The 0.15 power is an example for an unloaded test. It is not a position controller or a suitable holding command for a loaded lift. Before adding other commands, give commands that share a mechanism the same subsystem requirement so the scheduler can prevent conflicts.
 
-An `InstantCommand` runs its action once. Before building the full sequence, make one that writes a small power value:
+## Testing
 
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
+Select the OpMode and press INIT: the motor should remain stopped. Press START: it should run briefly, then stop. Repeat and press STOP during the wait. Confirm that no later action restarts it. Keep the test mechanism clear and use a device whose low-power behavior you have checked.
 
-```java
-Command startMotor = new InstantCommand(() -> testMotor.setPower(0.15));
-```
+## Pure Pursuit
 
-</Tab>
-<Tab value="Kotlin">
+FTCLib's own documentation labels its Pure Pursuit implementation buggy and does not recommend it. Use the [Pure Pursuit article](../autonomous/pure-pursuit) for geometry, and compare maintained implementations such as [Pedro Pathing](./pedro-pathing) and [Road Runner](./road-runner) for a robot route.
 
-```kotlin
-val startMotor = InstantCommand { testMotor.power = 0.15 }
-```
+<footer className="article-sources">
 
-</Tab>
-</Tabs>
+## Sources
 
-The command stores the action; it does not run just because you created the variable. Avoid testing this on a loaded arm or lift.
-
-## Step 4: Put the actions in order and schedule them
-
-A `SequentialCommandGroup` starts the next command after the previous one finishes. `WaitCommand` takes milliseconds. Add this in `initialize()` after mapping the motor:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-CommandScheduler.getInstance().schedule(
-    new SequentialCommandGroup(
-        new InstantCommand(() -> testMotor.setPower(0.15)),
-        new WaitCommand(1000),
-        new InstantCommand(() -> testMotor.setPower(0.0))
-    )
-);
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-CommandScheduler.getInstance().schedule(
-    SequentialCommandGroup(
-        InstantCommand { testMotor.power = 0.15 },
-        WaitCommand(1000),
-        InstantCommand { testMotor.power = 0.0 }
-    )
-)
-```
-
-</Tab>
-</Tabs>
-
-Read the sequence from top to bottom: the first instant command starts the motor, the wait stays active for one second, then the last instant command writes zero. `CommandOpMode` advances the scheduler while the OpMode runs. With a regular SDK `OpMode`, your loop must call `CommandScheduler.getInstance().run()` yourself.
-
-Before trying the pattern, confirm the device name and test the motor unloaded at low power. Commands that control the same subsystem should declare requirements so FTCLib can prevent them from conflicting.
-
-## Important FTCLib Pure Pursuit note
-
-FTCLib's own documentation currently labels its Pure Pursuit implementation buggy and says it is not recommended. Learn the geometry from the [Pure Pursuit guide](../autonomous/pure-pursuit), but use a maintained pathing implementation for a robot route. For FTC teams, see [Pedro Pathing](./pedro-pathing) or [Road Runner](./road-runner).
-
-## References
-
-- [FTCLib documentation](https://docs.ftclib.org/ftclib)
-- [FTCLib command groups](https://docs.ftclib.org/ftclib/command-base/command-system/command-groups)
-- [FTCLib CommandOpMode](https://docs.ftclib.org/ftclib/command-base/command-system/robot-and-commandopmode)
+- [FTCLib 2.1.1 scheduler source](https://github.com/FTCLib/FTCLib/blob/1c8995d09413b406e0f4aff238ea4edc2bb860c4/core/src/main/java/com/arcrobotics/ftclib/command/CommandScheduler.java)
+- [SequentialCommandGroup source](https://github.com/FTCLib/FTCLib/blob/1c8995d09413b406e0f4aff238ea4edc2bb860c4/core/src/main/java/com/arcrobotics/ftclib/command/SequentialCommandGroup.java)
 - [FTCLib Pure Pursuit warning](https://docs.ftclib.org/ftclib/pathing/pure-pursuit)
+- [author's installation guide](https://docs.ftclib.org/ftclib/installation)
+
+</footer>

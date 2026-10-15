@@ -1,0 +1,114 @@
+---
+title: Nonblocking code
+description: Keep the robot loop responsive with button edges, timestamps, and state
+icon: phosphor:FlowArrow
+---
+
+A robot often needs to drive, read a limit switch, and run an intake at the same time. A long `sleep()` or an inner wait loop prevents the calling thread from doing its other work. A **state machine** instead remembers the current action and does a little work on each pass through the main loop.
+
+## Button edges
+
+A button can remain true for many loop iterations. Compare its current value with the previous value to detect one press:
+
+```java
+boolean pressed = gamepad1.a && !previousA;
+previousA = gamepad1.a;
+```
+
+Keep `previousA` outside the repeated block. If it is reset on every iteration, a held button looks like a new press each time. A rising-edge check is useful for toggles and starting timed actions; a held condition is useful for manual jog controls.
+
+Store the previous button value, not another reference to `gamepad1`. Assigning `previousGamepad = gamepad1` aliases the same mutable object; it does not preserve the previous loop's button state.
+
+## Timed action
+
+Save this complete Java file as `IntakePulse.java`. Configure an unloaded motor as `intake`. A starts a one-second pulse; B cancels it. The loop keeps reading both buttons and reporting telemetry during the pulse.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+@TeleOp(name = "Intake Pulse", group = "Practice")
+public class IntakePulse extends LinearOpMode {
+    private enum State { IDLE, RUNNING }
+
+    @Override
+    public void runOpMode() {
+        DcMotor intake = hardwareMap.get(DcMotor.class, "intake");
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        State state = State.IDLE;
+        boolean previousA = false;
+        ElapsedTime pulseTimer = new ElapsedTime();
+        waitForStart();
+        if (!opModeIsActive()) return;
+        try {
+            while (opModeIsActive()) {
+                boolean currentA = gamepad1.a;
+                boolean pressedA = currentA && !previousA;
+                previousA = currentA;
+
+                if (gamepad1.b) {
+                    state = State.IDLE;
+                } else if (state == State.IDLE && pressedA) {
+                    pulseTimer.reset();
+                    state = State.RUNNING;
+                }
+                if (state == State.RUNNING && pulseTimer.seconds() >= 1.0) {
+                    state = State.IDLE;
+                }
+
+                intake.setPower(state == State.RUNNING ? 0.15 : 0.0);
+                telemetry.addData("State", state);
+                telemetry.addData("Pulse time (s)", "%.2f", pulseTimer.seconds());
+                telemetry.update();
+                idle();
+            }
+        } finally {
+            intake.setPower(0.0);
+        }
+    }
+}
+```
+
+The enum is at **class scope**, outside `runOpMode()`. The state and timer retain their values between loop iterations. The timer resets only when entering RUNNING; resetting it every loop would prevent the deadline from ever arriving.
+
+This is cooperative concurrency: the OpMode repeatedly updates each task. It does not need a new thread for each motor. Every update must return promptly, and one mechanism should have one clear owner for its output.
+
+{/* Playground paused until Blocks embedding and light mode are ready.
+
+## Button playground
+
+The playground applies the same timing pattern to a simulated drivetrain. Press **Play**, click the simulator, then tap **Space** for gamepad A. The robot drives for one second. Hold Space: it should run once, then stay stopped until you release and press again. **B** cancels the action. On a small screen, use the gamepad buttons on the simulator.
+
+Watch **State** in telemetry. Hold **W** during the pulse and check that **Stick still readable** changes before the pulse finishes. The loop can read inputs while it checks the timer because there is no blocking wait.
+
+<FTCPlayground example="nonblocking" />
+
+Change the `1.0` timeout to `2.0` and repeat the cancellation check. The timer restarts only when a new button press begins an action.
+*/}
+
+## Completion and failure
+
+A timer says that time elapsed. It does not prove a piece was collected. A real sequence can use a sensor as its success condition and a separate timeout as its failure condition. Give failures their own state or result so the next action does not assume success.
+
+For an arm, keep feedback control updating during the wait. For autonomous, run localization and path follower updates on every active loop. Avoid putting a blocking movement helper inside one state and then claiming that the whole routine is nonblocking.
+
+## Testing
+
+Hold A: the motor should pulse once, not retrigger while held. Release and press A again: it should pulse again. Press B during a pulse and confirm immediate cancellation on the next loop. Press STOP and confirm zero power. Add telemetry for another input and check that it continues changing throughout the pulse.
+
+Continue with the [autonomous state machine](../autonomous/motion-planning), or compare [FTCLib commands](../libraries/ftclib) after this lifecycle is familiar.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC SDK LinearOpMode samples](https://github.com/FIRST-Tech-Challenge/FtcRobotController/tree/e14c2aeb33e84d4ea21697beeea9ac49557be870/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples)
+- [Learn Java for FTC](https://github.com/alan412/LearnJavaForFTC) — state and timed-action exercises; this page uses an original example.
+- [The Dairy Cookbook: PIDF integration](https://cookbook.dairy.foundation/pidf_controllers/integrating_a_custom_PIDF_controller.html) — manual/automatic mode concept; its gamepad-reference assignment is not a state snapshot.
+- [Crimson Crocs FTC Simulator playground](https://ftcsimulator.crimsoncrocs.org/embed) — the embedded robot and gamepad controls.
+
+</footer>

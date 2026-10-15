@@ -1,11 +1,13 @@
 {
-    "pages": [
-        "index",
-        "joystick-mapping",
-        "pid-control",
-        "motion-profiling",
-        "kalman-filter",
-        "lowpass-filter"
-    ],
-    "icon": "Gear"
+  "pages": [
+    "index",
+    "joystick-mapping",
+    "pid-control",
+    "feedforward",
+    "system-identification",
+    "motion-profiling",
+    "kalman-filter",
+    "lowpass-filter"
+  ],
+  "icon": "Gear"
 }

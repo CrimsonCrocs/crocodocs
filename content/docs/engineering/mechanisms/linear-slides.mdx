@@ -1,0 +1,76 @@
+---
+icon: engineering:Stack
+title: Linear slides and rigging
+description: Select linear guides, calculate spool demand, compare continuous and cascade rigging, and test extension safely.
+---
+
+**Linear slides** constrain a mechanism to move along a straight path. The guide carries side loads while a string, belt, chain, screw, or rack provides the force that moves it.
+
+## Guide and drive [#choose-the-guide-and-drive-separately]
+
+Specify travel, stowed length, moving mass, sideways load, orientation, and speed. Check the load rating at the actual extension; a carriage far from its support creates a moment as well as a vertical force.
+
+| Drive | Useful when | Check carefully |
+| --- | --- | --- |
+| String and spool | Low mass and compact winding are useful | Routing, tension, abrasion, changing spool radius |
+| Belt or chain | Positive engagement or active motion both ways is needed | Alignment, tension, space, and support |
+| Lead screw | A threaded linear actuator suits the speed and load | Lead, efficiency, buckling, alignment, backdriving |
+| Rack and pinion | Gear teeth can run along the travel | Gear engagement across the full stroke |
+
+Check how the selected linear-motion hardware is driven and constrained. Use the instructions for the exact kit and guide type.
+
+## Slide rigging [#rigging-changes-motion-and-load]
+
+**Continuous rigging** uses a connected extension path through stages. **Cascade rigging** couples stage motion through separate paths, so stages can extend together. The names alone do not determine motor load: trace the actual routing, moving masses, and displacement relationship.
+
+For an ideal routing, conservation of work gives $F_{drive}x_{drive} = F_{load}x_{load}$. If the final carriage moves twice as far as the drive attachment, the drive needs twice the force for that simplified load. Include every moving stage and losses when sizing a real lift.
+
+Use the rigging diagram or manufacturer's cascade assembly instructions for the chosen topology. Draw each anchor and pulley on your own assembly before cutting string.
+
+## Spool calculation [#calculate-a-single-stage-spool-example]
+
+Consider an illustrative single-stage vertical lift with 1.5 kg total moving mass and a 10 mm effective spool radius. Ignoring acceleration and friction:
+
+$$
+F = mg = 1.5(9.81) \approx 14.7\ \mathrm{N}
+$$
+
+$$
+\tau_{spool} = Fr \approx 14.7(0.010) = 0.147\ \mathrm{N\cdot m}
+$$
+
+At 300 spool RPM, ideal line speed is $2\pi(0.010)(300)/60 \approx 0.314$ m/s. This speed calculation assumes that speed is achieved under load. It is not a prediction from a motor's free-speed label.
+
+Acceleration adds force, friction consumes effort, and multi-stage routing changes the relation. A second string layer also increases effective radius: line speed rises while available pull for the same torque falls. Design the winding so its radius is controlled, then calibrate position against measured carriage travel.
+
+## Alignment and string wear [#prevent-racking-and-string-damage]
+
+**Racking** is uneven extension that skews the moving assembly. Align parallel guides, support the carriage, and synchronize the drive where required. A wide carriage can bind even when each rail moves freely alone.
+
+Route string in pulley grooves without rubbing plate edges. Provide secure anchors, compatible pulley diameter, accessible tension adjustment, and protection from sharp features. Check string condition throughout travel, including retracted configurations where slack may escape a pulley.
+
+Counterbalancing with a spring or elastic element can reduce the actuator's gravity load, but its force varies through travel and it stores energy. Support the mechanism before adjusting rigging or releasing a counterbalance. Confirm how the lift retracts when unloaded and when power is removed.
+
+## Homing and limits [#establish-references-and-limits]
+
+A motor encoder does not automatically know the carriage position after startup. Agree on a home sensor, reference procedure, software endpoints, and protective mechanical limits with programmers. Keep cables within a tested moving envelope.
+
+Test incrementally with a safe load: partial travel, full travel, repeated reversals, then simultaneous robot motion. Record cycle time, current where available, carriage skew, endpoint variation, string wear, and behavior after a stop. Remove power and support the carriage before working inside the mechanism.
+
+## Two-motor lifts
+
+Giving two motors the same power does not prove that the two sides moved the same distance. Friction, string tension, load, and a slipped hub can make one side lag while the other encoder still looks correct.
+
+Use mechanical coupling where the design permits it, and measure both sides if software must detect skew. A controller that reads only the leader encoder cannot observe follower position. Homing, sign conventions, a measured skew limit, and a stop/recovery policy belong to the complete system. Check the frame and rigging before increasing gains to overcome a rack or jam.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Linear-motion guide](https://gm0.org/en/latest/docs/common-mechanisms/linear-motion-guide/index.html)
+- [REV: Linear-motion documentation](https://docs.revrobotics.com/duo-build/motion/linear-motion)
+- [GM0: Rigging diagrams](https://gm0.org/en/latest/docs/common-mechanisms/linear-motion-guide/rigging.html)
+- [REV: Cascade assembly instructions](https://docs.revrobotics.com/duo-build/linear-motion-kit/three-stage-cascading-lift)
+- [The Dairy Cookbook: two-motor slides](https://cookbook.dairy.foundation/pidf_controllers/syncing_two_linear_slide_motors_using_a_pidf_controller/syncing_two_linear_slide_motors_using_a_pidf_controller.html) — leader/follower idea; matching output does not measure synchronisation.
+
+</footer>

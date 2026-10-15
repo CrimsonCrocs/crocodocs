@@ -1,0 +1,60 @@
+---
+icon: engineering:Crosshair
+title: Game strategy
+description: Translate game tasks into a robot scope, cycle model, resource budget, and development plan.
+---
+
+**Game strategy** is the choice of tasks your robot will perform and the conditions in which it will perform them. It determines the mechanisms worth building and the compromises the team can afford.
+
+## Robot requirements [#translate-scoring-into-requirements]
+
+Read the current official game and season materials, including updates. Separate legal requirements from your own performance targets, and check remembered rules against the current manual.
+
+For each task, identify where the robot starts, what it must acquire, the space it must pass through, the required output position, and how it recovers after a miss. Measure relevant geometry using official field information and the actual practice setup. Account for partners and opponents wherever interaction is permitted.
+
+Write a capability table before drawing mechanisms:
+
+| Capability | Evidence needed | Cost to the robot |
+| --- | --- | --- |
+| Acquire an object from several orientations | Pickup tests with a defined spread of starts | Intake volume, actuator, and driver attention |
+| Place at a high target | Reach and stability checks at full payload | Lift mass, structure, power, and travel time |
+| Recover after a missed pickup | Deliberately failed acquisition trials | Reversal path, sensing, and control logic |
+
+## Cycle time [#model-the-whole-cycle]
+
+A scoring cycle includes acquisition, travel, alignment, placement, and recovery. Speeding up an action that occupies little of the cycle gives a small overall gain.
+
+For a simplified repeated task, let $t$ be average cycle time, $p$ the probability of completing a cycle, $s$ the score per completed cycle, and $T$ the available time. A rough comparison is:
+
+$$
+E \approx \frac{T}{t}ps
+$$
+
+Suppose two illustrative designs attempt the same task. Design A takes 12 seconds and succeeds in 90% of trials; design B takes 9 seconds and succeeds in 60%. Their expected successful-cycle rates are $0.9/12 = 0.075$ and $0.6/9 \approx 0.067$ per second. The faster attempt is less productive under these assumptions.
+
+This model ignores travel conflicts, match timing, penalties, partial outcomes, and changing field conditions. Use it to expose assumptions, then compare actual complete runs. Do not treat a small practice sample as a precise forecast.
+
+## Resource allocation [#allocate-scarce-resources]
+
+Budget actuators, mass, internal volume, money, build hours, and driver practice. Reserve space for the battery, electronics, cable bends, and tool access. A mechanism that fits only after removing the battery is not integrated.
+
+New teams benefit from proving one complete scoring path before adding another. Experienced teams can investigate several concepts, but each experiment needs an owner, a question, and a decision date.
+
+## Build schedule [#schedule-backward-from-a-usable-robot]
+
+Choose dates for a driving chassis, integrated scoring cycle, autonomous testing, and practice matches. Leave time for failures discovered during integration. Ordering lead time and workshop access belong in the schedule alongside CAD and code.
+
+Use a fallback that shares as much hardware as practical with the ambitious design. A simpler scoring route or a reduced range of motion can preserve practice time if a difficult mechanism misses its deadline.
+
+Before committing to a major addition, compare the expected benefit with the practice, reliability work, and repairs it displaces. Record the decision and its assumptions in the [engineering notebook](/docs/engineering/team/engineering-notebook), then revisit it when measurements change.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FIRST: Game and season materials](https://www.firstinspires.org/resource-library/ftc/game-and-season-info)
+- [GM0: Design strategy](https://gm0.org/en/latest/docs/design-skills/design-strategy.html)
+- [FTC Wiki: Strategic design](https://www.ftcwiki.org/how-to-build-competitive-robots/how-to-compete/strategic-design)
+- [FTC Wiki: Design workflow](https://www.ftcwiki.org/how-to-build-competitive-robots/how-to-compete/design-workflow)
+
+</footer>

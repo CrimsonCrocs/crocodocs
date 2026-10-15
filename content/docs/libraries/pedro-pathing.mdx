@@ -4,17 +4,17 @@ description: Build and test your first path with Pedro Pathing 3
 icon: Navigation
 ---
 
-# Make the robot follow one short path
+<span id="make-the-robot-follow-one-short-path" className="heading-alias" />
 
 Pedro Pathing turns a route made from **field poses** into drivetrain commands. A pose means “where the robot is, and which way it faces.” Pedro updates that estimate through a localizer while its follower tries to move along the path.
 
 This lesson uses one short, straight route. It explains each piece before combining them, so you can check the coordinates and understand what each call asks Pedro to do.
 
-## Before you start: use one Pedro version
+## Pedro version [#before-you-start-use-one-pedro-version]
 
-This page follows the current Pedro 3 API. Pedro 2 tutorials use different packages and path classes; do not mix their code with Pedro 3. The official Quickstart provides the drive motors, localizer, tuning constants, and project setup that a follower needs. That robot-specific setup is intentionally not replaced by a made-up universal drivetrain example here.
+This page follows the current Pedro 3 API. Pedro 2 tutorials use different packages and path classes; do not mix their code with Pedro 3. The official Quickstart provides the drive motors, localizer, tuning constants, and project setup that a follower needs. Complete that setup for your drivetrain before using the path examples below.
 
-1. Start from the [official Pedro Quickstart](https://github.com/Pedro-Pathing/Quickstart) or follow the [current setup guide](https://pedropathing.com/docs/pathing/guide/installation).
+1. Start from the official Pedro Quickstart or follow the current setup guide.
 2. Complete its tuning steps for your actual drive base and localizer.
 3. Confirm the project compiles and the localizer reports believable motion before you ask the robot to follow a path.
 
@@ -22,7 +22,7 @@ This page follows the current Pedro 3 API. Pedro 2 tutorials use different packa
 The positions below are example Pedro coordinates, not a real BIOBUZZ route or a field measurement. Measure your own start and destination, and check the current field diagram before using game-specific coordinates.
 </Callout>
 
-## Step 1: Put two poses on paper
+## Start and end poses [#step-1-put-two-poses-on-paper]
 
 Pedro's field coordinates use inches: **X increases to the right**, **Y increases up**, and a heading of **0° points along +X**. Positive heading turns counterclockwise. These conventions differ from FTC's usual field coordinate convention, so do not copy FTC field coordinates directly into Pedro without converting them.
 
@@ -55,7 +55,7 @@ val park = poseFactory.of(48.0, 24.0, 0.0)
 
 Before you write the path, point at each mark on the diagram and say its X, Y, and heading. If the start pose does not match where you physically place the robot, the follower begins with the wrong answer about where it is.
 
-## Step 2: Create the follower from your robot setup
+## Follower setup [#step-2-create-the-follower-from-your-robot-setup]
 
 The follower needs your project's hardware configuration, localizer, and Pedro constants. In the official Quickstart, its `Constants` helper builds that robot-specific follower. `Constants` is a class in the Quickstart project—not a method you get automatically by importing Pedro.
 
@@ -82,7 +82,7 @@ follower.setPose(start)
 
 `setPose(start)` initializes Pedro's estimate; it does **not** move the robot to that spot. Place the robot at the matching location and heading on the field. Then test localization by pushing or turning the robot by hand and watching Pedro's reported pose change in the expected direction.
 
-## Step 3: Connect the two poses with a path
+## Path construction [#step-3-connect-the-two-poses-with-a-path]
 
 Now that both ends are defined, ask Pedro for a straight line. The `.linear(start, park)` part tells Pedro to interpolate the robot's heading from the first pose's heading to the last pose's heading while it travels:
 
@@ -107,7 +107,7 @@ val firstPath = line(start, park)
 
 Both headings in this example are `0°`, so the robot travels along the drawn line while continuing to face right. A curved path needs control points and different geometry; learn this straight path before adding those parts.
 
-## Step 4: Let the follower update the path
+## Follower updates [#step-4-let-the-follower-update-the-path]
 
 For a `LinearOpMode`, start only after checking the robot's placement. Once the match starts, give Pedro repeated updates while the path is active. Each update reads localization and calculates the next drive output:
 
@@ -120,15 +120,22 @@ telemetry.update();
 waitForStart();
 if (!opModeIsActive()) return;
 
-follower.follow(firstPath);
-while (opModeIsActive() && follower.isBusy()) {
+try {
+    long pathStart = System.nanoTime();
+    follower.follow(firstPath);
+    while (opModeIsActive() && follower.isBusy()
+            && (System.nanoTime() - pathStart) / 1e9 < 6.0) {
+        follower.update();
+        telemetry.addData("X", "%.1f", follower.pose().x());
+        telemetry.addData("Y", "%.1f", follower.pose().y());
+        telemetry.addData("Heading (deg)", "%.1f",
+            Math.toDegrees(follower.pose().heading()));
+        telemetry.update();
+        idle();
+    }
+} finally {
+    follower.stop();
     follower.update();
-    telemetry.addData("X", "%.1f", follower.pose().x());
-    telemetry.addData("Y", "%.1f", follower.pose().y());
-    telemetry.addData("Heading (deg)", "%.1f",
-        Math.toDegrees(follower.pose().heading()));
-    telemetry.update();
-    idle();
 }
 ```
 
@@ -141,24 +148,35 @@ telemetry.update()
 waitForStart()
 if (!opModeIsActive()) return
 
-follower.follow(firstPath)
-while (opModeIsActive() && follower.isBusy()) {
+try {
+    val pathStart = System.nanoTime()
+    follower.follow(firstPath)
+    while (opModeIsActive() && follower.isBusy() &&
+        (System.nanoTime() - pathStart) / 1e9 < 6.0) {
+        follower.update()
+        telemetry.addData("X", "%.1f", follower.pose().x())
+        telemetry.addData("Y", "%.1f", follower.pose().y())
+        telemetry.addData("Heading (deg)", "%.1f",
+            Math.toDegrees(follower.pose().heading()))
+        telemetry.update()
+        idle()
+    }
+} finally {
+    follower.stop()
     follower.update()
-    telemetry.addData("X", "%.1f", follower.pose().x())
-    telemetry.addData("Y", "%.1f", follower.pose().y())
-    telemetry.addData("Heading (deg)", "%.1f",
-        Math.toDegrees(follower.pose().heading()))
-    telemetry.update()
-    idle()
 }
 ```
 
 </Tab>
 </Tabs>
 
+These fragments use Pedro **3.0.1**. Complete the Quickstart hardware and localizer setup first: its initial `Constants.create()` skeleton must return a configured follower, not `null`. Imports for the path fragments are `com.pedropathing.api.PoseFactory`, `com.pedropathing.follower.Follower`, `com.pedropathing.math.Pose`, `com.pedropathing.paths.Path`, your project’s `pedro.Constants`, and Java’s static `com.pedropathing.api.Paths.line` (Kotlin imports `com.pedropathing.api.Paths.line`).
+
+The six-second timeout is an example test bound. Measure an appropriate deadline and configure low drivetrain limits using your installed Quickstart. In Pedro 3.0.1, `stop()` switches to IDLE and the following `update()` writes zero drive output. `isBusy()` becoming false alone does not guarantee zero power because a path may hold its endpoint.
+
 `follow()` starts the path. `isBusy()` is the follower's “still working?” check. `update()` must run repeatedly; calling `follow()` once without updates does not make the robot complete the route. The loop also checks the OpMode state so it stops when the Driver Station requests a stop.
 
-## Step 5: Check the result before adding a second path
+## Path testing [#step-5-check-the-result-before-adding-a-second-path]
 
 1. Run the first test with the robot lifted or with the drive output disabled, and confirm the localizer moves in the right direction.
 2. Put the robot on a clear practice floor and use a short, slow path.
@@ -168,9 +186,16 @@ while (opModeIsActive() && follower.isBusy()) {
 
 Pedro does not automatically know the real position if the wheels slip or the localizer is misconfigured. A smooth-looking path on screen is not proof that the real robot will travel safely or accurately. Keep a clear test area and a stop plan.
 
-## What to learn next
+## Next steps [#what-to-learn-next]
+
+- [Motion planning](../autonomous/motion-planning) explains how to choose and sequence autonomous goals before implementing them.
+
+<footer className="article-sources">
+
+## Sources
 
 - [Pedro's path creation guide](https://pedropathing.com/docs/pathing/guide/path-creation) explains straight paths, curves, and path composition.
 - [Pedro's coordinate guide](https://pedropathing.com/docs/pathing/reference/coordinates) explains its axes and how they differ from FTC coordinates.
 - [Pedro's Quickstart](https://github.com/Pedro-Pathing/Quickstart) shows the complete hardware and localizer setup for the version you install.
-- [Motion planning](../autonomous/motion-planning) explains how to choose and sequence autonomous goals before implementing them.
+
+</footer>

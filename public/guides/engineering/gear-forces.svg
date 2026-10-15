@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 340" role="img" aria-labelledby="title desc">
+  <title id="title">Spur-gear force components</title>
+  <desc id="desc">Two contacting pitch circles. A force on the driven gear has an upward tangential component and a rightward radial component that separates the shafts. The pressure angle is measured from the tangent.</desc>
+  <defs>
+    <marker id="red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 6 3 0 6" fill="none" stroke="#a71925" stroke-width="1.4"/></marker>
+    <marker id="gray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 6 3 0 6" fill="none" stroke="#666" stroke-width="1.4"/></marker>
+    <marker id="black" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 6 3 0 6" fill="none" stroke="#292929" stroke-width="1.4"/></marker>
+  </defs>
+  <rect width="480" height="340" rx="12" fill="#fafafa"/>
+  <g fill="none" stroke="#b6b6b6" stroke-width="1.5" stroke-dasharray="5 5">
+    <circle cx="140" cy="185" r="65"/><circle cx="300" cy="185" r="95"/>
+  </g>
+  <path d="M60 185H420" stroke="#d3d3d3"/>
+  <circle cx="140" cy="185" r="4" fill="#666"/><circle cx="300" cy="185" r="4" fill="#666"/>
+  <g fill="none" stroke-width="2.5">
+    <path d="M205 185V85" stroke="#a71925" marker-end="url(#red)"/>
+    <path d="M205 185H241.4" stroke="#666" marker-end="url(#gray)"/>
+    <path d="M205 185 241.4 85" stroke="#292929" marker-end="url(#black)"/>
+  </g>
+  <circle cx="205" cy="185" r="4" fill="#292929"/>
+  <g font-family="Open Sans,system-ui,sans-serif" font-size="20" fill="#292929">
+    <text x="20" y="30" font-weight="600">Forces on the driven gear</text>
+    <text x="80" y="72" fill="#a71925">F<tspan baseline-shift="sub" font-size="14">t</tspan> = 30 N</text>
+    <text x="250" y="86" font-size="18">Contact force</text>
+    <text x="253" y="177" fill="#666">F<tspan baseline-shift="sub" font-size="14">r</tspan> = 10.9 N</text>
+    <text x="80" y="289">Driver</text><text x="281" y="306">Driven</text>
+    <text x="20" y="330" font-size="18" fill="#666">20° pressure angle · Not to scale</text>
+  </g>
+</svg>

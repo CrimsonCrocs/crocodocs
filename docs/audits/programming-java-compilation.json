@@ -1,0 +1,146 @@
+[
+  {
+    "page": "content/docs/autonomous/motion-planning.mdx",
+    "class": "ScoreAndParkAuto",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/autonomous/odometry.mdx",
+    "class": "DifferentialOdometry",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/autonomous/pure-pursuit.mdx",
+    "class": "PurePursuitGeometry",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/autonomous/sensor-fusion.mdx",
+    "class": "FusedOdometry",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/autonomous/time-vs-encoder.mdx",
+    "class": "TimedDriveTest",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/autonomous/time-vs-encoder.mdx",
+    "class": "EncoderDriveTest",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/cegp/code-organization.mdx",
+    "class": "Arm",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/control-systems/joystick-mapping.mdx",
+    "class": "TankDrive",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/control-systems/kalman-filter.mdx",
+    "class": "ScalarKalmanFilter",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/control-systems/pid-control.mdx",
+    "class": "GuidedPidArm",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/getting-started/android-studio.mdx",
+    "class": "OneMotor",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/getting-started/first-opmode.mdx",
+    "class": "HelloRobot",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/getting-started/motors-and-servos.mdx",
+    "class": "MotorPractice",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/getting-started/nonblocking-code.mdx",
+    "class": "IntakePulse",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/libraries/ftc-dashboard.mdx",
+    "class": "ArmTuning",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/libraries/ftclib.mdx",
+    "class": "FTCLibMotorTest",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/libraries/mercurial.mdx",
+    "class": "MercurialMotorTest",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/sensors-and-vision/easyopencv/eocv-sim.mdx",
+    "class": "PassThroughPipeline",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/sensors-and-vision/easyopencv/writing-pipelines.mdx",
+    "class": "PollenTargetPipeline",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/sensors-and-vision/hardware/imu.mdx",
+    "class": "ImuReader",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/sensors-and-vision/hardware/limit-switches.mdx",
+    "class": "LimitSwitchReader",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/sensors-and-vision/visionportal/color-blob-locator.mdx",
+    "class": "GuidedColorLocator",
+    "exit": 0,
+    "diagnostics": "Note: /tmp/crocodocs-final-java/color-blob-locator/GuidedColorLocator.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+  },
+  {
+    "page": "content/docs/sensors-and-vision/visionportal/vision-portal.mdx",
+    "class": "BlueCenterProcessor",
+    "exit": 0,
+    "diagnostics": ""
+  },
+  {
+    "page": "content/docs/libraries/nextftc.mdx",
+    "class": "Claw, Robot, ClawPractice",
+    "exit": 0,
+    "diagnostics": ""
+  }
+]

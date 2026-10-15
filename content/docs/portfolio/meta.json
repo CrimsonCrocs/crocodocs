@@ -1,0 +1,23 @@
+{
+  "title": "Portfolio",
+  "description": "Document your season and prepare for judging",
+  "icon": "phosphor:Notebook",
+  "root": true,
+  "pages": [
+    "index",
+    "---Planning---",
+    "awards-and-inspire",
+    "planning",
+    "---Evidence---",
+    "engineering",
+    "programming",
+    "outreach",
+    "team",
+    "---Writing and judging---",
+    "layout",
+    "interviews",
+    "review",
+    "---Case studies---",
+    "...case-studies"
+  ]
+}

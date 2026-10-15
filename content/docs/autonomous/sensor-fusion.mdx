@@ -1,5 +1,5 @@
 ---
-title: Sensor Fusion
+title: Sensor fusion
 description: Combine robot measurements while accounting for their limits
 icon: Orbit
 ---
@@ -10,7 +10,7 @@ Odometry can estimate how far the robot moved, but wheel slip makes that estimat
 
 ![Odometry estimates movement between field observations; a known target can correct accumulated drift.](/guides/sensor-fusion.svg)
 
-## Start with one source at a time
+## Sensor selection [#start-with-one-source-at-a-time]
 
 Before combining readings, display each source separately:
 
@@ -20,7 +20,7 @@ Before combining readings, display each source separately:
 
 Write down the coordinate convention for each one. FTC code and libraries may use different axis names or heading signs. Do not combine values until they refer to the same origin, axes, units, and moment in time.
 
-## A beginner example: odometry with an IMU
+## IMU and encoder fusion [#a-beginner-example-odometry-with-an-imu]
 
 Use encoder-based odometry to estimate translation and an IMU to measure heading. The IMU helps estimate rotation; it does not replace the encoder measurements needed to estimate forward or sideways travel.
 
@@ -50,8 +50,17 @@ public final class FusedOdometry {
     private double xInches;
     private double yInches;
     private double headingRadians;
+    private double initialRawYaw;
+    private final double startHeadingRadians;
 
-    public FusedOdometry(double trackWidthInches, double startX, double startY) {
+    public FusedOdometry(double trackWidthInches, double startX, double startY,
+                         double startHeadingRadians) {
+        if (!Double.isFinite(trackWidthInches) || trackWidthInches <= 0.0
+                || !Double.isFinite(startX) || !Double.isFinite(startY)
+                || !Double.isFinite(startHeadingRadians)) {
+            throw new IllegalArgumentException("Finite pose and positive track width required");
+        }
+        this.startHeadingRadians = startHeadingRadians;
         this.trackWidthInches = trackWidthInches;
         this.xInches = startX;
         this.yInches = startY;
@@ -59,10 +68,15 @@ public final class FusedOdometry {
 
     public void update(int leftTicks, int rightTicks,
                        double countsPerInch, double imuYawRadians) {
+        if (!Double.isFinite(countsPerInch) || countsPerInch <= 0.0
+                || !Double.isFinite(imuYawRadians)) {
+            throw new IllegalArgumentException("Positive scale and finite yaw required");
+        }
         if (!started) {
             previousLeftTicks = leftTicks;
             previousRightTicks = rightTicks;
-            headingRadians = imuYawRadians; // Align this estimate to the IMU at start.
+            initialRawYaw = imuYawRadians;
+            headingRadians = startHeadingRadians;
             started = true;
             return;
         }
@@ -75,7 +89,8 @@ public final class FusedOdometry {
         double forwardInches = (leftInches + rightInches) / 2.0;
         double wheelTurn = (rightInches - leftInches) / trackWidthInches;
         double predictedHeading = wrapRadians(headingRadians + wheelTurn);
-        double imuCorrection = wrapRadians(imuYawRadians - predictedHeading);
+        double fieldYaw = wrapRadians(startHeadingRadians + wrapRadians(imuYawRadians - initialRawYaw));
+        double imuCorrection = wrapRadians(fieldYaw - predictedHeading);
         double correctedHeading = wrapRadians(
             predictedHeading + (1.0 - encoderHeadingWeight) * imuCorrection
         );
@@ -88,9 +103,8 @@ public final class FusedOdometry {
     }
 
     private static double wrapRadians(double angle) {
-        while (angle > Math.PI) angle -= 2.0 * Math.PI;
-        while (angle < -Math.PI) angle += 2.0 * Math.PI;
-        return angle;
+        if (!Double.isFinite(angle)) throw new IllegalArgumentException("Finite angle required");
+        return Math.atan2(Math.sin(angle), Math.cos(angle));
     }
 
     public double xInches() { return xInches; }
@@ -110,8 +124,14 @@ import kotlin.math.sin
 class FusedOdometry(
     private val trackWidthInches: Double,
     startX: Double,
-    startY: Double
+    startY: Double,
+    private val startHeadingRadians: Double
 ) {
+    init {
+        require(trackWidthInches.isFinite() && trackWidthInches > 0.0)
+        require(startX.isFinite() && startY.isFinite() && startHeadingRadians.isFinite())
+    }
+    private var initialRawYaw = 0.0
     private val encoderHeadingWeight = 0.10
     private var previousLeftTicks = 0
     private var previousRightTicks = 0
@@ -122,10 +142,12 @@ class FusedOdometry(
 
     fun update(leftTicks: Int, rightTicks: Int,
                countsPerInch: Double, imuYawRadians: Double) {
+        require(countsPerInch.isFinite() && countsPerInch > 0.0 && imuYawRadians.isFinite())
         if (!started) {
             previousLeftTicks = leftTicks
             previousRightTicks = rightTicks
-            headingRadians = imuYawRadians // Align this estimate to the IMU at start.
+            initialRawYaw = imuYawRadians
+            headingRadians = startHeadingRadians
             started = true
             return
         }
@@ -138,7 +160,8 @@ class FusedOdometry(
         val forwardInches = (leftInches + rightInches) / 2.0
         val wheelTurn = (rightInches - leftInches) / trackWidthInches
         val predictedHeading = wrapRadians(headingRadians + wheelTurn)
-        val imuCorrection = wrapRadians(imuYawRadians - predictedHeading)
+        val fieldYaw = wrapRadians(startHeadingRadians + wrapRadians(imuYawRadians - initialRawYaw))
+        val imuCorrection = wrapRadians(fieldYaw - predictedHeading)
         val correctedHeading = wrapRadians(
             predictedHeading + (1.0 - encoderHeadingWeight) * imuCorrection
         )
@@ -151,10 +174,8 @@ class FusedOdometry(
     }
 
     private fun wrapRadians(angle: Double): Double {
-        var wrapped = angle
-        while (wrapped > PI) wrapped -= 2.0 * PI
-        while (wrapped < -PI) wrapped += 2.0 * PI
-        return wrapped
+        require(angle.isFinite())
+        return kotlin.math.atan2(sin(angle), cos(angle))
     }
 
     fun xInches() = xInches
@@ -166,7 +187,7 @@ class FusedOdometry(
 </Tab>
 </Tabs>
 
-Call it once each OpMode loop after reading the encoders and IMU. For the FTC SDK IMU API, `getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)` supplies the yaw value after initialization. The example expects that yaw and the starting heading to use the same zero and sign. Display the estimate while pushing the robot by hand before using it to drive:
+Call it once each OpMode loop after reading the encoders and IMU. For the FTC SDK IMU API, `getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)` supplies the yaw value after initialization. Construct `FusedOdometry` with track width, start X, start Y, and **field start heading in radians**, then call `update()` once before movement. It records initial raw yaw and aligns subsequent yaw changes with that field heading. Keep the counterclockwise-positive convention; initialize the hub mounting correctly. Reset pose, yaw offset, and encoder baselines together. A raw yaw of zero does not necessarily mean field +X. Display the estimate while pushing the robot by hand before using it to drive:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
@@ -201,13 +222,15 @@ telemetry.update()
 </Tab>
 </Tabs>
 
+Use fresh readings at a consistent cadence: this fixed per-update blend is rate-dependent. Reject invalid input before fusion.
+
 The `0.10` encoder weight is only a starting illustration: it means this example corrects most of its heading prediction toward IMU yaw each update. Tune from measured turns and investigate any persistent bias first. This weighted blend is an educational complementary estimate, not a covariance-based Kalman filter. For a mecanum or three-dead-wheel robot, include calibrated sideways movement too; do not use the two-wheel equations above as if they measured strafe.
 
 For path following, use a current localization library and follow its localizer guide rather than mixing snippets from different frameworks.
 
 An IMU may reduce heading error from wheel slip, but it can still have bias, noise, initialization requirements, and mounting errors. Fusion does not “eliminate drift.” It changes how the estimate uses each sensor's information.
 
-## Add camera measurements after odometry works
+## Camera measurements [#add-camera-measurements-after-odometry-works]
 
 AprilTag pose is relative to the camera. To compare it with the robot's field position, the program needs:
 
@@ -218,9 +241,9 @@ AprilTag pose is relative to the camera. To compare it with the robot's field po
 
 When these are known, a localization system can use the camera observation to correct accumulated motion-estimate error. A raw tag `ftcPose` value is not the robot's field pose by itself. BIOBUZZ also uses AprilTag clusters, so check the SDK version and current game layout before assuming every detection has one standalone tag ID.
 
-See [AprilTag Detection](../sensors-and-vision/visionportal/apriltag-detection) for current SDK result types and the official [FTC pose guide](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_pose/apriltag-pose.html).
+See [AprilTag Detection](../sensors-and-vision/visionportal/apriltag-detection) for current SDK result types and pose guidance.
 
-## Test a correction without driving from it
+## Correction testing [#test-a-correction-without-driving-from-it]
 
 1. Place the robot at a measured starting pose and reset the localization estimate.
 2. Move it slowly along a short, measured route while displaying odometry and IMU values.
@@ -239,14 +262,18 @@ Keep telemetry for each source and for the combined estimate. If the combined va
 - **Believing more sensors always means a better estimate:** a badly calibrated sensor can make the estimate worse.
 - **Using old season tag assumptions:** verify current field targets and SDK detection types.
 
-## Continue learning
+## Next steps [#continue-learning]
 
 - [Odometry](./odometry) — measure movement and understand drift.
 - [Vision Basics](../sensors-and-vision/vision-basics) — distinguish image coordinates from field pose.
 - [AprilTag Detection](../sensors-and-vision/visionportal/apriltag-detection) — inspect FTC SDK tag and cluster results.
 - [Pedro Pathing](../libraries/pedro-pathing) — follow the current library's localization instructions.
 
-## Official references
+<footer className="article-sources">
+
+## Sources [#official-references]
 
 - [FTC AprilTag pose and camera calibration](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_pose/apriltag-pose.html)
 - [FTC AprilTag clusters](https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html)
+
+</footer>

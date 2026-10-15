@@ -1,0 +1,57 @@
+---
+icon: engineering:Printer
+title: 3D printing
+description: Design printed robot parts around load direction, walls, fasteners, fit, material, and a reproducible print record.
+---
+
+**Fused filament fabrication**, also called FDM, builds a part by depositing melted thermoplastic in layers. It is useful for custom geometry, but a printed part's behavior depends on both its design and the process that made it.
+
+## First printed part [#choose-a-useful-first-part]
+
+Start with a cable-retention bracket, sensor mount, drilling fixture, or object guide that solves a fit or routing problem. Avoid making a safety-critical lifting part the team's first untested print.
+
+## Print orientation [#orient-for-the-actual-load]
+
+Printed parts are **anisotropic**: their properties vary with direction. Layer interfaces can fail differently from material deposited along a layer. Orient a loaded bracket so its likely bending and tension do not simply peel layers apart, then validate the real part.
+
+Also consider support removal, surface quality, hole accuracy, and bed contact. A flat cosmetic face is not necessarily the best orientation for a loaded pivot.
+
+## Walls and infill [#put-material-around-the-load-path]
+
+Walls, ribs, fillets, and local reinforcement can carry loads more effectively than increasing infill everywhere. Keep enough material around bearing seats, fastener holes, and the base of a cantilever. Avoid abrupt section changes that concentrate stress.
+
+Wall geometry should be compatible with the chosen extrusion width and slicer behavior. Inspect the sliced preview: a thin wall that appears in CAD may be omitted or formed differently during slicing. There is no universal wall count that validates every structural part.
+
+For fasteners, use washers, suitable inserts, or through-bolts and nuts where repeated assembly is required. A compression sleeve can prevent a bolt crushing plastic. Follow insert installation guidance and test pullout or joint behavior in the actual load direction.
+
+## Filament selection [#match-material-to-the-job]
+
+| Material family | Possible use | Important check |
+| --- | --- | --- |
+| PLA | Fast prototypes and some lightly loaded rigid parts | Heat exposure and impact behavior |
+| PETG | Functional guides, covers, and brackets | Print quality, creep, and dimensional fit |
+| TPU | Compliant fingers, bumpers, and rollers | Hardness, deformation, and print consistency |
+| Nylon or reinforced engineering filament | Parts needing its specific measured properties | Moisture control, printer compatibility, abrasion, and fit |
+
+Use the exact filament supplier's datasheet and printer profile. "Carbon-filled" does not establish strength, layer adhesion, or suitability for a particular part.
+
+## Print testing [#qualify-a-print-before-duplicating-it]
+
+Use a [fit coupon](/docs/engineering/manufacturing/fits-and-tolerances) for uncertain holes and interfaces. Inspect for under-extrusion, warping, cracks, and incomplete layers. Install the part without forcing alignment, then test the intended load and repeated motion in a controlled setup.
+
+Record material, printer, nozzle, orientation, layer height, extrusion width, walls, infill, support settings, and revision. Keep the sliced file or profile needed to reproduce it. A replacement printed with a different orientation is a different mechanical part even if the STL is unchanged.
+
+Print spares before an event and verify their fit. Compare mass, print time, dimensional variation, and failure location across revisions. Choose changes that improve those results; a more exotic filament name does not establish better performance.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Printing guide](https://gm0.org/en/latest/docs/custom-manufacturing/3d-printing.html)
+- [FTC Wiki: FDM introduction](https://www.ftcwiki.org/manufacturing-and-assembly/additive-manufacturing/3d-printing/fdm)
+- [FTC Wiki: Design guidance](https://www.ftcwiki.org/design-style/optimizing-design-for-3d-printing)
+- [Prusa: Modeling guidance](https://help.prusa3d.com/article/modeling-with-3d-printing-in-mind_164135)
+- [FTC Wiki: Filament overview](https://www.ftcwiki.org/design-style/optimizing-design-for-3d-printing/filaments)
+- [Prusa: Material guide](https://help.prusa3d.com/filament-material-guide)
+
+</footer>

@@ -1,0 +1,4 @@
+interface:
+  display_name: "StudyVault Article Writer"
+  short_description: "Write clear, sourced CrocoDocs engineering articles"
+  default_prompt: "Use $studyvault-article-writer with its CrocoDocs adaptation to create or revise a standalone FTC engineering article."

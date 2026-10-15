@@ -1,0 +1,151 @@
+{
+  "reviewed": "2026-10-14",
+  "sources": [
+    {
+      "name": "FTC SDK",
+      "version": "12.0.0",
+      "commit": "e14c2aeb33e84d4ea21697beeea9ac49557be870",
+      "url": "https://github.com/FIRST-Tech-Challenge/FtcRobotController",
+      "evidence": "Controller project, official samples, RobotCore/Hardware/Vision source JARs and actual AARs"
+    },
+    {
+      "name": "EasyOpenCV",
+      "version": "1.7.3",
+      "url": "https://github.com/OpenFTC/EasyOpenCV",
+      "evidence": "Author source and published AAR; FTC Vision 12 POM confirms direct dependency on 1.7.3",
+      "commit": "9bb45b3d400a3818ad86d4a97f6ec35323abef39"
+    },
+    {
+      "name": "OpenCV Java",
+      "version": "4.10.0",
+      "url": "https://docs.opencv.org/4.10.0/javadoc/",
+      "evidence": "Versioned Java source; no native image processing executed"
+    },
+    {
+      "name": "CTRL ALT FTC",
+      "commit": "0bc0c90c96461b4e92ededc08ff1c26809126f6d",
+      "url": "https://github.com/BenCaunt/CTRL-ALT-FTC",
+      "evidence": "Author chapters and explicit pseudocode notice; original explanatory synthesis"
+    },
+    {
+      "name": "Learn Java for FTC",
+      "commit": "9547071c531b89baeb33f74a6889a12f5b0c5fe1",
+      "url": "https://github.com/alan412/LearnJavaForFTC",
+      "evidence": "Author PDF, contents, README SDK 11.2 context, selected solutions; PDF All Rights Reserved; no substantial text or solution code copied"
+    },
+    {
+      "name": "FTCLib",
+      "version": "2.1.1",
+      "commit": "1c8995d09413b406e0f4aff238ea4edc2bb860c4",
+      "url": "https://github.com/FTCLib/FTCLib",
+      "evidence": "Scheduler initialization, sequential group, published artifact and JVM probe"
+    },
+    {
+      "name": "NextFTC Suite",
+      "version": "v2 modules 0.2.1",
+      "commit": "83606d2b8ab4c628b1585bd23561e6f91f2475c4",
+      "url": "https://github.com/NextFTC/NextFTCSuite",
+      "evidence": "Published robot/hardware/control artifacts, sources, current author docs; Kalman correction issue scoped to inspected release"
+    },
+    {
+      "name": "Mercurial",
+      "version": "legacy 1.0.3",
+      "commit": "207a360df3f90ff62f441aa543921107ddeed5c8",
+      "url": "https://github.com/Dairy-Foundation/Mercurial",
+      "evidence": "Published v1 artifact and legacy tutorial retained; current MercurialFTC 2.0.1-beta1 release distinguished. See new separate beta entry."
+    },
+    {
+      "name": "Pedro Pathing",
+      "version": "3.0.1",
+      "commit": "9c95f86d1d141bedde002c81bac021c6b1ff5351",
+      "url": "https://github.com/Pedro-Pathing/PedroPathing",
+      "evidence": "Published core, follower stop/update source, Quickstart 41158ec"
+    },
+    {
+      "name": "Road Runner",
+      "version": "core/actions 1.0.1; FTC 0.1.25",
+      "commit": "5cf18fb625dcb5b17ce8c47af16a80f47b0f6bb1",
+      "url": "https://github.com/acmerobotics/road-runner",
+      "evidence": "Published artifacts and Quickstart 6e63a779; separate SDK pins acknowledged"
+    },
+    {
+      "name": "FTC Dashboard",
+      "version": "0.6.0",
+      "commit": "a876f094dac392a949711b8219ca2ec8d4cc20c7",
+      "url": "https://github.com/acmerobotics/ftc-dashboard",
+      "evidence": "Author source and published artifact"
+    },
+    {
+      "name": "Panels",
+      "version": "FullPanels 1.0.18; Telemetry/Configurables 1.0.7",
+      "commit": "ed2d9f6ae464974df6a1e54358b2cb03f1b4c3d1",
+      "url": "https://github.com/ftcontrol/ftcontrol-panels",
+      "evidence": "Published official Telemetry and Configurables artifacts; Java INSTANCE accessor correction and complete motor OpMode compiled. Kotlin plugin requirement 2.4.10+ verified from author docs. No browser/robot runtime."
+    },
+    {
+      "name": "Sloth",
+      "version": "0.3.2",
+      "commit": "30a169dbba5c73e5abf71eea0af1abd3191c7574",
+      "url": "https://github.com/Dairy-Foundation/Sloth",
+      "evidence": "Deployment/remote removal source and author instructions; no deployment run"
+    },
+    {
+      "name": "BIOBUZZ manual",
+      "version": "TU04 2026-10-08",
+      "url": "https://ftc-resources.firstinspires.org/ftc/game/manual",
+      "sha256": "070a66d8b7f2c047a325e5a7b2b3ffff433dfd074eff6de7d40727524f6d66e4",
+      "evidence": "173-page English PDF, combined TU00\u2013TU04, rendered scoring/tag tables, answered Q&A reviewed 2026-10-14"
+    },
+    {
+      "name": "MercurialFTC",
+      "version": "2.0.1-beta1",
+      "commit": "97469abec908bfc9eea342570ed9b95250047316",
+      "url": "https://github.com/Dairy-Foundation/MercurialFTC/releases/tag/2.0.1-beta1",
+      "evidence": "Release and source reviewed 2026-10-14; beta version semantics retained despite GitHub prerelease=false. No beta runtime validation."
+    },
+    {
+      "name": "Slothboard",
+      "version": "0.3.2+0.6.0",
+      "commit": "4f98686b3f1cf9de1e1fb1c2d8e41d5e6d43e83d",
+      "url": "https://github.com/Dairy-Foundation/ftc-dashboard",
+      "evidence": "Dairy publication metadata/POM and source scanner inspected; config/packet API compiled against fork only."
+    },
+    {
+      "name": "SolversLib",
+      "version": "0.3.6",
+      "commit": "93ff730965655b3a55f6648ce5e0f1c0b820206b",
+      "url": "https://github.com/FTC-23511/SolversLib",
+      "evidence": "Maintained source and actual Dairy core AAR checked; complete telemetry command OpMode compiled against FTC 12. License files have project-specific terms; do not replace with GitHub detector label."
+    },
+    {
+      "name": "OpenLoop",
+      "version": "source-copy; no numbered release",
+      "commit": "b67b4034fd9a64e35f2a6f061f09d2432db85128",
+      "url": "https://github.com/AbhiPixeld/OpenLoop",
+      "evidence": "All six upstream Java files and the original short-move example compiled against FTC 12. Four-motor requirement, blocking methods and source-only maturity documented."
+    },
+    {
+      "name": "Hive Vision",
+      "version": "v2.0.0",
+      "commit": "5181638d3856124a09bff3f9c345d8eb21034c2a",
+      "url": "https://github.com/hivevisionftc/Hive-Vision/releases/tag/v2.0.0",
+      "evidence": "Release model/labels inspected; actual TFLite input contract checked; SDK 12 Limelight detection example compiled. Upstream webcam compile/draw-context defects documented. No inference/runtime check. Models/media not redistributed."
+    },
+    {
+      "name": "The Dairy Cookbook",
+      "commit": "fa4b2b12e1b2970d6bdc04606cdf6653d981c4cb",
+      "url": "https://cookbook.dairy.foundation/",
+      "evidence": "PIDF integration, two-slide and loop timing recipes inspected against FTC 12 source. Corrected concepts incorporated; unsafe or unresolved sample code not copied."
+    },
+    {
+      "name": "Controls Engineering in FRC",
+      "version": "PDF generated 2026-10-04",
+      "commit": "dd88824706e6d32b92cb941068b0feb2e6a7992e",
+      "url": "https://file.tavsys.net/control/controls-engineering-in-frc.pdf",
+      "sha256": "bfbfabdf22742ae1102fd3da2202029b116b46682ac2f068bc5411c296611ff9",
+      "evidence": "Selected sampling, estimation and system-identification sections reviewed; printed equation typo recorded. Original synthetic examples and FTC motor-mode boundary; no book figures/text rehosted."
+    }
+  ],
+  "release_review": "audits/library-release-pins.json",
+  "resource_review": "audits/resource-refresh.md"
+}

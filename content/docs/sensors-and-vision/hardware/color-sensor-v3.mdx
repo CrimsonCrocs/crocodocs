@@ -4,19 +4,19 @@ description: Configure the sensor, read its color values, and test a simple deci
 icon: Palette
 ---
 
-# Read color from an object close to the robot
+<span id="read-color-from-an-object-close-to-the-robot" className="heading-alias" />
 
 The REV Color Sensor V3 is a small I²C sensor for **nearby objects**. It measures red, green, blue, and clear-light values and also has an infrared proximity detector. It is not a camera: its useful color range is very short. REV recommends collecting color data within about **2 cm** of the target for the strongest differentiation. Its proximity reading is rough and depends on target reflectivity and lighting; it is not a precise distance sensor.
 
-This lesson will first display the sensor values. Only after you see how your own sensor behaves should you write code that labels an object “red,” “blue,” or something else.
+Display the sensor values first. Once you have measured how your sensor responds to the objects, add code that labels them “red,” “blue,” or another color.
 
-## Step 1: Configure the physical sensor
+## Sensor configuration [#step-1-configure-the-physical-sensor]
 
 Connect the sensor to a Hub I²C port. In the Robot Controller configuration, add **REV Color Sensor V3** to that port and name it `color`. Do not select the older “REV Color/Range Sensor” configuration for a V3.
 
 The V3 and REV's 2m Distance Sensor share an I²C address; REV says they cannot share the same I²C bus. Check bus assignments if the Control Hub reports an address conflict.
 
-## Step 2: Map the device in Java
+## Hardware mapping [#step-2-map-the-device-in-java]
 
 For color readings, ask the FTC SDK for a `NormalizedColorSensor`:
 
@@ -48,9 +48,9 @@ override fun init() {
 
 `hardwareMap.get` connects your Java variable to the device with configuration name `color`. If the name or configured device type differs, initialization fails.
 
-You do not need three separate hardware objects just to read three color channels. One normalized sensor object gives you red, green, blue, and alpha/clear-light measurements.
+You do not need three separate hardware objects just to read three color channels. One normalized sensor object gives you red, green, blue, and driver-derived alpha/brightness measurements.
 
-## Step 3: Display measurements before classifying anything
+## Sensor readings [#step-3-display-measurements-before-classifying-anything]
 
 Read a sample and show each channel in telemetry:
 
@@ -63,7 +63,7 @@ NormalizedRGBA sample = colorSensor.getNormalizedColors();
 telemetry.addData("Red", "%.3f", sample.red);
 telemetry.addData("Green", "%.3f", sample.green);
 telemetry.addData("Blue", "%.3f", sample.blue);
-telemetry.addData("Clear light", "%.3f", sample.alpha);
+telemetry.addData("Alpha / brightness", "%.3f", sample.alpha);
 telemetry.update();
 ```
 
@@ -76,7 +76,7 @@ val sample = colorSensor.normalizedColors
 telemetry.addData("Red", "%.3f", sample.red)
 telemetry.addData("Green", "%.3f", sample.green)
 telemetry.addData("Blue", "%.3f", sample.blue)
-telemetry.addData("Clear light", "%.3f", sample.alpha)
+telemetry.addData("Alpha / brightness", "%.3f", sample.alpha)
 telemetry.update()
 ```
 
@@ -85,7 +85,7 @@ telemetry.update()
 
 The channels are normalized values, not calibrated physical color coordinates. Hold a matte red, green, blue, white, and black object at the same close distance. Record how the four readings change. Keep the sensor orientation and built-in LED switch in the same state during your tests.
 
-## Step 4: Make a small, measured color rule
+## Color classification [#step-4-make-a-small-measured-color-rule]
 
 A first rule can compare which channel is largest, but that rule is only a starting exercise. It can mislabel white, gray, reflections, or colors that produce similar channel values.
 
@@ -128,7 +128,7 @@ telemetry.addData("Simple channel comparison", colorGuess)
 
 The labels say “-like reading” on purpose: this is not a reliable general-purpose color classifier. Improve it only after logging samples from the actual game objects, target distance, room lighting, and LED setting. Add thresholds and an “unknown” case for overlapping or dim readings. Never assume thresholds from another robot transfer to yours.
 
-## Optional: use the proximity reading as a nearby/not-nearby hint
+## Proximity readings [#optional-use-the-proximity-reading-as-a-nearbynot-nearby-hint]
 
 If the SDK exposes this configured device as a `DistanceSensor`, you can display its rough proximity estimate:
 
@@ -155,7 +155,7 @@ telemetry.addData("Rough proximity (cm)", "%.1f", estimatedDistanceCm)
 
 Treat this as a rough proximity cue, not a precision measurement. REV notes that reflectivity affects the result and recommends a separate distance sensor for accurate range. Test the actual object and mounting distance before using a threshold.
 
-## Step 5: Test the rule like a small experiment
+## Classification testing [#step-5-test-the-rule-like-a-small-experiment]
 
 1. Place one known object at the sensor's intended distance.
 2. Record several readings without moving the robot.
@@ -176,9 +176,15 @@ This process shows whether the sensor can answer your robot's question at all. T
 | Proximity varies between objects | Reflectivity affects the estimate; use it only as a rough nearby cue. |
 | V3 values differ from V1/V2 values | V3 uses a different sensor chip; recalibrate instead of reusing old thresholds. |
 
-## Official references
+The FTC SDK 12 Broadcom driver derives normalized alpha from RGB brightness; it is not an independent clear-channel measurement. Use it as a brightness indication and calibrate thresholds on the actual surface.
+
+<footer className="article-sources">
+
+## Sources [#official-references]
 
 - [REV Color Sensor V3 overview](https://docs.revrobotics.com/rev-crossover-products/sensors/color-sensor)
 - [REV Color Sensor V3 programming and application notes](https://docs.revrobotics.com/rev-crossover-products/sensors/color-sensor/application-examples)
 - [REV I²C configuration and bus notes](https://docs.revrobotics.com/duo-control/sensors/i2c)
 - [FTC sensor overview](https://ftc-docs.firstinspires.org/en/latest/control_hard_compon/rc_components/sensors/sensors.html)
+
+</footer>

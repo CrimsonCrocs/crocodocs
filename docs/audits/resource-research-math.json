@@ -1,0 +1,41 @@
+{
+  "gear": {
+    "pitch_radius_m": 0.008,
+    "tangential_N": 50.0,
+    "radial_at_20deg_N": 18.19851171331012,
+    "radial_at_25deg_N": 23.31538290774993
+  },
+  "alignment": {
+    "offset_mm": 60,
+    "angle_deg": 0.5,
+    "small_angle_error_mm": 0.5235987755982988
+  },
+  "measurement": {
+    "mean_cm": 100.40000000000002,
+    "bias_cm": 0.4000000000000199,
+    "sample_variance_cm2": 0.039999999999998294,
+    "sample_stddev_cm": 0.19999999999999574
+  },
+  "filter": {
+    "tau_s": 0.05,
+    "dt_s": 0.01,
+    "new_reading_weight": 0.18126924692201818,
+    "analog_cutoff_Hz": 3.183098861837907,
+    "100ms_age_at_1m_per_s_error_m": 0.1
+  },
+  "feedforward": {
+    "synthetic_only": true,
+    "kS_V": 0.39999999999999747,
+    "kV_V_per_m_per_s": 2.0000000000000004,
+    "kA_V_per_m_per_s2": 0.30000000000000004,
+    "matrix_rank": 3,
+    "heldout_V": 3.6999999999999984,
+    "duty_at_12V": 0.3083333333333332,
+    "duty_at_10_5V": 0.35238095238095224
+  },
+  "kalman": {
+    "prior_variance_cm2": 5.0,
+    "gain": 0.5555555555555556,
+    "posterior_variance_cm2": 2.2222222222222223
+  }
+}

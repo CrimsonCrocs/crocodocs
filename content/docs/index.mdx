@@ -1,11 +1,13 @@
 ---
-title: What is CrocoDocs?
+title: Introduction
 icon: Info
 ---
 
-<Wordmark textOnly /> is a student-written guide to robotics programming.
+<Wordmark size="large" /> is a student-written guide to FTC engineering, programming, and portfolios.
 
-This handbook focuses on **FIRST Tech Challenge (FTC)** programming: Java and Kotlin, robot control, vision, autonomous routines, and commonly used libraries.
+Choose **Engineering** in the top navigation for robot design, mechanisms, fabrication, wiring, and testing. **Programming** contains Java and Kotlin, robot control, vision, autonomous routines, and commonly used libraries.
+
+**Portfolio** covers documenting your season, preparing evidence for awards, and judging, with detailed studies of Inspire portfolios.
 
 <Callout>
   This site is an independent student project and is not affiliated with or endorsed by FIRST. Competition rules and software APIs change; use the linked official sources for current requirements.
@@ -13,22 +15,13 @@ This handbook focuses on **FIRST Tech Challenge (FTC)** programming: Java and Ko
 
 Articles combine explanations with links to official documentation. Robot behavior depends on the SDK version, hardware, and implementation, so test examples safely on your own robot.
 
-Some pages may recompile and rephrase information from various sources to make
-it more accessible or relevant. However, if an existing resource already covers
-a topic thoroughly and clearly, we will link to it directly instead of rewriting
-it. Additionally, sources and references used in each page will be listed where
-applicable.
-
 <Callout type="warn" title="Season-specific information">
 The current season page covers BIOBUZZ (2026–27). Always check the official competition manual and team updates before relying on game rules, scoring, or robot legality.
 </Callout>
 
 ## Philosophy
 
-The goal of <Wordmark textOnly /> is to make technical knowledge in FIRST robotics more
-accessible, accurate, and student-driven. Many programming concepts are
-scattered across forums, videos, and codebases. This site aims to unify them into a
-single, structured reference.
+CrocoDocs puts FTC explanations and examples in one reference so students can learn without piecing together forum posts, videos, and codebases. Students write and maintain the articles, checking technical details against official documentation and source code.
 
 ## Maintainers
 
@@ -40,10 +33,22 @@ The site is currently maintained by:
 
 ## Navigation
 
-Explore key sections of the site below:
+Choose a topic:
 
 <LinkedCards
   data={[
+    {
+      title: "Engineering",
+      description:
+        "Design, build, and test an FTC robot. Start with a kit drivetrain or investigate mechanisms, fabrication, and reliability.",
+      href: "/docs/engineering",
+    },
+    {
+      title: "Portfolio",
+      description:
+        "Plan your pages, document your work, prepare for judging, and study four Inspire portfolios.",
+      href: "/docs/portfolio",
+    },
     {
       title: "Getting Started",
       description:
@@ -53,36 +58,36 @@ Explore key sections of the site below:
     {
       title: "Libraries",
       description:
-        "Explore and compare popular robotics libraries like Road Runner and EasyOpenCV. Find the best tools for your needs.",
+        "Compare path followers, command frameworks, and tuning tools, with version-specific examples.",
       href: "/docs/libraries",
     },
     {
       title: "Sensors and Vision",
       description:
-        "Understand how to work with encoders, IMUs, and vision systems like AprilTags and color processors to give your robot awareness.",
-      href: "/docs/sensors-and-vision",
+        "Read encoders and IMUs, process camera images, and check AprilTag and color detections.",
+      href: "/docs/sensors-and-vision/vision-overview",
     },
     {
       title: "Control Systems",
       description:
-        "Master the fundamentals of robot control — from joystick mapping and motor commands to PID tuning and feedback loops.",
+        "Read gamepad input, control motors, and tune feedback loops.",
       href: "/docs/control-systems",
     },
     {
       title: "Autonomous",
       description:
-        "Learn to create reliable autonomous routines using path planning, localization, and sensor-driven decision-making.",
+        "Plan routes, estimate robot position, and handle failed movements or missing detections.",
       href: "/docs/autonomous",
     },
     {
-      title: "Codebase Etiquette and Good Practices",
+      title: "Code practices",
       description:
-        "Keep your code clean and collaborative. Learn best practices for structure, naming, abstraction, and teamwork.",
+        "Organize hardware, name measurements, and review changes with your team.",
       href: "/docs/cegp",
     },
     {
       title: "Season Breakdown",
-      description: "A short overview of the current FTC game, with links to the official manual and updates.",
+      description: "BIOBUZZ timing, scoring, piece control, field setup, and official rules.",
       href: "/docs/season-breakdown",
     },
   ]}

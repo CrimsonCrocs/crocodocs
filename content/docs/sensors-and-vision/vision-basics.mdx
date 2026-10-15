@@ -1,20 +1,20 @@
 ---
-title: Vision Basics
+title: Vision basics
 description: Learn what a camera pipeline measures before writing robot decisions
 icon: BookOpen
 ---
 
-# What does a vision program actually see?
+<span id="what-does-a-vision-program-actually-see" className="heading-alias" />
 
 A camera does not see “a game piece” the way a person does. It gives the program an image made of pixels. Vision software turns those pixels into measurements—such as “these pixels look blue,” “this shape is centered at x = 210,” or “I can read tag ID 4.” Your OpMode must decide what those measurements mean and what the robot should do next.
 
 ![OpenCV stages on an official BIOBUZZ Pollen photo: source image, yellow HSV mask, cleaned candidate, and measured blob.](/guides/vision-color-blob-pipeline.png)
 
-*This controlled example uses a [published Pollen product photo](https://andymark.com/products/biobuzz-scoring-elements); a robot camera sees a different background, distance, and lighting.*
+*This controlled example uses a product photo; a robot camera sees a different background, distance, and lighting.*
 
-## Follow one object through a vision pipeline
+## Pipeline stages [#follow-one-object-through-a-vision-pipeline]
 
-Use the picture above as a mental model. A basic color pipeline performs these jobs:
+The picture above shows the stages of a basic color pipeline:
 
 1. **Capture a frame.** The camera supplies a color image. Its width and height are measured in pixels.
 2. **Choose an area to search.** A region of interest (ROI) limits detection to the part of the image where the object could appear.
@@ -24,7 +24,7 @@ Use the picture above as a mental model. A basic color pipeline performs these j
 
 A blob is a candidate, not proof that the robot found the intended game object. A colored light, field decoration, or reflection can look like a match too. Preview the output and test several distances and lighting conditions before trusting it.
 
-## Color numbers: RGB and HSV
+## RGB and HSV [#color-numbers-rgb-and-hsv]
 
 **RGB** stores the red, green, and blue amount for each pixel. It is easy to understand, but a shadow can change all three values even when the object is the same color.
 
@@ -32,24 +32,24 @@ A blob is a candidate, not proof that the robot found the intended game object. 
 
 A threshold is a range of numbers, not a universal definition of “blue” or “red.” Calibrate it with the real camera, object, distance, and field lighting. FTC's built-in color swatches are convenient starting points, but the FTC color guide notes that some swatches were tuned for older season game pieces.
 
-## Image coordinates are not field coordinates
+## Image and field coordinates [#image-coordinates-are-not-field-coordinates]
 
 In a camera image, `(0, 0)` is usually the top-left pixel. **X increases to the right** and **Y increases downward**. If a blob center is at x = 80 in a 320-pixel-wide image, it is left of center. This does not directly tell you how many inches away the object is.
 
 To estimate field position or distance, the robot needs additional geometry and calibration—for example, camera calibration, known object size, a known field tag layout, or another sensor. AprilTag pose results are estimates and depend on correct tag size and camera calibration. A pixel coordinate alone is not a field pose.
 
-## Choose the FTC tool for the question
+## Vision tools [#choose-the-ftc-tool-for-the-question]
 
 | If you need to know… | Start with… | What it returns |
 | --- | --- | --- |
-| What color is in a camera image region? | FTC SDK **ColorProcessor** | A color estimate from the selected image region. This is camera vision, not a REV color sensor. |
+| What color is in a camera image region? | FTC SDK **PredominantColorProcessor** | A color estimate from the selected image region. This is camera vision, not a REV color sensor. |
 | Where a group of a chosen color appears in the frame? | FTC **Color Locator** processor | Blob measurements such as area and a fitted box/center. |
 | Which known fiducial marker is visible, or its estimated pose? | FTC **AprilTag** processor | Detection identity and pose fields, subject to SDK version and calibration. |
 | A custom shape, feature, or rule? | **EasyOpenCV** pipeline | Your own OpenCV processing steps and measurements. |
 
 VisionPortal is the FTC SDK camera-and-processor workflow. EasyOpenCV is a separate library used for custom pipelines. Start with the FTC sample OpModes when using a built-in processor; they are maintained with the SDK and match its current API.
 
-## A first camera exercise
+## Camera exercise [#a-first-camera-exercise]
 
 Before making the robot move, run a sample or preview OpMode and answer these questions:
 
@@ -61,16 +61,21 @@ Before making the robot move, run a sample or preview OpMode and answer these qu
 
 Keep vision in **INIT** or display results with telemetry while learning. For your first test, make the robot report a location; do not let it drive toward an unverified detection.
 
-## Continue with a focused lesson
+## Next steps [#continue-with-a-focused-lesson]
 
 - [VisionPortal](./visionportal/vision-portal) — connect FTC processors to a camera.
 - [Color blob locator](./visionportal/color-blob-locator) — find and inspect matching color regions.
 - [AprilTag detection](./visionportal/apriltag-detection) — understand tag results and pose limits.
 - [EasyOpenCV basics](./easyopencv/easyopencv-basics) — build a custom image pipeline.
 
-## Official references
+<footer className="article-sources">
+
+## Sources [#official-references]
 
 - [FTC color processing overview](https://ftc-docs.firstinspires.org/en/latest/color_processing/overview/overview.html)
 - [FTC Color Blob Concepts](https://ftc-docs.firstinspires.org/en/latest/color_processing/color-blob-concepts/color-blob-concepts.html)
 - [FTC VisionPortal overview](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_overview/visionportal-overview.html)
 - [FTC AprilTag pose and calibration](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_pose/apriltag-pose.html)
+- [AndyMark: BIOBUZZ scoring elements — source photo](https://andymark.com/products/biobuzz-scoring-elements)
+
+</footer>

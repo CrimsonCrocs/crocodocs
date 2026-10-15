@@ -1,24 +1,24 @@
 ---
-title: Writing a First OpenCV Pipeline
+title: OpenCV pipelines
 description: Build a small color mask step by step with EasyOpenCV
 icon: Code
 ---
 
-# Build a pipeline that finds one color
+<span id="build-a-pipeline-that-finds-one-color" className="heading-alias" />
 
-A pipeline is a method EasyOpenCV calls once for each camera frame. This lesson will turn a frame into a black-and-white mask, find connected matching pixels, draw a box around the largest match, and share its center with the OpMode.
+A pipeline is a method EasyOpenCV calls once for each camera frame. The example turns each frame into a black-and-white mask, finds connected matching pixels, draws a box around the largest match, and shares its center with the OpMode.
 
 Use the real BIOBUZZ Pollen photo below to follow a yellow object through the pipeline. The photo is an isolated product shot from AndyMark, so its white background is much easier than a real field. We ran OpenCV on that image to make the mask and blob overlay shown here; the example bounds still need retuning for your robot's camera and lighting.
 
 ![The unprocessed BIOBUZZ Pollen product photo used as the pipeline's input.](/guides/vision-stage-source.jpg)
 
-*Source photo: [AndyMark BIOBUZZ scoring elements](https://andymark.com/products/biobuzz-scoring-elements). This controlled product photo is easier to detect than a real field image; its mask thresholds are teaching values, not camera calibration.*
+*This controlled product photo is easier to detect than a real field image; its mask thresholds are teaching values, not camera calibration.*
 
-## Before writing code
+## Prerequisites [#before-writing-code]
 
-This page assumes you have confirmed that the camera opens. If it does not, work through [EasyOpenCV Basics](./easyopencv-basics) first. EasyOpenCV passes **RGBA** frames to the pipeline, so the color conversion below starts with `COLOR_RGBA2HSV`.
+This page assumes you have confirmed that the camera opens. If it does not, work through [EasyOpenCV Basics](./easyopencv-basics) first. EasyOpenCV passes **RGBA** frames to the pipeline, so the color conversion below starts with `COLOR_RGB2HSV` (which accepts RGB or RGBA input and ignores alpha).
 
-## Step 1: Create storage for the result and working images
+## Working images [#step-1-create-storage-for-the-result-and-working-images]
 
 OpenCV represents an image as a `Mat`. The `input` image is supplied by EasyOpenCV; make `Mat` objects for the converted HSV image and the mask. Reuse them for each frame instead of constructing them every time.
 
@@ -51,7 +51,7 @@ private val kernel = Imgproc.getStructuringElement(
 
 `centerX` is shared between the camera thread and the OpMode loop. `NaN` means “no valid detection yet.” Never treat it as a real pixel coordinate.
 
-## Step 2: Convert pixels, then make a mask
+## Color mask [#step-2-convert-pixels-then-make-a-mask]
 
 The conversion separates hue from brightness. `inRange` paints matching pixels white and other pixels black:
 
@@ -60,7 +60,7 @@ The conversion separates hue from brightness. `inRange` paints matching pixels w
 
 ```java
 Imgproc.GaussianBlur(input, blurred, new Size(5, 5), 0);
-Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGBA2HSV);
+Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGB2HSV);
 Core.inRange(
     hsv,
     new Scalar(15, 60, 70),
@@ -76,7 +76,7 @@ Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel);
 
 ```kotlin
 Imgproc.GaussianBlur(input, blurred, Size(5.0, 5.0), 0.0)
-Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGBA2HSV)
+Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGB2HSV)
 Core.inRange(
     hsv,
     Scalar(15.0, 60.0, 70.0),
@@ -98,7 +98,7 @@ For one test, temporarily return `mask` from `processFrame` to view the black-an
 
 This is the intermediate result to inspect before moving on. If the Pollen is not mostly white, adjust the range or lighting first; contour code cannot recover pixels that the mask removed.
 
-## Step 3: Find connected white regions
+## Contours [#step-3-find-connected-white-regions]
 
 A connected group of white pixels is a contour. Find contours in the mask, then keep the largest contour above a minimum pixel area:
 
@@ -147,13 +147,13 @@ for (contour in contours) {
 </Tab>
 </Tabs>
 
-Why keep the largest? A mask often contains tiny white specks caused by reflections or image noise. The area test removes small candidates. This is only a simple selection rule; if multiple real objects may be visible, the largest one may not be the object you want.
+A mask often contains tiny white specks caused by reflections or image noise. The area test removes those small candidates. This is only a simple selection rule; if multiple real objects may be visible, the largest one may not be the object you want.
 
 ![The largest accepted contour filled in white after the minimum-area check.](/guides/vision-stage-cleaned.png)
 
 This view shows the candidate the example will measure. A mask with two touching balls can produce one connected contour, so this step does not promise one contour per game element.
 
-## Step 4: Measure the result and draw it on the preview
+## Blob measurement [#step-4-measure-the-result-and-draw-it-on-the-preview]
 
 A bounding rectangle gives a practical center in **pixels**. Draw that rectangle so you can compare the program's result with the camera image:
 
@@ -181,7 +181,7 @@ if (largest != null) {
     centerX = box.x + box.width / 2.0
     Imgproc.rectangle(input, box, Scalar(0.0, 255.0, 0.0, 255.0), 3)
     Imgproc.circle(input, Point(centerX, box.y + box.height / 2.0),
-        5.0, Scalar(255.0, 0.0, 0.0, 255.0), -1)
+        5, Scalar(255.0, 0.0, 0.0, 255.0), -1)
 } else {
     centerX = Double.NaN
 }
@@ -215,9 +215,9 @@ for (contour in contours) contour.release()
 </Tab>
 </Tabs>
 
-## Step 5: Put these stages in the pipeline method
+## Complete pipeline [#step-5-put-these-stages-in-the-pipeline-method]
 
-The class below assembles the steps. Read it by matching each block to Steps 1–4 above. The camera setup and telemetry belong in a separate OpMode, as shown in [EasyOpenCV Basics](./easyopencv-basics).
+The class below assembles the steps. Read it by matching each block to the earlier stages. The camera setup and telemetry belong in a separate OpMode, as shown in [EasyOpenCV Basics](./easyopencv-basics).
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
@@ -246,7 +246,7 @@ public class PollenTargetPipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
         Imgproc.GaussianBlur(input, blurred, new Size(5, 5), 0);
-        Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGBA2HSV);
+        Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGB2HSV);
         Core.inRange(hsv, new Scalar(15, 60, 70),
             new Scalar(40, 255, 255), mask);
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel);
@@ -286,6 +286,14 @@ public class PollenTargetPipeline extends OpenCvPipeline {
     public double getCenterX() {
         return centerX;
     }
+
+    // Owner calls this only after closeCameraDevice() has stopped callbacks.
+    public void release() {
+        hsv.release();
+        mask.release();
+        blurred.release();
+        kernel.release();
+    }
 }
 ```
 
@@ -313,7 +321,7 @@ class PollenTargetPipeline : OpenCvPipeline() {
 
     override fun processFrame(input: Mat): Mat {
         Imgproc.GaussianBlur(input, blurred, Size(5.0, 5.0), 0.0)
-        Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGBA2HSV)
+        Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGB2HSV)
         Core.inRange(hsv, Scalar(15.0, 60.0, 70.0),
             Scalar(40.0, 255.0, 255.0), mask)
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_OPEN, kernel)
@@ -343,7 +351,7 @@ class PollenTargetPipeline : OpenCvPipeline() {
             Imgproc.rectangle(input, box, Scalar(0.0, 255.0, 0.0, 255.0), 3)
             Imgproc.circle(input,
                 Point(centerX, box.y + box.height / 2.0),
-                5.0, Scalar(255.0, 0.0, 0.0, 255.0), -1)
+                5, Scalar(255.0, 0.0, 0.0, 255.0), -1)
         }
 
         for (contour in contours) contour.release()
@@ -351,6 +359,14 @@ class PollenTargetPipeline : OpenCvPipeline() {
     }
 
     fun getCenterX() = centerX
+
+    // Owner calls this only after closeCameraDevice() has stopped callbacks.
+    fun release() {
+        hsv.release()
+        mask.release()
+        blurred.release()
+        kernel.release()
+    }
 }
 ```
 
@@ -359,7 +375,7 @@ class PollenTargetPipeline : OpenCvPipeline() {
 
 In the OpMode loop, read `pipeline.getCenterX()`. Check `Double.isNaN(centerX)` before using it. Do not block the camera callback waiting for the OpMode thread; pass simple measurements such as numbers or an enum between them.
 
-## Test one change at a time
+## Pipeline testing [#test-one-change-at-a-time]
 
 1. Run the camera with no detection. Confirm a live, correctly oriented image.
 2. Display the mask. Confirm the practice object is white and most of its background is black.
@@ -370,13 +386,18 @@ In the OpMode loop, read `pipeline.getCenterX()`. Check `Double.isNaN(centerX)` 
 
 If detections flicker, improve the lighting or narrow the region of interest before adding complex logic. If your frame size changes, re-check area thresholds; a 250-pixel contour at one resolution is not the same fraction of the image at another.
 
-## See the complete pipeline
+## Pipeline overview [#see-the-complete-pipeline]
 
 ![Summary of the source, mask, cleaned candidate, and measured overlay shown at their corresponding steps above.](/guides/vision-color-blob-pipeline.png)
 
-## References
+<footer className="article-sources">
+
+## Sources [#references]
 
 - [OpenFTC EasyOpenCV repository](https://github.com/OpenFTC/EasyOpenCV) — installation status, RGBA note, examples, and SDK compatibility.
 - [EasyOpenCV pipeline overview](https://github.com/OpenFTC/EasyOpenCV/blob/master/doc/user_docs/pipelines_overview.md)
 - [FTC Color Blob Concepts](https://ftc-docs.firstinspires.org/en/latest/color_processing/color-blob-concepts/color-blob-concepts.html) — how the FTC processor defines a blob, contour, and fitted box.
 - [Color Locator filtering](https://ftc-docs.firstinspires.org/en/latest/color_processing/color-locator-explore/color-locator-explore.html) — official FTC built-in processor filtering.
+- [AndyMark: BIOBUZZ scoring elements — source photo](https://andymark.com/products/biobuzz-scoring-elements)
+
+</footer>

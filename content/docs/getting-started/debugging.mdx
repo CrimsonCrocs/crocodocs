@@ -1,0 +1,51 @@
+---
+title: Debugging robot code
+description: Separate build, configuration, runtime, and behavior failures with evidence
+icon: phosphor:TestTube
+---
+
+First identify what failed: compiling the program, installing it, initializing hardware, or producing the intended motion. Each stage has different evidence. Changing a controller gain cannot repair a missing Java import, and a successful build cannot prove that an encoder sign is correct.
+
+## Build errors
+
+Read the **first relevant compiler error**, its file, and its line number. Later errors may follow from that one mistake. Check the class name, braces, imports, and the installed API version. A copied tutorial may target a different library major version or use pseudocode.
+
+In Android Studio, jump to a method's definition and inspect its parameter types, units, return value, and lifecycle. Compare it with the official sample from the SDK version installed in the project. The standard FTC SDK 12 project uses Java 8 language compatibility; code that compiles in a desktop Java 17 project may rely on APIs unavailable on the robot's Android version.
+
+## Installation
+
+Add a visible build label to telemetry, such as `telemetry.addLine("Practice build 3")`, and redeploy. If it does not change, verify the selected device, successful install, and correct OpMode. Android Studio's standard application module is **TeamCode**. With Sloth, clear remote hot-reloaded classes before a normal full install as described in the [Sloth guide](../libraries/sloth).
+
+## Hardware configuration
+
+A `hardwareMap` error often means the requested name or device type does not match the active configuration. Compare capitalization and the configured port. Confirm a motor is not being requested as a servo, and that the robot is using the configuration you edited.
+
+Do not rename several devices and rewrite the controller at once. Test one mapped device with telemetry, then add its output command at low power.
+
+## Runtime failures
+
+An exception stack trace identifies the failing method and call path. Look for your TeamCode file and line, then inspect its inputs. Common causes include a null detection, an empty list indexed at zero, an invalid format string, and a lifecycle method called before hardware exists.
+
+For example, `%d` formats an integer while `%.1f` formats a floating-point value. A method returning `int` does not become a floating-point argument just because telemetry displays it. Check the declared return type instead of guessing.
+
+## Incorrect motion
+
+Log the smallest useful set of values: requested target, raw measurement, converted measurement, error, output, state, and elapsed time. Include units. Test the direction of a small positive output independently from the measurement conversion.
+
+For an arm moving away from its target, stop and check output sign, sensor sign, encoder zero, and units before tuning gains. For an autonomous miss, compare the real position with localization telemetry. A correct encoder target can coexist with wheel slip and a wrong field endpoint.
+
+## Repeatable tests
+
+Record the code revision, starting pose, battery condition, load, and result. Change one suspected cause, repeat the same test, and compare. Keep failed trials: removing them produces a misleading reliability estimate. After a repair, repeat the original failing case and a nearby normal case.
+
+If the fault remains unclear, reduce to a small OpMode with one device and enough telemetry to reproduce it. Keep private network details out of public logs. For mechanical failures and on-field testing, use [Testing and reliability](../engineering/team/testing-and-reliability).
+
+<footer className="article-sources">
+
+## Sources
+
+- [Official FTC SDK source and samples](https://github.com/FIRST-Tech-Challenge/FtcRobotController/tree/e14c2aeb33e84d4ea21697beeea9ac49557be870/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples)
+- [FTC programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
+- [Learn Java for FTC](https://github.com/alan412/LearnJavaForFTC) — API lookup and debugging exercises.
+
+</footer>

@@ -1,0 +1,109 @@
+---
+title: Hive Vision
+description: Load the BIOBUZZ model onto a Limelight 3A and inspect detections before driving from them
+icon: phosphor:Eye
+---
+
+Hive Vision provides BIOBUZZ object-detection models and a separate Java color-detection implementation. Its **v2.0.0** release supplies a TensorFlow Lite model for a Limelight 3A. Start by printing the detected class and image offset while leaving the drivetrain still.
+
+## Deployment paths
+
+| Path | Where detection runs | Robot integration |
+| --- | --- | --- |
+| Limelight neural model | Limelight 3A CPU | FTC SDK `Limelight3A` driver |
+| Java HSV detector | Control Hub with USB webcam | Source-copy `VisionProcessor` code that needs integration repairs |
+
+This lesson uses the Limelight path. The model is installed on the camera; it is not a new Java dependency for TeamCode. The older PC YOLO and Lab tracks are archived in the project's current documentation.
+
+Checked **14 October 2026**: v2.0.0 was released on October 12. This example uses FTC SDK 12's Limelight driver. Source and model inspection do not establish inference speed or detection accuracy on our hardware.
+
+## Camera setup
+
+1. Configure a Limelight 3A using the manufacturer's FTC wiring and setup procedure. Its documented Control Hub connection uses USB-C to the blue USB 3 port. For initial computer setup, use the camera's Hardware Manager or its USB-connected browser interface.
+2. Download the **v2.0.0** model asset `best_limelight3a_ssd_mobilenetv2_300x300_v2_int8_dets25.tflite` and matching `labels.txt`.
+3. In a **Neural Detector** pipeline, select **CPU**, upload both files, and use the model's **300 × 300** input size. Put this pipeline in slot **0** for the example below.
+4. Check that labels are ordered `yellow_pollen`, `red_nectar`, `blue_nectar` with class IDs 0, 1, and 2.
+5. Scan/configure the device on the Robot Controller and name it `limelight`.
+
+The v2 release suggests an initial detector threshold around 80–90%. Treat that as a camera-UI starting point and test both false detections and missed objects. Older setup pages describe different model names and thresholds; use the release's matching assets.
+
+Do not assume `limelight.local:5801` is reachable from every robot Wi-Fi connection. Initial USB computer access and access through the robot network are different connection arrangements.
+
+## Detection preview
+
+Save this complete Java OpMode as `HiveDetectionPreview.java`. It was compiled against FTC SDK 12 and needs no dependency beyond the standard SDK project for this integration.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+
+@TeleOp(name = "Hive Detection Preview")
+public class HiveDetectionPreview extends OpMode {
+    private Limelight3A limelight;
+
+    @Override public void init() {
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.setPollRateHz(50);
+        limelight.pipelineSwitch(0); // Slot 0 must contain the Hive v2 neural model.
+        limelight.start();
+    }
+
+    @Override public void loop() {
+        LLResult result = limelight.getLatestResult();
+        if (result == null || !result.isValid()
+                || result.getStaleness() > 120 || result.getPipelineIndex() != 0) {
+            telemetry.addLine("No recent valid result from pipeline 0");
+        } else {
+            telemetry.addData("Camera timestamp", result.getTimestamp());
+            telemetry.addData("Detections", result.getDetectorResults().size());
+            int index = 0;
+            for (LLResultTypes.DetectorResult detection : result.getDetectorResults()) {
+                telemetry.addData("Detection " + index++, "%s: tx=%.1f deg, raw confidence=%.3f",
+                        detection.getClassName(), detection.getTargetXDegrees(),
+                        detection.getConfidence());
+            }
+        }
+        telemetry.update();
+    }
+
+    @Override public void stop() {
+        if (limelight != null) limelight.stop();
+    }
+}
+```
+
+The 120 ms check is an illustrative receive-age bound, not a universal camera timeout. Tune a freshness policy from measured camera and robot-loop timing. `stop()` ends the polling owned by this OpMode.
+
+Place one object in view and move it left and right. Record the reported label, `tx`, and confidence. Remove it, then add a similar-colored distractor. Check whether the result disappears and whether the class remains correct across lighting, distance, and partial occlusion.
+
+## Result meaning
+
+`tx` is a horizontal **angular offset in degrees**. It is not field X, distance, or a complete target pose. A class label is an observation to validate before using it for acquisition or piece counting.
+
+The SDK's detector-confidence documentation and forwarded firmware value do not establish a consistent scale by themselves. This example prints **raw confidence**. Inspect actual output before implementing a numerical filter; do not assume that a threshold of `0.8` and one of `80` mean the same thing.
+
+`getStaleness()` measures time since the Control Hub received/parsed a result. It does not prove the image is a newly captured frame. Polling at 50 Hz can read the same camera frame several times. If requiring several independent detections, compare camera timestamps rather than counting repeated loop iterations. Keep camera-local and Control Hub time domains separate.
+
+## Webcam integration
+
+The v2 webcam code needs repairs before it is a copy-and-run example. Its calibration import does not match FTC SDK 12, and its returned annotated `Mat` is handled as VisionPortal draw context rather than a displayed replacement frame. That clone also needs explicit ownership and release. The rolling setup guide uses the wrong `Size` type for the VisionPortal builder.
+
+For a source-checked webcam starting point, use [Color Blob Locator](../sensors-and-vision/visionportal/color-blob-locator) or [custom VisionProcessors](../sensors-and-vision/visionportal/vision-portal). Do not combine the Limelight model setup with the separate HSV processor's imports and lifecycle.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Hive Vision v2.0.0 release and model assets](https://github.com/hivevisionftc/Hive-Vision/releases/tag/v2.0.0)
+- [Hive deployment overview](https://sidhuharjas.gitbook.io/hive-vision)
+- [Limelight 3A setup](https://docs.limelightvision.io/docs/docs-limelight/getting-started/limelight-3a) · [FTC programming API](https://docs.limelightvision.io/docs/docs-limelight/apis/ftc-programming)
+- [FTC SDK 12 Hardware source archive](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/Hardware/12.0.0/Hardware-12.0.0-sources.jar) — driver, result timestamps, and detector values.
+- [Hive v2 webcam source](https://github.com/hivevisionftc/Hive-Vision/tree/5181638d3856124a09bff3f9c345d8eb21034c2a/cv/TeamCode) · [rolling webcam setup](https://github.com/hivevisionftc/Hive-Vision/blob/fd597b8cf42ab684f2f5a0e9f3e23da2aeef2cf7/docs/quick_start_cv.md)
+- [Code licence](https://github.com/hivevisionftc/Hive-Vision/blob/5181638d3856124a09bff3f9c345d8eb21034c2a/LICENSE) · [third-party and model/media notices](https://github.com/hivevisionftc/Hive-Vision/blob/fd597b8cf42ab684f2f5a0e9f3e23da2aeef2cf7/THIRD_PARTY_NOTICES.md). Download assets upstream; no model or media is bundled here.
+
+</footer>

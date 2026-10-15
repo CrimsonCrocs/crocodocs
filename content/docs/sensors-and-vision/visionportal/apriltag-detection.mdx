@@ -1,18 +1,16 @@
 ---
-title: AprilTag Detection
+title: AprilTag detection
 description: Read FTC AprilTag detections safely, including SDK 12 clusters
 icon: QrCode
 ---
 
-# Use a printed tag as a camera measurement
+<span id="use-a-printed-tag-as-a-camera-measurement" className="heading-alias" />
 
 An **AprilTag** is a high-contrast printed marker with a machine-readable pattern. The FTC SDK can identify tags and estimate their pose relative to a camera. That estimate can help localization, but it is still a measurement: a blurry tag, a wrong tag size, poor camera calibration, or confusing the camera pose with the robot pose can lead to a bad decision.
 
 ![Official BIOBUZZ HIVE CELL field element with its four AprilTags attached underneath.](/guides/biobuzz-apriltag-cell.jpg)
 
-*Official FTC field illustration from [AprilTag Clusters](https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html), Figure 1.*
-
-## First check which SDK version the robot project uses
+## SDK version [#first-check-which-sdk-version-the-robot-project-uses]
 
 The code that reads detections changed in **FTC SDK 12.0**. This matters especially for the current **BIOBUZZ** season: the official FTC documentation says BIOBUZZ has four AprilTag clusters and no standalone tags.
 
@@ -23,7 +21,7 @@ In SDK 12.0 and later, `getDetections()` can return either:
 
 The common parent type is `AprilTagDetection`. Pose fields such as `ftcPose` are on that parent and can be read for either type. Do not copy older code that reads `detection.id` directly from every result.
 
-## Step 1: Create the AprilTag processor
+## Processor setup [#step-1-create-the-apriltag-processor]
 
 Make the processor before building VisionPortal. This convenience method uses the FTC SDK defaults:
 
@@ -46,7 +44,7 @@ val aprilTag = AprilTagProcessor.easyCreateWithDefaults()
 
 The default game library is supplied by the FTC SDK. If you need custom tags or processor settings, use the current FTC sample and Builder documentation rather than adding old-season IDs by hand.
 
-## Step 2: Attach it to the camera
+## Camera setup [#step-2-attach-it-to-the-camera]
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
@@ -73,16 +71,15 @@ val portal = VisionPortal.Builder()
 
 As with any VisionPortal setup, `Webcam 1` must match the configured hardware name. Keep the preview open during INIT so you can see whether a marker is being detected before the robot moves.
 
-## What the camera sees
+## Detection types [#what-the-camera-sees]
 
 The Driver Hub preview below shows the processor finding BIOBUZZ AprilTag clusters in a real camera image. The colored boxes and labels are the detections overlaid on the frame. In the next step, you will read each detection from code.
 
 ![FTC's AprilTag cluster example shown in a Driver Hub camera view with cluster detections overlaid.](/guides/biobuzz-apriltag-pose.jpg)
 
-*This is a real FTC camera preview with the detected BIOBUZZ clusters labeled. The labels show recognition; the telemetry example above is how your OpMode reads the measurements. Use your own live preview to verify detections before the robot acts.*
+*This is a real FTC camera preview with the detected BIOBUZZ clusters labeled. The labels show recognition; the telemetry example below shows how your OpMode reads the measurements. Use your own live preview to verify detections before the robot acts.*
 
-
-## Step 3: Loop through detections and check their type
+## Reading detections [#step-3-loop-through-detections-and-check-their-type]
 
 The SDK gives you a list because the camera can see more than one detection at a time. In SDK 12, check whether each result is a single tag or a cluster before reading type-specific information:
 
@@ -183,9 +180,9 @@ The code has a reason for each check:
 
 If your project uses SDK 11 or earlier, this code will not compile because the cluster classes do not exist in that version. Use the samples and API docs that match your project's FTC SDK version.
 
-## Step 4: Understand what the pose means
+## Pose coordinates [#step-4-understand-what-the-pose-means]
 
-`ftcPose` describes the detected target relative to the **camera lens**. In the FTC frame, **Y points forward out of the lens, X points right, and Z points up**. If a tag is left of the camera centerline, its X value is negative. Those numbers are distances in the tag library's distance unit (normally inches for FTC field tags). The rotations are in degrees with the processor's default settings; their signs follow the FTC axes and right-hand rule.
+`ftcPose` describes the detected target relative to the **camera lens**. In the FTC frame, **Y points forward out of the lens, X points right, and Z points up**. If a tag is left of the camera centerline, its X value is negative. Those translations and range use the processor's configured output distance unit (inches by default), independently of the tag metadata's units. `AprilTagProcessor.Builder.setOutputUnits()` configures distance and angle units; the default angle unit is degrees (normally inches for FTC field tags). The rotations are in degrees with the processor's default settings; their signs follow the FTC axes and right-hand rule.
 
 The names are easy to mix up, so connect each value to a question:
 
@@ -207,7 +204,7 @@ A cluster can report a target point placed somewhere useful in its group layout,
 
 Pose quality depends on the tag size and camera calibration. Check the current field tag layout and game manual before assuming a location or meaning. Do not use a stale detection after the camera no longer sees the target.
 
-## Step 5: Test without moving the robot
+## Detection testing [#step-5-test-without-moving-the-robot]
 
 1. Put the robot on blocks or leave the drivetrain disabled.
 2. Run the SDK's `ConceptAprilTag` sample that matches your SDK version.
@@ -226,12 +223,16 @@ Pose quality depends on the tag size and camera calibration. Check the current f
 | Trusting a pose with unknown tag size or calibration | Scale and orientation estimates can be wrong. | Verify tag metadata and camera calibration for the selected resolution. |
 | Acting on an empty or stale result | The target may be outside the view or no longer visible. | Require a fresh detection and define a safe fallback. |
 
-## Current FTC references
+<footer className="article-sources">
+
+## Sources [#current-ftc-references]
 
 - [FTC AprilTag ID codes and SDK 12 results](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_id_code/apriltag-id-code.html)
-- [FTC AprilTag clusters, including BIOBUZZ](https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html)
+- [FIRST: AprilTag Clusters — field illustration, Figure 1](https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html)
 - [FTC AprilTag pose](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_pose/apriltag-pose.html)
 - [FTC AprilTag reference frame](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/apriltag_reference_frame/apriltag-reference-frame.html)
 - [FTC explanation of detection values](https://ftc-docs.firstinspires.org/en/latest/apriltag/understanding_apriltag_detection_values/understanding-apriltag-detection-values.html)
 - [FTC camera calibration](https://ftc-docs.firstinspires.org/en/latest/apriltag/vision_portal/visionportal_webcams/visionportal-webcams.html)
 - [Current season game resources](https://ftc-resources.firstinspires.org/ftc/game)
+
+</footer>

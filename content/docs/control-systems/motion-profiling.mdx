@@ -1,5 +1,5 @@
 ---
-title: Motion Profiling
+title: Motion profiling
 description: Plan a robot's speed before asking it to move to a target
 icon: ChartLine
 ---
@@ -10,13 +10,13 @@ This page first works through a trapezoidal profile, then samples it in Java and
 
 ![A trapezoidal profile ramps speed up, cruises, then ramps it down.](/trapezoid_motion.png)
 
-## First, separate the two jobs
+## Profile and controller [#first-separate-the-two-jobs]
 
 The **profile** answers: “Where should the robot be, and how fast should it be moving, right now?” A **controller** compares that target with encoder measurements and adjusts motor power.
 
 The profile does not know whether the wheels slipped or the robot hit an obstacle. Feedback from encoders is what lets the controller correct some of those differences.
 
-## Step 1: Pick units and limits
+## Units and limits [#step-1-pick-units-and-limits]
 
 Choose one distance unit and use it everywhere. This example uses inches and seconds:
 
@@ -26,14 +26,14 @@ Choose one distance unit and use it everywhere. This example uses inches and sec
 
 These are easy numbers for the example, not recommended values for your robot. Start with a low speed and acceleration in a clear area, then measure what the robot can do without wheel slip.
 
-## Step 2: Work out whether there is room to cruise
+## Trapezoidal profile [#step-2-work-out-whether-there-is-room-to-cruise]
 
 At constant acceleration, speed and distance are related by:
 
-```math
+$$
 t_\text{accel} = \frac{v_\text{max}}{a_\text{max}}, \qquad
 d_\text{accel} = \frac{v_\text{max}^2}{2a_\text{max}}
-```
+$$
 
 For the example, reaching `24 in/s` at `24 in/s²` takes `1 second` and `12 inches`. The robot also needs `12 inches` to slow down. That leaves `48 - 12 - 12 = 24 inches` to cruise.
 
@@ -47,13 +47,13 @@ The whole move is therefore:
 
 The velocity graph has a flat top, making a trapezoid.
 
-## Step 3: Know what happens on a short move
+## Triangular profile [#step-3-know-what-happens-on-a-short-move]
 
 A short move may not leave enough distance to reach maximum speed. For example, an 8-inch move with the same acceleration limit cannot spend 12 inches speeding up and another 12 slowing down.
 
 Instead, the robot speeds up to a lower peak and immediately slows down. The graph looks like a triangle. A correct profile generator must handle this case; simply using the maximum speed for every move can produce impossible targets and overshoot.
 
-## Step 4: Generate a target for each moment
+## Profile generator [#step-4-generate-a-target-for-each-moment]
 
 The helper below creates a profile for a move that starts and ends at rest. It automatically makes a triangular profile for short moves and a trapezoid when there is room to cruise. Position is measured from the move's starting point, in inches; velocity is inches per second.
 
@@ -80,7 +80,12 @@ class TrapezoidProfile {
     private final double totalTime;
 
     TrapezoidProfile(double distance, double maxVelocity, double maxAcceleration) {
-        this.distance = Math.abs(distance);
+        if (!Double.isFinite(distance) || distance < 0.0
+                || !Double.isFinite(maxVelocity) || maxVelocity <= 0.0
+                || !Double.isFinite(maxAcceleration) || maxAcceleration <= 0.0) {
+            throw new IllegalArgumentException("Finite distance >= 0 and positive limits required");
+        }
+        this.distance = distance;
         this.acceleration = maxAcceleration;
 
         double timeToMaxVelocity = maxVelocity / maxAcceleration;
@@ -101,6 +106,7 @@ class TrapezoidProfile {
     }
 
     ProfileState sample(double seconds) {
+        if (!Double.isFinite(seconds)) throw new IllegalArgumentException("Finite time required");
         double t = Math.max(0.0, Math.min(seconds, totalTime));
         double accelerationDistance = 0.5 * acceleration * accelerationTime * accelerationTime;
 
@@ -129,10 +135,15 @@ class TrapezoidProfile {
 <Tab value="Kotlin">
 
 ```kotlin
+import kotlin.math.abs
+import kotlin.math.min
+import kotlin.math.max
+import kotlin.math.sqrt
+
 data class ProfileState(val position: Double, val velocity: Double)
 
 class TrapezoidProfile(distance: Double, maxVelocity: Double, maxAcceleration: Double) {
-    private val distance = abs(distance)
+    private val distance = distance
     private val acceleration = maxAcceleration
     private val peakVelocity: Double
     private val accelerationTime: Double
@@ -140,6 +151,9 @@ class TrapezoidProfile(distance: Double, maxVelocity: Double, maxAcceleration: D
     private val totalTime: Double
 
     init {
+        require(distance.isFinite() && distance >= 0.0)
+        require(maxVelocity.isFinite() && maxVelocity > 0.0)
+        require(maxAcceleration.isFinite() && maxAcceleration > 0.0)
         val timeToMaxVelocity = maxVelocity / maxAcceleration
         val distanceToMaxVelocity = 0.5 * maxAcceleration * timeToMaxVelocity * timeToMaxVelocity
         if (2.0 * distanceToMaxVelocity >= this.distance) {
@@ -156,6 +170,7 @@ class TrapezoidProfile(distance: Double, maxVelocity: Double, maxAcceleration: D
     }
 
     fun sample(seconds: Double): ProfileState {
+        require(seconds.isFinite())
         val t = max(0.0, min(seconds, totalTime))
         val accelerationDistance = 0.5 * acceleration * accelerationTime * accelerationTime
         if (t < accelerationTime) {
@@ -182,7 +197,7 @@ class TrapezoidProfile(distance: Double, maxVelocity: Double, maxAcceleration: D
 
 Read the constructor from top to bottom: it first checks whether there is enough distance to reach the maximum speed. `sample()` then returns the position and speed the mechanism should have at a given elapsed time. The profile is mathematical; it does not read an encoder or move a motor by itself.
 
-## Step 5: Follow the target with an encoder
+## Encoder feedback [#step-5-follow-the-target-with-an-encoder]
 
 Here is how a single motor can follow the profile. This is a learning example for an encoder-equipped linear mechanism. Set `COUNTS_PER_INCH` from a measured move. `kP` turns position error into power; `kV` adds power for the profile's requested speed. Both gains are robot-specific.
 
@@ -195,37 +210,42 @@ private static final double MAX_POWER = 0.25;        // Start with a safe limit
 private static final double KP = 0.04;               // Power per inch; tune slowly
 private static final double KV = 0.01;               // Power per inch/second; tune slowly
 
-// In runOpMode(), after configuring `slide` and confirming it is at the move's start:
+// In runOpMode(), after START and a verified clear travel range:
 TrapezoidProfile profile = new TrapezoidProfile(8.0, 4.0, 8.0);
-long startTime = System.nanoTime();
+if (!opModeIsActive()) return;
 slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+int startTicks = slide.getCurrentPosition();
+long startTime = System.nanoTime();
 
-while (opModeIsActive()) {
-    double elapsed = (System.nanoTime() - startTime) / 1_000_000_000.0;
-    ProfileState target = profile.sample(elapsed);
-    double measuredInches = slide.getCurrentPosition() / COUNTS_PER_INCH;
-    double error = target.position - measuredInches;
+try {
+    while (opModeIsActive()) {
+        double elapsed = (System.nanoTime() - startTime) / 1_000_000_000.0;
+        ProfileState target = profile.sample(elapsed);
+        double measuredInches = (slide.getCurrentPosition() - startTicks) / COUNTS_PER_INCH;
+        double error = target.position - measuredInches;
 
-    // This mechanism example only moves in the positive direction.
-    double power = KP * error + KV * target.velocity;
-    power = Math.max(0.0, Math.min(MAX_POWER, power));
-    slide.setPower(power);
+        // Forward-only example: overshoot requires a stopped recovery.
+        double power = KP * error + KV * target.velocity;
+        power = Math.max(0.0, Math.min(MAX_POWER, power));
+        slide.setPower(power);
 
-    telemetry.addData("Target inches", "%.2f", target.position);
-    telemetry.addData("Measured inches", "%.2f", measuredInches);
-    telemetry.addData("Target speed", "%.2f in/s", target.velocity);
-    telemetry.addData("Motor power", "%.2f", power);
-    telemetry.update();
-
-    if (elapsed >= profile.totalTime() && Math.abs(error) < 0.25) break;
-    if (elapsed >= profile.totalTime() + 2.0) {
-        telemetry.addLine("Move timed out; check encoder direction and tuning.");
+        telemetry.addData("Target inches", "%.2f", target.position);
+        telemetry.addData("Measured inches", "%.2f", measuredInches);
+        telemetry.addData("Target speed", "%.2f in/s", target.velocity);
+        telemetry.addData("Motor power", "%.2f", power);
         telemetry.update();
-        break;
+
+        if (elapsed >= profile.totalTime() && Math.abs(error) < 0.25) break;
+        if (elapsed >= profile.totalTime() + 2.0) {
+            telemetry.addLine("Move timed out; check encoder direction and tuning.");
+            telemetry.update();
+            break;
+        }
+        idle();
     }
-    idle();
+} finally {
+    slide.setPower(0.0);
 }
-slide.setPower(0.0);
 ```
 
 </Tab>
@@ -237,36 +257,41 @@ private const val MAX_POWER = 0.25        // Start with a safe limit
 private const val KP = 0.04               // Power per inch; tune slowly
 private const val KV = 0.01               // Power per inch/second; tune slowly
 
-// In runOpMode(), after configuring `slide` and confirming it is at the move's start:
+// In runOpMode(), after START and a verified clear travel range:
 val profile = TrapezoidProfile(8.0, 4.0, 8.0)
-val startTime = System.nanoTime()
+if (!opModeIsActive()) return
 slide.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+val startTicks = slide.currentPosition
+val startTime = System.nanoTime()
 
-while (opModeIsActive()) {
-    val elapsed = (System.nanoTime() - startTime) / 1_000_000_000.0
-    val target = profile.sample(elapsed)
-    val measuredInches = slide.currentPosition / COUNTS_PER_INCH
-    val error = target.position - measuredInches
+try {
+    while (opModeIsActive()) {
+        val elapsed = (System.nanoTime() - startTime) / 1_000_000_000.0
+        val target = profile.sample(elapsed)
+        val measuredInches = (slide.currentPosition - startTicks) / COUNTS_PER_INCH
+        val error = target.position - measuredInches
 
-    // This mechanism example only moves in the positive direction.
-    val power = max(0.0, min(MAX_POWER, KP * error + KV * target.velocity))
-    slide.power = power
+        // Forward-only example: overshoot requires a stopped recovery.
+        val power = max(0.0, min(MAX_POWER, KP * error + KV * target.velocity))
+        slide.power = power
 
-    telemetry.addData("Target inches", "%.2f", target.position)
-    telemetry.addData("Measured inches", "%.2f", measuredInches)
-    telemetry.addData("Target speed", "%.2f in/s", target.velocity)
-    telemetry.addData("Motor power", "%.2f", power)
-    telemetry.update()
-
-    if (elapsed >= profile.totalTime() && abs(error) < 0.25) break
-    if (elapsed >= profile.totalTime() + 2.0) {
-        telemetry.addLine("Move timed out; check encoder direction and tuning.")
+        telemetry.addData("Target inches", "%.2f", target.position)
+        telemetry.addData("Measured inches", "%.2f", measuredInches)
+        telemetry.addData("Target speed", "%.2f in/s", target.velocity)
+        telemetry.addData("Motor power", "%.2f", power)
         telemetry.update()
-        break
+
+        if (elapsed >= profile.totalTime() && abs(error) < 0.25) break
+        if (elapsed >= profile.totalTime() + 2.0) {
+            telemetry.addLine("Move timed out; check encoder direction and tuning.")
+            telemetry.update()
+            break
+        }
+        idle()
     }
-    idle()
+} finally {
+    slide.power = 0.0
 }
-slide.power = 0.0
 ```
 
 </Tab>
@@ -274,9 +299,13 @@ slide.power = 0.0
 
 The loop asks the profile for the target **position and velocity**, compares target position with the encoder reading, and combines the position correction with a speed-based term. The power clamp protects the test from an unexpectedly large request; it does not make an unsafe mechanism safe. Use a `try/finally` or equivalent stop cleanup in a full OpMode so the motor is set to zero when the OpMode is stopped.
 
-The example moves one mechanism in one direction. A drivetrain needs a pose estimate and a way to turn field-relative target motion into wheel powers. For that job, use the [Pedro Pathing guide](../libraries/pedro-pathing) or [Road Runner's official Quickstart](https://rr.brott.dev/), rather than treating this one-axis example as a complete path follower.
+`startTicks` makes measured displacement relative to this move, without erasing the physical encoder reference. The helper accepts finite **nonnegative** distance and positive finite speed/acceleration limits; it starts and ends at rest. Put the Kotlin `const val` declarations at file scope (or in a companion object), the profile classes outside `runOpMode()`, and the follower loop inside it. The follower uses `abs`, `min`, and `max` from `kotlin.math`.
 
-## Step 6: Test the profile before raising the limits
+This example only applies forward power. After an overshoot it cannot reverse back to target: treat that as a failed move and stop for recovery. A mechanism verified safe in both directions may use a symmetric clamp plus measured travel limits. A vertical mechanism also needs an appropriate gravity/holding policy. A power clamp alone does not guarantee physical speed or acceleration.
+
+The example moves one mechanism in one direction. A drivetrain needs a pose estimate and a way to turn field-relative target motion into wheel powers. For that job, use the [Pedro Pathing guide](../libraries/pedro-pathing) or [Road Runner guide](../libraries/road-runner), rather than treating this one-axis example as a complete path follower.
+
+## Profile testing [#step-6-test-the-profile-before-raising-the-limits]
 
 1. Lift the robot so its wheels can turn safely, or test a mechanism with a clear stop and no pinch hazards.
 2. Display elapsed time, target position, measured position, target velocity, and motor power in telemetry.
@@ -284,7 +313,7 @@ The example moves one mechanism in one direction. A drivetrain needs a pose esti
 4. Put the robot on the floor and run a short, slow move. Check for wheel slip and overshoot.
 5. Increase acceleration or speed a little at a time. If it slips, reduce acceleration; if it stops short or drifts, inspect encoder direction and controller tuning before changing the profile.
 
-## How a profile differs from a path
+## Profiles and paths [#how-a-profile-differs-from-a-path]
 
 A one-dimensional motion profile describes progress along one move. A path describes where the robot should travel on the field. A path follower may use a profile to limit speed along that path, but the ideas are not interchangeable: a profile alone does not plan turns or avoid obstacles.
 
@@ -299,3 +328,11 @@ For field navigation, see [Motion Planning](../autonomous/motion-planning) and t
 - **Letting code continue after stop:** all movement loops need to respect the OpMode stop state and leave motors safe.
 
 Next, learn how feedback terms work in the [PID arm guide](./pid-control), or smooth noisy readings with a [low-pass filter](./lowpass-filter).
+
+<footer className="article-sources">
+
+## Sources
+
+- [Road Runner's official Quickstart](https://rr.brott.dev/)
+
+</footer>

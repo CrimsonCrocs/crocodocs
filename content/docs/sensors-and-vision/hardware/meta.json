@@ -1,9 +1,11 @@
 {
-    "title": "Hardware",
-    "icon": "Webcam",
-    "defaultOpen": false,
-    "pages": [
-        "webcam",
-        "color-sensor-v3"
-    ]
+  "title": "Hardware",
+  "icon": "Webcam",
+  "defaultOpen": false,
+  "pages": [
+    "webcam",
+    "color-sensor-v3",
+    "limit-switches",
+    "imu"
+  ]
 }

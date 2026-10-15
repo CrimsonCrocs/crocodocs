@@ -1,0 +1,64 @@
+---
+icon: engineering:Toolbox
+title: Assembly and serviceability
+description: Plan build order, modular interfaces, tool access, spare parts, and repeatable repair checks.
+---
+
+**Serviceability** is how easily a robot can be inspected, repaired, and returned to a known working state. It depends on the design of interfaces and access, not just the skill of the student doing the repair.
+
+## Assembly access [#assemble-around-access]
+
+Build from a checked frame and drivetrain toward the inner mechanisms, then the outer assemblies. Install captive nuts, internal fasteners, and connectors before other parts block them. Test each stage while its interfaces remain accessible.
+
+Adapt the assembly sequence to your robot: a removable electronics panel may be easier to wire outside the frame, while a particular bearing stack may need to be assembled before its plates are joined.
+
+Keep a photograph or drawing of hidden stacks. Record spacer order, washer locations, screw lengths, and connector orientation. A disassembled mechanism should not depend on somebody remembering which nearly identical spacer went inside it.
+
+## Module interfaces [#define-a-module-by-its-interfaces]
+
+A module can be removed without disturbing unrelated systems. Useful boundaries include a complete intake, wrist, electronics panel, or drive assembly. Modularity should reduce the repair burden rather than create adapters with no practical purpose.
+
+Specify mounting datums, fastener access, connectors, cable slack, travel envelope, and calibration requirements.
+
+Use these questions during a CAD or physical review:
+
+- Can the battery be replaced without removing a mechanism?
+- Can the common failure part be reached with the tools actually in the pit kit?
+- Can a module's cable be unplugged without cutting unrelated ties?
+- Does replacement disturb a sensor reference or require homing?
+- Can a belt or string be replaced without splitting the whole chassis?
+
+## Standard parts [#standardize-where-it-reduces-mistakes]
+
+Limit unnecessary screw lengths and tool changes, label connectors, and use consistent naming. Do not force one fastener size onto every joint if the hardware requires different screws.
+
+Maintain a bill of materials with exact part numbers, quantities, and revisions. Separate purchased spares from printed or fabricated spares, since their replacement lead times differ. Mark handed parts and matched assemblies so an incorrect mirror image is not discovered at the event.
+
+## Repair practice [#rehearse-a-repair]
+
+Choose a plausible fault, such as a damaged intake finger or loose drive hub. With the robot powered down and safely supported, replace it using the event tools and a verified spare. Time the work and note blocked access, missing tools, and uncertain assembly steps.
+
+After replacement, run a defined return-to-service check: inspect fasteners and cable travel, verify motion direction and limits, home if required, and repeat the relevant loaded task. Finishing the wrench work does not establish that the robot is ready.
+
+## Pit routine [#keep-a-pit-routine-short-and-physical]
+
+| Moment | Check |
+| --- | --- |
+| Before a match | Battery secured, switch accessible, legal configuration, correct software and mechanism state |
+| After a match | New damage, loose hubs or joints, string and belt condition, cable movement, abnormal heat |
+| After a repair | Correct revision and assembly, calibration, affected motion and loaded function |
+
+Use the current official inspection information for competition requirements. A team maintenance checklist complements official inspection; it does not establish legal approval.
+
+Record repair time and recurring faults by mechanism revision. Repeated emergency repairs can justify changing a mounting interface or unreliable part, even when the robot can still finish a practice match.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC Wiki: Assembly-order guide](https://www.ftcwiki.org/manufacturing-and-assembly/assembly-order)
+- [FTC Wiki: Modularity](https://www.ftcwiki.org/design-style/design-guidelines/modularity)
+- [FTC Wiki: Clean robot layout](https://www.ftcwiki.org/design-style/design-guidelines/how-to-design-a-clean-robot)
+- [FIRST: Game and season materials](https://www.firstinspires.org/resource-library/ftc/game-and-season-info)
+
+</footer>

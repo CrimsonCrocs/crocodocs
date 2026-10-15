@@ -1,16 +1,18 @@
 ---
 title: Mercurial
-description: Command-based FTC framework from Dairy Foundation
+description: The legacy Mercurial v1 command lifecycle and its version boundary
 icon: Terminal
 ---
 
-## What is Mercurial?
+## Overview [#what-is-mercurial]
 
-Mercurial is a command-based FTC framework from [Dairy Foundation](https://dairy.foundation/). Its command API models actions with lifecycle methods, requirements, and run states; command groups and a scheduler coordinate those actions. The ecosystem also includes libraries such as Core, Util, and Pasteurized, but the modules and setup depend on the release and project template.
+Mercurial v1 is a command-based FTC framework from Dairy Foundation. Its command API models actions with lifecycle methods, requirements, and run states; command groups and a scheduler coordinate those actions. The ecosystem also includes libraries such as Core, Util, and Pasteurized, but the modules and setup depend on the release and project template.
 
 ## Version and installation
 
-Dairy maintains more than one line of development and publishes Gradle tooling for FTC libraries. This page is a conceptual introduction, not a pinned installation recipe. Use the current [Mercurial documentation](https://docs.dairy.foundation/Mercurial/) and [Dairy FTC plugins and templates](https://github.com/Dairy-Foundation/Plugins) to choose a compatible release and dependency set. Avoid combining v1 examples with the newer `MercurialFTC` artifact or beta APIs without following the corresponding migration guidance.
+Checked **14 October 2026**: **MercurialFTC 2.0.1-beta1** is the current new-generation release, published on this date. It remains a beta despite the release page's prerelease flag. The v1 lesson below stays available for teams maintaining existing projects; its Lambda code is not a v2 migration example.
+
+This example uses the **Mercurial v1 Lambda API**, artifact `dev.frozenmilk.mercurial:Mercurial:1.0.3`. It does not describe Mercurial 2. The newer `dev.frozenmilk.dairy:MercurialFTC` beta uses continuation-based programs such as `MercurialFTC.teleop` and `autonomous`, with a different lifecycle. Follow its version-specific examples if that is what your project installs. Use the current Mercurial documentation and Dairy FTC plugins and templates to choose a compatible release and dependency set. Avoid combining v1 examples with the newer `MercurialFTC` artifact or beta APIs without following the corresponding migration guidance.
 
 ## Core concepts
 
@@ -22,93 +24,40 @@ Dairy maintains more than one line of development and publishes Gradle tooling f
 
 The exact method names and command-group APIs are version-sensitive. Use the official language-specific examples for the version in your Gradle project.
 
-## Build a command that runs for one second
+## Motor example [#build-a-command-that-runs-for-one-second]
 
-The example sets a motor to low power, keeps it there for one second, then writes zero. First map the motor in your OpMode so the command has a real device to control.
-
-### Step 1: Map the motor
+Configure an unloaded motor as `testMotor`. Save the selected complete class as `MercurialMotorTest.java` or `.kt`, adding your TeamCode package declaration before its imports. This example uses **v1 1.0.3** and the compatible Dairy setup described above.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-private DcMotor motor;
-private final ElapsedTime timer = new ElapsedTime();
-private final Object motorRequirement = new Object();
-private Lambda runMotor;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import dev.frozenmilk.mercurial.Mercurial;
+import dev.frozenmilk.mercurial.commands.Lambda;
 
-@Override
-public void init() {
-    motor = hardwareMap.get(DcMotor.class, "testMotor");
-    motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-}
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-private lateinit var motor: DcMotor
-private val timer = ElapsedTime()
-private val motorRequirement = Any()
-private lateinit var runMotor: Lambda
-
-override fun init() {
-    motor = hardwareMap.get(DcMotor::class.java, "testMotor")
-    motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-}
-```
-
-</Tab>
-</Tabs>
-
-The hardware name must match Robot Configuration. The requirement is a marker that says which resource this command owns; reuse the same marker for other commands that control this motor.
-
-### Step 2: Describe the command's four jobs
-
-A `Lambda` command has actions for setup, repeated work, a finish condition, and cleanup. This one resets a timer, repeatedly requests 0.15 power, finishes after one second, and always writes zero when it ends:
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
-runMotor = new Lambda("Run motor briefly")
-    .setInit(timer::reset)
-    .setExecute(() -> motor.setPower(0.15))
-    .setFinish(() -> timer.seconds() >= 1.0)
-    .setEnd(interrupted -> motor.setPower(0.0))
-    .setRequirements(motorRequirement);
-```
-
-</Tab>
-<Tab value="Kotlin">
-
-```kotlin
-runMotor = Lambda("Run motor briefly")
-    .setInit { timer.reset() }
-    .setExecute { motor.power = 0.15 }
-    .setFinish { timer.seconds() >= 1.0 }
-    .setEnd { _: Boolean -> motor.power = 0.0 }
-    .setRequirements(motorRequirement)
-```
-
-</Tab>
-</Tabs>
-
-`init` runs once when the command starts. `execute` runs repeatedly. `finish` is checked while it runs. `end` runs when it finishes or is interrupted, so it is where this example removes motor power.
-
-### Step 3: Schedule it when the OpMode starts
-
-Attach Mercurial to the OpMode and schedule the command in `start()`. Mercurial's scheduler handles the command lifecycle while the OpMode is active.
-
-<Tabs items={['Java', 'Kotlin']}>
-<Tab value="Java">
-
-```java
 @Autonomous(name = "Mercurial: Timed Motor Test")
 @Mercurial.Attach
 public class MercurialMotorTest extends OpMode {
-    // Keep the motor, timer, and command fields from Steps 1 and 2.
+    private DcMotor motor;
+    private final ElapsedTime timer = new ElapsedTime();
+    private final Object motorRequirement = new Object();
+    private Lambda runMotor;
+
+    @Override
+    public void init() {
+        motor = hardwareMap.get(DcMotor.class, "testMotor");
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        runMotor = new Lambda("Run motor briefly")
+            .setInit(timer::reset)
+            .setExecute(() -> motor.setPower(0.15))
+            .setFinish(() -> timer.seconds() >= 1.0)
+            .setEnd(interrupted -> motor.setPower(0.0))
+            .setRequirements(motorRequirement);
+    }
 
     @Override
     public void start() {
@@ -120,6 +69,11 @@ public class MercurialMotorTest extends OpMode {
         telemetry.addData("Elapsed seconds", "%.2f", timer.seconds());
         telemetry.update();
     }
+
+    @Override
+    public void stop() {
+        if (motor != null) motor.setPower(0.0);
+    }
 }
 ```
 
@@ -127,10 +81,31 @@ public class MercurialMotorTest extends OpMode {
 <Tab value="Kotlin">
 
 ```kotlin
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.util.ElapsedTime
+import dev.frozenmilk.mercurial.Mercurial
+import dev.frozenmilk.mercurial.commands.Lambda
+
 @Autonomous(name = "Mercurial: Timed Motor Test")
 @Mercurial.Attach
 class MercurialMotorTest : OpMode() {
-    // Keep the motor, timer, and command fields from Steps 1 and 2.
+    private lateinit var motor: DcMotor
+    private val timer = ElapsedTime()
+    private val motorRequirement = Any()
+    private lateinit var runMotor: Lambda
+
+    override fun init() {
+        motor = hardwareMap.get(DcMotor::class.java, "testMotor")
+        motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        runMotor = Lambda("Run motor briefly")
+            .setInit { timer.reset() }
+            .setExecute { motor.power = 0.15 }
+            .setFinish { timer.seconds() >= 1.0 }
+            .setEnd { _: Boolean -> motor.power = 0.0 }
+            .setRequirements(motorRequirement)
+    }
 
     override fun start() {
         runMotor.schedule()
@@ -140,22 +115,38 @@ class MercurialMotorTest : OpMode() {
         telemetry.addData("Elapsed seconds", "%.2f", timer.seconds())
         telemetry.update()
     }
+
+    override fun stop() {
+        if (::motor.isInitialized) motor.power = 0.0
+    }
 }
 ```
 
 </Tab>
 </Tabs>
 
-The snippets belong together inside the same OpMode, with the imports from your selected Mercurial release. Test with the mechanism unloaded at low power. Mercurial's v2 FTC bindings are marked beta in the project documentation, so confirm the imports and lifecycle rules against the [current Lambda guide](https://docs.dairy.foundation/Mercurial/commands/lambda) and [FTC usage guide](https://docs.dairy.foundation/Mercurial/usage); older v1 `Command.once(...)` examples use a different API.
+Hardware mapping and command construction happen in `init()`. Scheduling happens in `start()`. The command resets its timer once, requests low motor power on each execution, and finishes after one second. Its end callback removes power whether it finishes normally or is interrupted. The OpMode's `stop()` also writes zero.
 
-## Choosing Mercurial
+The shared `motorRequirement` identifies the resource. Reuse that same object in other commands controlling this motor so requirements can prevent conflicts. Do not create a fresh marker for each command and expect them to exclude one another.
+
+The Java class was signature-checked against the published 1.0.3 artifact. This does not certify the complete Dairy dependency stack on SDK 12. Test INIT, START, normal completion, and STOP on your installed release. The pinned v1 source documents this API; Mercurial 2 requires different examples.
+
+## Team fit [#choosing-mercurial]
 
 A command framework can make shared behaviors and autonomous sequences easier to compose, but it adds concepts and dependencies. Compare the framework with your team's experience, the current project template, and the level of support available before adopting it. A small robot can also be programmed directly with FTC SDK OpModes.
 
-## Official references
+<footer className="article-sources">
+
+## Sources [#official-references]
 
 - [Mercurial documentation](https://docs.dairy.foundation/Mercurial/)
 - [Command overview](https://docs.dairy.foundation/Mercurial/commands/overview)
-- [Dairy Foundation source](https://github.com/Dairy-Foundation/Dairy)
+- [Mercurial v1 source](https://github.com/Dairy-Foundation/Mercurial)
+- [Mercurial 2 FTC bindings](https://github.com/Dairy-Foundation/MercurialFTC)
 - [Dairy FTC Gradle plugins](https://github.com/Dairy-Foundation/Plugins)
 - [Dairy project templates](https://github.com/Dairy-Foundation/Templates)
+- [MercurialFTC 2.0.1-beta1 release](https://github.com/Dairy-Foundation/MercurialFTC/releases/tag/2.0.1-beta1)
+- [Dairy Foundation](https://github.com/Dairy-Foundation)
+- [pinned v1 source](https://github.com/Dairy-Foundation/Mercurial/tree/207a360df3f90ff62f441aa543921107ddeed5c8)
+
+</footer>

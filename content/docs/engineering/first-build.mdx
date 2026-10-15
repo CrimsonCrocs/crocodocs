@@ -1,0 +1,61 @@
+---
+icon: engineering:Wrench
+title: Your first engineering build
+description: Assemble, inspect, and test a kit drivetrain before adding scoring mechanisms.
+---
+
+A first robot should drive predictably, remain assembled, and let the team investigate faults. A basic kit drivetrain gives builders, electricians, drivers, and programmers a shared machine to learn on.
+
+## First task [#choose-a-bounded-first-task]
+
+Use a drivetrain supported by the kit you already own. Follow its manufacturer's assembly guide for the first build; mixing several shaft standards and hole patterns creates extra work before the team has a working reference.
+
+Start with a short test: drive forward and backward, turn both ways, stop on command, and repeat without loose parts or cable snags. Add strafing if the drivetrain uses mecanum wheels. Pass these checks before adding scoring mechanisms.
+
+Identify the kit family before selecting a build guide. A manufacturer drivetrain guide provides a complete assembly workflow for its own hardware.
+
+## Parts inventory [#inventory-before-assembly]
+
+Lay out the structural parts, matching fasteners, wheels, motors, bearings, shafts, spacers, battery, switch, hub, and cables. Identify each connector and shaft profile. A screw that enters a hole is not necessarily the correct thread.
+
+Useful tools include the kit's correct hex drivers, wrenches, a ruler, calipers, and a container for each fastener size. A mentor should establish the workshop procedure for cutting, drilling, and electrical work before students use those tools.
+
+Make a short missing-parts list before ordering. Record the exact part number and quantity; photographs alone can hide differences in bore, length, pitch, or thread.
+
+## Assembly [#assemble-in-testable-stages]
+
+1. Assemble the base loosely on a flat surface. Check that opposite sides have the intended dimensions and that the frame is square before tightening its joints.
+2. Install bearings, shafts, and wheels. With power disconnected and transmissions disengaged where practical, check that moving assemblies turn without scraping or obvious tight spots. Gearboxes create their own resistance, so compare equivalent assemblies.
+3. Mount motors with the specified screws. Check screw length against the manufacturer's permitted engagement; an overlong screw can damage a motor or gearbox.
+4. Install the battery, switch, and hub where the battery can be removed and the switch reached. Protect them from impacts and debris.
+5. Route and label cables. Turn each wheel and sweep all intended moving parts by hand to check cable clearance.
+
+Use the [structure](/docs/engineering/mechanical/structure-and-fasteners) and [wiring](/docs/engineering/electrical/wiring-and-power) articles to understand the checks behind the assembly instructions.
+
+## Hardware checks [#bring-up-one-output-at-a-time]
+
+Support the robot securely with wheels clear and keep people away from moving parts. Assign one person to the stop control. Start with low motor commands and verify each configured motor name, port, direction, and wheel before testing combinations.
+
+A reversed motor, swapped cable, and incorrect wheel installation can produce similar symptoms. Change one item at a time and record what it changes.
+
+## Driving test [#run-a-repeatable-driving-test]
+
+Mark a start and finish on a safe practice surface. Use the same payload, battery routine, driver, and command sequence for each comparison. Measure travel time, heading error, and whether the robot reaches a marked stopping area. For mecanum, repeat sideways as well as forward.
+
+| Trial | Direction | Travel time | Heading error | Fault or observation |
+| --- | --- | --- | --- | --- |
+| Record each run | Forward, reverse, turn, or strafe | Measured seconds | Measured degrees | Drift, rubbing, loose joint, or none observed |
+
+Choose the trial count before testing, include failed runs, and inspect the frame afterward. A successful first build leaves a working robot, a wiring map, a short fault list, and a record another student can reproduce.
+
+The same exercise can train new members or check a rebuilt chassis before mechanisms go back on. Keep a known working code version so you can test hardware changes separately from software changes.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Hardware guide](https://gm0.org/en/latest/docs/hardware-components/kit-and-hardware-guide/index.html)
+- [REV drivetrain build guide](https://docs.revrobotics.com/duo-build/channel-drivetrain-build-guide)
+- [FIRST: Programming documentation](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
+
+</footer>

@@ -1,16 +1,16 @@
 ---
 title: Sloth
-description: Hot reload workflow and limitations for FTC TeamCode
+description: Install Sloth, deploy TeamCode changes, and integrate Panels or Slothboard
 icon: Zap
 ---
 
-## What Sloth does
+## Overview [#what-sloth-does]
 
-[Sloth](https://github.com/Dairy-Foundation/Sloth) is a Dairy Foundation tool for sending TeamCode changes to an FTC robot through a hot reload workflow. It uses the Sinister runtime and can work with libraries that provide compatible integrations.
+Sloth is a Dairy Foundation tool for sending TeamCode changes to an FTC robot through a hot reload workflow. It uses the Sinister runtime and can work with libraries that provide compatible integrations.
 
 Hot reload is useful during development, but it is not equivalent to rebuilding and installing the complete robot app. Its speed depends on the project, network, change, and robot; no fixed upload time is guaranteed.
 
-## Important limits
+## Limitations [#important-limits]
 
 The Sloth project documents that hot reload is limited to eligible classes in the TeamCode package. Changes to dependencies, SDK code, or other non-reloaded files need a full install. Some changes may compile but still not take effect correctly when hot reloaded. Follow the current repository instructions and perform a full install whenever a change falls outside the supported hot-reload scope.
 
@@ -20,9 +20,74 @@ Do not rely on a hot reload to deploy a new library, SDK, or build configuration
 
 ## Installation
 
-Sloth setup has changed across releases and depends on the FTC SDK and whether the project uses other Dairy libraries. Follow the current [Sloth README](https://github.com/Dairy-Foundation/Sloth) and [Dairy Templates](https://github.com/Dairy-Foundation/Templates) rather than copying old plugin versions from this page. In particular, set up the currently documented Load plugin and deployment tasks exactly as the README describes.
+Checked **14 October 2026**: Sloth and its Load build plugin are both **0.3.2**. Setup depends on whether the project uses a standard FTC Gradle configuration, Dairy's managed plugins, or older Dairy 1.x libraries. The following is the standard-project route; merge it into the existing `TeamCode/build.gradle` rather than replacing that file.
 
-FTC Dashboard and Panels integrations use Sloth-compatible artifacts. Their versions must match the current Sloth release and dashboard version; the official README has the compatible coordinates. Do not combine an ordinary dashboard dependency and a Sloth-compatible replacement unless its instructions explicitly call for it.
+Place the buildscript configuration before the existing plugin/application lines:
+
+```groovy
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+        maven { url 'https://repo.dairy.foundation/releases' }
+    }
+    dependencies {
+        classpath 'dev.frozenmilk:Load:0.3.2'
+    }
+}
+```
+
+After the existing plugin application, apply Load and add the runtime dependency:
+
+```groovy
+apply plugin: 'dev.frozenmilk.sinister.sloth.load'
+
+repositories {
+    maven { url 'https://repo.dairy.foundation/releases' }
+}
+
+dependencies {
+    implementation 'dev.frozenmilk.sinister:Sloth:0.3.2'
+}
+```
+
+NextFTC v2's hardware/robot modules already bring in the Sloth runtime. That does not install the **Load plugin** or create its deployment task. Dairy-managed templates have their own plugin/dependency declarations; follow that route consistently. The README's alternate Dairy Core setup is specifically for older Dairy 1.x projects.
+
+## Dashboard integrations
+
+| Tool | Current Sloth setup |
+| --- | --- |
+| FTC Dashboard | Replace its ordinary artifact with Slothboard below. |
+| FullPanels 1.0.18 | Keep the official `com.bylazar:fullpanels:1.0.18` artifact; Sloth support is integrated. |
+
+Some older Sloth instructions still show `com.bylazar.sloth`. Current Panels gained its own Sloth support from FullPanels 1.0.16, so use its current official coordinates.
+
+## Slothboard
+
+**Slothboard** is Dairy Foundation's maintained FTC Dashboard fork. Its runtime scanning updates `@Config` classes and OpModes when TeamCode is reloaded. The published version checked on 14 October is **0.3.2+0.6.0**; the fork README still contains an older example version.
+
+With the Dairy releases repository configured, replace the ordinary Dashboard dependency with:
+
+```groovy
+dependencies {
+    implementation 'com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0'
+}
+```
+
+The Java packages remain `com.acmerobotics.dashboard`, so the [Dashboard telemetry and configuration examples](./ftc-dashboard) use the same API names. The fork and ordinary Dashboard contain overlapping classes. Remove the ordinary direct dependency and check transitive dependencies too.
+
+If the project already uses Road Runner, its Dashboard dependencies can be excluded on the relevant declarations:
+
+```groovy
+implementation('com.acmerobotics.roadrunner:ftc:0.1.25') {
+    exclude group: 'com.acmerobotics.dashboard'
+}
+implementation('com.acmerobotics.roadrunner:actions:1.0.1') {
+    exclude group: 'com.acmerobotics.dashboard'
+}
+```
+
+These exclusions do not add Road Runner to a project that does not use it. Confirm the resolved dependency graph before deploying. For a first integration test, expose one harmless `@Config` value, perform a normal install, then reload a small TeamCode change and verify that the configuration and OpMode list update.
 
 ## Development workflow
 
@@ -34,21 +99,40 @@ FTC Dashboard and Panels integrations use Sloth-compatible artifacts. Their vers
 
 Keep a standard full-install path available and test it before competition. Hot reload is a development convenience, not a substitute for a known-good deploy process.
 
-## Deploy a TeamCode change
+## Deployment [#deploy-a-teamcode-change]
 
-Sloth has no Java API to call from an OpMode. You use its Gradle task after adding the Load plugin and completing one normal install. With an Android Studio project that has the current Sloth task configured, the deploy command is:
+Deploy TeamCode changes through the Gradle task after adding Load and completing one normal install. Sloth also exposes runtime scanning APIs, but calling those from an OpMode does not replace the deployment task. With the current task configured, the deploy command is:
 
 ```powershell
 ./gradlew.bat :TeamCode:deploySloth
 ```
 
+On macOS or Linux:
+
+```sh
+./gradlew :TeamCode:deploySloth
+```
+
 The Control Hub must already be connected to the computer over USB or ADB Wi-Fi. In Android Studio, select the robot project and run the task after ending the active OpMode. A small edit to a class under `org.firstinspires.ftc.teamcode` can then be loaded without installing the full Robot Controller app again.
 
-Use a normal `TeamCode` install after changing Gradle files, adding or updating a library, or changing anything outside the hot-reloaded package. The exact plugin setup and task names depend on the Sloth release and project template, so follow the current [Sloth README](https://github.com/Dairy-Foundation/Sloth) before adding the task to your project.
+Before a normal install, remove the remote hot load so it cannot override the installed code. Load 0.3.2 makes Gradle's `installDebug` and `installRelease` tasks depend on `removeSlothRemote`. The documented Android Studio workflow also configures remote removal as a Before launch task. An explicit CLI sequence remains valid:
 
-## References
+```sh
+./gradlew :TeamCode:removeSlothRemote :TeamCode:installDebug
+```
+
+Use a normal `TeamCode` install after changing Gradle files, adding or updating a library, or changing anything outside the hot-reloaded package. The exact plugin setup and task names depend on the Sloth release and project template, so follow the current Sloth README before adding the task to your project.
+
+<footer className="article-sources">
+
+## Sources [#references]
 
 - [Sloth source and current setup guide](https://github.com/Dairy-Foundation/Sloth)
 - [Dairy Templates](https://github.com/Dairy-Foundation/Templates)
-- [Dairy Foundation](https://dairy.foundation/)
+- [Dairy Foundation](https://github.com/Dairy-Foundation)
 - [Sinister documentation](https://docs.dairy.foundation/Sinister/overview)
+- [Sloth and Load 0.3.2 setup](https://github.com/Dairy-Foundation/Sloth/blob/30a169dbba5c73e5abf71eea0af1abd3191c7574/README.md)
+- [Slothboard source and scanner](https://github.com/Dairy-Foundation/ftc-dashboard/tree/4f98686b3f1cf9de1e1fb1c2d8e41d5e6d43e83d) · [published version metadata](https://repo.dairy.foundation/releases/com/acmerobotics/slothboard/dashboard/maven-metadata.xml)
+- [Current Panels integration](https://panels.bylazar.com/docs/com.bylazar.fullpanels/)
+
+</footer>

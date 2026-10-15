@@ -1,0 +1,25 @@
+{
+  "title": "Engineering",
+  "description": "Design, build, and test an FTC robot",
+  "icon": "engineering:GearSix",
+  "root": true,
+  "pages": [
+    "index",
+    "first-build",
+    "---Design---",
+    "...design",
+    "---Mechanical fundamentals---",
+    "...mechanical",
+    "---Mechanisms---",
+    "...mechanisms",
+    "---Manufacturing---",
+    "...manufacturing",
+    "---Electrical integration---",
+    "...electrical",
+    "---Build and compete---",
+    "...team",
+    "---Reference---",
+    "glossary",
+    "resources"
+  ]
+}

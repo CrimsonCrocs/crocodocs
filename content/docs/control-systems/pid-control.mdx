@@ -1,18 +1,18 @@
 ---
-title: PID Control
+title: PID control
 description: Build a feedback controller for an FTC arm one step at a time
 icon: Target
 ---
 
-# Make an arm stop at a chosen angle
+<span id="make-an-arm-stop-at-a-chosen-angle" className="heading-alias" />
 
-Imagine your arm must lift to 60°. With a timed command, you might run its motor for half a second and hope it stops there. The arm can stop short when the battery is low, or travel too far when the arm is lighter. A **PID controller** checks the arm's encoder while it moves and adjusts motor power based on what the arm actually did.
+Imagine your arm must lift to 60°. A timed command might run its motor for half a second without checking the final angle. The arm can stop short when the battery is low, or travel too far when the arm is lighter. A **PID controller** checks the arm's encoder while it moves and adjusts motor power based on what the arm actually did.
 
 This lesson builds that controller in stages. You will first check the encoder and motor direction, then add proportional control, and only then add derivative and integral correction. The example is for a single encoder-equipped arm; your gear ratio, arm range, motor direction, and gains must be measured on your robot.
 
 ![A feedback loop: compare the target angle to the measured angle, adjust motor power, and measure again.](/guides/pid-feedback-loop.svg)
 
-## Before you start
+## Prerequisites [#before-you-start]
 
 You need:
 
@@ -23,9 +23,9 @@ You need:
 
 **Make the mechanism safe before testing.** Support the arm so it cannot fall, keep hands clear of gears and pinch points, and begin with a small power limit. If motor power moves the arm away from the target, stop the OpMode and correct the motor direction before continuing.
 
-## First, understand feedback
+## Feedback [#first-understand-feedback]
 
-A timed motor command is open-loop: you choose a power and duration, then hope the arm ends up where you wanted. Battery voltage, friction, and the arm's load can change the result. A feedback controller closes that gap by measuring what happened and correcting it repeatedly:
+A timed motor command is open-loop: you choose a power and duration without measuring the result. Battery voltage, friction, and load can change the final angle. A feedback controller measures and corrects that angle repeatedly:
 
 1. Read the encoder and convert its counts to the arm's angle.
 2. Compare that measured angle with the target.
@@ -50,7 +50,7 @@ $$
 
 Here `e` is the error and `u` is the requested motor command. The controller below runs digitally, so it approximates the integral by adding `error × elapsed time` on each loop. It estimates speed from the change in measured angle divided by elapsed time. The gains are tied to these units: with angle in degrees and output in motor power, `kP` has units of power per degree; `kI` has units of power per degree-second; `kD` has units of power-seconds per degree. Changing the sensor units or time units means the gains must change too.
 
-### What each term contributes
+### P, I, and D [#what-each-term-contributes]
 
 - **P — Proportional:** reacts to the gap right now. A bigger gap asks for a stronger push. Start here; too much P can make the arm overshoot.
 - **I — Integral:** reacts to an error that keeps happening. It can help when the arm repeatedly stops a little short, but stored error can build up while the motor is blocked. Leave I at zero until P and D behave well.
@@ -69,7 +69,7 @@ The minus sign on the speed term makes it oppose the arm's current movement. The
 
 PID does not mean all three gains must be nonzero. Start with P, add D if the arm overshoots, and try I only when repeatable tests show a small error that remains. An arm also has gravity acting on it; a PID loop may need a properly measured gravity-compensation term to hold a position without a large integral correction.
 
-### A quick mental model
+### Term comparison [#a-quick-mental-model]
 
 | Term | Question it answers | Arm intuition |
 | --- | --- | --- |
@@ -77,9 +77,7 @@ PID does not mean all three gains must be nonzero. Start with P, add D if the ar
 | I | Has a small error kept happening? | Add a little more push to overcome a persistent load or friction. |
 | D | How fast are we moving? | Ease off while moving quickly toward the target. |
 
-For an FTC arm, begin with P only. Add D if it overshoots. Add I only if it consistently stops short after P and D are tuned. Integral is not automatically needed; an arm that must hold itself against gravity may need gravity feedforward or a carefully limited integral term.
-
-## Step 1: Give the encoder a safe reference
+## Encoder reference [#step-1-give-the-encoder-a-safe-reference]
 
 An encoder reports counts, not degrees. To convert it into an angle, first choose what angle should mean zero. In this example, zero is the arm's safe lower position.
 
@@ -90,6 +88,7 @@ With the robot powered off, support the arm and place it at that reference mark.
 
 ```java
 arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setDirection(DcMotor.Direction.FORWARD); // Example: positive power must raise angle.
 arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -100,6 +99,7 @@ arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 ```kotlin
 arm = hardwareMap.get(DcMotor::class.java, "arm")
+        arm.direction = com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD // Example: positive power must raise angle.
 arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 arm.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
 arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
@@ -116,7 +116,7 @@ Now measure the encoder's scale. Move the arm slowly between two measured angles
 counts per degree = 336 counts ÷ 60 degrees = 5.6 counts/degree
 ```
 
-Those numbers are an example measurement, not a motor specification. Use your own measured signed value. If the encoder count decreases while the arm angle increases, `COUNTS_PER_DEGREE` should be negative.
+Those numbers are an example measurement, not a motor specification. For this example, configure motor direction **first**, so a small positive logical power raises the arm's defined angle. Then measure the resulting positive counts per degree. The SDK reverses both logical motor power and encoder readings when direction changes, so redo calibration after a direction change. If an external sensor uses the opposite sign, convert its measurement and the controller's output polarity deliberately; changing only a sensor scale can turn negative feedback into positive feedback.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
@@ -131,7 +131,7 @@ double currentAngle = arm.getCurrentPosition() / COUNTS_PER_DEGREE;
 <Tab value="Kotlin">
 
 ```kotlin
-private const val COUNTS_PER_DEGREE = 5.6 // Replace with your measurement
+private val COUNTS_PER_DEGREE = 5.6 // Class field; replace with your measurement
 
 val currentAngle = arm.currentPosition / COUNTS_PER_DEGREE
 ```
@@ -141,7 +141,7 @@ val currentAngle = arm.currentPosition / COUNTS_PER_DEGREE
 
 **Check this before adding PID:** manually move the arm through a known angle and compare the displayed angle with your protractor. If the sign is reversed or the scale is wrong, fix this conversion first.
 
-## Step 2: Choose a target and calculate the error
+## Target and error [#step-2-choose-a-target-and-calculate-the-error]
 
 Use the D-pad to choose three test positions: 0°, 30°, or 60°. Keep targets inside the safe mechanical range of your arm.
 
@@ -174,7 +174,7 @@ val error = targetAngle - currentAngle
 
 Before connecting motor power, send `targetAngle`, `currentAngle`, and `error` to telemetry. At the zero mark, telemetry should show a current angle close to 0°. When the arm is below a 60° target, the error should be positive. This tells you whether the sensor math agrees with the physical arm.
 
-## Step 3: Add the P term, and test direction at low power
+## Proportional control [#step-3-add-the-p-term-and-test-direction-at-low-power]
 
 The proportional term is the error multiplied by `kP`:
 
@@ -211,13 +211,13 @@ Test with the arm supported and watch closely. If positive error makes the arm m
 
 - It barely moves and never gets close: raise `kP` a little.
 - It reaches the target slowly without crossing it: P-only control may be good enough for this test.
-- It swings past the target and comes back: keep the P value that moves it reliably, then continue to Step 4.
+- It swings past the target and comes back: keep the P value that moves it reliably, then continue to derivative control.
 
 Do not copy a gain from another robot. Changing the arm length, gearing, load, encoder scale, or loop timing changes the behavior.
 
-## Step 4: Add D to slow an approaching arm
+## Derivative control [#step-4-add-d-to-slow-an-approaching-arm]
 
-A fast-moving arm can pass the target even when the error is small. The derivative term measures the arm's speed and acts like a brake. We calculate it from the **measured angle**, so choosing a new target does not create an artificial speed spike.
+A fast-moving arm can pass the target even when the error is small. The derivative term measures the arm's speed and acts like a brake. This example calculates it from the **measured angle**, so choosing a new target does not create an artificial speed spike.
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
@@ -242,7 +242,7 @@ The minus sign makes the D term resist current motion. `deltaTimeSeconds` must b
 
 Start with `kD = 0`. After P moves the arm in the right direction, add a small D gain and change only that value at a time. If the arm slows smoothly near the target, D is helping. If it barely moves or jitters, reduce D; encoder noise can make derivative control noisy.
 
-## Step 5: Add I only to fix a persistent small error
+## Integral control [#step-5-add-i-only-to-fix-a-persistent-small-error]
 
 If the arm repeatedly stops a few degrees short because of friction or load, the integral term can accumulate that leftover error:
 
@@ -269,7 +269,7 @@ val iTerm = kI * integral
 
 The limit prevents the stored error from growing without bound while the arm is blocked or cannot reach its target. Keep `kI` at zero while you tune P and D. Add a very small value only if your measured tests show a steady offset. Too much I causes the arm to keep pushing after it reaches the target.
 
-## Put the pieces together
+## Complete controller [#put-the-pieces-together]
 
 This complete Java example keeps the controller small enough to follow. The starting gains are deliberately modest examples, not guaranteed tuning values. Begin with `KI` and `KD` set to zero; tune on the real robot using the steps above. Change one gain at a time and keep the arm supported.
 
@@ -285,7 +285,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp(name = "Guided PID Arm")
 public class GuidedPidArm extends LinearOpMode {
-    // Measure this on your robot; the sign matters.
+    // Configure direction first, then measure a positive counts/degree scale.
     private static final double COUNTS_PER_DEGREE = 5.6;
     private static final double KP = 0.003;
     private static final double KI = 0.0;
@@ -298,6 +298,7 @@ public class GuidedPidArm extends LinearOpMode {
     @Override
     public void runOpMode() {
         arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setDirection(DcMotor.Direction.FORWARD); // Example: positive power must raise angle.
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -309,26 +310,28 @@ public class GuidedPidArm extends LinearOpMode {
         waitForStart();
         pid.reset();
 
-        while (opModeIsActive()) {
-            if (gamepad1.dpad_down) targetAngle = 0.0;
-            if (gamepad1.dpad_left) targetAngle = 30.0;
-            if (gamepad1.dpad_up) targetAngle = 60.0;
-            if (gamepad1.b) break;
+        try {
+            while (opModeIsActive()) {
+                if (gamepad1.dpad_down) targetAngle = 0.0;
+                if (gamepad1.dpad_left) targetAngle = 30.0;
+                if (gamepad1.dpad_up) targetAngle = 60.0;
+                if (gamepad1.b) break;
 
-            double currentAngle = arm.getCurrentPosition() / COUNTS_PER_DEGREE;
-            double output = pid.calculate(targetAngle, currentAngle);
-            double power = Math.max(-MAX_POWER, Math.min(MAX_POWER, output));
-            arm.setPower(power);
+                double currentAngle = arm.getCurrentPosition() / COUNTS_PER_DEGREE;
+                double output = pid.calculate(targetAngle, currentAngle);
+                double power = Math.max(-MAX_POWER, Math.min(MAX_POWER, output));
+                arm.setPower(power);
 
-            telemetry.addData("Target (deg)", "%.1f", targetAngle);
-            telemetry.addData("Measured (deg)", "%.1f", currentAngle);
-            telemetry.addData("Error (deg)", "%.1f", targetAngle - currentAngle);
-            telemetry.addData("Motor power", "%.2f", power);
-            telemetry.addLine("Press B to stop the test.");
-            telemetry.update();
+                telemetry.addData("Target (deg)", "%.1f", targetAngle);
+                telemetry.addData("Measured (deg)", "%.1f", currentAngle);
+                telemetry.addData("Error (deg)", "%.1f", targetAngle - currentAngle);
+                telemetry.addData("Motor power", "%.2f", power);
+                telemetry.addLine("Press B to stop the test.");
+                telemetry.update();
+            }
+        } finally {
+            arm.setPower(0.0);
         }
-
-        arm.setPower(0.0);
     }
 
     private static class ArmPid {
@@ -395,7 +398,7 @@ import kotlin.math.min
 @TeleOp(name = "Guided PID Arm")
 class GuidedPidArm : LinearOpMode() {
     companion object {
-        // Measure this on your robot; the sign matters.
+        // Configure direction first, then measure a positive counts/degree scale.
         private const val COUNTS_PER_DEGREE = 5.6
         private const val KP = 0.003
         private const val KI = 0.0
@@ -408,6 +411,7 @@ class GuidedPidArm : LinearOpMode() {
 
     override fun runOpMode() {
         arm = hardwareMap.get(DcMotor::class.java, "arm")
+        arm.direction = com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD // Example: positive power must raise angle.
         arm.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         arm.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         arm.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
@@ -419,26 +423,28 @@ class GuidedPidArm : LinearOpMode() {
         waitForStart()
         pid.reset()
 
-        while (opModeIsActive()) {
-            if (gamepad1.dpad_down) targetAngle = 0.0
-            if (gamepad1.dpad_left) targetAngle = 30.0
-            if (gamepad1.dpad_up) targetAngle = 60.0
-            if (gamepad1.b) break
+        try {
+            while (opModeIsActive()) {
+                if (gamepad1.dpad_down) targetAngle = 0.0
+                if (gamepad1.dpad_left) targetAngle = 30.0
+                if (gamepad1.dpad_up) targetAngle = 60.0
+                if (gamepad1.b) break
 
-            val currentAngle = arm.currentPosition / COUNTS_PER_DEGREE
-            val output = pid.calculate(targetAngle, currentAngle)
-            val power = max(-MAX_POWER, min(MAX_POWER, output))
-            arm.power = power
+                val currentAngle = arm.currentPosition / COUNTS_PER_DEGREE
+                val output = pid.calculate(targetAngle, currentAngle)
+                val power = max(-MAX_POWER, min(MAX_POWER, output))
+                arm.power = power
 
-            telemetry.addData("Target (deg)", "%.1f", targetAngle)
-            telemetry.addData("Measured (deg)", "%.1f", currentAngle)
-            telemetry.addData("Error (deg)", "%.1f", targetAngle - currentAngle)
-            telemetry.addData("Motor power", "%.2f", power)
-            telemetry.addLine("Press B to stop the test.")
-            telemetry.update()
+                telemetry.addData("Target (deg)", "%.1f", targetAngle)
+                telemetry.addData("Measured (deg)", "%.1f", currentAngle)
+                telemetry.addData("Error (deg)", "%.1f", targetAngle - currentAngle)
+                telemetry.addData("Motor power", "%.2f", power)
+                telemetry.addLine("Press B to stop the test.")
+                telemetry.update()
+            }
+        } finally {
+            arm.power = 0.0
         }
-
-        arm.power = 0.0
     }
 
     private class ArmPid(private val kP: Double, private val kI: Double, private val kD: Double) {
@@ -485,7 +491,7 @@ class GuidedPidArm : LinearOpMode() {
 </Tab>
 </Tabs>
 
-### Read the telemetry while tuning
+### Tuning telemetry [#read-the-telemetry-while-tuning]
 
 1. Select `Guided PID Arm`, initialize, and confirm the displayed angle matches the real arm's zero position.
 2. Press D-pad left for the 30° target. Watch the target, measured angle, error, and power together.
@@ -496,7 +502,7 @@ class GuidedPidArm : LinearOpMode() {
 
 A build only checks that the code compiles. It does not prove the encoder scale, motor direction, gains, or mechanism limits are safe.
 
-## If it behaves unexpectedly
+## Troubleshooting [#if-it-behaves-unexpectedly]
 
 | What you observe | Check this first |
 | --- | --- |
@@ -507,10 +513,33 @@ A build only checks that the code compiles. It does not prove the encoder scale,
 | Arm settles short | Verify gravity/load behavior; only then try a small `KI` or a gravity feedforward term. |
 | Arm keeps pushing at a hard stop | Stop immediately; lower the target range and inspect the integral limit and mechanism. |
 
-## Where to go next
+## Manual override
+
+Manual input and a position controller need one owner for the motor command. Select the mode, calculate its request, apply limits, then write power once per loop.
+
+| Event | Controller action |
+| --- | --- |
+| Manual jog | Use a signed, bounded command; suspend automatic output. |
+| Jog released | Explicitly command zero or enter a defined hold mode. |
+| Hold entered | Capture the current measured position as the target and initialise controller history from that measurement. |
+| Measurement invalid | Disable motion through the mechanism's fault policy. |
+
+Opposite jog inputs must produce opposite directions. Define what happens when both are pressed. On a mode change, clear or reinitialise integral and derivative state so old error does not produce a sudden command.
+
+A motor retains its previous power request until changed. Omitting the manual-release branch can leave it running. Zero output may let a vertical load fall; use the mechanism's established hold/support policy and test the transition under representative load.
+
+## Next steps [#where-to-go-next]
 
 Once the arm's encoder and feedback loop make sense, continue to [motion profiling](./motion-profiling) to control how quickly a mechanism accelerates, or review [low-pass filters](./lowpass-filter) if sensor readings are noisy.
 
-For another explanation of the controller terms and their behavior, read [CTRL ALT FTC: The PID Controller](https://www.ctrlaltftc.com/the-pid-controller). Treat its gains and code as examples to understand, not values to copy into your robot; tune using your own mechanism and measurements.
+Check SDK-specific motor and OpMode behavior separately from the PID equations. Tune gains using your mechanism and measurements; the example values are not calibrated for your robot.
 
-For SDK-specific motor and OpMode behavior, use the [FTC programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html). PID equations and example gains are concepts; your measured robot behavior is what determines the tuning.
+<footer className="article-sources">
+
+## Sources
+
+- [CTRL ALT FTC: The PID Controller](https://www.ctrlaltftc.com/the-pid-controller)
+- [FIRST: FTC programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
+- [The Dairy Cookbook: custom PIDF integration](https://cookbook.dairy.foundation/pidf_controllers/integrating_a_custom_PIDF_controller.html) — original manual/automatic concept; the handoff above supplies explicit release and state-reset behaviour.
+
+</footer>

@@ -11,9 +11,7 @@ import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 export const baseOptions: BaseLayoutProps = {
   nav: {
     title: (
-      <>
-        <Wordmark logoOnly size="large" />
-      </>
+      <Wordmark size="large" />
     ),
   },
   // see https://fumadocs.dev/docs/ui/navigation/links

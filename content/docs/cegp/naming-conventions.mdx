@@ -1,16 +1,16 @@
 ---
-title: Naming Conventions
+title: Naming conventions
 description: Pick names that tell a teammate what each part of the code means
 icon: Tag
 ---
 
-## Start with meaning
+## Descriptive names [#start-with-meaning]
 
 Compare `motor1` with `leftDriveMotor`. The second name tells a teammate where the motor is and what it does. Clear names reduce the number of comments needed to understand an OpMode.
 
 Use the same words throughout the project. If the team calls a mechanism an “arm,” avoid switching between `arm`, `lift`, and `elevator` unless they are different things.
 
-## Common Java and Kotlin patterns
+## Java and Kotlin conventions [#common-java-and-kotlin-patterns]
 
 | What you name | Pattern | Example |
 | --- | --- | --- |
@@ -21,7 +21,7 @@ Use the same words throughout the project. If the team calls a mechanism an “a
 
 These patterns match normal Java style and work well for Kotlin too. Consistency matters more than inventing a special name for every case.
 
-## Put units in measurement names
+## Measurement units [#put-units-in-measurement-names]
 
 `targetPosition` leaves an important question: is it degrees, encoder ticks, or millimeters? A name such as `targetAngleDegrees` or `targetTicks` answers it.
 
@@ -33,7 +33,7 @@ double maxArmPower = 0.25;
 
 These lines are illustrative values inside a larger OpMode. They do not convert ticks to degrees; that conversion needs a measured encoder scale and a known zero position.
 
-## Hardware names must match configuration
+## Hardware names [#hardware-names-must-match-configuration]
 
 The name passed to `hardwareMap.get` is a string from the **active Robot Controller configuration**. It is not automatically created by your Java or Kotlin variable name:
 
@@ -56,10 +56,10 @@ val leftDriveMotor = hardwareMap.get(DcMotor::class.java, "left_drive")
 
 Here, `leftDriveMotor` is a code variable and `left_drive` is the configured device name. The latter must match exactly, including capitalization.
 
-## A quick naming check
+## Naming checklist [#a-quick-naming-check]
 
 Before committing, ask a teammate to read one method without your explanation. If a name makes them ask “which motor?” or “what unit?”, improve that name. Do not rename a configured hardware string without also updating the robot configuration.
 
-## Next step
+## Next steps [#next-step]
 
 See [code organization](./code-organization) for where to put these clearly named parts as the project grows.

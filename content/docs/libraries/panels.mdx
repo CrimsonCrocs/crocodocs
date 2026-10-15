@@ -1,28 +1,43 @@
 ---
 title: Panels
-description: Plugin-based dashboard and development tools for FTC robots
+description: Install Lazar's Panels, send browser telemetry, and tune bounded configuration values
 icon: LayoutDashboard
 ---
 
-## What is Panels?
+## Overview [#what-is-panels]
 
-[Panels](https://panels.bylazar.com/) is a browser dashboard and plugin system for FTC robots. The official project describes tools for OpMode control, telemetry, field and graph views, capture/replay, runtime configurables, Limelight support, gamepads, and custom plugins. Availability depends on which plugins your project includes.
+Panels is a browser dashboard and plugin system for FTC robots. The official project describes tools for OpMode control, telemetry, field and graph views, capture/replay, runtime configurables, Limelight support, gamepads, and custom plugins. Availability depends on which plugins your project includes.
 
 ## Installation
 
-Panels has changed significantly over time. Use the official [installation documentation](https://panels.bylazar.com/docs/com.bylazar.docs/) or the current Java/Kotlin Quickstart linked from the [official GitHub organization](https://github.com/ftcontrol). Copy the artifact coordinates and version that match your FTC SDK and language setup; old `fullpanels` versions and Sloth variants may not match current releases.
+Lazar's Panels is published under `com.bylazar`. Checked **14 October 2026**: FullPanels **1.0.18** targets FTC SDK **12** and includes the Telemetry and Configurables **1.0.7** APIs used below. Add these entries to the project's existing Gradle configuration, retaining its standard Google and Maven Central repositories:
+
+```groovy
+repositories {
+    maven { url = 'https://mymaven.bylazar.com/releases' }
+    maven { url = 'https://repo.dairy.foundation/releases' }
+}
+
+dependencies {
+    implementation 'com.bylazar:fullpanels:1.0.18'
+}
+```
+
+FullPanels includes the standard plugin bundle. A project can instead select individual plugins deliberately; use one matching release set. For Kotlin projects, the current author instructions require **kotlin-gradle-plugin 2.4.10 or later**. Follow the project-level Kotlin setup before adding the examples.
 
 <Callout type="warn" title="Check SDK compatibility">
-Panels releases are built against particular FTC SDK versions. Confirm the current prerequisites in the official installation guide before updating Panels or the SDK. Kotlin projects may also need a matching Kotlin Gradle plugin version.
+Panels releases are built against particular FTC SDK versions. Confirm the prerequisites when changing the version. The current setup retains compileSdk 30 and minSdk 24; a Panels update does not by itself require raising those values.
 </Callout>
 
-## Connect and use it
+## Connection [#connect-and-use-it]
 
 After installing and deploying the matching project, connect a browser to the robot network and follow the address printed or documented by that Quickstart. The IP address and port depend on the project configuration; do not assume that an address from an older version still applies.
 
+The documented defaults use port **8001**: `http://192.168.43.1:8001` for a Control Hub and `http://192.168.49.1:8001` for a phone Robot Controller. These are robot-network addresses; use the actual configured address if the network arrangement differs.
+
 Use the telemetry and graph tools to inspect behavior while testing. Runtime configurables are useful for tuning, but record known-good values in your source control. Capture and replay can help investigate test data; it does not replace checking robot behavior on the field.
 
-## Expose a value you can tune
+## Runtime configuration [#expose-a-value-you-can-tune]
 
 One practical first use is to expose a motor limit so the team can adjust it in the Panels Configurables plugin while watching telemetry. Panels' Configurables plugin reads mutable `public static` Java fields from a class marked with `@Configurable`:
 
@@ -53,49 +68,68 @@ object DriveTuning {
 </Tab>
 </Tabs>
 
-Read the field when you set motor power so a live change can affect the next loop:
+The following is an active-loop fragment after mapping `leftMotor` and `rightMotor`. In Java, obtain `PanelsTelemetry.INSTANCE.getTelemetry()` once during setup; the API is a Kotlin singleton, so its getter is an instance method. Kotlin uses `PanelsTelemetry.telemetry`. Ordinary SDK `telemetry` goes to the Driver Station; the Panels manager sends browser telemetry. Keep a fixed 0.25 cap outside the editable field:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
 
 ```java
-double requested = -gamepad1.left_stick_y * DriveTuning.MAX_TEST_POWER;
+// Setup: TelemetryManager panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
+// Imports: com.bylazar.telemetry.PanelsTelemetry and com.bylazar.telemetry.TelemetryManager.
+double limit = Math.max(0.0, Math.min(0.25, DriveTuning.MAX_TEST_POWER));
+double requested = -gamepad1.left_stick_y * limit;
 leftMotor.setPower(requested);
 rightMotor.setPower(requested);
-telemetry.addData("Test power limit", "%.2f", DriveTuning.MAX_TEST_POWER);
-telemetry.addData("Requested power", "%.2f", requested);
-telemetry.update();
+panelsTelemetry.addData("Test power limit", limit);
+panelsTelemetry.addData("Requested power", requested);
+panelsTelemetry.update(telemetry);
 ```
 
 </Tab>
 <Tab value="Kotlin">
 
 ```kotlin
-val requested = -gamepad1.left_stick_y * DriveTuning.MAX_TEST_POWER
+// Setup: val panelsTelemetry = PanelsTelemetry.telemetry
+// Import: com.bylazar.telemetry.PanelsTelemetry
+val limit = DriveTuning.MAX_TEST_POWER.coerceIn(0.0, 0.25)
+val requested = -gamepad1.left_stick_y * limit
 leftMotor.power = requested
 rightMotor.power = requested
-telemetry.addData("Test power limit", "%.2f", DriveTuning.MAX_TEST_POWER)
-telemetry.addData("Requested power", "%.2f", requested)
-telemetry.update()
+panelsTelemetry.addData("Test power limit", limit)
+panelsTelemetry.addData("Requested power", requested)
+panelsTelemetry.update(telemetry)
 ```
 
 </Tab>
 </Tabs>
 
-The variable changes the chosen command limit; it does not measure whether the robot is moving straight or safely. Begin with the robot on blocks, then test at low power on an open floor. Write a known-good value into your source code after tuning. For dependency coordinates and setup, copy the Java or Kotlin Quickstart linked by the [Panels documentation](https://panels.bylazar.com/docs/com.bylazar.docs/); the plugin API and compatible versions change over time.
+`update(telemetry)` also forwards the packet to Driver Station telemetry. Check that Configurables and Telemetry plugins are installed. The Java telemetry calls were compiled against the published Telemetry/Configurables 1.0.7 artifacts; use matching release instructions. Place these fragments inside a valid OpMode, apply power only after START, and remove motor power during cleanup.
+
+The variable changes the chosen command limit; it does not measure whether the robot is moving straight or safely. Begin with the robot on blocks, then test at low power on an open floor. Write a known-good value into your source code after tuning. For dependency coordinates and setup, copy the Java or Kotlin Quickstart linked by the Panels documentation; the plugin API and compatible versions change over time.
 
 ## Plugins
 
-Panels is plugin-driven. Its official project lists OpMode control, telemetry, field view, graph view, capture, configurables, Limelight support, gamepads, camera stream, battery and ping information, and integrated documentation. Use the [current plugin documentation](https://panels.bylazar.com/docs/com.bylazar.docs/) for installation and APIs. Plugin names and installation steps can change, so verify the selected plugin's release details before adding it.
+Panels is plugin-driven. Its official project lists OpMode control, telemetry, field view, graph view, capture, configurables, Limelight support, gamepads, camera stream, battery and ping information, and integrated documentation. Use the current plugin documentation for installation and APIs. Plugin names and installation steps can change, so verify the selected plugin's release details before adding it.
 
 ## Panels and FTC Dashboard
 
 Both tools can support telemetry and robot development. Compare their current plugin sets, existing team code, SDK compatibility, and setup cost. Panels has a plugin model; FTC Dashboard provides its own telemetry, live configuration, field, graph, and camera features. Neither replaces careful match testing.
 
-## Official references
+## Sloth integration
+
+Official Panels artifacts include Sloth support from FullPanels **1.0.16** onward. With 1.0.18, keep the official `com.bylazar` dependency when using [Sloth](./sloth). Older instructions that replace it with `com.bylazar.sloth` describe an earlier integration path.
+
+<footer className="article-sources">
+
+## Sources [#official-references]
 
 - [Panels website](https://panels.bylazar.com/)
 - [Panels documentation](https://panels.bylazar.com/docs/com.bylazar.docs/)
 - [Panels GitHub repository](https://github.com/ftcontrol/ftcontrol-panels)
 - [Official GitHub organization and Quickstarts](https://github.com/ftcontrol)
 - [Dairy Foundation releases](https://repo.dairy.foundation/)
+- [FullPanels release and setup](https://panels.bylazar.com/docs/com.bylazar.fullpanels/)
+- [Published API implementation](https://github.com/ftcontrol/ftcontrol-panels/blob/ed2d9f6ae464974df6a1e54358b2cb03f1b4c3d1/library/Telemetry/src/main/java/com/bylazar/telemetry/PanelsTelemetry.kt)
+- [Panels prerequisites](https://github.com/ftcontrol/ftcontrol-panels/blob/ed2d9f6ae464974df6a1e54358b2cb03f1b4c3d1/library/Docs/web/src/docs/Prerequisites.svelte)
+
+</footer>

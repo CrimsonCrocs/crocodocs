@@ -1,0 +1,590 @@
+[
+  {
+    "url": "http://localhost:3000/docs",
+    "status": 200,
+    "bytes": 570923,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/autonomous",
+    "status": 200,
+    "bytes": 558425,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/autonomous/motion-planning",
+    "status": 200,
+    "bytes": 1786398,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/autonomous/odometry",
+    "status": 200,
+    "bytes": 1061327,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/autonomous/pure-pursuit",
+    "status": 200,
+    "bytes": 932981,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/autonomous/sensor-fusion",
+    "status": 200,
+    "bytes": 1144457,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/autonomous/time-vs-encoder",
+    "status": 200,
+    "bytes": 1155624,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/cegp",
+    "status": 200,
+    "bytes": 579740,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/cegp/code-organization",
+    "status": 200,
+    "bytes": 619693,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/cegp/comments",
+    "status": 200,
+    "bytes": 603902,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/cegp/formatting",
+    "status": 200,
+    "bytes": 554419,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/cegp/naming-conventions",
+    "status": 200,
+    "bytes": 612889,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/cegp/team-collaboration",
+    "status": 200,
+    "bytes": 586836,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/control-systems",
+    "status": 200,
+    "bytes": 565838,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/control-systems/feedforward",
+    "status": 200,
+    "bytes": 635442,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/control-systems/joystick-mapping",
+    "status": 200,
+    "bytes": 755853,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/control-systems/kalman-filter",
+    "status": 200,
+    "bytes": 1062506,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/control-systems/lowpass-filter",
+    "status": 200,
+    "bytes": 833250,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/control-systems/motion-profiling",
+    "status": 200,
+    "bytes": 1470759,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/control-systems/pid-control",
+    "status": 200,
+    "bytes": 1662752,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering",
+    "status": 200,
+    "bytes": 575488,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/design/cad",
+    "status": 200,
+    "bytes": 563997,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/design/design-process",
+    "status": 200,
+    "bytes": 570052,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/design/game-strategy",
+    "status": 200,
+    "bytes": 620981,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/electrical/sensor-integration",
+    "status": 200,
+    "bytes": 552544,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/electrical/wiring-and-power",
+    "status": 200,
+    "bytes": 580726,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/first-build",
+    "status": 200,
+    "bytes": 558473,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/glossary",
+    "status": 200,
+    "bytes": 634919,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/manufacturing/3d-printing",
+    "status": 200,
+    "bytes": 562867,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/manufacturing/fits-and-tolerances",
+    "status": 200,
+    "bytes": 637094,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/manufacturing/machining-and-fabrication",
+    "status": 200,
+    "bytes": 563055,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/manufacturing/materials",
+    "status": 200,
+    "bytes": 590080,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanical/belts-and-chain",
+    "status": 200,
+    "bytes": 664360,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanical/gears",
+    "status": 200,
+    "bytes": 655052,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanical/motors-and-gearing",
+    "status": 200,
+    "bytes": 919861,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanical/servos",
+    "status": 200,
+    "bytes": 594676,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanical/shafts-and-bearings",
+    "status": 200,
+    "bytes": 587317,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanical/structure-and-fasteners",
+    "status": 200,
+    "bytes": 564297,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanisms/arms-and-linkages",
+    "status": 200,
+    "bytes": 704420,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanisms/drivetrains",
+    "status": 200,
+    "bytes": 590052,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanisms/flywheels",
+    "status": 200,
+    "bytes": 733920,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanisms/intakes-and-grippers",
+    "status": 200,
+    "bytes": 584711,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanisms/linear-slides",
+    "status": 200,
+    "bytes": 706091,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanisms/transfers",
+    "status": 200,
+    "bytes": 548916,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/mechanisms/turrets",
+    "status": 200,
+    "bytes": 570274,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/resources",
+    "status": 200,
+    "bytes": 580099,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/team/assembly-and-serviceability",
+    "status": 200,
+    "bytes": 557514,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/team/engineering-notebook",
+    "status": 200,
+    "bytes": 560817,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/engineering/team/testing-and-reliability",
+    "status": 200,
+    "bytes": 557405,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/getting-started",
+    "status": 200,
+    "bytes": 576082,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/getting-started/android-studio",
+    "status": 200,
+    "bytes": 664992,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/getting-started/blocks",
+    "status": 200,
+    "bytes": 553509,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/getting-started/debugging",
+    "status": 200,
+    "bytes": 569571,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/getting-started/dictionary-demo",
+    "status": 200,
+    "bytes": 564181,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/getting-started/first-opmode",
+    "status": 200,
+    "bytes": 633308,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/getting-started/java-basics",
+    "status": 200,
+    "bytes": 715534,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/getting-started/motors-and-servos",
+    "status": 200,
+    "bytes": 687262,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/getting-started/nonblocking-code",
+    "status": 200,
+    "bytes": 701966,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/getting-started/onbot-java",
+    "status": 200,
+    "bytes": 546931,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/libraries",
+    "status": 200,
+    "bytes": 573138,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/libraries/ftc-dashboard",
+    "status": 200,
+    "bytes": 780250,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/libraries/ftclib",
+    "status": 200,
+    "bytes": 775713,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/libraries/mercurial",
+    "status": 200,
+    "bytes": 815625,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/libraries/nextftc",
+    "status": 200,
+    "bytes": 871709,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/libraries/panels",
+    "status": 200,
+    "bytes": 686798,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/libraries/pedro-pathing",
+    "status": 200,
+    "bytes": 869030,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/libraries/road-runner",
+    "status": 200,
+    "bytes": 710624,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/libraries/sloth",
+    "status": 200,
+    "bytes": 596584,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/season-breakdown",
+    "status": 200,
+    "bytes": 705720,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/advanced/troubleshooting",
+    "status": 200,
+    "bytes": 667888,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/advanced/vision-integration",
+    "status": 200,
+    "bytes": 811473,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/color-sensor-v3",
+    "status": 200,
+    "bytes": 533236,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/easyopencv/easyopencv-basics",
+    "status": 200,
+    "bytes": 752165,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/easyopencv/eocv-sim",
+    "status": 200,
+    "bytes": 610627,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/easyopencv/writing-pipelines",
+    "status": 200,
+    "bytes": 1418441,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/hardware/color-sensor-v3",
+    "status": 200,
+    "bytes": 833926,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/hardware/imu",
+    "status": 200,
+    "bytes": 670570,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/hardware/limit-switches",
+    "status": 200,
+    "bytes": 620859,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/hardware/webcam",
+    "status": 200,
+    "bytes": 592930,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/vision-basics",
+    "status": 200,
+    "bytes": 607846,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/vision-overview",
+    "status": 200,
+    "bytes": 561284,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/visionportal/apriltag-detection",
+    "status": 200,
+    "bytes": 949320,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/visionportal/color-blob-locator",
+    "status": 200,
+    "bytes": 1238673,
+    "hasArticle": true,
+    "streamError": false
+  },
+  {
+    "url": "http://localhost:3000/docs/sensors-and-vision/visionportal/vision-portal",
+    "status": 200,
+    "bytes": 1128997,
+    "hasArticle": true,
+    "streamError": false
+  }
+]

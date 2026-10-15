@@ -1,0 +1,52 @@
+---
+icon: engineering:CircleNotch
+title: Flywheels and launchers
+description: Understand stored rotational energy, object compression, speed recovery, and repeatable launcher testing.
+---
+
+A **flywheel launcher** transfers energy from a rotating wheel to an object through contact. Repeatable output requires controlled wheel speed, contact geometry, feed timing, and object behavior.
+
+## Energy and surface speed [#separate-energy-from-contact-speed]
+
+Stored rotational energy is $E = \tfrac12 I\omega^2$, where $I$ is rotational inertia and $\omega$ is angular speed in radians per second. Increasing inertia reduces the speed change caused by a given energy transfer, but also increases spin-up demand and stored energy.
+
+Wheel surface speed is $v = r\omega$. It is not automatically the launch speed: object slip, compression, a second wheel or stationary hood, and energy losses affect the result. Match the contact path to the object instead of deriving a launch prediction from RPM alone.
+
+For an illustrative wheel with $I = 0.0003$ kg·m² at 300 rad/s, stored energy is 13.5 J. If 3 J leaves that rotating assembly during a feed, the remaining idealized speed is:
+
+$$
+\begin{aligned}
+\omega_2 &= \sqrt{\omega_1^2-\frac{2\Delta E}{I}} \\
+&= \sqrt{300^2-\frac{2(3)}{0.0003}} \\
+&\approx 265\ \mathrm{rad/s}
+\end{aligned}
+$$
+
+This example isolates the energy change; it does not model the motor adding energy during contact or predict a particular game object's trajectory.
+
+## Contact geometry [#control-the-contact-path]
+
+Set wheel diameter, compliant material, compression, hood shape, and object entry pose as a system. Too little contact can slip; too much can damage the object, stall the feed, or produce large wheel-speed drop.
+
+A feed mechanism should release a consistent number of objects with a repeatable entry orientation. Keep an accessible recovery path for a jam. Archived Ultimate Goal flywheel experiments compare contact arrangements for that season's rings; their geometry is not a recipe for a different game object.
+
+## Speed recovery [#recover-before-the-next-feed]
+
+Measure wheel speed before, during, and after a feed. Use a defined readiness band and settling time if speed feedback is available. A fixed delay may work under tested conditions, but battery change and repeated shots can alter recovery.
+
+[PID control](/docs/control-systems/pid-control) provides background for speed regulation. Verify archived flywheel-control examples against your SDK and hardware instead of copying season-specific setpoints.
+
+## Testing and guards [#test-repeatability-and-contain-hazards]
+
+Use a controlled test area, an appropriate backstop, and a clear procedure for stopping motion. Keep hands and loose items away from the wheel and feed path. Remove power and wait for rotation to stop before clearing a jam.
+
+At a fixed measured setup, record entry pose, wheel speed, post-feed speed, recovery time, landing position, and failed feeds. Compare the spread of outcomes as well as the average. Include worn contact surfaces and representative object variation before claiming a reliable operating range.
+
+<footer className="article-sources">
+
+## Sources
+
+- [REV: Ultimate Goal flywheel experiments (2020–21 archive)](https://docs.revrobotics.com/ftc-kickoff-concepts/ultimate-goal-2020-2021/shooter)
+- [REV: DECODE flywheel-control example (2025–26 archive)](https://docs.revrobotics.com/ftc-kickoff-concepts/decode-2025-26/programming-teleop/programming-flywheel-control)
+
+</footer>

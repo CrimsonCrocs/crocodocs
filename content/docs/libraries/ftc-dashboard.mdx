@@ -4,13 +4,15 @@ description: Official FTC Dashboard features, setup, and version notes
 icon: ChartLine
 ---
 
-## What it does
+## Overview [#what-it-does]
 
-[FTC Dashboard](https://acmerobotics.github.io/ftc-dashboard/) is a web dashboard for FTC robot development. The official project lists live telemetry, plots and field graphics, live configuration variables, camera streaming, custom layouts, and telemetry CSV export. Browser gamepad support is described by the project as volatile because it depends on browser APIs.
+FTC Dashboard is a web dashboard for FTC robot development. The official project lists live telemetry, plots and field graphics, live configuration variables, camera streaming, custom layouts, and telemetry CSV export. Browser gamepad support is described by the project as volatile because it depends on browser APIs.
 
-## Install the current release
+## Installation [#install-the-current-release]
 
-Follow the official [installation instructions](https://github.com/acmerobotics/ftc-dashboard#installation) and use the repository and dependency version listed there. At the time this page was reviewed, the project README showed `com.acmerobotics.dashboard:dashboard:0.6.0` from `https://maven.brott.dev/`; confirm the release page before updating because dashboard releases track FTC SDK changes.
+Follow the official installation instructions and use the repository and dependency version listed there. At the time this page was reviewed, the project README showed `com.acmerobotics.dashboard:dashboard:0.6.0` from `https://maven.brott.dev/`; confirm the release page before updating because dashboard releases track FTC SDK changes.
+
+Version **0.6.0** remains current as checked **14 October 2026**. For hot-reloaded TeamCode, [Slothboard](./sloth#slothboard) is the maintained Dairy fork with Sloth integration. Choose the ordinary artifact or the fork; they provide the same Dashboard package names and must not both supply those classes.
 
 ```groovy
 repositories {
@@ -24,7 +26,7 @@ dependencies {
 
 If your SDK project already has this repository, do not add a duplicate. Some non-standard SDK setups need a different dependency declaration; use the official instructions for those projects.
 
-## Send telemetry
+## Telemetry [#send-telemetry]
 
 A `TelemetryPacket` lets an OpMode send key/value data to the dashboard. The official README and examples are the reference for the exact API in your installed release.
 
@@ -53,7 +55,7 @@ dashboard.sendTelemetryPacket(packet)
 
 You can continue sending essential information to Driver Station telemetry as well. Avoid sending unnecessary data every loop; test loop timing on the robot.
 
-## Tune a value while the OpMode runs
+## Runtime tuning [#tune-a-value-while-the-opmode-runs]
 
 The dashboard's `@Config` annotation exposes mutable `public static` Java fields. Read the field where you use it if you want the latest value to take effect immediately. If you copy a value into another variable during initialization, that copy will not automatically change when you edit the dashboard field.
 
@@ -88,7 +90,9 @@ object ArmTuning {
 </Tab>
 </Tabs>
 
-Then read those fields in the control loop and send what the robot is doing:
+The following loop fragment assumes `arm` is a mapped `DcMotor` and `dashboard` is `FtcDashboard.getInstance()`. Define `COUNTS_PER_DEGREE` as a measured, positive, nonzero `double`, with motor direction and encoder zero established as in the [PID guide](../control-systems/pid-control). This proportional example omits gravity compensation and travel limits; it is a tuning demonstration, not a complete arm controller.
+
+Read those fields in the control loop and send what the robot is doing:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">
@@ -113,7 +117,7 @@ dashboard.sendTelemetryPacket(packet);
 ```kotlin
 val currentDegrees = arm.currentPosition / COUNTS_PER_DEGREE
 val error = ArmTuning.TARGET_DEGREES - currentDegrees
-val power = max(-0.25, min(0.25, ArmTuning.KP * error))
+val power = (ArmTuning.KP * error).coerceIn(-0.25, 0.25)
 arm.power = power
 
 val packet = TelemetryPacket()
@@ -127,7 +131,7 @@ dashboard.sendTelemetryPacket(packet)
 </Tab>
 </Tabs>
 
-This is the useful tuning cycle: change `KP` on the dashboard, observe the error and power, and record a stable value back into your source code. Keep the power limit while tuning and use the [PID guide](../control-systems/pid-control) for a careful gain adjustment sequence.
+Change `KP` on the dashboard, observe the error and power, and record a stable value back into your source code. Keep the power limit while tuning and use the [PID guide](../control-systems/pid-control) for a careful gain adjustment sequence.
 
 ## Live configuration
 
@@ -135,15 +139,21 @@ The dashboard can expose supported configuration fields so you can tune values d
 
 ## Field view, graphs, and cameras
 
-Use the field view to draw robot-relative or field-relative debugging information when your code supplies the matching coordinates. Graphs can make response trends easier to inspect. Camera streaming can help check what a vision pipeline receives, but the stream itself does not validate detection accuracy. See the official [field view](https://acmerobotics.github.io/ftc-dashboard/fieldview) and [camera](https://acmerobotics.github.io/ftc-dashboard/features.html) documentation for current details.
+Use the field view to draw robot-relative or field-relative debugging information when your code supplies the matching coordinates. Graphs can make response trends easier to inspect. Camera streaming can help check what a vision pipeline receives, but the stream itself does not validate detection accuracy.
 
 ## Network access
 
 Open the dashboard from a browser on the robot network using the address and port configured by your project. The common default shown in FTC Dashboard examples is `http://192.168.43.1:8080/dash`, but the Control Hub address, network mode, or project configuration can differ. Do not use a public Wi-Fi network for robot control.
 
-## Official references
+<footer className="article-sources">
+
+## Sources [#official-references]
 
 - [FTC Dashboard documentation](https://acmerobotics.github.io/ftc-dashboard/)
 - [Repository and installation guide](https://github.com/acmerobotics/ftc-dashboard)
 - [Releases](https://github.com/acmerobotics/ftc-dashboard/releases)
 - [Field view](https://acmerobotics.github.io/ftc-dashboard/fieldview)
+- [installation instructions](https://github.com/acmerobotics/ftc-dashboard#installation)
+- [camera](https://acmerobotics.github.io/ftc-dashboard/features.html)
+
+</footer>
