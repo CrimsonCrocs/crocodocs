@@ -45,7 +45,7 @@ Last updated: 15 October 2026. Initial handbook release: `1ffb47a` on `main`.
 - [x] Add a separate Programming category for newer community projects, starting with OpenLoop and Hive Vision.
 - [x] Add Blaze FTC, covering the current Java/Kotlin package, Pedro integrations, and Rust Quickstart.
 - [x] Give all three project pages the same main headings and coverage: overview, status, setup, example, testing, and limits. Preserve old links with redirects.
-- [ ] Verify navigation, redirects, and the production release.
+- [x] Verify production navigation and all three project pages in release `d6a1528`. Both previous library URLs return permanent redirects to Community software.
 
 ## Playgrounds
 
@@ -54,14 +54,14 @@ Last updated: 15 October 2026. Initial handbook release: `1ffb47a` on `main`.
 - [x] After simulator thread `49658190-ecac-4616-b650-44b557bd7c2b` deployed, add a real single-file Blocks embed and use `theme=light` for every embed.
 - [x] Replace telemetry-only exercises with visible robot movement. Verify edited code, Play/Stop, the Blocks sequence, division, power/direction, and nonblocking buttons.
 - [x] Inspect all five article embeds at 1440px and 390px. Verify the light iframe inside dark docs, real Blocks editing/running, and a touch-emulated phone Play/Stop path with Code/Simulator tabs and on-screen controls. Fix the long inline file path that widened the first-OpMode page.
-- [ ] Publish the updated playgrounds and confirm the production embeds. See `docs/audits/playgrounds.md`.
+- [x] Publish the updated playgrounds in `d6a1528`. The production Blocks iframe uses real Blocks, light mode, and one file; its live run reached Finished. Live Play/Stop also passed. See `docs/audits/playgrounds.md`.
 
 The simulator update is deployed. Matthew authorized re-enabling the playgrounds, and the scheduled follow-up is disabled to prevent duplicate work. All five updated examples passed the focused hosted-simulator checks. No simulator source was changed.
 
 ## Web Analytics
 
 - [x] Install `@vercel/analytics` and render the Next.js Analytics component in the root layout. Confirm Web Analytics is enabled for the canonical CrocoDocs Vercel project.
-- [ ] Verify the production analytics script and pageview request after publishing.
+- [x] Verify the production analytics script and pageview request: both returned HTTP 200 from Vercel's generated endpoint.
 
 ## Verification
 
@@ -71,4 +71,6 @@ The current release passes **105 MDX checks and the production build**. Focused 
 
 `BlazeBulkPreview` compiles as Java 8 against the published BlazeFTC 0.1.66 artifact, FTC SDK 12, and Kotlin stdlib. The current Pedro adapter source was checked for Pinpoint requirements and callback ownership. No hardware run or Rust native build was performed. Blaze core and Quickstart source revisions were `9044ffd` and `dbd764e` respectively.
 
-Publication and production analytics verification are the remaining release steps above. No extra test suite or dependency was added for playground verification; Analytics is the separately requested dependency.
+Release `d6a1528` is published on `main`; both Vercel production deployments succeeded. The canonical site serves the new Community software pages and redirects, and its Analytics script/pageview requests return HTTP 200. No extra test suite or dependency was added for playground verification; Analytics is the separately requested dependency.
+
+Focused Intentional Verify verdict: **ACCEPT**. No unrelated article audit or full release suite was run.
