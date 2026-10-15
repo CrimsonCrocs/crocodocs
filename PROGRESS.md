@@ -83,3 +83,10 @@ Focused Intentional Verify verdict: **ACCEPT**. No unrelated article audit or fu
 - [x] Publish `dc71a5c` to `main`; both Vercel production deployments succeeded. The canonical domain returns HTTP 200 for Mercurial v1, Mercurial v2, and Libraries, with both version links and no October review-date text. The live v2 page also opens in the browser.
 
 Mercurial v2 source: FTC bindings tag `2.0.1-beta1` (`97469ab`), published core/bindings `2.0.1-beta1`, and Dairy Maven metadata. The complete Java example compiles as Java 8 against the published artifacts and FTC SDK 12; the Kotlin equivalent was compared with upstream examples and implementation. No Android install or robot hardware test was performed. Desktop (1440px) and narrow (390px) checks cover both article titles, the legacy warning and its v2 link, navigation, Java/Kotlin tabs, and contained code scrolling.
+
+## Link audit
+
+- [x] Trace all 106 articles and the homepage, including rendered navigation, source links, images, embed URLs, and section fragments. Initial crawl: 1,315 distinct URLs/fragments and 510 fetched destinations.
+- [x] Replace 47 broken internal-link occurrences across six overview pages and the obsolete official programming URL in the shared footer. Preserve the linked topics and document every old target, replacement, and reason in `docs/audits/link-audit.md`.
+- [x] Verify the final production-build graph: 1,268 distinct URLs/fragments, 464 destinations, no unresolved targets. The docs check and production build pass; phone-width Slothboard navigation and desktop Community software → Blaze FTC navigation pass. Focused Intentional Verify: **ACCEPT**.
+- [ ] Publish the scoped corrections and confirm the affected live pages and footer.

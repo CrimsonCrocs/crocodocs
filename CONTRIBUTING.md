@@ -38,7 +38,7 @@ These project-specific components are registered in `src/mdx-components.tsx` and
 
 ## Links and images
 
-Use relative links between nearby handbook pages when possible; the docs renderer resolves them against the current page. Use a site path such as `/docs/libraries` for a known route. Put static images in `public/` and refer to them with a root path, for example `![Robot coordinate axes](/coordinates.png)`. Write useful alt text. Keep source, license, season, and image attribution with the page when they matter.
+Use relative links between nearby article files when possible. In folder overview pages (`index.mdx`), use explicit `/docs/...` routes: a relative URL can resolve against the parent URL in the browser even when the file-based check passes. Use a site path such as `/docs/libraries` for a known route. Put static images in `public/` and refer to them with a root path, for example `![Robot coordinate axes](/coordinates.png)`. Write useful alt text. Keep source, license, season, and image attribution with the page when they matter.
 
 Do not use `href="#"` as a placeholder. Link to a real route or remove the link until its destination exists. Check link targets when moving or renaming pages.
 

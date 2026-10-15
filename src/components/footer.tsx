@@ -16,7 +16,7 @@ export default function Footer() {
           <a href="https://github.com/upsidedly/myFIRSTjournal" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">GitHub</a>
           <a href="https://github.com/upsidedly/myFIRSTjournal/issues" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">Report an issue</a>
           <a href="https://www.crimsoncrocs.org" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">Crimson Crocs</a>
-          <a href="https://ftc-resources.firstinspires.org/ftc/programming" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">Official FTC resources</a>
+          <a href="https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">Official FTC resources</a>
         </nav>
       </div>
     </footer>

@@ -32,17 +32,17 @@ Feedback helps a robot correct for changing conditions, but it needs a trustwort
 
 ## Learning order [#learn-in-this-order]
 
-1. [Joystick mapping](./joystick-mapping): turn driver input into motor commands.
-2. [PID control](./pid-control): use error to correct a motor or mechanism.
-3. [Motion profiling](./motion-profiling): choose smoother target motion.
-4. [Low-pass filtering](./lowpass-filter): reduce noise in a measurement.
-5. [Kalman filtering](./kalman-filter): combine predictions and measurements when simpler filters are not enough.
+1. [Joystick mapping](/docs/control-systems/joystick-mapping): turn driver input into motor commands.
+2. [PID control](/docs/control-systems/pid-control): use error to correct a motor or mechanism.
+3. [Motion profiling](/docs/control-systems/motion-profiling): choose smoother target motion.
+4. [Low-pass filtering](/docs/control-systems/lowpass-filter): reduce noise in a measurement.
+5. [Kalman filtering](/docs/control-systems/kalman-filter): combine predictions and measurements when simpler filters are not enough.
 
 You do not need to master every technique at once. Begin with one motor and one measurement; add complexity only after you can observe what the robot is doing.
 
-For gravity-loaded mechanisms, continue from PID to [Feedforward](./feedforward).
+For gravity-loaded mechanisms, continue from PID to [Feedforward](/docs/control-systems/feedforward).
 
-Once the mechanism's measurements and limits are reliable, [system identification](./system-identification) explains how to fit and validate a voltage model from test data. Keep the resulting units and hardware configuration with the coefficients.
+Once the mechanism's measurements and limits are reliable, [system identification](/docs/control-systems/system-identification) explains how to fit and validate a voltage model from test data. Keep the resulting units and hardware configuration with the coefficients.
 
 <footer className="article-sources">
 
