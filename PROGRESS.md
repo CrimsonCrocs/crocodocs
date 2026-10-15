@@ -80,6 +80,6 @@ Focused Intentional Verify verdict: **ACCEPT**. No unrelated article audit or fu
 - [x] Rename the existing guide and directory link to Mercurial v1. Keep its existing URL and examples. Replace dated review narration with one legacy warning linking to v2.
 - [x] Add a separate Mercurial v2 guide based on the published 2.0.1-beta1 bindings, examples, and dependency metadata. Cover setup, programs, sequences, fibers, scheduler behavior, and motor cleanup.
 - [x] Validate the examples and rendered pages; all 106 MDX pages and the production build pass. Focused Intentional Verify: **ACCEPT**.
-- [ ] Publish the scoped change and confirm the live pages.
+- [x] Publish `dc71a5c` to `main`; both Vercel production deployments succeeded. The canonical domain returns HTTP 200 for Mercurial v1, Mercurial v2, and Libraries, with both version links and no October review-date text. The live v2 page also opens in the browser.
 
 Mercurial v2 source: FTC bindings tag `2.0.1-beta1` (`97469ab`), published core/bindings `2.0.1-beta1`, and Dairy Maven metadata. The complete Java example compiles as Java 8 against the published artifacts and FTC SDK 12; the Kotlin equivalent was compared with upstream examples and implementation. No Android install or robot hardware test was performed. Desktop (1440px) and narrow (390px) checks cover both article titles, the legacy warning and its v2 link, navigation, Java/Kotlin tabs, and contained code scrolling.
