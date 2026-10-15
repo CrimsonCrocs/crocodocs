@@ -41,16 +41,15 @@ public class HelloRobot extends LinearOpMode {
 
 The `package` identifies where the class belongs. Imports bring SDK types into scope. `@TeleOp` registers a driver-controlled program and gives it a Driver Station name. `extends LinearOpMode` selects the lifecycle used by this example. The SDK calls `runOpMode()`; you do not call it yourself.
 
-{/* Playground paused until Blocks embedding and light mode are ready.
+## Gamepad playground
 
-## Telemetry playground
+This example uses the same active loop to drive a simulated robot. **Play** compiles, initializes, and starts the OpMode; the real Driver Station has separate INIT and START steps.
 
-Run the same program below. **Play** compiles, initializes, and starts the OpMode; the real Driver Station has separate INIT and START steps. The robot stays still because the code only reads inputs and sends telemetry.
-
-After pressing Play, click the simulator and hold **W** or **S**. Watch **Forward request** change. **Space** maps to gamepad A. On a small screen, use the on-screen gamepad. Press **Stop**, change the telemetry label in the code, then press Play again to see your edit.
+Press Play, click the simulator, then hold **W** to drive forward or **S** to reverse. Release the key to remove power. Press **Stop**, change `speed` from `0.25` to `0.5` near the top of the code, and run it again. The same stick input now requests more power.
 
 <FTCPlayground example="first-opmode" />
-*/}
+
+On a narrow screen, **Code** and **Simulator** switch between the panes. On a touchscreen, use the left on-screen stick. This version adds motors so you can see the input take effect; the Hello Robot program above only sends telemetry to the Driver Station.
 
 ## INIT, START, and STOP
 

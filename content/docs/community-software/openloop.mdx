@@ -4,15 +4,19 @@ description: Calibrate a short timed autonomous move and measure its travel erro
 icon: phosphor:FlowArrow
 ---
 
+## Overview
+
 OpenLoop is Abhiraj Karki's source-copy helper for timed FTC autonomous moves. It estimates how long to drive from measured calibration distances. A request such as `forward(6)` means an estimated six-inch move; it does not measure that the robot travelled six inches.
 
 ## Project status
 
-Checked **14 October 2026**: the repository is unarchived, with implementation work from September and documentation updates in October. It is an early project with no numbered release or published Maven artifact. This guide uses source commit `b67b403` and its FTC SDK 12 setup.
+OpenLoop is an early project distributed as source, with no numbered release or published Maven artifact. This guide uses commit `b67b403` and the project's FTC SDK 12 setup.
 
-This library is distinct from the general concept of [open-loop control](../control-systems). Its movement methods block while the robot drives for the calculated duration. It does not supply an encoder correction, field pose, motion profile, or nonblocking follower.
+This project is distinct from the general concept of [open-loop control](../control-systems). Its movement methods block while the robot drives for the calculated duration. It does not supply an encoder correction, field pose, motion profile, or nonblocking follower.
 
-## Files and hardware
+## Setup
+
+### Files and hardware
 
 Copy `OpenLoopBackend.java` into the existing TeamCode package. The project also supplies `MotorDirectionDebugger.java`, mecanum/tank calibration OpModes, and example autonomous files. Use the appropriate calibration files with either Android Studio or OnBot Java; the helper needs no additional third-party Maven dependency.
 
@@ -20,7 +24,7 @@ The unmodified backend maps **four motors in both drive modes**. Tank mode means
 
 Default hardware names are `FL`, `FR`, `BL`, and `BR`. Replace them with the configured names and verify every motor's direction. The default left-side reversal is a starting configuration, not proof that your drivetrain will move correctly.
 
-## Calibration
+### Calibration
 
 Run the direction check in a controlled practice setup. Then use the matching calibration OpMode to measure forward travel at two different durations. For mecanum strafing, measure a separate pair of distances. Left and right turn timings also need their own measurements.
 
@@ -28,7 +32,7 @@ The backend fits a straight line through the two distance/time points. Keep the 
 
 Record the drive, strafe, and turn powers alongside the battery condition, floor, payload, and measured distances. Changing those conditions changes the relationship between time and travel. Recalibrate after changing gearing or wheels.
 
-## First move
+## Example
 
 After configuring the backend and replacing its calibration with measured values, save this as `OpenLoopShortAuto.java`. The example and the unmodified backend compile against FTC SDK 12. A compile does not validate the requested travel on a robot.
 
@@ -54,13 +58,17 @@ public class OpenLoopShortAuto extends LinearOpMode {
 }
 ```
 
+## Testing
+
 Repeat the request three times in an open test area and measure the actual distance each time. Record the error from six inches. Compare the runs to see how much travel varies. One successful endpoint is not enough to validate a match route.
 
-## Stop behaviour
+## Limits
+
+### Stop behaviour
 
 Movement methods use `LinearOpMode.sleep()` and then stop the motors. They do not poll `opModeIsActive()` throughout the move. If extending the example to several moves, check `opModeIsActive()` **before each subsequent call** and retain final stop cleanup. A stop during one sleep must not be followed by a new movement command.
 
-Tank-mode strafe calls return without moving. Battery compensation rescales and clips requested power, but it cannot correct wheel slip, collisions, changed friction, or a different payload. For tasks that need measured position, continue to [encoder movement](../autonomous/time-vs-encoder), [odometry](../autonomous/odometry), or a tuned [path follower](./pedro-pathing).
+Tank-mode strafe calls return without moving. Battery compensation rescales and clips requested power, but it cannot correct wheel slip, collisions, changed friction, or a different payload. For tasks that need measured position, continue to [encoder movement](../autonomous/time-vs-encoder), [odometry](../autonomous/odometry), or a tuned [path follower](../libraries/pedro-pathing).
 
 <footer className="article-sources">
 

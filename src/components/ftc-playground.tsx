@@ -20,7 +20,7 @@ export function FTCPlayground({ example }: { example: PlaygroundExampleId }) {
         allow="fullscreen; gamepad"
         allowFullScreen
       />
-      <p className="ftc-playground-note">Edit the code, then press Play. Reload this page to restore the example.</p>
+      <p className="ftc-playground-note">Edit the example, then press Play. Reload this page to restore the example.</p>
     </div>
   );
 }

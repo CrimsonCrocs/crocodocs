@@ -19,8 +19,6 @@ FIRST recommends Blocks as the starting tool, including for teams that expect to
 
 The address depends on the Robot Controller device and network configuration. Use the address shown on the device rather than assuming an IP address.
 
-{/* Playground paused until Blocks embedding and light mode are ready.
-
 ## Sequence playground
 
 Blocks runs connected instructions in order. After **wait for start**, this sequence drives forward, pauses, reverses, and stops:
@@ -32,12 +30,11 @@ Blocks runs connected instructions in order. After **wait for start**, this sequ
   <li>Stop</li>
 </ol>
 
-The playground runs the Java equivalent of those Blocks actions. Press **Play** and watch the order. Change the first `sleep(700)` to `sleep(1400)`, then run it again: the forward part lasts longer, while the reverse part stays the same. Use **Reset** to return the robot to its starting position.
+Press **Play** and watch the sequence. Then find the first **sleep** block, change its `700` to `1400`, and run it again. The forward part lasts longer; the reverse part stays the same. Use **−** in the editor to zoom out if needed, and **Reset** between runs to return the robot to its starting position. On a narrow screen, choose **Code** to edit the blocks and **Simulator** to see the robot.
 
 <FTCPlayground example="blocks-sequence" />
 
-This embed edits Java, not `.blk` files. In FTC Blocks, make the same sequence with motor-power and sleep blocks. Set each drive motor's direction for your robot before START; the playground's setup matches its simulated tank drivetrain. Equal forward and reverse times do not guarantee an exact return to the starting point.
-*/}
+These are editable FTC Blocks. The `drive` function sets all four motor powers. The `setup` function reverses the right-side motors to match the simulated mecanum drivetrain. Their collapsed definitions sit below the main stack; expand one to see its motor blocks. Equal forward and reverse times do not guarantee an exact return to the starting point.
 
 ## Java transition [#moving-to-text-based-code]
 
@@ -51,6 +48,6 @@ Blocks is its own visual programming environment. It can help you learn sequenci
 - [Creating an OpMode with Blocks](https://ftc-docs.firstinspires.org/en/latest/programming_resources/tutorial_specific/blocks/creating_op_modes/Writing-an-Op-Mode-with-FTC-Blocks.html)
 - [Managing, downloading, and uploading Blocks OpModes](https://ftc-docs.firstinspires.org/en/latest/programming_resources/tutorial_specific/blocks/managing_opmodes/managing-opmodes.html)
 - [Official programming tool comparison](https://ftc-docs.firstinspires.org/en/latest/programming_resources/shared/choosing_program_lang/choosing-program-lang.html)
-- [Crimson Crocs FTC Simulator playground](https://ftcsimulator.crimsoncrocs.org/embed) — runs the Java equivalent with a simulated robot.
+- [Crimson Crocs FTC Simulator playground](https://ftcsimulator.crimsoncrocs.org/embed) — editable Blocks with a simulated robot.
 
 </footer>

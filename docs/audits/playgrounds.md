@@ -1,17 +1,32 @@
 # Programming playgrounds
 
-Five complete Java examples are prepared in `src/lib/playground-examples.ts`: a timed Blocks-equivalent sequence, first-OpMode telemetry, integer division, timed motor power, and a nonblocking button action. The component uses the hosted simulator without a saved workspace.
+The five getting-started articles now use the released FTC Simulator embed. Every URL pins `field=empty`, `singleFile=true`, and `theme=light`; light mode also applies inside dark documentation pages. Examples are editable and reset on reload, without an account or saved workspace.
 
-All five article sections are commented out at Matthew's request. Their headings and instructions are included in the comments, so public articles have no empty playground sections. Keep them disabled for this release.
+## Examples
 
-## Before enabling
+| Article | Source | Observable exercise |
+| --- | --- | --- |
+| Blocks | FTC `.blk` XML with the Blockly workspace and FTC `<Extra>` metadata | Drive forward, pause, reverse, and stop; change the first sleep from 700 to 1400 ms |
+| First OpMode | Java `GamepadPractice` | Drive with W/S or the left touch stick; change the speed multiplier |
+| Java basics | Java `NumberPractice` | `1 / 2` requests zero power; changing it to `1.0 / 2` moves the robot |
+| Motors and servos | Java `PowerPractice` | Compare positive and negative power over one second |
+| Nonblocking code | Java `PulseDrive` | A starts one timed pulse per press; B cancels; change the duration |
 
-- Wait for [the simulator embed update](t3-thread://v1/49658190-ecac-4616-b650-44b557bd7c2b) to finish and reach production.
-- Use `theme=light` for every embed, including those displayed inside dark CrocoDocs pages.
-- Replace the Java equivalent on the Blocks page with a real single-file Blocks example using the released `.blk` query contract.
-- Recheck each exercise against the new embed UI. That thread is removing the telemetry panel, so the telemetry and division lessons need a visible output method before they can be enabled.
-- Verify Play, Stop, editing, and narrow layouts in the deployed iframe before uncommenting the articles.
+The gamepad example adds motors to make the input visible. It is deliberately separate from the article's Hello Robot telemetry example. The division lesson now uses motor power as its output. None of the embed instructions rely on the removed telemetry panel.
 
-## Existing evidence
+The Blocks sequence uses `drive(power)` and `setup` functions, with collapsed definitions below the main stack. This keeps the main sequence readable inside an article while leaving the individual motor blocks editable.
 
-Before the pause, all five Java OpModes compiled and ran in the hosted simulator. Integer division reported 0 versus 0.5; timed movement finished and stopped its motors; the button action started once per press, cancelled with B, and continued reading the joystick. Desktop, 390px, and 320px article layouts were inspected in Chromium. This evidence applies to the earlier Java embed, not the forthcoming Blocks, theme, or telemetry changes.
+## Released API and configuration
+
+The contract was checked against `ftc-emulator/docs/EMBEDDING.md`, `src/lib/embed-options.ts`, the project templates, the vendored FTC Blocks definitions, and the live deployment on 15 October 2026. Java examples use the tank template's descriptive hardware names and right-side reversal. Blocks uses the mecanum template and its FTC Blocks hardware aliases.
+
+The released Blocks tank template currently fails during server rendering with “Robot configuration schema 3 is incomplete or has an invalid physical profile or hub port descriptor.” The mecanum template works and supports the same forward/reverse exercise. No simulator source was changed for this documentation release.
+
+## Focused verification
+
+- All five complete examples compiled and ran against the hosted simulator. Edited versions also ran: the Blocks sleep, gamepad multiplier, decimal division, motor direction, and button duration.
+- Play and Stop were exercised; timed examples reached Finished. The Blocks example was also run and edited inside the actual documentation iframe.
+- Robot movement was inspected in the field. Telemetry is not used as a visible output.
+- Article fit, responsive controls, theme, and deployment checks are recorded in `PROGRESS.md`.
+
+The simulator thread is complete. The follow-up timer was disabled before implementation; no recurring task remains necessary.

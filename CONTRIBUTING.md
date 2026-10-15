@@ -31,7 +31,7 @@ Portfolio is a separate root at `content/docs/portfolio/`, with registered `phos
 - `<Tabs items={['Java', 'Kotlin']}>` with matching `<Tab value="Java">` and `<Tab value="Kotlin">` children for equivalent code examples.
 - `<LinkedCards data={[{ title, description, href }]}/>` for link cards on the introduction page.
 - `<Wordmark />` for the CrocoDocs wordmark.
-- `<FTCPlayground example="java-numbers" />` for an FTC Simulator example. The five prepared sections are currently commented out pending the simulator's Blocks and light-mode update. See [the playground handoff](docs/audits/playgrounds.md) before enabling them. Example source and IDs live in `src/lib/playground-examples.ts`; use complete OpModes and match the simulator's hardware configuration.
+- `<FTCPlayground example="java-numbers" />` for an FTC Simulator example. Five introductory sections use editable Java or FTC Blocks, always with `theme=light`. Example source and IDs live in `src/lib/playground-examples.ts`; use complete OpModes or `.blk` documents and match the simulator's hardware configuration. Exercises need a visible result in the robot field; the embed has no telemetry panel. See [playground verification](docs/audits/playgrounds.md).
 - Math using `$...$` inline or `$$...$$` on its own line (KaTeX renders it).
 
 These project-specific components are registered in `src/mdx-components.tsx` and `src/app/docs/[[...slug]]/page.tsx`. Check those files before adding another component name.

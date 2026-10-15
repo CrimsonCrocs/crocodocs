@@ -371,13 +371,14 @@
 .heading-alias { display: block; height: 0; scroll-margin-top: 164px; }
 
 /* Runnable examples stay inside the article's reading column. */
+#nd-page .prose :not(pre) > code { overflow-wrap: anywhere; }
 .ftc-playground { margin-block: 24px; min-width: 0; border: 1px solid var(--border); border-radius: 12px; background: var(--background); }
 .ftc-playground-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; padding: 6px 14px; font-size: 12px; }
 .ftc-playground-heading > div { display: flex; align-items: center; gap: 8px; min-height: 32px; font-weight: 600; }
 .ftc-playground-heading > div > svg { color: var(--primary); flex-shrink: 0; }
 .ftc-playground-heading > a { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; color: var(--muted-foreground); text-decoration: none; }
 .ftc-playground-heading > a:hover { color: var(--primary); }
-.ftc-playground iframe { display: block; width: 100%; max-width: 100%; height: 600px; border: 0; border-block: 1px solid var(--border); background: #181818; }
+.ftc-playground iframe { display: block; width: 100%; max-width: 100%; height: 600px; border: 0; border-block: 1px solid var(--border); background: #fff; color-scheme: light; }
 .ftc-playground-note { margin: 0; padding: 12px 14px; color: var(--muted-foreground); font-size: 12px; line-height: 1.6; }
 .blocks-sequence { list-style: none; padding: 0 !important; display: flex; flex-wrap: wrap; gap: 8px; }
 .blocks-sequence li { margin: 0 !important; padding: 8px 12px !important; border-left: 3px solid var(--primary); border-radius: 4px; background: var(--secondary); font-size: 13px; }

@@ -1,0 +1,156 @@
+---
+title: Blaze FTC
+description: Try faster hardware communication from Java or Kotlin, and explore the Rust Quickstart
+icon: phosphor:Lightning
+---
+
+## Overview
+
+BlazeFTC changes how an FTC program communicates with the robot's hubs. It uses native Rust code beneath a Java/Kotlin interface to reduce time spent waiting for hardware commands and to deliver selected sensor reads through callbacks.
+
+You can keep writing ordinary FTC OpModes. The Java/Kotlin package includes a native engine called **Neutrino**, motor wrappers, and support for accelerated bulk reads and Pinpoint data. Separate integrations connect it to Pedro Pathing 2 and 3. The Rust Quickstart is for teams that want to write their own native robot code.
+
+The useful idea is to update control code when fresh measurements arrive. A drivetrain can react to new localization data while other robot code continues running. Measure the benefit on your robot rather than choosing it for a headline loop rate.
+
+## Project status
+
+BlazeFTC is in beta. The published Java/Kotlin artifact is **0.1.66**; that is the version used below. Its AAR includes native libraries for both `armeabi-v7a` and `arm64-v8a`, so this route does not require a Rust installation.
+
+The library and Rust Quickstart are separate repositories. The Quickstart currently pins Rust commit `af086ba`, and its README uses an older Java dependency. Use the current Maven package for the Java example here; check bridge/native compatibility before combining a custom Rust build with it.
+
+## Setup
+
+### Java or Kotlin
+
+Start in a working Android Studio FTC project. In the project's Gradle repositories block, add:
+
+```groovy
+maven { url = 'https://maven.anygeneric.dev/' }
+```
+
+Add the core dependency to the dependencies used by TeamCode:
+
+```groovy
+implementation 'dev.anygeneric:blazeftc:0.1.66'
+```
+
+Sync Gradle and build TeamCode. Keep your current robot project available while trying the integration.
+
+Initialization order matters:
+
+1. Initialize Blaze.
+2. Enable motor acceleration before fetching motors or constructing subsystems that store motor references.
+3. Register any accelerated-read callbacks.
+4. Wait for START, then start the native engine.
+5. Close Blaze when the OpMode ends. `DummyPlugOpMode` provides that cleanup through a `finally` block.
+
+Use the initialization overload without a telemetry argument for this first example. The normal Driver Station telemetry remains sufficient.
+
+### Pedro Pathing
+
+Add the integration matching the major version you already use:
+
+```groovy
+// Pedro 3:
+implementation 'dev.anygeneric:blazeftc_pedro3:0.1.66'
+
+// Pedro 2, as an alternative:
+// implementation 'dev.anygeneric:blazeftc_pedro:0.1.66'
+```
+
+Use `Pedro3SingleDataLocalizer` for Pedro 3 or `PedroSingleDataLocalizer` for Pedro 2. Both classes are in `dev.anygeneric.blazeftc_pedro` and require a **Pinpoint localizer**. Construct and configure the follower after enabling motor acceleration, then register its data callback:
+
+```java
+// After creating your Pedro 3 follower, before starting Blaze:
+Pedro3SingleDataLocalizer.setup(follower, () -> {
+    follower.update();
+});
+```
+
+The adapter supplies fresh localization data; your callback must call `follower.update()`. Call it once there, rather than also updating from the ordinary OpMode loop. Keep changes such as choosing a path in that same callback so two threads do not modify the follower at once.
+
+### Rust Quickstart
+
+The Quickstart builds a shared native library using the Android NDK and `cargo-ndk`. Its `build.sh` contains the author's local output path; replace that destination with your own TeamCode `src/main/jniLibs` directory. Configure that directory as a JNI library source in TeamCode's Android Gradle configuration.
+
+Read the dispatch in `src/lib.rs` alongside the examples. It selects Neutrino with `0`, a basic mecanum program with `1`, a brake/PID example with `2`, and an autonomous PID example with `3`. Those numbers belong to this Quickstart's dispatch, rather than a universal list of FTC OpModes.
+
+For custom Rust code that reads gamepads, the Java wrapper must forward gamepad updates. The bundled Neutrino route used below does not need that forwarding. Keep the Quickstart's dependency pin while learning its examples; changing the Rust revision also means checking its APIs and JNI bridge.
+
+## Example
+
+This OpMode counts Control Hub bulk-read callbacks without commanding motor movement. Save it as `BlazeBulkPreview.java`. It starts with one read packet in flight and reports the observed callback rate roughly once per second.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import dev.anygeneric.blazeftc.DummyPlugOpMode;
+import dev.anygeneric.blazeftc.Hub;
+import java.util.concurrent.atomic.AtomicInteger;
+import kotlin.Unit;
+
+@TeleOp(name = "Blaze Bulk Preview")
+public class BlazeBulkPreview extends DummyPlugOpMode {
+    @Override
+    public void runOpModeInBlaze() {
+        initializeBlazeFTC();
+        engageMotorAcceleration();
+
+        AtomicInteger updates = new AtomicInteger();
+        engageBulkReadAcceleration(Hub.CtrlHub, 1, () -> {
+            updates.incrementAndGet();
+            return Unit.INSTANCE;
+        });
+
+        waitForStart();
+        if (!opModeIsActive()) return;
+        runBlazeFTC(0);
+
+        ElapsedTime window = new ElapsedTime();
+        while (opModeIsActive()) {
+            double seconds = window.seconds();
+            if (seconds >= 1.0) {
+                telemetry.addData("Bulk callbacks/s",
+                        "%.1f", updates.getAndSet(0) / seconds);
+                telemetry.update();
+                window.reset();
+            }
+            sleep(20);
+        }
+    }
+}
+```
+
+The callback runs separately from the OpMode loop. `AtomicInteger` lets it share the count with that loop without an unsynchronized read/write. `Unit.INSTANCE` is the return value expected by the library's Kotlin callback type. Telemetry stays in the OpMode loop.
+
+For an Expansion Hub callback, use `Hub.ExHub` and start with one packet. The library's current source rules out two packets on RS485. Do not use the deprecated frequency-based bulk-read method.
+
+## Testing
+
+Run the preview on a Control Hub. After START, the callback count should update. Press STOP, then run the OpMode again to check that the native session closes and restarts cleanly.
+
+Next, add one real mechanism or localization callback. Keep it short and move slowly while checking encoder directions, measured position, motor output, and STOP. For a path follower, compare repeated paths with the same battery condition, payload, and tuning.
+
+Record both timing and robot performance. Callback frequency measures arriving bulk data; it does not measure the entire OpMode loop, prove that every sensor updated, or show that a path became more accurate. Useful improvements include lower control latency, fewer missed targets, and more consistent stopping positions.
+
+## Limits
+
+Hardware support varies. Pinpoint and bulk reads have accelerated paths; the project's current notes list other I2C devices and Servo Hub support as work in progress. Follow the setup for your actual Control Hub/Expansion Hub connection.
+
+Blaze's integration touches SDK hardware internals. Keep the SDK, Blaze package, and any pathing integration compatible when upgrading. If you extend a different OpMode base class, retain explicit Blaze cleanup in `stop()` or a `finally` block.
+
+Faster communication does not replace tuning, a sound localization model, or prompt stop handling. Start with the small preview, then compare one change at a time on the robot.
+
+<footer className="article-sources">
+
+## Sources
+
+- [BlazeFTC project and Java/Kotlin integration](https://github.com/owenpmckenna/blaze_ftc)
+- [Hardware communication and callback design](https://github.com/owenpmckenna/blaze_ftc/blob/9044ffd69a5a05221d02d1b8862268170245184a/robotics.md)
+- [Current core Maven publication](https://maven.anygeneric.dev/dev/anygeneric/blazeftc/maven-metadata.xml) · [0.1.66 source archive](https://maven.anygeneric.dev/dev/anygeneric/blazeftc/0.1.66/blazeftc-0.1.66-sources.jar)
+- [Pedro 3 integration publications](https://maven.anygeneric.dev/dev/anygeneric/blazeftc_pedro3/maven-metadata.xml) · [adapter source](https://maven.anygeneric.dev/dev/anygeneric/blazeftc_pedro3/0.1.66/blazeftc_pedro3-0.1.66-sources.jar) · [Pedro 2 integration publications](https://maven.anygeneric.dev/dev/anygeneric/blazeftc_pedro/maven-metadata.xml)
+- [Rust Quickstart](https://github.com/owenpmckenna/BlazeFTCQuickstart) · [dependency pin](https://github.com/owenpmckenna/BlazeFTCQuickstart/blob/dbd764eed49ab81bd03f4214d757975e1bb3de1e/Cargo.toml) · [native program dispatch](https://github.com/owenpmckenna/BlazeFTCQuickstart/blob/dbd764eed49ab81bd03f4214d757975e1bb3de1e/src/lib.rs)
+
+</footer>

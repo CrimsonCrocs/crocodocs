@@ -1,17 +1,15 @@
 {
-    "title": "Libraries",
-    "pages": [
-        "index",
-        "nextftc",
-        "ftclib",
-        "solverslib",
-        "pedro-pathing",
-        "road-runner",
-        "openloop",
-        "hive-vision",
-        "ftc-dashboard",
-        "mercurial",
-        "panels",
-        "sloth"
-    ]
+  "title": "Libraries",
+  "pages": [
+    "index",
+    "nextftc",
+    "ftclib",
+    "solverslib",
+    "pedro-pathing",
+    "road-runner",
+    "ftc-dashboard",
+    "mercurial",
+    "panels",
+    "sloth"
+  ]
 }

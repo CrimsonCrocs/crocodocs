@@ -77,18 +77,15 @@ The enum is at **class scope**, outside `runOpMode()`. The state and timer retai
 
 This is cooperative concurrency: the OpMode repeatedly updates each task. It does not need a new thread for each motor. Every update must return promptly, and one mechanism should have one clear owner for its output.
 
-{/* Playground paused until Blocks embedding and light mode are ready.
-
 ## Button playground
 
-The playground applies the same timing pattern to a simulated drivetrain. Press **Play**, click the simulator, then tap **Space** for gamepad A. The robot drives for one second. Hold Space: it should run once, then stay stopped until you release and press again. **B** cancels the action. On a small screen, use the gamepad buttons on the simulator.
+The playground applies the same timing pattern to a simulated drivetrain. Press **Play**, click the simulator, then tap **Space** for gamepad A. The robot drives for one second. Hold Space: it should run once, then stay stopped until you release and press again. **B** cancels the action. On a touchscreen, open **Buttons** in the simulator to use A and B.
 
-Watch **State** in telemetry. Hold **W** during the pulse and check that **Stick still readable** changes before the pulse finishes. The loop can read inputs while it checks the timer because there is no blocking wait.
+Start a pulse, then press **B** before it finishes. The robot stops early because the loop keeps checking the cancel button while it checks the timer. A blocking sleep would delay that check.
 
 <FTCPlayground example="nonblocking" />
 
-Change the `1.0` timeout to `2.0` and repeat the cancellation check. The timer restarts only when a new button press begins an action.
-*/}
+Change `durationSeconds` near the top of the code from `1.0` to `2.0` and repeat the cancellation check. The timer restarts only when a new button press begins an action.
 
 ## Completion and failure
 

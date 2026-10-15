@@ -4,9 +4,17 @@ description: Load the BIOBUZZ model onto a Limelight 3A and inspect detections b
 icon: phosphor:Eye
 ---
 
+## Overview
+
 Hive Vision provides BIOBUZZ object-detection models and a separate Java color-detection implementation. Its **v2.0.0** release supplies a TensorFlow Lite model for a Limelight 3A. Start by printing the detected class and image offset while leaving the drivetrain still.
 
-## Deployment paths
+## Project status
+
+Hive Vision v2.0.0 was released on 12 October 2026. This guide uses that model release with FTC SDK 12's Limelight driver. Measure detection accuracy and inference speed in your own camera setup.
+
+## Setup
+
+### Deployment paths
 
 | Path | Where detection runs | Robot integration |
 | --- | --- | --- |
@@ -15,9 +23,7 @@ Hive Vision provides BIOBUZZ object-detection models and a separate Java color-d
 
 This lesson uses the Limelight path. The model is installed on the camera; it is not a new Java dependency for TeamCode. The older PC YOLO and Lab tracks are archived in the project's current documentation.
 
-Checked **14 October 2026**: v2.0.0 was released on October 12. This example uses FTC SDK 12's Limelight driver. Source and model inspection do not establish inference speed or detection accuracy on our hardware.
-
-## Camera setup
+### Camera setup
 
 1. Configure a Limelight 3A using the manufacturer's FTC wiring and setup procedure. Its documented Control Hub connection uses USB-C to the blue USB 3 port. For initial computer setup, use the camera's Hardware Manager or its USB-connected browser interface.
 2. Download the **v2.0.0** model asset `best_limelight3a_ssd_mobilenetv2_300x300_v2_int8_dets25.tflite` and matching `labels.txt`.
@@ -29,7 +35,7 @@ The v2 release suggests an initial detector threshold around 80–90%. Treat tha
 
 Do not assume `limelight.local:5801` is reachable from every robot Wi-Fi connection. Initial USB computer access and access through the robot network are different connection arrangements.
 
-## Detection preview
+## Example
 
 Save this complete Java OpMode as `HiveDetectionPreview.java`. It was compiled against FTC SDK 12 and needs no dependency beyond the standard SDK project for this integration.
 
@@ -79,9 +85,13 @@ public class HiveDetectionPreview extends OpMode {
 
 The 120 ms check is an illustrative receive-age bound, not a universal camera timeout. Tune a freshness policy from measured camera and robot-loop timing. `stop()` ends the polling owned by this OpMode.
 
+## Testing
+
 Place one object in view and move it left and right. Record the reported label, `tx`, and confidence. Remove it, then add a similar-colored distractor. Check whether the result disappears and whether the class remains correct across lighting, distance, and partial occlusion.
 
-## Result meaning
+## Limits
+
+### Result meaning
 
 `tx` is a horizontal **angular offset in degrees**. It is not field X, distance, or a complete target pose. A class label is an observation to validate before using it for acquisition or piece counting.
 
@@ -89,7 +99,7 @@ The SDK's detector-confidence documentation and forwarded firmware value do not 
 
 `getStaleness()` measures time since the Control Hub received/parsed a result. It does not prove the image is a newly captured frame. Polling at 50 Hz can read the same camera frame several times. If requiring several independent detections, compare camera timestamps rather than counting repeated loop iterations. Keep camera-local and Control Hub time domains separate.
 
-## Webcam integration
+### Webcam integration
 
 The v2 webcam code needs repairs before it is a copy-and-run example. Its calibration import does not match FTC SDK 12, and its returned annotated `Mat` is handled as VisionPortal draw context rather than a displayed replacement frame. That clone also needs explicit ownership and release. The rolling setup guide uses the wrong `Size` type for the VisionPortal builder.
 

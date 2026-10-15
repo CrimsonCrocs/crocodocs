@@ -29,16 +29,13 @@ telemetry.addData("Decimal division", 1.0 / 2.0); // 0.5
 
 When both operands are integers, Java performs integer division. Converting the result afterward cannot recover the discarded fraction. This matters in encoder and gear-ratio calculations.
 
-{/* Playground paused until Blocks embedding and light mode are ready.
-
 ## Division playground
 
-Press **Play** and read the telemetry: integer division gives `0`, while converting the numerator to `double` before dividing gives `0.5`. The robot stays still; this program only calculates and displays values.
+Near the top of this example, `double power = 1 / 2` assigns `0.0`: Java divides the two integers first, then stores the result as a `double`. Press **Play**. The robot stays still because its requested power is zero.
 
-Stop the program and change `numerator` to `3`. Predict both results before pressing Play again. Then remove `(double)` from the decimal calculation: assigning an integer division result to a `double` does not restore the lost fraction.
+Change `1 / 2` to `1.0 / 2` and press Play again. The result is now `0.5`, and the robot drives for one second. Press **Reset** between trials. Changing the calculation back to `1 / 2` makes it stay still again; the variable's type alone does not preserve the fraction.
 
 <FTCPlayground example="java-numbers" />
-*/}
 
 ## Scope
 

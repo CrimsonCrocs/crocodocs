@@ -4,6 +4,7 @@ import { RootProvider } from "fumadocs-ui/provider";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { siteDescription, siteUrl, socialMetadata } from "@/lib/social-metadata";
+import { Analytics } from "@vercel/analytics/next";
 
 const openSans = localFont({
   src: [
@@ -39,6 +40,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <a href="#main-content" className="skip-link">Skip to content</a>
           {children}
         </RootProvider>
+        <Analytics />
       </body>
     </html>
   );

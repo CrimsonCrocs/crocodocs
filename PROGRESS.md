@@ -40,16 +40,35 @@ Last updated: 15 October 2026. Initial handbook release: `1ffb47a` on `main`.
 - [x] Add a 1200×630 social preview inspired by the simulator's clear product presentation, with CrocoDocs artwork and per-article share metadata.
 - [x] Push the completed handbook and branding as `1ffb47a`; confirm both Vercel production deployments and the live custom domain.
 
+## Community software
+
+- [x] Add a separate Programming category for newer community projects, starting with OpenLoop and Hive Vision.
+- [x] Add Blaze FTC, covering the current Java/Kotlin package, Pedro integrations, and Rust Quickstart.
+- [x] Give all three project pages the same main headings and coverage: overview, status, setup, example, testing, and limits. Preserve old links with redirects.
+- [ ] Verify navigation, redirects, and the production release.
+
 ## Playgrounds
 
 - [x] Prepare and run five introductory Java examples for sequencing, OpModes, division, motor power, and nonblocking buttons. Inspect their fit on desktop and narrow pages.
-- [x] Comment out every playground section, including its heading and instructions, for the current production release, as requested.
-- [ ] After simulator thread `49658190-ecac-4616-b650-44b557bd7c2b` finishes and deploys, add a real single-file Blocks embed and use `theme=light` for every embed.
-- [ ] Adapt exercises to the released UI, which is removing the telemetry panel; give each exercise an observable result before enabling it.
-- [ ] Verify the updated embeds in real articles, then publish them. See `docs/audits/playgrounds.md` for the handoff.
+- [x] Keep every playground section disabled for releases `1ffb47a` and `ec33d7e`, as requested.
+- [x] After simulator thread `49658190-ecac-4616-b650-44b557bd7c2b` deployed, add a real single-file Blocks embed and use `theme=light` for every embed.
+- [x] Replace telemetry-only exercises with visible robot movement. Verify edited code, Play/Stop, the Blocks sequence, division, power/direction, and nonblocking buttons.
+- [x] Inspect all five article embeds at 1440px and 390px. Verify the light iframe inside dark docs, real Blocks editing/running, and a touch-emulated phone Play/Stop path with Code/Simulator tabs and on-screen controls. Fix the long inline file path that widened the first-OpMode page.
+- [ ] Publish the updated playgrounds and confirm the production embeds. See `docs/audits/playgrounds.md`.
 
-A bounded T3 follow-up checks the simulator thread every 15 minutes, starting 15 October at 04:31 UTC, and stops after handling the update, a blocker, or 12:16 UTC. It must not duplicate an active implementation or override newer user instructions.
+The simulator update is deployed. Matthew authorized re-enabling the playgrounds, and the scheduled follow-up is disabled to prevent duplicate work. All five updated examples passed the focused hosted-simulator checks. No simulator source was changed.
+
+## Web Analytics
+
+- [x] Install `@vercel/analytics` and render the Next.js Analytics component in the root layout. Confirm Web Analytics is enabled for the canonical CrocoDocs Vercel project.
+- [ ] Verify the production analytics script and pageview request after publishing.
 
 ## Verification
 
-The published baseline passes 103 MDX checks and the production build. Previous runtime, source, diagram, and reading-workspace evidence is in `docs/audits/` and `docs/brand-theme.md`. The current pass also passes 103 MDX checks and the production build. Code fences, display equations, external source URLs, and paused-playground comments are preserved. Rendered checks cover the nineteen SVGs, all eight page excerpts, a case study at desktop/mobile widths, and the GitHub icon in light/dark mode. The follow-up release is recorded in the Git history. The Blocks/light-mode release remains pending under Playgrounds.
+Release `ec33d7e` passed 103 MDX checks and the production build, with rendered checks for nineteen diagrams, eight portfolio excerpts, and the homepage GitHub icon. Those changes are preserved.
+
+The current release passes **105 MDX checks and the production build**. Focused Chromium checks cover the five hosted examples, edits and lifecycle controls, 1440px and 390px article layouts, light embeds inside dark docs, and a touch-emulated phone editor/simulator path. Community software navigation and the shared page headings are checked; old OpenLoop/Hive Vision paths have permanent redirects.
+
+`BlazeBulkPreview` compiles as Java 8 against the published BlazeFTC 0.1.66 artifact, FTC SDK 12, and Kotlin stdlib. The current Pedro adapter source was checked for Pinpoint requirements and callback ownership. No hardware run or Rust native build was performed. Blaze core and Quickstart source revisions were `9044ffd` and `dbd764e` respectively.
+
+Publication and production analytics verification are the remaining release steps above. No extra test suite or dependency was added for playground verification; Analytics is the separately requested dependency.
