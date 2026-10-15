@@ -6,6 +6,7 @@ Last updated: 15 October 2026. Initial handbook release: `1ffb47a` on `main`.
 
 - [x] Rewrite the Portfolio guides in plain, natural language. Remove repeated manual versions, rule-table narration, and research-process commentary.
 - [x] Rewrite the four case studies around what the teams did well. Remove the public percentage critique and repeated warnings.
+- [x] Add a regional-guidance warning directly below the Rebel Robotics award-overview paragraph: Judged Category Highlights pages can resemble a table of contents, so readers should check local judging guidance before adopting the format.
 - [x] Add two page excerpts to each case study, with full-size links. All eight excerpts were visually checked; the article layout and full-size links are verified.
 - [x] Finish reviewing Programming, Engineering, and the other docs for unnecessarily difficult prose and internal audit language. Keep technical details that readers need to use the code or understand the mechanism.
 - [x] Audit all handbook diagrams for overlapping labels, lines through text, and clipped content. Fixed eight diagram layouts, including the reported DC motor graph. Updated the generator and exported SVGs; the diagram set now has nineteen SVGs.
