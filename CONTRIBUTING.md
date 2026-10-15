@@ -46,6 +46,9 @@ Use short topic headings such as “Encoder scale” or “Handoff geometry”. 
 
 ## Writing guidance
 
+- Write for a teammate learning the topic. Use ordinary verbs and explain technical terms when they first help. Avoid research-process narration such as “source-checked”, “the supplied copy”, or repeated statements about what a test does not prove.
+- Keep manual editions, review dates, and table numbers in the source register or audit notes. Mention a season or version in an article when it changes the rule, setup, or API the reader needs.
+- Case studies should explain what a team did well, using selected page images beside the discussion. Credit the portfolio in Sources, keep page numbers clear, and give readers a way to open each image at full size.
 - Separate general robotics concepts from season-specific facts.
 - Put citations in one compact **Sources** section at the bottom of the article, inside `<footer className="article-sources">`. Use a short linked list with descriptive source names; keep source links and attribution out of explanatory paragraphs and image captions. Keep internal article links and navigation links in resource directories where they help the reader.
 - For APIs, use the official project's current documentation and show the version context beside the example. List the exact upstream page in Sources.

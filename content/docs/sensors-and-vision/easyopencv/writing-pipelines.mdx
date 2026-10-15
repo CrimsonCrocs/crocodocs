@@ -90,7 +90,9 @@ Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, kernel)
 </Tab>
 </Tabs>
 
-These OpenCV 8-bit HSV bounds (hue 15–40, saturation 60–255, brightness 70–255) were tuned against the pictured product photo. Blur reduces pixel noise; the opening removes tiny specks; the closing joins small gaps. They are not field-ready settings. Preview the mask and tune the bounds under your expected lighting and camera exposure. If the mask is all black, no pixel passed the range. If nearly everything is white, the range is too broad or the color conversion is wrong. Because this source photo shows one isolated Pollen, this example returns one blob; balls touching on the field can merge into a single contour.
+These OpenCV 8-bit HSV bounds (hue 15–40, saturation 60–255, brightness 70–255) were tuned against the pictured product photo. Blur reduces pixel noise; the opening removes tiny specks; the closing joins small gaps. Tune these bounds using your camera under the lighting you expect on the field. A black mask means no pixels passed the range. If nearly everything is white, check the range and colour conversion.
+
+The example photo has one isolated Pollen, so it produces one blob. Touching balls can merge into a single contour.
 
 For one test, temporarily return `mask` from `processFrame` to view the black-and-white result. Return the annotated color `input` after the mask is working.
 

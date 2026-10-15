@@ -42,7 +42,7 @@ For passive odometry, mounting height, contact force, and wheel alignment affect
 
 For an encoder-based extension, command several positions across travel and compare encoder readings with a ruler or other suitable reference. Record units, exact ratio, spool geometry, and the direction convention. Check both approach directions to expose backlash or slack.
 
-If the sensor reports the motor rather than the final output, deliberately inspect cases in which the relationship changes, such as belt skipping or a hub slipping. The software should not interpret an internally consistent encoder reading as proof of successful mechanism motion.
+If the encoder measures the motor, check what happens when a belt skips or a hub slips. The motor can turn normally while the mechanism fails to move as expected.
 
 ## Measurement timing
 

@@ -44,8 +44,9 @@
   <path class="line" d="M682 271H740"/>
   <rect class="card" x="744" y="207" width="184" height="128" rx="18"/>
   <text class="head" x="836" y="250" text-anchor="middle">Localization</text>
-  <text class="body" x="836" y="279" text-anchor="middle">Combines the motion</text>
-  <text class="body" x="836" y="302" text-anchor="middle">prediction and observation.</text>
+  <text class="body" x="836" y="274" text-anchor="middle">Combines motion</text>
+  <text class="body" x="836" y="295" text-anchor="middle">prediction and a</text>
+  <text class="body" x="836" y="316" text-anchor="middle">camera observation.</text>
   <path class="line" d="M928 271H974"/>
   <rect x="978" y="223" width="104" height="96" rx="18" fill="#b4232e"/>
   <text x="1030" y="263" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" font-weight="700" fill="#fff">Robot</text>

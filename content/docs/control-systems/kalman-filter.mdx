@@ -67,7 +67,7 @@ The result moves toward `54 cm` but does not jump all the way there. After the u
 4. If the real system moves, add a motion model instead of just increasing or decreasing a constant until the output looks smooth.
 5. Compare raw readings, predicted values, and filtered estimates in telemetry.
 
-Do not claim the filter fixes sensor bias, incorrect units, a loose mount, or a bad model. Correct those problems first.
+Fix sensor bias, unit mistakes, loose mounts, and model errors before tuning the filter.
 
 ## Scalar filter [#step-5-put-the-scalar-filter-in-java]
 
@@ -218,7 +218,7 @@ Angles wrap around. `179°` and `-179°` are only `2°` apart, but their ordinar
 
 NextFTC's independently versioned `control` module 0.2.1 exposes `predict(inputs)` and `correct(inputs, outputs)` for a state-space model. Source inspection of that release found that correction uses `outputs - D * inputs`, omitting the predicted-state term `C * Xhat`. The usual innovation is `outputs - (C * Xhat + D * inputs)`. A nonzero stationary measurement can therefore keep adding corrections instead of converging.
 
-This finding applies to the inspected release, not all future versions. Check the exact implementation before adopting it. Test the installed implementation against a known nonzero state and known measurements; compilation alone does not establish mathematical correctness. The scalar example above remains a separate teaching implementation.
+This issue affects the release described here. Before using another release, test it with a known nonzero state and known measurements. The scalar example above is a separate implementation for learning.
 
 `Q` here is a variance added **per update**. Keep the measurement cadence consistent; for variable timesteps, derive the process noise from a time-based model. Use fresh measurements and do not repeatedly count a cached sample as independent evidence.
 

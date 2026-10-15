@@ -6,10 +6,8 @@ icon: Trophy
 
 **BIOBUZZ presented by RTX** is the 2026–27 FIRST Tech Challenge game. Two teams form each alliance. Robots collect yellow **POLLEN** and their alliance-colored **NECTAR**, launch pieces into pivoting **HIVES**, and compete for **FLOWER** ownership. Pieces in alliance **GARDENS** and robots parked in **LOADING ZONES** also score.
 
-Reviewed **October 14, 2026**, against the English **TU04 Competition Manual**, updated October 8, all published Team Updates through TU04, and the current answered Q&A. The linked manual endpoints can change during the season; these values describe that reviewed version.
-
 <Callout title="Official rules">
-Use the current manual, Team Updates, and official Q&A before an event. Exact rule text takes precedence over summaries and explanatory boxes. Q&A helps interpret the manual and does not replace it.
+Check the current manual, Team Updates, and official Q&A before an event. Use the official rule text if a summary leaves something unclear.
 </Callout>
 
 ## Match timing [#match-flow]
@@ -43,7 +41,7 @@ Each robot must contact **exactly four POLLEN preloads**, wholly on its own alli
 
 ## Scoring [#scoring-at-a-glance]
 
-These are **match points**, distinct from Ranking Points. Values are from TU04 Table 10-2, printed manual page 91.
+These are **match points**. Ranking Points are listed separately below.
 
 | Achievement | AUTO | TELEOP |
 | --- | ---: | ---: |
@@ -98,7 +96,7 @@ The human must release the own-colored NECTAR so it contacts the tile inside the
 
 ## Ranking Points
 
-A WIN earns 3 RP and a TIE earns 1 RP. Each game achievement below adds 1 RP when the alliance meets its threshold. TU04 Table 10-3 gives:
+A WIN earns 3 RP and a TIE earns 1 RP. Each achievement below adds 1 RP when the alliance meets its threshold:
 
 | Achievement | All other events | Regional Championships | FIRST Championship |
 | --- | --- | --- | --- |
@@ -125,7 +123,7 @@ The SDK's cluster pose can be referenced toward a CELL opening rather than an in
 
 For a new team, first test a legal intake, controlled storage, and one repeatable scoring action. Coordinate the task with the alliance partner before adding more mechanisms. Experienced teams can measure complete cycles, recovery time, placement error, and reliability with realistic piece distributions. These are development suggestions, not an official recommended strategy.
 
-Use current CAD for clearances. TU01 corrected the illustrated bottom-of-HIVE height to **30.6 inches**, replacing V1's 25.5 inches; neither number is the upward CELL opening height. Measure against the correct feature in §9.6.2.
+Use current CAD for clearances. The illustrated bottom-of-HIVE height is **30.6 inches**; this is not the height of the upward CELL opening. Older drawings show 25.5 inches for the bottom, so check which feature and drawing you are measuring.
 
 Software should track piece count and mechanism state, handle invalid or stale sensor data, and stop safely on a failed move. A measured timeout is useful, but it does not prove an action succeeded. Start with [Autonomous](./autonomous), [Control systems](./control-systems), and [Engineering testing](./engineering/team/testing-and-reliability).
 

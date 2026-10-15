@@ -37,7 +37,7 @@ ${line(55, 180, 335, 180)}${line(440, 180, 755, 180)}
 <rect x="260" y="140" width="44" height="80" rx="8" fill="#fbe6e6" stroke="${red}" stroke-width="3"/>
 <rect x="580" y="140" width="44" height="80" rx="8" fill="#fbe6e6" stroke="${red}" stroke-width="3"/>
 ${line(282, 90, 282, 130, red, true)}${line(602, 90, 602, 130, red, true)}
-${text(268, 87, 'F')}${text(588, 87, 'F')}${text(65, 265, 'Moment at support = F × d', 18)}
+${text(300, 107, 'F')}${text(620, 107, 'F')}${text(65, 265, 'Moment at support = F × d', 18)}
 ${line(111, 113, 282, 113, red)}${text(188, 104, 'd', 18)}
 ${text(452, 265, 'Both supports carry reaction loads', 18)}
 `);
@@ -53,16 +53,17 @@ ${line(110, 105, 710, 260)}
 ${text(30, 74, 'Relative', 16)}${text(30, 94, 'output', 16)}${text(89, 281, '0', 16)}
 ${text(395, 281, '0.5', 16)}${text(698, 281, '1', 16)}
 ${text(250, 309, 'Speed / free speed', 18)}
-${text(470, 80, 'Power / peak power', 18)}${text(148, 148, 'Torque / stall torque', 18)}
+${line(225, 72, 250, 72)}${text(260, 78, 'Torque / stall torque', 18)}
+${line(495, 72, 520, 72, red)}${text(530, 78, 'Power / peak power', 18)}
 ${line(410, 112, 410, 260, '#aaa')}
 ${text(110, 340, 'Stall: no rotation')}${text(500, 340, 'Free speed: near-zero load')}
 `, 385);
 svg('transfer-sequence', 'Object control during a handoff', 'Donor holding progresses to shared capture and then receiver holding. If capture is not established, a recovery path returns to donor control rather than releasing the object.', `
-${text(24, 36, 'Control must continue through the handoff', 23)}
+${text(24, 36, 'Object handoff', 23)}
 <g fill="#f5f5f5" stroke="${ink}" stroke-width="2"><rect x="35" y="95" width="200" height="70" rx="8"/><rect x="295" y="95" width="210" height="70" rx="8"/><rect x="565" y="95" width="200" height="70" rx="8"/></g>
 ${text(66, 138, 'Donor holds')}${text(327, 138, 'Shared capture')}${text(581, 138, 'Receiver holds')}
 ${line(240, 130, 285, 130, red, true)}${line(510, 130, 555, 130, red, true)}
-${text(43, 195, 'Align and capture', 17)}${text(521, 195, 'Confirm, then release', 17)}
+${text(190, 195, 'Align and capture', 17)}${text(521, 195, 'Confirm, then release', 17)}
 <path d="M400 170V245H135V175" stroke="${red}" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
 ${text(207, 275, 'Failed capture: recover to a known state', 18)}
 `);

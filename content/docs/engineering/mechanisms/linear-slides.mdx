@@ -59,7 +59,7 @@ Test incrementally with a safe load: partial travel, full travel, repeated rever
 
 ## Two-motor lifts
 
-Giving two motors the same power does not prove that the two sides moved the same distance. Friction, string tension, load, and a slipped hub can make one side lag while the other encoder still looks correct.
+Two motors given the same power can move different distances. Friction, string tension, load, or a slipped hub can make one side lag while the other encoder looks normal.
 
 Use mechanical coupling where the design permits it, and measure both sides if software must detect skew. A controller that reads only the leader encoder cannot observe follower position. Homing, sign conventions, a measured skew limit, and a stop/recovery policy belong to the complete system. Check the frame and rigging before increasing gains to overcome a rack or jam.
 

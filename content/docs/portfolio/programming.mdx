@@ -4,69 +4,67 @@ description: Explain control systems through their inputs, behavior, testing, an
 icon: phosphor:BracketsCurly
 ---
 
-Explain the problem your code solves, what the robot senses, and what it does with the reading. Then show how you tested it.
+Explain what your code helps the robot do and how you know it works. A sensor diagram, a short example, and a useful test result usually tell a reader more than a long list of libraries.
 
 ## Control systems
 
-For BIOBUZZ Control, Table 6-8 calls for the control components, the challenges they solve, their functions, and a solution using external feedback to improve robot performance. Full source code is not the portfolio deliverable.
+For the Control Award, explain the problem, the control components, and how feedback improves the robot's performance. Show what the robot measures and what it does with that reading. You do not need to print the full source code.
 
-A table can keep the components and their jobs together:
+For example:
 
-| Component | Problem | Feedback and action |
+| Component | Job | How the robot uses it |
 | --- | --- | --- |
-| Lift encoder and controller | The lift must stop at a requested height | Compare measured position with the target and adjust motor output |
-| Home switch | The lift needs a known reference position | Detect home and establish the position reference through the team's homing routine |
-| Camera and aiming routine | The launcher must aim despite changing robot position | Use a valid target observation to adjust aiming, with a defined response when observations are unavailable |
+| Lift encoder and controller | Stop the lift at a chosen height | Compare the measured height with the target and adjust motor power |
+| Home switch | Find a known starting position | Detect home and reset the position reference using your homing routine |
+| Camera and aiming code | Aim from different positions | Use a valid target reading to adjust aim, and handle a missing target |
 
-These are illustrative systems, not a recommended parts list. Describe the system on your own robot, including whether a feature runs in autonomous, TeleOp, or both.
+Describe the components on your own robot. Say whether they run in autonomous, TeleOp, or both.
 
 ## Software choices
 
-Name the libraries you used and explain your team's work: hardware setup, models, controller tuning, recovery logic, sensor integration, or comparisons with other approaches.
+Name the libraries you used and credit their authors. Then explain your team's work: setting up hardware, tuning controllers, combining sensor readings, writing recovery code, or comparing approaches.
 
-Credit library authors for their code. Describe why you selected a library, how you configured it, what you changed, and how it performed on your robot.
-
-Use a feedback diagram or state table to explain behavior. Define technical terms where the reader needs them to follow the decision. Keep general programming explanations brief enough to leave room for your team's work.
+A state diagram can show the order of actions. A feedback diagram can show how a measurement changes motor output. Explain unfamiliar terms where they appear, and spend most of the space on your robot.
 
 ## Autonomous
 
-Show the intended route and the decisions that can change it. Label the starting conditions, scoring actions, sensor checks, and stopping or recovery behavior. Explain how the team accommodates an alliance partner where that affects the routine.
+Draw the route and label the actions along it. Include sensor checks, choices the code can make, and what happens if a move fails. If the routine changes to suit an alliance partner, explain that too.
 
-Report complete routine success separately from individual actions. A route completed without its intended scoring action is still a failed routine. State the pass conditions, number of attempts, and robot/software version tested.
+Count complete successful runs separately from successful individual actions. A robot that follows its route but misses the scoring action has not completed the whole routine. State what counted as a pass, how many attempts you ran, and which robot and software version you tested.
 
-When comparing routines, keep setup and scoring definitions consistent. Distinguish a selected best run from a set of repeated trials.
+Use the same starting setup when comparing routines. Label a best run as a best run rather than presenting it as typical performance.
 
 ## Testing and graphs
 
-Choose a graph that answers the actual question:
+Choose a graph that answers a question:
 
-| Question | Useful comparison |
+| Question | What to plot or count |
 | --- | --- |
-| Does the lift settle at the target? | Requested and measured position against time, with units |
-| Does launcher speed recover between shots? | Measured speed around successive launches, with the recovery criterion defined |
-| Does localization stay useful? | Position error over a defined route, measured against a reference |
-| Does the routine finish reliably? | Successful complete runs out of all attempts, with failure categories |
+| Does the lift stop at the target? | Target and measured position over time, with units |
+| How quickly does launcher speed recover? | Speed before and after each shot, with the recovery threshold marked |
+| How much does position drift? | Position error along a route, compared with a known reference |
+| Does the routine finish reliably? | Complete successful runs out of all attempts, with reasons for failures |
 
-Explain what you learned from the graph and what you changed afterward. Keep update rate, accuracy, subsystem success, and whole-robot reliability separate; they measure different things.
+Explain what the result led you to change. Update rate, accuracy, and successful runs measure different things, so label each clearly.
 
 ## Failure and recovery
 
-Describe what happens when a sensor reading is missing, a mechanism jams, or an operator requests the wrong action. Identify the safe state or manual recovery path and how the team tested it.
+Show what happens when a sensor loses its target, a mechanism jams, or a driver presses the wrong button. Explain how the robot stops or returns to manual control, and how you tested that behavior.
 
-The [Blu Cru case study](/docs/portfolio/case-studies/blu-cru) examines a state diagram alongside manual overrides. The [Seattle Solvers study](/docs/portfolio/case-studies/seattle-solvers) follows successive localization approaches and distinguishes a performance target from the latest reported result.
+[Blu Cru](/docs/portfolio/case-studies/blu-cru) uses a state diagram to explain its driver cycle and manual overrides. [Seattle Solvers](/docs/portfolio/case-studies/seattle-solvers) shows how its approach to localization changed through the season.
 
 ## Driver controls
 
-Explain which driver actions the automation combines, which sensor conditions it checks, and how the driver interrupts it. Measure the same task before and after if you claim a time saving, and state the test conditions.
+Explain which actions a driver can start, what the robot checks before continuing, and how the driver cancels an action. If you claim it saves time, compare the same task before and after the change.
 
-For implementation, use [nonblocking code](/docs/getting-started/nonblocking-code), [PID control](/docs/control-systems/pid-control), and [sensor fusion](/docs/autonomous/sensor-fusion). The portfolio should explain the evidence from your implementation.
+For the code itself, see [nonblocking code](/docs/getting-started/nonblocking-code), [PID control](/docs/control-systems/pid-control), and [sensor fusion](/docs/autonomous/sensor-fusion).
 
 <footer className="article-sources">
 
 ## Sources
 
-- [FIRST: BIOBUZZ Section 6, TU04, Table 6-8](https://ftc-resources.firstinspires.org/ftc/archive/2027/game/manual-06)
-- [FIRST: Judging Question Bank, revision 26–27.1, Control](https://ftc-resources.firstinspires.org/ftc/event/question-bank)
+- [FIRST: Award and portfolio requirements](https://ftc-resources.firstinspires.org/ftc/archive/2027/game/manual-06)
+- [FIRST: Judging Question Bank](https://ftc-resources.firstinspires.org/ftc/event/question-bank)
 - [Community discussion: explain the team's technical problem and response](https://discord.com/channels/1443377051305508896/1443405895055704146/1557954017479495763)
 
 </footer>

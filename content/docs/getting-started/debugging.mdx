@@ -4,7 +4,7 @@ description: Separate build, configuration, runtime, and behavior failures with 
 icon: phosphor:TestTube
 ---
 
-First identify what failed: compiling the program, installing it, initializing hardware, or producing the intended motion. Each stage has different evidence. Changing a controller gain cannot repair a missing Java import, and a successful build cannot prove that an encoder sign is correct.
+First find where the problem starts: building the code, installing it, setting up hardware, or moving the robot. Check that stage before changing anything else. A controller gain will not fix a missing import, and a successful build will not catch an encoder that counts in the wrong direction.
 
 ## Build errors
 

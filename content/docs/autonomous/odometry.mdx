@@ -211,7 +211,11 @@ class DifferentialOdometry(
 </Tab>
 </Tabs>
 
-Create this object with a measured starting pose, including field heading: for example `new DifferentialOdometry(100.0, 0.0, 0.0, Math.PI / 2.0)` in Java, or `DifferentialOdometry(100.0, 0.0, 0.0, kotlin.math.PI / 2.0)` in Kotlin, for a robot facing field +Y. The scale 100 is only an example. Call `update()` once **before movement** to baseline encoders and raw yaw. FTC IMU yaw can persist between OpModes; initialization alone does not align it with field +X. The helper subtracts initial yaw and adds the selected starting heading. To reset pose, create a new estimate and baseline all readings together. In the OpMode loop, pass the latest encoder counts and IMU yaw in radians, then display the estimate:
+Create this object with a measured starting pose, including field heading: for example `new DifferentialOdometry(100.0, 0.0, 0.0, Math.PI / 2.0)` in Java, or `DifferentialOdometry(100.0, 0.0, 0.0, kotlin.math.PI / 2.0)` in Kotlin, for a robot facing field +Y. The scale 100 is an example; use your measured scale.
+
+Call `update()` once **before movement** to record the starting encoders and raw yaw. IMU yaw can carry over between OpModes, so initialising the IMU does not necessarily align it with field +X. This helper subtracts the starting yaw and adds your chosen field heading. To reset pose, create a new estimate and record all starting readings together.
+
+In the OpMode loop, pass the latest encoder counts and yaw in radians, then display the estimate:
 
 <Tabs items={['Java', 'Kotlin']}>
 <Tab value="Java">

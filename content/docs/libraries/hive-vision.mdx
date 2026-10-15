@@ -93,7 +93,7 @@ The SDK's detector-confidence documentation and forwarded firmware value do not 
 
 The v2 webcam code needs repairs before it is a copy-and-run example. Its calibration import does not match FTC SDK 12, and its returned annotated `Mat` is handled as VisionPortal draw context rather than a displayed replacement frame. That clone also needs explicit ownership and release. The rolling setup guide uses the wrong `Size` type for the VisionPortal builder.
 
-For a source-checked webcam starting point, use [Color Blob Locator](../sensors-and-vision/visionportal/color-blob-locator) or [custom VisionProcessors](../sensors-and-vision/visionportal/vision-portal). Do not combine the Limelight model setup with the separate HSV processor's imports and lifecycle.
+For a webcam example, use [Color Blob Locator](../sensors-and-vision/visionportal/color-blob-locator) or [custom VisionProcessors](../sensors-and-vision/visionportal/vision-portal). Do not combine the Limelight model setup with the separate HSV processor's imports and lifecycle.
 
 <footer className="article-sources">
 

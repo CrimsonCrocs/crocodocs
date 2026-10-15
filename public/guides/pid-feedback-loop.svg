@@ -43,7 +43,6 @@
   <text class="body" x="981" y="200">measures arm angle</text>
 
   <path class="feedback" d="M981 234V310H329V239"/>
-  <rect x="407" y="293" width="498" height="38" rx="19" fill="#fff"/>
-  <text x="656" y="318" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" font-weight="600" fill="#9d2630">Measured angle feeds the next control cycle</text>
+  <text x="656" y="349" text-anchor="middle" font-family="system-ui,sans-serif" font-size="15" font-weight="600" fill="#9d2630">Measured angle feeds the next control cycle</text>
   <text class="sub" x="560" y="382" text-anchor="middle">The loop repeats until the arm is close to its target position.</text>
 </svg>

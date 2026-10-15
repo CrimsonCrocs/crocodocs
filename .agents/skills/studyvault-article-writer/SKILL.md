@@ -16,6 +16,7 @@ Installed from StudyVault's project-local skill on 2026-10-14 at the user's requ
 - Use the appropriate Engineering or Programming source register and exact linked source passages as the research base. Record unsupported or unfinished source coverage honestly.
 - Articles live in `content/docs/`; ordering lives in `meta.json`. Do not modify StudyVault's `posts/`, `incomplete/`, or curriculum plan.
 - Put source citations and image attribution in a compact Sources footer at the bottom, following `CONTRIBUTING.md`. Keep explanatory paragraphs free of source links; retain version context, rule IDs, technical qualifications, and internal article links where useful.
+- Keep audit language and reference-copy details in research notes. Write articles in plain language for a student teammate. Manual editions and review dates belong in the source register unless they change what the reader must do. Portfolio case studies explain strengths with selected page images; they are not public audits of other teams.
 - Run `bun run check:docs`, `bun run build`, and inspect affected rendered articles instead of StudyVault's `cl`/`lint-posts.ts` commands.
 - The original StudyVault-specific instructions below remain provenance and editorial context; these repository substitutions apply here.
 

@@ -54,7 +54,9 @@ boolean justPressed = currentA && !previousA;
 previousA = currentA;
 ```
 
-`previousA` must survive the next loop. Declaring it as `false` inside that loop would erase the history on every pass. `currentA` can be local because only this pass needs it. `private` limits field access to its class. `final` prevents reassignment after initialization; it does not make a motor object physically immutable. `static` belongs to the class rather than each instance, so avoid static fields for ordinary OpMode hardware state.
+`previousA` must survive the next loop. Declaring it as `false` inside the loop would reset it on every pass. `currentA` can be local because only the current pass needs it.
+
+`private` limits access to the class. `final` prevents assigning a different value or object to that variable after initialisation; you can still call methods on a `final` motor. `static` shares a field across all instances of the class, so ordinary OpMode hardware fields should not be static.
 
 ## Conditions
 
@@ -102,7 +104,9 @@ private double ticksToInches(int ticks, double countsPerInch) {
 
 Call it inside the loop with a measured scale. `ticksToInches(125, 50.0)` returns `2.5`; the helper does not reset an encoder or move a motor.
 
-A class groups related state and behavior. A constructor creates an instance and establishes its starting state. You already use an OpMode object; later a mechanism class can own its motor and expose operations such as setting a target. Keep physical ownership clear before introducing inheritance or a command scheduler. The [code organization guide](../cegp/code-organization) shows when a separate class helps a team.
+A **class** groups related values and methods. A **constructor** sets up a new object. An OpMode is one example of an object; a mechanism class could hold a motor and offer a method for setting its target.
+
+Give each piece of hardware a clear owner before adding inheritance or a command scheduler. The [code organization guide](../cegp/code-organization) explains when a separate class helps.
 
 ## Practice
 

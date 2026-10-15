@@ -8,7 +8,7 @@ description: Build reproducible tests, isolate failures, interpret trial results
 
 ## Repeatable tests [#write-a-test-that-someone-else-can-repeat]
 
-Record the robot and software revisions, battery, payload, surface, object set, starting pose, commanded action, measurement method, and pass criterion. Keep failed runs in the record. Choose a sample size before testing so one encouraging result does not end the test early.
+Record the robot and software versions and the conditions that could affect the result: battery, load, surface, game pieces, and starting position. Say what the robot should do, how you will measure it, and what counts as a pass. Decide how many attempts to run before starting, and record the failures too.
 
 Separate subsystem tests from integrated tests. A bench intake can pass its pickup test while a complete robot fails because the lift blocks the object's path. Repeat the affected task after integration and after changes to shared interfaces.
 

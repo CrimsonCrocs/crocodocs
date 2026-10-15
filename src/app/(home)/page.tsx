@@ -1,5 +1,5 @@
 import Footer from '@/components/footer';
-import { ArrowRight, BracketsCurly, GearSix, Notebook } from '@phosphor-icons/react/ssr';
+import { ArrowRight, BracketsCurly, GearSix, GithubLogo, Notebook } from '@phosphor-icons/react/ssr';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -23,8 +23,8 @@ export default function HomePage() {
               <Link href="/docs" className="brand-button">
                 Get started <ArrowRight size={18} aria-hidden="true" />
               </Link>
-              <a href="https://github.com/upsidedly/myFIRSTjournal" className="brand-button brand-button-secondary" target="_blank" rel="noreferrer">
-                View source
+              <a href="https://github.com/upsidedly/myFIRSTjournal" className="inline-flex size-11 items-center justify-center self-center rounded-full text-muted-foreground transition-colors hover:text-foreground" target="_blank" rel="noreferrer" aria-label="View CrocoDocs on GitHub">
+                <GithubLogo size={28} weight="fill" aria-hidden="true" />
               </a>
             </div>
           </div>

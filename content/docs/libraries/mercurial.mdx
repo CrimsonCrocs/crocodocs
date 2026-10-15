@@ -129,7 +129,7 @@ Hardware mapping and command construction happen in `init()`. Scheduling happens
 
 The shared `motorRequirement` identifies the resource. Reuse that same object in other commands controlling this motor so requirements can prevent conflicts. Do not create a fresh marker for each command and expect them to exclude one another.
 
-The Java class was signature-checked against the published 1.0.3 artifact. This does not certify the complete Dairy dependency stack on SDK 12. Test INIT, START, normal completion, and STOP on your installed release. The pinned v1 source documents this API; Mercurial 2 requires different examples.
+Use a dependency set compatible with your installed SDK, then test INIT, START, command completion, and STOP on the robot. This is a v1 example; Mercurial 2 uses a different API.
 
 ## Team fit [#choosing-mercurial]
 

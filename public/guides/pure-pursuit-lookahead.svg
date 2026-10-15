@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="440" viewBox="0 0 800 440" role="img" aria-labelledby="title desc">
+<title id="title">Pure Pursuit lookahead</title><desc id="desc">A robot on a planned path has a lookahead circle centred on its pose. The chosen target is the forward intersection of the path and circle. The radius is the lookahead distance.</desc>
+<rect width="800" height="440" rx="12" fill="#fff"/>
+<g font-family="Arial, sans-serif" fill="#243d45">
+<text x="24" y="36" font-size="23" font-weight="700">Pure Pursuit lookahead</text>
+<text x="24" y="68" font-size="17">The controller chooses a new point ahead as the robot moves.</text>
+<circle cx="250" cy="260" r="140" fill="none" stroke="#d47827" stroke-width="2.5"/>
+<path d="M50 320 140 300 250 260 371.244 190 480 150 600 140 730 145" fill="none" stroke="#18758a" stroke-width="5" stroke-linejoin="round"/>
+<rect x="220" y="240" width="60" height="40" rx="8" fill="#e9f3f5" stroke="#405e67" stroke-width="2.5"/>
+<path d="m262 249 14 11-14 11Z" fill="#405e67"/>
+<line x1="250" y1="260" x2="371.244" y2="190" stroke="#d47827" stroke-width="2.5"/>
+<circle cx="371.244" cy="190" r="7" fill="#d47827" stroke="#fff" stroke-width="2"/>
+<text x="250" y="308" text-anchor="middle" font-size="17" font-weight="700">Robot pose</text>
+<text x="410" y="218" font-size="17" font-weight="700">Lookahead point</text>
+<line x1="445" y1="258" x2="470" y2="258" stroke="#d47827" stroke-width="2.5"/>
+<text x="482" y="264" font-size="17" fill="#a55416">Lookahead distance</text>
+<text x="445" y="310" font-size="17">Choose the intersection ahead</text>
+<text x="445" y="335" font-size="17">of the robot.</text>
+<text x="30" y="370" font-size="17" fill="#18758a" font-weight="700">Planned path</text>
+</g></svg>
