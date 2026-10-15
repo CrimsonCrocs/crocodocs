@@ -1,0 +1,189 @@
+---
+title: Mercurial v2
+description: Programs, sequences, and concurrent robot tasks with Mercurial v2
+icon: Terminal
+---
+
+## Overview
+
+Mercurial v2 runs robot tasks as lightweight processes called **fibers**. A drivetrain can follow a path while an intake watches a sensor, with messages coordinating what each mechanism does. Java and Kotlin use the same underlying library, with different syntax for building programs.
+
+<Callout type="warn" title="Beta release">
+
+This guide uses **MercurialFTC 2.0.1-beta1**. APIs may change between beta releases. Projects using the older `dev.frozenmilk.mercurial` packages should use the [Mercurial v1 guide](./mercurial).
+
+</Callout>
+
+## Setup
+
+The upstream example projects use FTC SDK 12 and Dairy's TeamCode Gradle plugin. Start with a compatible Dairy project setup, then add the release repository and FTC bindings. In a Groovy Gradle project, the dependency is:
+
+```groovy
+repositories {
+    maven {
+        name = "dairyReleases"
+        url = uri("https://repo.dairy.foundation/releases")
+    }
+}
+
+dependencies {
+    implementation("dev.frozenmilk.dairy:MercurialFTC:2.0.1-beta1")
+}
+```
+
+Put the repository in your project's dependency repository configuration and the dependency in the TeamCode module. Gradle projects with centralized repositories keep that first block in `settings.gradle` instead.
+
+`MercurialFTC` brings in Mercurial core, Sloth, and Util. Kotlin projects also need Kotlin enabled in their Gradle setup; the Dairy examples use `ftc { kotlin() }`. Keep the plugin and Kotlin versions compatible with that setup, sync Gradle, and do a full build and install after adding dependencies.
+
+## Programs
+
+`MercurialFTC.teleop` and `MercurialFTC.autonomous` create programs that appear in the Driver Station's OpMode list. Store a program in a public static field in Java, or a public top-level property in Kotlin, so Mercurial can discover it. `.withName(...)` sets its displayed name.
+
+Each program receives a **Context** containing the hardware map, gamepads, telemetry, scheduler, and current OpMode state. `waitForStart()` runs the scheduler during INIT until START or STOP. After it returns, check `inLoop` before starting motion: STOP during INIT also ends the wait.
+
+`dropToScheduler()` keeps polling the scheduler until STOP. The program returns `null` when it has no follow-up program. Mercurial initializes its thread context automatically for these programs.
+
+## Sequences and fibers
+
+A **builder** describes work; constructing one does not run it. These are the main pieces of the motor example below:
+
+| API | Purpose |
+| --- | --- |
+| `exec` | Run a short piece of ordinary Java or Kotlin code. |
+| `sequence` | Run builders in order. |
+| `waitFor` with `seconds` | Wait for a duration while allowing other fibers to run. |
+| `spawnable()` | Compile a builder into a reusable program that can be spawned. |
+| `spawnLink()` | Create and schedule a fiber linked to the current fiber. |
+
+Keep `exec` callbacks short. A blocking `Thread.sleep()` or long `while` loop inside one holds up other work on the standard scheduler. Use Mercurial's waits and loop builders when a task needs to pause or repeat.
+
+## Motor example
+
+Configure an unloaded motor as `testMotor` and secure it for a bench test. Choose one language and save the file under the matching TeamCode package. These examples use `org.firstinspires.ftc.teamcode`; change the package if your project uses another one.
+
+The motor stays still during INIT, runs at 0.15 power for about one second after START, then stops. The OpMode remains active until you press STOP.
+
+<Tabs items={['Java', 'Kotlin']}>
+<Tab value="Java">
+
+Save as `MercurialV2MotorTest.java`.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import dev.frozenmilk.dairy.mercurial.ftc.MercurialFTC;
+import dev.frozenmilk.dairy.mercurial.ftc.MercurialFTC.RegisterableProgram;
+
+import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.exec;
+import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.seconds;
+import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.sequence;
+import static dev.frozenmilk.dairy.mercurial.continuations.Continuations.waitFor;
+
+public class MercurialV2MotorTest {
+    public static final RegisterableProgram motorTest =
+        MercurialFTC.autonomous(ctx -> {
+            DcMotor motor = ctx.hardwareMap().get(DcMotor.class, "testMotor");
+
+            try {
+                motor.setPower(0.0);
+                motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                ctx.waitForStart();
+
+                if (ctx.inLoop()) {
+                    sequence(
+                        exec(() -> motor.setPower(0.15)),
+                        waitFor.bind(seconds(1.0)),
+                        exec(() -> motor.setPower(0.0))
+                    ).spawnable().spawnLink();
+
+                    ctx.dropToScheduler();
+                }
+
+                return null;
+            } finally {
+                motor.setPower(0.0);
+            }
+        }).withName("Mercurial v2: Timed Motor Test");
+}
+```
+
+</Tab>
+<Tab value="Kotlin">
+
+Save as `MercurialV2MotorTest.kt`.
+
+```kotlin
+package org.firstinspires.ftc.teamcode
+
+import com.qualcomm.robotcore.hardware.DcMotor
+import dev.frozenmilk.dairy.mercurial.continuations.Continuations.exec
+import dev.frozenmilk.dairy.mercurial.continuations.Continuations.seconds
+import dev.frozenmilk.dairy.mercurial.continuations.Continuations.sequence
+import dev.frozenmilk.dairy.mercurial.continuations.Continuations.waitFor
+import dev.frozenmilk.dairy.mercurial.ftc.MercurialFTC
+
+val motorTest = MercurialFTC.autonomous {
+    val motor = hardwareMap.get(DcMotor::class.java, "testMotor")
+
+    try {
+        motor.power = 0.0
+        motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        waitForStart()
+
+        if (inLoop) {
+            sequence(
+                exec { motor.power = 0.15 },
+                waitFor * seconds(1.0),
+                exec { motor.power = 0.0 },
+            ).spawnable().spawnLink()
+
+            dropToScheduler()
+        }
+
+        null
+    } finally {
+        motor.power = 0.0
+    }
+}.withName("Mercurial v2: Timed Motor Test")
+```
+
+</Tab>
+</Tabs>
+
+The Java `.bind(...)` and Kotlin `*` forms supply the wait's duration. `seconds(1.0)` makes a time supplier that is evaluated when the wait runs, so the second starts after the motor-on step.
+
+The final `exec` stops the motor when the sequence finishes. The outer `finally` also removes power when the program exits early. Keep both: a fiber interrupted during the wait can skip the remaining sequence steps.
+
+Test STOP during INIT, STOP during the timed motion, and normal completion. Confirm zero motor power in each case before adapting this to a loaded mechanism.
+
+## Concurrent tasks
+
+Spawn separate fibers for tasks that need to progress independently. A second motor sequence can run alongside the first because each wait yields to the scheduler. Links propagate abnormal exits between fibers, which helps related tasks fail together; a normal completion does not interrupt its linked peers.
+
+For a group of builders, `parallel(...)` waits for every member to finish. `race(...)` finishes when one member exits and cancels the rest. `deadline(...)` uses one designated task to decide when the other tasks should stop. These helpers are useful when an intake or lift must run alongside a path.
+
+For longer-lived mechanism control, **channels** carry messages between fibers. A mechanism can own its hardware and accept requests through a channel. **EventManager** publishes events to subscribers, while **StateMachine** and **SwitchedStateMachine** help organize modes such as idle, intaking, and scoring.
+
+Agree on which fiber controls each motor. Running two fibers does not automatically resolve competing power commands. V2's command builder has no v1-style requirements system; mechanism ownership and message handling need to be designed into the program.
+
+## Moving from v1
+
+V1's `Lambda`, `@Mercurial.Attach`, and command requirements are different APIs. A migration involves changing how the robot's tasks are organized, rather than just updating the dependency coordinate.
+
+Move one behavior at a time. Begin with a sequence like the motor test, add a concurrent task, then introduce channels or state machines where mechanisms need to coordinate. MercurialFTC also has a Pedro integration, but path following still needs your robot's follower configuration and localization setup.
+
+<footer className="article-sources">
+
+## Sources
+
+- [MercurialFTC installation](https://github.com/Dairy-Foundation/MercurialFTC/tree/2.0.1-beta1) and [published dependency metadata](https://repo.dairy.foundation/releases/dev/frozenmilk/dairy/MercurialFTC/2.0.1-beta1/MercurialFTC-2.0.1-beta1.pom)
+- [Mercurial v2 introduction](https://github.com/Dairy-Foundation/MercurialFTC/blob/2.0.1-beta1/introduction.md) and [fiber model](https://github.com/Dairy-Foundation/MercurialFTC/blob/2.0.1-beta1/fibers.md)
+- [Java sequential programming](https://github.com/Dairy-Foundation/MercurialFTC/blob/2.0.1-beta1/JavaExamples/src/main/java/org/firstinspires/ftc/teamcode/SequentialProgramming.java) and [Kotlin sequential programming](https://github.com/Dairy-Foundation/MercurialFTC/blob/2.0.1-beta1/KotlinExamples/src/main/kotlin/org/firstinspires/ftc/teamcode/SequentialProgramming.kt)
+- [Java program registration](https://github.com/Dairy-Foundation/MercurialFTC/blob/2.0.1-beta1/JavaExamples/src/main/java/org/firstinspires/ftc/teamcode/OpModes.java), [Kotlin program registration](https://github.com/Dairy-Foundation/MercurialFTC/blob/2.0.1-beta1/KotlinExamples/src/main/kotlin/org/firstinspires/ftc/teamcode/OpModes.kt), and [Context lifecycle](https://github.com/Dairy-Foundation/MercurialFTC/blob/2.0.1-beta1/src/main/kotlin/dev/frozenmilk/dairy/mercurial/ftc/Context.kt)
+- [Concurrent programming](https://github.com/Dairy-Foundation/MercurialFTC/blob/2.0.1-beta1/JavaExamples/src/main/java/org/firstinspires/ftc/teamcode/ConcurrentProgramming.java), [event managers](https://github.com/Dairy-Foundation/MercurialFTC/blob/2.0.1-beta1/JavaExamples/src/main/java/org/firstinspires/ftc/teamcode/EventManagers.java), and [state machines](https://github.com/Dairy-Foundation/MercurialFTC/blob/2.0.1-beta1/JavaExamples/src/main/java/org/firstinspires/ftc/teamcode/StateMachines.java)
+- [MercurialFTC 2.0.1-beta1 release](https://github.com/Dairy-Foundation/MercurialFTC/releases/tag/2.0.1-beta1) and [Dairy Gradle plugins](https://github.com/Dairy-Foundation/Plugins)
+
+</footer>

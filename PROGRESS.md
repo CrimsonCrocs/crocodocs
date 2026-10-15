@@ -67,10 +67,19 @@ The simulator update is deployed. Matthew authorized re-enabling the playgrounds
 
 Release `ec33d7e` passed 103 MDX checks and the production build, with rendered checks for nineteen diagrams, eight portfolio excerpts, and the homepage GitHub icon. Those changes are preserved.
 
-The current release passes **105 MDX checks and the production build**. Focused Chromium checks cover the five hosted examples, edits and lifecycle controls, 1440px and 390px article layouts, light embeds inside dark docs, and a touch-emulated phone editor/simulator path. Community software navigation and the shared page headings are checked; old OpenLoop/Hive Vision paths have permanent redirects.
+Release `d6a1528` passed **105 MDX checks and the production build**. Focused Chromium checks cover the five hosted examples, edits and lifecycle controls, 1440px and 390px article layouts, light embeds inside dark docs, and a touch-emulated phone editor/simulator path. Community software navigation and the shared page headings are checked; old OpenLoop/Hive Vision paths have permanent redirects.
 
 `BlazeBulkPreview` compiles as Java 8 against the published BlazeFTC 0.1.66 artifact, FTC SDK 12, and Kotlin stdlib. The current Pedro adapter source was checked for Pinpoint requirements and callback ownership. No hardware run or Rust native build was performed. Blaze core and Quickstart source revisions were `9044ffd` and `dbd764e` respectively.
 
 Release `d6a1528` is published on `main`; both Vercel production deployments succeeded. The canonical site serves the new Community software pages and redirects, and its Analytics script/pageview requests return HTTP 200. No extra test suite or dependency was added for playground verification; Analytics is the separately requested dependency.
 
 Focused Intentional Verify verdict: **ACCEPT**. No unrelated article audit or full release suite was run.
+
+## Mercurial guides
+
+- [x] Rename the existing guide and directory link to Mercurial v1. Keep its existing URL and examples. Replace dated review narration with one legacy warning linking to v2.
+- [x] Add a separate Mercurial v2 guide based on the published 2.0.1-beta1 bindings, examples, and dependency metadata. Cover setup, programs, sequences, fibers, scheduler behavior, and motor cleanup.
+- [x] Validate the examples and rendered pages; all 106 MDX pages and the production build pass. Focused Intentional Verify: **ACCEPT**.
+- [ ] Publish the scoped change and confirm the live pages.
+
+Mercurial v2 source: FTC bindings tag `2.0.1-beta1` (`97469ab`), published core/bindings `2.0.1-beta1`, and Dairy Maven metadata. The complete Java example compiles as Java 8 against the published artifacts and FTC SDK 12; the Kotlin equivalent was compared with upstream examples and implementation. No Android install or robot hardware test was performed. Desktop (1440px) and narrow (390px) checks cover both article titles, the legacy warning and its v2 link, navigation, Java/Kotlin tabs, and contained code scrolling.

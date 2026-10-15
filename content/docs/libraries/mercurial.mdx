@@ -1,8 +1,14 @@
 ---
-title: Mercurial
-description: The legacy Mercurial v1 command lifecycle and its version boundary
+title: Mercurial v1
+description: Commands, requirements, and a timed motor example for legacy Mercurial v1
 icon: Terminal
 ---
+
+<Callout type="warn" title="Legacy version">
+
+Mercurial v1 is the older command-based framework. Use this guide for existing v1 projects. For the newer API, see [Mercurial v2](./mercurial-v2).
+
+</Callout>
 
 ## Overview [#what-is-mercurial]
 
@@ -10,9 +16,7 @@ Mercurial v1 is a command-based FTC framework from Dairy Foundation. Its command
 
 ## Version and installation
 
-Checked **14 October 2026**: **MercurialFTC 2.0.1-beta1** is the current new-generation release, published on this date. It remains a beta despite the release page's prerelease flag. The v1 lesson below stays available for teams maintaining existing projects; its Lambda code is not a v2 migration example.
-
-This example uses the **Mercurial v1 Lambda API**, artifact `dev.frozenmilk.mercurial:Mercurial:1.0.3`. It does not describe Mercurial 2. The newer `dev.frozenmilk.dairy:MercurialFTC` beta uses continuation-based programs such as `MercurialFTC.teleop` and `autonomous`, with a different lifecycle. Follow its version-specific examples if that is what your project installs. Use the current Mercurial documentation and Dairy FTC plugins and templates to choose a compatible release and dependency set. Avoid combining v1 examples with the newer `MercurialFTC` artifact or beta APIs without following the corresponding migration guidance.
+This example uses `dev.frozenmilk.mercurial:Mercurial:1.0.3`. Keep the compatible Core, Util, and Pasteurized dependencies from your v1 project setup. The v1 documentation and Dairy project templates describe how those modules fit together.
 
 ## Core concepts
 
@@ -21,8 +25,6 @@ This example uses the **Mercurial v1 Lambda API**, artifact `dev.frozenmilk.merc
 - **Run states** control when a command may be scheduled, such as initialization or active OpMode.
 - **Command groups** combine actions sequentially, in parallel, or conditionally.
 - **Subsystems** organize the hardware and behavior owned by a robot mechanism.
-
-The exact method names and command-group APIs are version-sensitive. Use the official language-specific examples for the version in your Gradle project.
 
 ## Motor example [#build-a-command-that-runs-for-one-second]
 
@@ -129,7 +131,7 @@ Hardware mapping and command construction happen in `init()`. Scheduling happens
 
 The shared `motorRequirement` identifies the resource. Reuse that same object in other commands controlling this motor so requirements can prevent conflicts. Do not create a fresh marker for each command and expect them to exclude one another.
 
-Use a dependency set compatible with your installed SDK, then test INIT, START, command completion, and STOP on the robot. This is a v1 example; Mercurial 2 uses a different API.
+Test INIT, START, command completion, and STOP on the robot before using the command in a larger routine.
 
 ## Team fit [#choosing-mercurial]
 
@@ -142,10 +144,8 @@ A command framework can make shared behaviors and autonomous sequences easier to
 - [Mercurial documentation](https://docs.dairy.foundation/Mercurial/)
 - [Command overview](https://docs.dairy.foundation/Mercurial/commands/overview)
 - [Mercurial v1 source](https://github.com/Dairy-Foundation/Mercurial)
-- [Mercurial 2 FTC bindings](https://github.com/Dairy-Foundation/MercurialFTC)
 - [Dairy FTC Gradle plugins](https://github.com/Dairy-Foundation/Plugins)
 - [Dairy project templates](https://github.com/Dairy-Foundation/Templates)
-- [MercurialFTC 2.0.1-beta1 release](https://github.com/Dairy-Foundation/MercurialFTC/releases/tag/2.0.1-beta1)
 - [Dairy Foundation](https://github.com/Dairy-Foundation)
 - [pinned v1 source](https://github.com/Dairy-Foundation/Mercurial/tree/207a360df3f90ff62f441aa543921107ddeed5c8)
 
