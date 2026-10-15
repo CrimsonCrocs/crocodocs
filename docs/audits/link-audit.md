@@ -79,6 +79,6 @@ The “old destination” column records the URL a reader actually reached. Path
 - The replacement FIRST programming index was already checked successfully as part of the initial crawl.
 - All 106 MDX syntax, local-link, image, and navigation checks pass; the production build passes.
 - Rechecked all 106 built documentation pages and the homepage: 1,268 distinct URLs/fragments and 464 destination URLs. Every local route, section fragment, and image target resolves; unchanged external URLs retain the passing initial evidence and the two browser-confirmed exceptions above. No unresolved link remains in this checked graph.
-- A 390px browser click from Libraries reached the Slothboard section at `/docs/libraries/sloth#slothboard`. A desktop (1440px) click from Community software reached the Blaze FTC article. Focused Intentional Verify: **ACCEPT**. Production canary: pending.
+- A 390px browser click from Libraries reached the Slothboard section at `/docs/libraries/sloth#slothboard`. A desktop (1440px) click from Community software reached the Blaze FTC article. Focused Intentional Verify: **ACCEPT**. Release `309939a` is live on the canonical production domain. A fresh HTTP canary verified all 48 replacements across the six overview pages and homepage footer, with every old target absent.
 
 Detailed URL-level results and dispositions are recorded in [link-audit.json](./link-audit.json).

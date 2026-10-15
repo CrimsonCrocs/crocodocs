@@ -3995,7 +3995,56 @@
     "errors": [],
     "verified_at": "2026-10-15T11:53:05Z",
     "external_evidence": "Initial HTTP crawl retained for unchanged external URLs; FTC Onshape and GitHub line fragment verified in browser.",
-    "production_deployment": "pending",
+    "production_deployment": {
+      "commit": "309939a",
+      "domain": "https://crocodocs.crimsoncrocs.org",
+      "verified_at": "2026-10-15T11:56:02Z",
+      "pages": [
+        {
+          "route": "/docs/autonomous",
+          "status": 200,
+          "title": "Autonomous | CrocoDocs",
+          "replacements_verified": 7
+        },
+        {
+          "route": "/docs/cegp",
+          "status": 200,
+          "title": "Code practices | CrocoDocs",
+          "replacements_verified": 5
+        },
+        {
+          "route": "/docs/community-software",
+          "status": 200,
+          "title": "Community software | CrocoDocs",
+          "replacements_verified": 4
+        },
+        {
+          "route": "/docs/control-systems",
+          "status": 200,
+          "title": "Control systems | CrocoDocs",
+          "replacements_verified": 7
+        },
+        {
+          "route": "/docs/getting-started",
+          "status": 200,
+          "title": "Getting started | CrocoDocs",
+          "replacements_verified": 10
+        },
+        {
+          "route": "/docs/libraries",
+          "status": 200,
+          "title": "Libraries | CrocoDocs",
+          "replacements_verified": 14
+        },
+        {
+          "route": "/",
+          "status": 200,
+          "title": "CrocoDocs \u2014 FTC Engineering, Programming, and Portfolios",
+          "replacements_verified": 1
+        }
+      ],
+      "replacements_verified": 48
+    },
     "browser_checks": [
       "390px: Libraries -> Slothboard, correct page and section",
       "1440px: Community software -> Blaze FTC, correct article"
