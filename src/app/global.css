@@ -313,6 +313,21 @@
 #nd-page .prose .article-sources a { color: inherit; overflow-wrap: anywhere; }
 #nd-page .prose :is(figure, [data-card="true"]) { border-radius: 12px; }
 #nd-page .prose figure { box-shadow: none; }
+#nd-page .prose .hardware-photo { max-width: 520px; margin: 2em auto; }
+#nd-page .prose .hardware-photo > a { display: block; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: #fff; cursor: zoom-in; }
+#nd-page .prose .hardware-photo > a:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
+#nd-page .prose .hardware-photo img { display: block; width: 100%; height: 340px; margin: 0; padding: 16px; border-radius: 0; object-fit: contain; }
+/* These vendor photos have broad white margins around the complete part. */
+#nd-page .prose .hardware-photo-detail img { object-fit: cover; }
+#nd-page .prose .hardware-photo figcaption { margin: 12px 0 0; color: var(--muted-foreground); font-size: 13px; line-height: 1.65; text-align: left; }
+#nd-page .prose .hardware-photo-wide { max-width: 620px; }
+#nd-page .prose .hardware-photos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-block: 2em; }
+#nd-page .prose .hardware-photos .hardware-photo { min-width: 0; margin: 0; }
+#nd-page .prose .hardware-photos img { height: 280px; }
+@media (max-width: 639px) {
+  #nd-page .prose .hardware-photos { grid-template-columns: 1fr; gap: 28px; }
+  #nd-page .prose .hardware-photo img { height: auto; max-height: 340px; }
+}
 #nd-page .prose [data-card="true"] { background: transparent; }
 #nd-toc { font-size: 12px; }
 #nd-tocnav { backdrop-filter: none; background: var(--background); }

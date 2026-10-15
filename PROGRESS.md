@@ -4,6 +4,8 @@ Last updated: 15 October 2026. Initial handbook release: `1ffb47a` on `main`.
 
 ## Current pass
 
+- [x] Add eight official REV Robotics / goBILDA hardware photos across seven Engineering articles: motors, a servo, a gear, timing belts and pulleys, a bearing, linear-motion parts, and a Control Hub. Use local assets, descriptive captions and alt text, full-size links, and vendor credits in Sources. Record the original image URLs in `docs/engineering-hardware-images.md`.
+- [x] Inspect all seven affected articles at 1440px and 390px, with representative light/dark checks. Verify loaded images, contained captions, stacked phone layouts, full-size image responses, and keyboard-visible link focus. All 106 MDX checks and the production build pass. Focused Intentional Verify: **ACCEPT**. No dependency or test suite was added.
 - [x] Rewrite the Portfolio guides in plain, natural language. Remove repeated manual versions, rule-table narration, and research-process commentary.
 - [x] Rewrite the four case studies around what the teams did well. Remove the public percentage critique and repeated warnings.
 - [x] Add a regional-guidance warning directly below the Rebel Robotics award-overview paragraph: Judged Category Highlights pages can resemble a table of contents, so readers should check local judging guidance before adopting the format.

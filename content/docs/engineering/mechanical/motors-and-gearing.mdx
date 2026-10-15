@@ -6,6 +6,21 @@ description: Calculate reduction, speed, torque, power, and a loaded motor opera
 
 A motor's useful output depends on the load and the transmission between it and the mechanism. **Gearing** trades rotational speed for torque; it does not create mechanical power.
 
+<div className="hardware-photos">
+  <figure className="hardware-photo hardware-photo-detail">
+    <a href="/guides/engineering/hardware/rev-ultraplanetary.png" target="_blank" rel="noopener noreferrer" aria-label="Open the REV UltraPlanetary motor photo at full size">
+      <img src="/guides/engineering/hardware/rev-ultraplanetary.png" alt="REV HD Hex motor with stacked black UltraPlanetary gearbox cartridges and a separate hex output shaft." width="608" height="608" loading="lazy" />
+    </a>
+    <figcaption>REV HD Hex motor with an UltraPlanetary gearbox. The cartridges between the motor and output shaft set the reduction.</figcaption>
+  </figure>
+  <figure className="hardware-photo">
+    <a href="/guides/engineering/hardware/gobilda-yellow-jacket.jpg" target="_blank" rel="noopener noreferrer" aria-label="Open the goBILDA Yellow Jacket motor photo at full size">
+      <img src="/guides/engineering/hardware/gobilda-yellow-jacket.jpg" alt="Rear of a goBILDA Yellow Jacket gearmotor, showing red and black power leads and the motor and encoder connector." width="867" height="867" loading="lazy" />
+    </a>
+    <figcaption>Rear view of a goBILDA Yellow Jacket motor. Power leads and the encoder connection sit behind the motor, away from its output shaft.</figcaption>
+  </figure>
+</div>
+
 ## Gear ratio [#define-the-ratio-before-calculating]
 
 Here, **reduction** $G$ means input speed divided by output speed:
@@ -66,5 +81,6 @@ Stop a test when motion stalls, a transmission skips, or the assembly heats abno
 - [GM0: Motor guidance](https://gm0.org/en/latest/docs/power-and-electronics/motor-guide/choosing-motor.html)
 - [GM0: Motor power discussion](https://gm0.org/en/latest/docs/power-and-electronics/motor-guide/motor-power.html)
 - [REV: UltraPlanetary ratios and load limits](https://docs.revrobotics.com/rev-crossover-products/ultraplanetary)
+- Product photos: [REV Robotics: UltraPlanetary and HD Hex motor](https://www.revrobotics.com/rev-41-1600/); [goBILDA: 5203 Yellow Jacket gearmotor](https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-19-2-1-ratio-24mm-length-8mm-rex-shaft-312-rpm-3-3-5v-encoder/).
 
 </footer>
