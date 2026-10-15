@@ -96,6 +96,6 @@ Mercurial v2 source: FTC bindings tag `2.0.1-beta1` (`97469ab`), published core/
 
 - [x] Transfer and rename the original public repository to `CrimsonCrocs/crocodocs`, preserving repository ID `1023463810`, commit history, and `main`. Update the local `origin` remote and current GitHub / issue links.
 - [x] Confirm Vercel automatically followed the transfer: canonical project `prj_wURFGAfKlh1Hlzx5zhKzpDrambxv` now links `CrimsonCrocs/crocodocs`, repository ID `1023463810`, production branch `main`.
-- [ ] Verify a production deployment triggered by a push to the organization repository.
+- [x] Verify Git-triggered production deployment `dpl_6WxhUTxBWKcGno4KXEarkGPhJWkk` from `CrimsonCrocs/crocodocs`, commit `40b0bed`, reached READY. The live homepage returns HTTP 200 and both GitHub links plus the issue link use the new organization repository. The previous GitHub repository URL redirects to the same transferred repository.
 
 The separate legacy `cc-software-engineering/my-first-journal` Vercel project is not accessible with the current connector or CLI account. It has not been changed. The canonical production project is `mantaworks/crocodocs`, serving `crocodocs.crimsoncrocs.org`.
