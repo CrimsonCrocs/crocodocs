@@ -1,6 +1,8 @@
 # Programming playgrounds
 
-The five getting-started articles now use the released FTC Simulator embed. Every URL pins `field=empty`, `singleFile=true`, and `theme=light`; light mode also applies inside dark documentation pages. Examples are editable and reset on reload, without an account or saved workspace.
+The five getting-started articles use the released FTC Simulator embed. Every URL pins `field=empty` and `singleFile=true`. The iframe and Open example link use CrocoDocs' resolved light or dark theme, including the system preference when that setting is active. The iframe waits until client hydration to request the simulator, so a saved dark preference does not first load a light simulator.
+
+The released embed accepts its theme through the URL and has no parent-page theme message API. Changing CrocoDocs' theme therefore reloads the iframe and restores the starter example. The note beneath each playground explains this. Examples remain editable without an account or saved workspace.
 
 ## Examples
 
@@ -23,6 +25,10 @@ The contract was checked against `ftc-emulator/docs/EMBEDDING.md`, `src/lib/embe
 The released Blocks tank template currently fails during server rendering with “Robot configuration schema 3 is incomplete or has an invalid physical profile or hub port descriptor.” The mecanum template works and supports the same forward/reverse exercise. No simulator source was changed for this documentation release.
 
 ## Focused verification
+
+The 16 October theme follow-up checks all five examples with both URL themes and preserves their complete source. Java's rendered editor and controls were inspected in light and dark mode; the iframe and Open example link matched CrocoDocs after switching, and a saved-dark reload requested only a dark iframe. The production HTML for all five articles reserves the existing embed height without creating an iframe before hydration. Hosted Blocks responses return HTTP 200 with the requested light/dark `data-theme`.
+
+The browser tools stalled while inspecting the Blocks iframe, including a paused document response, so this follow-up does not claim a fresh Blocks Play/Stop or phone interaction run. The simulator code and lesson sources are unchanged. The docs check and production build pass; the earlier runtime checks below remain the evidence for the exercises themselves.
 
 - All five complete examples compiled and ran against the hosted simulator. Edited versions also ran: the Blocks sleep, gamepad multiplier, decimal division, motor direction, and button duration.
 - Play and Stop were exercised; timed examples reached Finished. The Blocks example was also run and edited inside the actual documentation iframe.

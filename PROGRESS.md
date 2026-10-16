@@ -1,6 +1,6 @@
 # CrocoDocs progress
 
-Last updated: 15 October 2026. Initial handbook release: `1ffb47a` on `main`.
+Last updated: 16 October 2026. Initial handbook release: `1ffb47a` on `main`.
 
 ## Current pass
 
@@ -52,6 +52,7 @@ Last updated: 15 October 2026. Initial handbook release: `1ffb47a` on `main`.
 
 ## Playgrounds
 
+- [x] Make all five playgrounds and their Open example links follow CrocoDocs' resolved theme, replacing the earlier always-light instruction. Delay iframe creation until hydration and reserve its existing desktop/phone height. Explain that changing theme restores the example. All ten example/theme URL combinations preserve the source; Java's light/dark rendering, matching links, and saved-dark reload were checked. Blocks' hosted light/dark HTML matches its requested theme. The docs check and production build pass. Browser tooling paused the Blocks document response, so a new Blocks runtime or phone interaction pass is not claimed; the unchanged examples retain their earlier verification.
 - [x] Prepare and run five introductory Java examples for sequencing, OpModes, division, motor power, and nonblocking buttons. Inspect their fit on desktop and narrow pages.
 - [x] Keep every playground section disabled for releases `1ffb47a` and `ec33d7e`, as requested.
 - [x] After simulator thread `49658190-ecac-4616-b650-44b557bd7c2b` deployed, add a real single-file Blocks embed and use `theme=light` for every embed.

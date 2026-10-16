@@ -143,10 +143,10 @@ while (opModeIsActive()) {
 
 export type PlaygroundExampleId = keyof typeof playgroundExamples;
 
-export function playgroundUrl(example: PlaygroundExample): string {
+export function playgroundUrl(example: PlaygroundExample, theme: 'light' | 'dark'): string {
   const params = new URLSearchParams({
     language: example.language,
-    theme: 'light',
+    theme,
     robot: example.robot,
     field: 'empty',
     camera: 'field',
