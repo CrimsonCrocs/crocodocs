@@ -31,3 +31,9 @@ The electrical articles separate battery-side current from regulated servo curre
 - Focused Intentional Verify: **ACCEPT** for the new content, navigation, figures, and code presentation. Production outcome is recorded in PROGRESS.md.
 - All checked reference destinations return HTTP 200 except the Littelfuse PDF, which blocks the command-line request with HTTP 403. The primary-source web reader opens its three-page datasheet and time/current table successfully; this is an access restriction rather than a missing document.
 - Keep Sources in footers. No copied blog images, new dependencies, or permanent test suite.
+
+## Publication
+
+Release `81e3051` is published by CLI deployment `dpl_EPEoaMadUhp9cFewzgpGs2ECXLLr` to the existing canonical project. Vercel reports READY, production, and the expected Git SHA; its aliases include `crocodocs.crimsoncrocs.org`. The remote build passes on the exact published commit. All six new article titles and three public assets pass the live canary; the assets match local SHA-256 digests. Electrical and wiring and Shooting on the move also render correctly in the live browser.
+
+The normal push succeeded but no Git-triggered deployment appeared before the CLI release. Project metadata still links `CrimsonCrocs/crocodocs` (repository ID 1023463810), branch `main`. No integration settings were changed, and the cause remains unconfirmed. This follow-up records release evidence only; it changes no public article or application code.

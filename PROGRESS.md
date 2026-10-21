@@ -10,7 +10,9 @@ Last updated: 21 October 2026. Initial handbook release: `1ffb47a` on `main`.
 - [x] Generate and inspect two original shooting diagrams; verify equations, worked values, and the Java helper with trajectory checks. Compile the helper as Java 8 and reconstruct its flights in a temporary harness. Add full-size diagram links and simplify the calibration table for phones.
 - [x] Check all six new pages at 1440px and narrow widths, including 320px reflow, representative light/dark views, contained equations and tables, diagram labels, full-size links, and keyboard focus. Verify mobile navigation to Electrical and wiring and keyboard scrolling in the Java example. Finish a Deslop pass; keep technical source-review notes out of the public articles.
 - [x] Run the docs check (112 MDX pages) and production build. Focused Intentional Verify: **ACCEPT**. No new dependencies or test suite. The Java example is a mathematical helper, not a tested robot controller.
-- [ ] Push the scoped update to main and verify the canonical production deployment.
+- [x] Push release `81e3051` to main and verify the canonical production deployment. All six new routes return HTTP 200 with their correct titles. Both SVGs and the Java download match the committed assets; live browser checks confirm Electrical and wiring and the moving-shot article.
+
+Production deployment `dpl_EPEoaMadUhp9cFewzgpGs2ECXLLr` is READY and serves `crocodocs.crimsoncrocs.org`. The Git push did not create a deployment during this release, so the clean committed checkout was deployed with the Vercel CLI to the existing `mantaworks/crocodocs` project. Its repository link remains `CrimsonCrocs/crocodocs`; the Git-trigger issue's cause is unconfirmed. The dev server is running on port 3002.
 
 ## Current pass
 
