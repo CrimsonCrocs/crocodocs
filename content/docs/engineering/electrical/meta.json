@@ -1,4 +1,4 @@
 {
-  "title": "Electrical integration",
-  "pages": ["wiring-and-power", "sensor-integration"]
+  "title": "Electrical and wiring",
+  "pages": ["index", "wiring-and-power", "connectors-and-cables", "power-faults-and-esd", "sensor-integration"]
 }

@@ -1,0 +1,142 @@
+---
+title: Shooting on the move
+icon: phosphor:Crosshair
+description: Account for robot velocity, launcher offsets, and release delay when aiming a moving FTC shooter.
+---
+
+A ball leaves a moving robot with some of the robot's velocity. To hit the same target, the launcher must account for that motion. Start with a repeatable stationary shot and a trustworthy velocity estimate before adding this compensation.
+
+The [projectile guide](/docs/season-topics/projectile-mathematics) covers launch angle, speed, and flight time. This guide adds horizontal robot motion while assuming the launcher stays at a fixed height on a level chassis.
+
+## Release position
+
+The robot moves between requesting a shot and the ball leaving the launcher. Measure that **release delay** separately from the ball's flight time.
+
+For a short delay $\Delta$ and approximately constant velocity:
+
+$$
+\begin{aligned}
+\mathbf p_{\mathrm{release}} &= \mathbf p_{\mathrm{now}}+\mathbf v\Delta \\
+\psi_{\mathrm{release}} &= \psi_{\mathrm{now}}+\omega\Delta
+\end{aligned}
+$$
+
+Here $\mathbf p$ is robot position, $\mathbf v$ is velocity, $\psi$ is heading, and $\omega$ is angular velocity. Predict the launcher position using that heading and its mounting offset. Faster acceleration or a long feeder delay makes this approximation less reliable; improve the prediction or limit when the robot shoots.
+
+Use **measured field-relative velocity**, not joystick commands. If your localizer reports robot-relative velocity, rotate it into your chosen field axes first. Keep positions in metres and angular velocity in radians per second throughout the calculation.
+
+Camera latency is a separate issue. Match a camera observation to the robot pose at its capture time, or let the localization system do that. Once you have an updated present-time pose, adding the same camera delay again predicts too far ahead.
+
+## Launcher velocity
+
+Turning moves a launcher that sits away from the robot's centre of rotation. Let $(r_x,r_y)$ be the release point's horizontal offset in field coordinates. Its velocity is:
+
+$$
+\begin{aligned}
+u_x &= v_x-\omega r_y \\
+u_y &= v_y+\omega r_x
+\end{aligned}
+$$
+
+Rotate a robot-fixed offset into the field frame at the predicted release heading before using it here. If a turret's muzzle is offset from its own rotation axis, its rotation adds another velocity contribution. A launcher moving vertically on an arm also needs vertical release motion included; the equations below do not include it.
+
+## Aim and speed
+
+Let $\mathbf d$ be the horizontal vector from the predicted release point to a stationary target, $h$ its height difference, and $t$ the chosen flight time. The ball's velocity **relative to the launcher**, $\mathbf q$, must be:
+
+$$
+\begin{aligned}
+q_x &= d_x/t-u_x \\
+q_y &= d_y/t-u_y \\
+q_z &= h/t+gt/2
+\end{aligned}
+$$
+
+Calculate the field-relative yaw from $\operatorname{atan2}(q_y,q_x)$. Calculate pitch from $\operatorname{atan2}(q_z,\sqrt{q_x^2+q_y^2})$ and speed from the length of the three-dimensional velocity vector.
+
+<figure>
+  <a href="/guides/season-topics/moving-shot-vectors.svg" target="_blank" rel="noopener noreferrer" aria-label="Open the moving-shot diagram at full size">
+    <img src="/guides/season-topics/moving-shot-vectors.svg" alt="Top-down velocity triangle. The launcher aims forward and against the robot's sideways velocity, so adding the robot's velocity produces a ball velocity straight toward the target." width="800" height="420" loading="lazy" />
+  </a>
+  <figcaption>Horizontal velocities add. The vertical component must still produce the required height after the chosen flight time. Open the diagram for a larger view.</figcaption>
+</figure>
+
+For example, take a target **2.4 m** ahead and **0.7 m** above release, with a **0.6 s** flight. If the launcher moves sideways at **1 m/s**, the required relative velocity is approximately $(4,-1,4.11)$ m/s. That gives a yaw of **−14.0°**, pitch of **44.9°**, and speed of **5.82 m/s**. The sideways components cancel in the field frame.
+
+The calculation changes both speed and pitch; changing yaw alone does not preserve this shot.
+
+### Java helper
+
+[Download MovingShot.java](/guides/season-topics/MovingShot.java) and place it in your TeamCode source folder. Add your team's package declaration if needed. The file uses Java 8 and has no SDK or library dependencies.
+
+Call it with the target displacement and launcher velocity **at predicted release**:
+
+```java
+Optional<MovingShot> candidate = MovingShot.atFlightTime(
+        2.4, 0.0, 0.7, // target displacement: x, y, height (m)
+        0.0, 1.0,      // launcher velocity: x, y (m/s)
+        0.6);          // flight time (s)
+
+if (candidate.isPresent()) {
+    MovingShot shot = candidate.get();
+    double fieldYaw = shot.yawRadians;
+    double hoodPitch = shot.pitchRadians;
+    double ballSpeed = shot.speedMetersPerSecond;
+    // Convert through your calibrated launcher settings, then check limits.
+}
+```
+
+Import `java.util.Optional` in the calling file. The helper rejects invalid inputs; it does not command hardware or decide whether a shot is safe to feed. Convert field yaw to your turret's frame using the predicted robot heading and calibrated turret zero. Respect its actual travel and cable limits rather than wrapping every result to an unreachable angle.
+
+## Fixed hood
+
+Choosing a flight time freely assumes you can produce the resulting speed **and** pitch. With a fixed hood angle $\theta$, time must also satisfy:
+
+$$
+h+\frac{gt^2}{2}=\lVert\mathbf d-\mathbf u t\rVert\tan(\theta)
+$$
+
+Search for a positive solution within a tested flight-time range, then check speed and clearance. A fixed ball speed adds another constraint: the length of $\mathbf q$ must equal that speed. If the launcher cannot produce a feasible shot while moving, slow down or stop before feeding.
+
+## Calibration table
+
+A table of successful stationary shots is often a better starting point than a drag-free model. Store **RPM, hood setting, and measured flight time together** for each distance, ball type, and target height.
+
+You can use that table to estimate a moving shot:
+
+1. Start with the flight time for the current target distance.
+2. Calculate a virtual target vector: $\mathbf a=\mathbf d-\mathbf u t$.
+3. Look up a complete row at distance $\lVert\mathbf a\rVert$, interpolating its RPM, hood setting, and time together.
+4. Use the new time to repeat the calculation. Set a small iteration limit and stop when the time changes by less than a tolerance justified by your measurements.
+5. Aim along $\mathbf a$ and use the RPM and hood setting from the matching row.
+
+Reject the shot if the lookup leaves the calibrated range or fails to converge. Do not clamp it to the nearest row and feed anyway. Preserve the table's target height and ball type; a different HIVE state needs an appropriate calibration or model.
+
+This method approximates a stationary shot toward a shifted target. Drag depends on the ball's motion through the air, so stationary calibration does not remove the need for moving tests.
+
+## Feeding
+
+Before starting the feeder, check that the pose is recent, the shot lies in the tested range, the turret and hood have settled, and measured flywheel speed has recovered. Account for how long the ball takes to reach release; a solution for the current pose is already late when the feeder has a noticeable delay.
+
+Keep updating the prediction before the feed is committed. Once the ball is committed, coordinate setpoint changes with its actual release instead of changing the aim unpredictably during contact.
+
+In BIOBUZZ, a CELL can move as the HIVE tips. These equations assume a stationary target during flight. Use the current opening position and orientation, and avoid shooting during an unmodelled transition. A tag detection identifies a reference on the structure; it still needs the geometric transform to the scoring opening.
+
+## Testing
+
+Begin at one distance with one ball type. Test a stationary robot, then constant sideways motion in both directions. Add motion toward and away from the target, and test turning only after straight-line motion works.
+
+Record pose timestamps, measured velocity, predicted release position, flight time, requested and measured RPM, and miss direction. A consistent miss on one side can come from a frame or sign error. A miss that grows with speed can come from release delay. Check those before adding an unexplained correction factor.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Eeshwar Krishnan: Shooting on the Fly](https://blog.eeshwark.com/blog/shooting-on-the-fly)
+- [Eeshwar Krishnan: Shooting on the Fly Part 2 — LUT](https://blog.eeshwark.com/blog/shooting-on-the-fly-pt2)
+- [OpenStax: Relative motion](https://openstax.org/books/university-physics-volume-1/pages/4-5-relative-motion-in-one-and-two-dimensions)
+- [OpenStax: Projectile motion](https://openstax.org/books/university-physics-volume-1/pages/4-3-projectile-motion)
+- [WPILib: Coordinate systems](https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html)
+- [FIRST: BIOBUZZ field and game description](https://ftc-resources.firstinspires.org/ftc/game/manual-09)
+
+</footer>

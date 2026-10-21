@@ -1,0 +1,120 @@
+---
+title: Projectile mathematics
+icon: phosphor:Ruler
+description: Estimate launch speed, angle, and flight time, then calibrate a real FTC launcher with measured shots.
+---
+
+Projectile maths gives you a starting point for a launcher: how fast the ball must leave, which angle might work, and how long the shot will take. Real balls also experience drag and spin, so use the model to narrow your experiments, then tune on the robot.
+
+## Measurements
+
+Measure from the point where the ball leaves the launcher to the point its centre should pass through at the target.
+
+| Symbol | Measurement |
+| --- | --- |
+| $d$ | Horizontal distance to the target, in metres |
+| $h$ | Target height minus release height, in metres |
+| $\theta$ | Launch angle above horizontal, in radians |
+| $v$ | Ball speed at release, in metres per second |
+| $t$ | Time since release, in seconds |
+
+The height difference can be negative. The distance is from the **release point**, so a launcher mounted away from the robot's centre needs that offset included.
+
+<figure>
+  <a href="/guides/season-topics/projectile-geometry.svg" target="_blank" rel="noopener noreferrer" aria-label="Open the projectile diagram at full size">
+    <img src="/guides/season-topics/projectile-geometry.svg" alt="A ball follows an arc from a launcher to a higher target. Separate dimension lines show horizontal distance d and height difference h; an arrow at release shows the launch angle." width="800" height="430" loading="lazy" />
+  </a>
+  <figcaption>Use the ball's release point and intended target point. The drawing illustrates the measurements, not a particular field. Open it for a larger view.</figcaption>
+</figure>
+
+For a tilted opening, choose the crossing point and check the whole ball's clearance through the opening. A point on an AprilTag is not automatically the point you want to shoot through.
+
+## Speed and angle
+
+First assume a stationary launcher, constant gravity, and no air resistance. Horizontal speed stays constant, while gravity changes the vertical speed:
+
+$$
+\begin{aligned}
+x(t) &= v\cos(\theta)t \\
+z(t)-z_0 &= v\sin(\theta)t-\frac{1}{2}gt^2
+\end{aligned}
+$$
+
+Here $g$ is approximately $9.81\,\mathrm{m/s^2}$. Setting $x=d$ and $z-z_0=h$ gives the speed needed at a chosen angle:
+
+$$
+v=\sqrt{\frac{gd^2}{2\cos^2(\theta)(d\tan(\theta)-h)}}
+$$
+
+Use a forward launch angle between zero and 90 degrees. The denominator must be positive, and the result must be finite. An invalid result means that angle cannot reach the chosen point under this model; do not turn it into a shot by clamping the denominator.
+
+### Example
+
+Suppose the horizontal distance is **2.4 m**, the target is **0.7 m** above release, and the launch angle is **50°**. These are example measurements, not field dimensions.
+
+The model gives about **5.63 m/s** at release and **0.664 seconds** of flight. The vertical speed at the target is:
+
+$$
+v_{z,\mathrm{target}}=v\sin(\theta)-gt
+$$
+
+This is about **−2.20 m/s**, so the ball is descending. That matters when scoring through an opening from above. Still check the approach angle, surrounding structure, and ball clearance; reaching one coordinate is only part of the shot.
+
+A 45° launch gives the greatest range only for equal launch and landing heights in this ideal model. It is not a general rule for the best scoring angle.
+
+## Flight time
+
+You can also choose a flight time and calculate the required velocity components:
+
+$$
+\begin{aligned}
+v_x &= \frac{d}{t} \\
+v_z &= \frac{h}{t}+\frac{gt}{2}
+\end{aligned}
+$$
+
+Then calculate speed with $v=\sqrt{v_x^2+v_z^2}$ and angle with $\theta=\operatorname{atan2}(v_z,v_x)$. A shorter flight needs more horizontal speed; a longer flight generally needs a higher arc. Check both against what the launcher can produce and what the field allows.
+
+Flight time is also needed for [shooting on the move](/docs/season-topics/shooting-on-the-move). Changing the aim without preserving the vertical path can make a moving shot miss high or low.
+
+## Flywheel speed
+
+A wheel of diameter $D$ metres turning at $N$ RPM has rim speed:
+
+$$
+v_{\mathrm{rim}}=\frac{\pi DN}{60}
+$$
+
+That is the speed of the wheel surface. Ball exit speed also depends on compression, slip, hood contact, and the arrangement of the wheels. Do not convert the calculated ball speed straight into motor RPM and assume the launcher is calibrated.
+
+Check which shaft the encoder measures and include its gear ratio. Keep motor RPM, wheel RPM, and ball speed as separate quantities in the code.
+
+## Calibration
+
+Keep the launcher height and ball type fixed while building a table. For each distance, find a repeatable RPM and hood setting, then record:
+
+| Record | What to note |
+| --- | --- |
+| Distance | Measure from the release point |
+| Wheel RPM | Requested and measured speed |
+| Hood setting | Angle or calibrated position |
+| Flight time | Release to the target plane |
+| Hits and attempts | Count every attempt |
+| Spread | Note the miss direction and variation |
+
+Slow-motion video can help measure flight time. Start when the ball separates from the launcher, not when the feeder starts. The quotient $d/t$ is the **average** horizontal speed over the flight; with drag, it is not the instantaneous exit speed.
+
+Interpolate between tested distances. Outside that range, stop and collect more data rather than silently reusing the nearest setting. Log speed recovery between consecutive shots so a slow second ball does not get mistaken for a distance error.
+
+For BIOBUZZ, calibrate POLLEN and NECTAR separately. Their different sizes can change launcher contact and flight. Repeat the relevant tests when the HIVE's opening changes position or orientation.
+
+<footer className="article-sources">
+
+## Sources
+
+- [OpenStax: Projectile motion](https://openstax.org/books/university-physics-volume-1/pages/4-3-projectile-motion)
+- [Eeshwar Krishnan: Shooting on the Fly](https://blog.eeshwark.com/blog/shooting-on-the-fly)
+- [Eeshwar Krishnan: Shooting on the Fly Part 2 — LUT](https://blog.eeshwark.com/blog/shooting-on-the-fly-pt2)
+- [FIRST: BIOBUZZ field and game description](https://ftc-resources.firstinspires.org/ftc/game/manual-09)
+
+</footer>

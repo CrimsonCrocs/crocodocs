@@ -29,6 +29,8 @@ Route cables away from gears, rollers, wheels, sharp edges, and pinch points. Us
 
 Keep service connectors accessible. A replaceable intake is less useful if its cable must be extracted from every other bundle. Separate power and sensitive signal runs where practical and follow the device guidance for noise suppression.
 
+The [connectors and cables guide](/docs/engineering/electrical/connectors-and-cables) covers wire selection, crimping, and serviceable harnesses in more detail.
+
 ## Current demand [#budget-simultaneous-current]
 
 Individual tests do not reveal the demand of driving, lifting, holding servos, and feeding at the same time. Make a table of plausible simultaneous actions, then measure representative combined use without deliberately holding stalled actuators.
@@ -42,6 +44,8 @@ Select wire size and power distribution from current FIRST requirements and comp
 A reset during repeated high-load motion can indicate voltage sag, a poor connection, or a shared supply overload. A disruption associated with contact or movement on a dry surface can involve **electrostatic discharge (ESD)**. Similar symptoms still require diagnosis rather than a guess.
 
 Check the battery, switch, power connections, controller logs, and the action occurring at failure. Inspect retention and wire damage. Follow FIRST's ESD guidance for supported mitigation. Do not improvise direct frame grounding or treat the event field yourself.
+
+Use [power faults and ESD](/docs/engineering/electrical/power-faults-and-esd) for a diagnostic starting table, shared servo limits, and load measurements.
 
 ## Battery care [#manage-batteries-consistently]
 

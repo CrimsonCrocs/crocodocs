@@ -1,6 +1,16 @@
 # CrocoDocs progress
 
-Last updated: 16 October 2026. Initial handbook release: `1ffb47a` on `main`.
+Last updated: 21 October 2026. Initial handbook release: `1ffb47a` on `main`.
+
+## Season topics and electrical guides
+
+- [x] Research projectile motion and shooting on the move using the two linked Eeshwar Krishnan articles, textbook mechanics, and current BIOBUZZ field information. Separate release delay from camera latency and preserve vertical flight when compensating for motion.
+- [x] Add a Season topics group in Programming with projectile mathematics, calibration, and shooting-on-the-move articles, plus a plain Java 8 math helper. Keep geometry examples illustrative and citations in Sources footers.
+- [x] Expand Engineering's Electrical and wiring group with an overview, connectors and cables, and power faults and ESD. Preserve the existing wiring guide and hardware photo. Check the linked electrical article and GM0 against FIRST wiring/ESD guidance and REV specifications.
+- [x] Generate and inspect two original shooting diagrams; verify equations, worked values, and the Java helper with trajectory checks. Compile the helper as Java 8 and reconstruct its flights in a temporary harness. Add full-size diagram links and simplify the calibration table for phones.
+- [x] Check all six new pages at 1440px and narrow widths, including 320px reflow, representative light/dark views, contained equations and tables, diagram labels, full-size links, and keyboard focus. Verify mobile navigation to Electrical and wiring and keyboard scrolling in the Java example. Finish a Deslop pass; keep technical source-review notes out of the public articles.
+- [x] Run the docs check (112 MDX pages) and production build. Focused Intentional Verify: **ACCEPT**. No new dependencies or test suite. The Java example is a mathematical helper, not a tested robot controller.
+- [ ] Push the scoped update to main and verify the canonical production deployment.
 
 ## Current pass
 

@@ -1,0 +1,73 @@
+---
+title: Connectors and cables
+icon: engineering:Plug
+description: Choose compatible wires and connectors, make sound crimps, and route a harness through moving FTC mechanisms.
+---
+
+A robot harness needs to carry the expected current, survive movement, and come apart for repairs. Plan the route before cutting cables. A slightly longer serviceable run is often more useful than the shortest possible wire.
+
+## Wire size
+
+Use flexible stranded wire suited to the connection. In the AWG system, a lower number means a larger conductor. Check the current robot wiring requirements, expected current and voltage drop, insulation, and the connector terminal's supported wire range.
+
+A minimum legal size is not a promise of low voltage loss on a long run. A larger wire also needs a terminal and crimp tool that can accept it; forcing it into a small contact can leave a weak joint. Use a manufacturer-approved extension when you cannot make a compatible termination.
+
+Keep the original leads and protection arrangements on batteries and controllers unless the manufacturer's instructions and competition rules permit a change. Do not bypass a fuse to accommodate a different cable.
+
+## Connector types
+
+These are common connections on a REV Control Hub:
+
+| Connection | Connector or header | Check before connecting |
+| --- | --- | --- |
+| Battery power | XT30 | Polarity, terminal condition, and retention |
+| Motor power | Two-pin JST-VH | Motor port and secure terminal seating |
+| Encoders and many sensors | Four-pin JST-PH | Exact device pinout, voltage, and signal type |
+| Servos | Three-pin header | Ground, supply, and signal orientation |
+| Hub communication | Three-pin JST-PH RS485 | Correct communication cable and separate power to each hub |
+
+Connector shape does not establish compatibility. A four-pin sensor cable cannot be moved to any four-pin port, and wire colours are not a substitute for the device pinout. Read the labels on the controller and the documentation for the exact device.
+
+An Expansion Hub needs its own power connection as well as the communication link. For USB devices, check the supported port and available power rather than assuming every USB socket can power the same accessory.
+
+## Crimps
+
+Use pre-terminated cables if you do not have the correct contacts and crimp tool. A general-purpose pair of pliers does not reproduce the crimp geometry required by a small connector terminal.
+
+With the robot switched off and the battery disconnected:
+
+1. Match the wire, contact, housing, and tool. Check the terminal's strip-length instructions.
+2. Strip the insulation without cutting strands. Keep the conductor and insulation in their respective crimp sections.
+3. Crimp with the specified tool, then inspect the joint and give the wire a light pull.
+4. Insert the terminal until its retention feature engages. Check that it cannot back out of the housing.
+5. Confirm pin order and polarity, then check continuity with the cable unpowered and disconnected from electronics.
+
+Do not tin a wire before placing it in an ordinary crimp terminal. Solder can creep under pressure and weaken the connection over time. If a connector is designed for soldering, follow its own instructions, insulate the joint, and keep repeated flexing away from the stiff soldered section.
+
+## Moving cables
+
+Anchor the harness to the structure so the connector does not carry cable tension. Leave enough slack for service and full motion, but keep loose loops away from wheels, rollers, chains, and game pieces.
+
+Move the mechanism through its whole range with power disconnected. Check combinations too: a cable may clear a raised lift until the turret turns or the arm folds. Protect runs at sharp edges and use the cable manufacturer's bend guidance where it is specified.
+
+Keep sensitive signal runs away from high-current power runs where practical. Preserve the signal's ground connection and follow the device's routing advice. Separation can help with interference, but it cannot repair an incorrect pinout or a damaged conductor.
+
+## Service access
+
+Label both ends with the device name and controller port. Use the same name in the wiring diagram, robot configuration, and code. Leave connectors, indicator lights, and the main switch accessible.
+
+A removable mechanism should have an accessible disconnect and its own strain relief. Avoid tying its cable so deeply into the main bundle that replacing one motor requires cutting every tie on the robot.
+
+Before powering up, check for exposed strands, reversed pins, loose terminals, damaged insulation, and cables that pull tight. Update the diagram when a port changes; an old label can turn a simple repair into a software debugging session.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Wiring guide](https://gm0.org/en/latest/docs/power-and-electronics/wiring.html)
+- [FIRST: Robot Wiring Guide](https://ftc-docs.firstinspires.org/en/latest/robot_building/wiring_guide/wiring-guide.html)
+- [REV: Cables and connectors](https://docs.revrobotics.com/duo-control/control-system-overview/cables-and-connectors)
+- [REV: Control Hub specifications and ports](https://docs.revrobotics.com/duo-control/control-system-overview/control-hub-basics)
+- [FIRST: Robot construction rules](https://ftc-resources.firstinspires.org/ftc/game/manual-12)
+
+</footer>

@@ -1,0 +1,102 @@
+---
+title: Power faults and ESD
+icon: engineering:Lightning
+description: Diagnose robot resets, voltage sag, shared servo limits, static discharge, and electrical noise.
+---
+
+When a robot resets or an actuator stops, record what was happening before changing parts. Driving into a load, moving several servos, and touching a charged surface can produce different faults with similar symptoms.
+
+## First checks
+
+| Symptom | Start here |
+| --- | --- |
+| A hub reboots during combined motion | Battery condition, power connections, and voltage under load |
+| One actuator stops working | Its cable, port, configuration, and mechanical load |
+| Several servos fail together | Their shared supply and port-pair limits |
+| A reset follows contact or movement on a dry surface | Check power first, then investigate ESD |
+| An analogue reading changes when a motor runs | Sensor supply, ground connection, and cable routing |
+
+Save the logs and note the battery, payload, and action. Repeat only a normal operating movement; do not deliberately stall motors or overload a supply to reproduce a failure.
+
+## Voltage loss
+
+The voltage at the hub can fall as current rises. Some loss occurs inside the battery; more occurs in cables, the switch, and connectors. A poor connection adds resistance to that path.
+
+$$
+\begin{aligned}
+\Delta V &= IR \\
+P_{\mathrm{loss}} &= I^2R
+\end{aligned}
+$$
+
+For example, a **0.03 Ω** power path carrying **20 A** loses **0.6 V** and dissipates **12 W**. These are illustrative values. If much of that resistance sits in one damaged terminal, heat is concentrated there.
+
+A battery's internal resistance changes with condition, temperature, and charge. Compare a suspect pack with a known healthy, charged pack under the same normal robot load.
+
+An unloaded voltage reading is only a starting check. Compare voltage at the battery and hub during the movement that causes trouble. A battery voltage that holds up while hub voltage drops points toward the intervening wiring and connections.
+
+Inspect damaged, loose, or hot connections with power disconnected. Stop using a damaged or abnormally hot battery and have a mentor check it. Software limits cannot make a faulty power connection reliable.
+
+## Servo power
+
+Servo current limits apply to the controller's servo supply, not directly to the battery current. On a Control Hub, ports **0–1, 2–3, and 4–5** each share a **2 A** limit. The total servo supply and auxiliary 5 V ports share a **5 A** limit.
+
+Two loaded servos on one pair can reach its limit while the total remains below 5 A. Check the pair assignments as well as the combined demand. A servo pushing against a hard stop can draw heavily even when it appears stationary.
+
+Power conversion also matters:
+
+$$
+\begin{aligned}
+P_{\mathrm{servo}} &= V_{\mathrm{servo}}I_{\mathrm{servo}} \\
+I_{\mathrm{battery}} &\approx \frac{P_{\mathrm{servo}}}{\eta V_{\mathrm{battery}}}
+\end{aligned}
+$$
+
+Here $\eta$ is conversion efficiency, written as a fraction. Suppose several servos draw **3 A at 5 V**, spread across port pairs within their individual limits. Their output power is **15 W**. With an assumed 90% conversion efficiency and 12 V input, that is about **1.39 A** from the battery for this load alone.
+
+The lower battery-side current does not increase the servo-port limits. Other robot loads still add to battery demand. If using a separate servo power device, check that it is permitted, follow its wiring instructions, and match the voltage to the exact servos.
+
+## Combined loads
+
+Test the actions that happen together: accelerating the drivetrain, raising a loaded slide, holding a gripper, and feeding a shooter. Record voltage and useful current readings during normal use. Use those readings to plan a current budget for the combinations your robot actually uses.
+
+Once the hardware is sound, reduce unnecessary peaks. Avoid commanding a servo beyond its mechanical travel, stagger large accelerations where the task permits, and wait for a flywheel to recover before feeding the next ball. Verify that these changes improve the actual movement without causing a new failure elsewhere.
+
+A fuse rating is not an instantaneous current ceiling. Opening depends on both current and time, as well as the fuse's characteristics. A brief peak and a sustained overload are different. Never bypass a fuse, increase its rating to hide a fault, or use repeated fuse trips as a test method.
+
+## Static discharge
+
+Contact and separation between materials can build static charge. A discharge through the robot may disrupt communication, reset electronics, or damage a component. ESD is worth investigating when failures correlate with contact or surface conditions, but first rule out loose power and data connections.
+
+Use the supported mitigations in the official ESD guidance. An approved **resistive grounding strap** can reduce the voltage difference between the frame and control-system ground while limiting discharge current. Install it exactly as instructed.
+
+This is not an earth connection, and it does not prevent every source of charge. Do not use the frame as the normal power return, replace the strap with a direct negative-to-frame wire, or connect the robot to the field. Do not apply your own treatments to event flooring.
+
+Check exposed electrical contacts, mounting, cable protection, and USB retention. Retest under the conditions associated with the original fault; a successful run on a different surface does not establish that it is fixed.
+
+## Sensor noise
+
+An analogue signal needs a compatible voltage range and a sound ground connection. Check the sensor pinout and output against the controller input before adjusting software.
+
+Log the raw value with the actuator stopped and moving. Inspect the supply and return path, then try a known good cable or sensor while changing one thing at a time. Disconnect power before changing wiring. Moving a signal cable away from a high-current run can help, but it will not fix an intermittent terminal.
+
+Apply filtering only after the electrical cause is understood. A filter can hide a fault and adds delay to the reading used by a control loop. See [sensor integration](/docs/engineering/electrical/sensor-integration) for mounting and validation.
+
+<Callout type="warn" title="Meter connections">
+Measure voltage across the two points of interest. Check resistance or continuity only with power disconnected and the circuit isolated. Never place a meter in current mode across a battery; that creates a short circuit. Use a suitable current clamp or controller measurement for load checks, with a mentor if you are unfamiliar with the equipment.
+</Callout>
+
+<footer className="article-sources">
+
+## Sources
+
+- [Eeshwar Krishnan: Funky Electrical Shenanigans](https://blog.eeshwark.com/blog/electrical-ramblings)
+- [GM0: Wiring guide](https://gm0.org/en/latest/docs/power-and-electronics/wiring.html)
+- [REV: Control Hub electrical limits](https://docs.revrobotics.com/duo-control/control-system-overview/control-hub-basics)
+- [FIRST: Robot Wiring Guide](https://ftc-docs.firstinspires.org/en/latest/robot_building/wiring_guide/wiring-guide.html)
+- [FIRST: Managing electrostatic discharge](https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/managing_esd/managing-esd.html)
+- [REV: Resistive Grounding Strap](https://www.revrobotics.com/rev-31-1269/)
+- [Littelfuse: Blade-fuse time and current characteristics](https://www.littelfuse.com/assetdocs/littelfuse-datasheet-ato?assetguid=bba6ed2a-96e5-4b07-ab5d-0e8d267c0bd1)
+- [FIRST: Robot construction rules](https://ftc-resources.firstinspires.org/ftc/game/manual-12)
+
+</footer>

@@ -1,0 +1,19 @@
+---
+title: Season topics
+icon: phosphor:Crosshair
+description: Apply robot programming and physics to game tasks, starting with projectile motion and shooting while driving.
+---
+
+Some programming problems come from the game itself: where a piece needs to land, how a scoring target moves, or whether the robot can keep driving while it scores. These guides connect those tasks to measurements, maths, and robot code.
+
+## Shooting
+
+Start with a repeatable shot from a stationary robot. Use [projectile mathematics](/docs/season-topics/projectile-mathematics) to estimate a useful launch speed and angle, then replace guesses with measurements from your own launcher.
+
+[Shooting on the move](/docs/season-topics/shooting-on-the-move) adds the robot's velocity, release delay, and launcher position. It includes a small Java helper and a calibration method for teams using a flywheel and adjustable hood.
+
+For BIOBUZZ, calibrate both ball sizes and test the HIVE positions you plan to shoot at. A change in the opening's height or angle can change the shot. Use the [season overview](/docs/season-breakdown) for game context.
+
+## Before you tune
+
+The launcher should feed consistently, reach its requested speed, and recover between shots. [PID control](/docs/control-systems/pid-control) covers feedback; [testing and reliability](/docs/engineering/team/testing-and-reliability) helps you compare changes. Adding more compensation code will not fix a loose hood or inconsistent ball contact.

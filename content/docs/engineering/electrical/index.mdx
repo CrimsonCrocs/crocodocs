@@ -1,0 +1,23 @@
+---
+title: Electrical and wiring
+icon: engineering:Plug
+description: Plan a serviceable robot harness, choose connectors, and diagnose power faults and electrostatic discharge.
+---
+
+A good electrical system lets the robot move freely and makes faults easier to find. Start with a wiring diagram, a secure battery and switch, and cables you can trace without dismantling the robot.
+
+## Wiring
+
+[Wiring and power](/docs/engineering/electrical/wiring-and-power) covers the complete robot: port assignments, connector retention, current demand, and battery checks.
+
+Use [connectors and cables](/docs/engineering/electrical/connectors-and-cables) when making or changing the harness. It covers connector families, crimps, moving cable runs, and labels. A connector that fits physically still needs the correct pinout and voltage.
+
+## Faults
+
+[Power faults and ESD](/docs/engineering/electrical/power-faults-and-esd) covers resets, shared servo power, voltage loss, static discharge, and noisy sensor readings. Work from the symptom and change one thing at a time.
+
+For a sensor that reads correctly but gives the robot the wrong information, continue to [sensor integration](/docs/engineering/electrical/sensor-integration). Mounting, calibration, timestamps, and the meaning of a measurement matter as much as its electrical connection.
+
+## Before driving
+
+Move each mechanism through its full travel with power disconnected. Check that cables cannot enter rollers, stretch a connector, or get trapped between parts. Then test the robot's combined motions with its normal payload. A harness that survives one mechanism at a time may still fail when the lift, intake, and drivetrain run together.

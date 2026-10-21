@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="420" viewBox="0 0 800 420" role="img" aria-labelledby="title desc">
+<title id="title">Horizontal velocity compensation</title><desc id="desc">Top-down velocity triangle. Launcher-relative ball velocity q points forward and against sideways launcher motion u. Adding u produces field-relative ball velocity directly toward the target.</desc>
+<defs><marker id="ink" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#242424"/></marker><marker id="red" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#b42629"/></marker><marker id="muted" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#777"/></marker></defs>
+<rect width="800" height="420" rx="12" fill="#fff"/>
+<g font-family="Arial, sans-serif" fill="#242424">
+<text x="24" y="34" font-size="24">Horizontal velocities</text>
+<text x="24" y="64" font-size="17">Top view · the ball inherits launcher motion</text>
+<line x1="60" y1="106" x2="92" y2="106" stroke="#b42629" stroke-width="3"/><text x="104" y="112" font-size="18">Launcher-relative q</text>
+<line x1="370" y1="106" x2="402" y2="106" stroke="#242424" stroke-width="3"/><text x="414" y="112" font-size="18">Field velocity q + u</text>
+<line x1="150" y1="180" x2="590" y2="180" stroke="#242424" stroke-width="3" marker-end="url(#ink)"/>
+<line x1="150" y1="180" x2="590" y2="300" stroke="#b42629" stroke-width="3" marker-end="url(#red)"/>
+<line x1="590" y1="300" x2="590" y2="190" stroke="#777" stroke-width="3" marker-end="url(#muted)"/>
+<circle cx="150" cy="180" r="6" fill="#242424"/>
+<text x="45" y="175" font-size="18">Release</text>
+<text x="622" y="176" font-size="18">To target</text>
+<text x="622" y="242" font-size="18">Launcher</text><text x="622" y="266" font-size="18">motion u</text>
+<text x="150" y="351" font-size="19">Aim against sideways motion.</text>
+<text x="150" y="378" font-size="19">Choose pitch and speed for the same flight time.</text>
+</g>
+<text x="24" y="403" font-family="Arial, sans-serif" font-size="14" fill="#555">CrocoDocs · Original illustration · Not a field drawing</text>
+</svg>
