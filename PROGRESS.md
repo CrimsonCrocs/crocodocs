@@ -7,7 +7,9 @@ Last updated: 21 October 2026. Initial handbook release: `1ffb47a` on `main`.
 - [x] Read all three pages of the supplied Chinese Remainder Theorem PDF and locate its original publication by dcnemesis. Treat the technique as general Engineering, rather than a season-specific rule or algorithm.
 - [x] Add Multi-turn position under Electrical and wiring, linked from the section overview, Sensor integration, and Turrets. Explain gear selection, repeat range, calibration, circular error, a new numerical example, and startup timing. Credit the original public post and the mathematical reference in Sources; keep the uploaded reference out of public assets.
 - [x] Verify the worked example, matching behavior around both encoder wraps, travel endpoints, and rejection of inconsistent or ambiguous readings. Inspect the article at 1440px, 390px, and 320px with light/dark views: equations and the table fit, and the Turrets link works in both directions. The docs check covers 113 MDX pages and the production build passes. Focused Intentional Verify: **ACCEPT**. Mathematical checks use a temporary script; no hardware test, dependency, or permanent test suite was added.
-- [ ] Publish the scoped update and verify its live route.
+- [x] Publish `d214c46` through the normal Git integration. Production deployment `dpl_5i8eKEcoyuNGt18YEutTVid5pSum` is READY and reports source `git` with the expected SHA. The new guide and all three linking pages return HTTP 200 with the expected content; the live phone view has no page overflow or KaTeX errors. Dev server restored on port 3002.
+
+Git-triggered deployments are appearing normally again, including the earlier `81e3051` and `30dfb69` commits. The earlier release's missing-deployment observation should not be treated as evidence that the integration is still broken.
 
 ## Season topics and electrical guides
 
