@@ -44,6 +44,8 @@ For an encoder-based extension, command several positions across travel and comp
 
 If the encoder measures the motor, check what happens when a belt skips or a hub slips. The motor can turn normally while the mechanism fails to move as expected.
 
+For a mechanism that needs to recover its full turn count after power loss, [multi-turn position](/docs/engineering/electrical/multi-turn-position) covers a two-encoder arrangement using the Chinese Remainder Theorem.
+
 ## Measurement timing
 
 A fast control loop does not make a slow sensor produce fresh readings. Record the sensor's update timing separately from the OpMode loop period. Camera exposure, communication, filtering, and scheduling can all add delay before a measurement affects motor output.

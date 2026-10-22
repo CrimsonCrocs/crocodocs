@@ -1,0 +1,107 @@
+---
+title: Multi-turn position
+icon: engineering:CompassTool
+description: Recover a turret's turn count using two geared absolute encoders and the Chinese Remainder Theorem.
+---
+
+Two absolute encoders, driven through suitable gear ratios, can recover a turret's position across several turns after power loss. The **Chinese Remainder Theorem (CRT)** helps choose those ratios and interpret the readings.
+
+This is a general position-sensing technique. It can help a turret or a geared lift in any season, provided the measured shaft has a known relationship to the mechanism's position.
+
+## Encoder readings
+
+A **single-turn absolute encoder** reports its current angle within one revolution when powered on. It cannot distinguish that angle from the same angle one or two revolutions later. An incremental motor encoder also needs a startup reference, so it cannot replace an absolute encoder in this arrangement.
+
+Drive two absolute encoders from the mechanism using different gear ratios. Each reading wraps back to zero at a different mechanism position. Together, the readings can distinguish positions that either encoder would confuse.
+
+Use sensors whose voltage and signal interface are supported by your FTC controller.
+
+## Gear selection
+
+Let $N$ be the tooth count of the turret gear, and let $a$ and $b$ be the tooth counts of the two encoder gears. These equations assume a simple gear train: each encoder gear follows the turret tooth-for-tooth. An idler changes direction but preserves this relationship; a compound reduction needs its actual ratios included.
+
+The two encoder gears are **coprime** if their greatest common divisor is one. With coprime counts, the pair repeats after this many turret turns:
+
+$$
+R=\frac{ab}{N}
+$$
+
+For counts that share a factor, use $R=\operatorname{lcm}(a,b)/N$ instead. The **least common multiple** is the smallest positive tooth travel that completes a whole number of turns on both encoder gears.
+
+Choose a repeat interval longer than the mechanism's entire allowed travel, with room for measurement error. Positions exactly one repeat interval apart give the same readings, so including both endpoints would make them indistinguishable.
+
+For example, a **100-tooth** turret gear and **19- and 23-tooth** encoder gears repeat every **4.37 turret turns**. That can distinguish a travel interval from zero to four turns. It does not permit the turret's cables to rotate that far; set the actual limits from the [cable arrangement](/docs/engineering/mechanisms/turrets#define-travel-and-cable-behavior).
+
+## Zero and direction
+
+Place the mechanism at a known reference and record both encoder offsets. Correct each reading for its offset and direction, then express it as a fraction of one encoder turn, from zero up to but excluding one.
+
+Two externally meshed gears rotate in opposite directions. Choose the signs so both corrected encoder readings increase when the turret moves in your chosen positive direction. Check this physically before matching positions.
+
+For a corrected angle in degrees, divide by 360 and wrap the result into one turn. This Java method handles negative values too:
+
+```java
+double wrapTurn(double turns) {
+    return turns - Math.floor(turns);
+}
+```
+
+Java's `%` operator can leave a negative remainder, so `turns % 1.0` does not give the same result for negative inputs. Save the calibration offsets and restore them after restarting. Recalibrate if a gear slips, a sensor moves, or the mechanism is reassembled differently.
+
+## Matching positions
+
+Call the corrected encoder fractions $f_1$ and $f_2$. If the first encoder has made $k$ whole turns, a possible turret position is:
+
+$$
+T_k=\frac{a}{N}(k+f_1)
+$$
+
+Here $T_k$ is in turret turns. Enumerate the integer values of $k$ that put $T_k$ inside the allowed travel interval. For each candidate, predict the second encoder's fraction:
+
+$$
+\hat f_2=\operatorname{wrapTurn}\left(\frac{NT_k}{b}\right)
+$$
+
+The correct candidate agrees with the second reading. Measure agreement around the circle: fractions 0.999 and 0.001 are only 0.002 turns apart. A suitable circular error is:
+
+$$
+\begin{aligned}
+\delta &= |\hat f_2-f_2| \\
+e &= \min(\delta,1-\delta)
+\end{aligned}
+$$
+
+Accept a position only when **one candidate** matches within a tolerance established from the sensors and mechanism. If none match, or several do, leave position-dependent motion disabled and use a homing or recovery procedure.
+
+CRT is normally written using integer remainders. Encoder readings also contain the fraction between tooth positions, so retain that precision instead of rounding readings to whole teeth.
+
+## Example
+
+Keep the 100-, 19-, and 23-tooth gears. Suppose the corrected angles are approximately **123.1579°** and **70.4348°**. These give $f_1\approx0.342105$ and $f_2\approx0.195652$.
+
+Some candidates from the first encoder are:
+
+| Whole turns $k$ | Turret turns $T_k$ | Predicted second angle |
+| --- | --- | --- |
+| 11 | 2.155 | 133.0435° |
+| 12 | 2.345 | 70.4348° |
+| 13 | 2.535 | 7.8261° |
+
+The second reading selects **2.345 turret turns**, or **844.2°** from the calibrated zero. Its pointing angle within one turn is **124.2°**. Keep the full position for travel limits; using only the pointing angle would hide two complete turns of cable winding.
+
+## Startup and faults
+
+Restore position using fresh readings taken while the mechanism is stationary. Readings captured at different times during motion can match the wrong turn. If using the pair while moving, account for acquisition timing and reject inconsistent results. A fast OpMode loop does not make both sensors update together.
+
+Backlash, sensor quantization, and mounting error affect the match. Test near each encoder's wrap point, at both travel limits, and from both approach directions. Power-cycle at several known positions and check the recovered full turn count before enabling automatic movement.
+
+The gears must remain engaged while power is off. A slipped gear changes the calibration relationship. If startup movement to a home switch is acceptable, that can be a simpler way to establish position. See [sensor integration](/docs/engineering/electrical/sensor-integration) for calibration and timing, and [Turrets](/docs/engineering/mechanisms/turrets) for mechanical limits.
+
+<footer className="article-sources">
+
+## Sources
+
+- [dcnemesis: Chinese Remainder Theorem for gears and turrets](https://www.chiefdelphi.com/t/how-to-chinese-remainder-theorem-for-gears-turrets/512876)
+- [Ben Lynn, Stanford: The Chinese Remainder Theorem](https://crypto.stanford.edu/pbc/notes/numbertheory/crt.html)
+
+</footer>

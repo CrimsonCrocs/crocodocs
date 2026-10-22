@@ -32,6 +32,8 @@ An incremental encoder needs a known reference after startup. Choose a home sens
 
 Account for the exact transmission ratio and backlash. Motor-shaft feedback can report motion while output slack is being taken up. Output sensing can expose that difference if the task needs it.
 
+Two geared absolute encoders can distinguish several turns after a restart. The [multi-turn position guide](/docs/engineering/electrical/multi-turn-position) explains gear selection, matching the readings, and preserving the turn count for cable limits.
+
 ## Pointing accuracy [#check-pointing-error-where-it-matters]
 
 A small angular error produces a larger lateral error at a distant target. For small angles in radians, lateral error is approximately $e = R\delta\theta$. At an illustrative 1.5 m distance, a 1-degree error is about $1.5(\pi/180) = 0.026$ m, or 26 mm.

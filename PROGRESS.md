@@ -2,6 +2,13 @@
 
 Last updated: 21 October 2026. Initial handbook release: `1ffb47a` on `main`.
 
+## Geared multi-turn position
+
+- [x] Read all three pages of the supplied Chinese Remainder Theorem PDF and locate its original publication by dcnemesis. Treat the technique as general Engineering, rather than a season-specific rule or algorithm.
+- [x] Add Multi-turn position under Electrical and wiring, linked from the section overview, Sensor integration, and Turrets. Explain gear selection, repeat range, calibration, circular error, a new numerical example, and startup timing. Credit the original public post and the mathematical reference in Sources; keep the uploaded reference out of public assets.
+- [x] Verify the worked example, matching behavior around both encoder wraps, travel endpoints, and rejection of inconsistent or ambiguous readings. Inspect the article at 1440px, 390px, and 320px with light/dark views: equations and the table fit, and the Turrets link works in both directions. The docs check covers 113 MDX pages and the production build passes. Focused Intentional Verify: **ACCEPT**. Mathematical checks use a temporary script; no hardware test, dependency, or permanent test suite was added.
+- [ ] Publish the scoped update and verify its live route.
+
 ## Season topics and electrical guides
 
 - [x] Research projectile motion and shooting on the move using the two linked Eeshwar Krishnan articles, textbook mechanics, and current BIOBUZZ field information. Separate release delay from camera latency and preserve vertical flight when compensating for motion.
