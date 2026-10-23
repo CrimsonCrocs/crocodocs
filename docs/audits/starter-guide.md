@@ -66,3 +66,12 @@ Focused Intentional Verify: **ACCEPT** for the implementation below. Normal Git 
 No robot hardware, physical manufacturing, Onshape account operation, real mobile device, screen reader, Firefox, or WebKit run was performed. The CAD procedure was checked against the book and official operation documentation, not represented as a completed Onshape project. Existing reduced-motion rules remain; the new CAD model has no automatic animation. Native OS/browser zoom and reduced-motion emulation were not available through the selected preview controls. The 320 CSS-pixel reflow and keyboard checks provide the relevant layout/input evidence.
 
 The simulator is a separately deployed service. Remote compilation is not instantaneous. Observed WebGL readback performance warnings and the existing redundant allowFullscreen warning do not prevent the tested sequence from completing; no claim of physical motion accuracy or hardware compatibility is made.
+
+
+## Publication
+
+Release `370ebec3a0a556d430d061c1ef0e111e81beea44` was pushed normally to `CrimsonCrocs/crocodocs`, branch `main`. Vercel Git deployment `dpl_8UJ7bns9U1cZ9DC8hDrb7dbdgq5n` reached READY and has `crocodocs.crimsoncrocs.org` assigned, without an alias error. The remote build includes the final text-only edit described above.
+
+Production canary: all twenty new URLs return 200 and the expected single H1; the homepage links to the new section. At 390px, the live CAD example responds to Make holes and has no page overflow or browser error. The first-program page hydrates the genuine Blocks iframe with the correct theme and language. No repeat of the unchanged simulator's full behavior matrix was needed for this documentation-only deployment. The dev server is running on port 3002.
+
+GitHub's push response also reported thirty existing dependency alerts (two critical). No dependency was changed or security audit performed in this content/UI task. Those alerts remain separate maintenance work.
