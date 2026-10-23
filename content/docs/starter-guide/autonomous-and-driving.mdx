@@ -1,0 +1,58 @@
+---
+title: Autonomous and driving
+description: Build a short autonomous routine and practise as a drive team.
+---
+
+**Autonomous** is the part of a match where the robot follows its program without driver input. In **teleop**, students drive with gamepads. Both need practice on the actual robot, with the same setup you plan to use at an event.
+
+## Start with one short routine
+
+Choose a small legal goal, such as moving from a measured starting position to a nearby area. Mark the starting position and robot direction. **Heading** means the direction the robot faces.
+
+A time-based routine powers the motors for a set duration, then stops them. It is easy to begin with, but it does not measure where the robot finishes. Changes in battery charge, floor grip, or load can change the distance.
+
+An **encoder** measures shaft rotation. Code can use encoder readings to estimate wheel travel. An **IMU** can help measure heading. Neither makes a routine accurate automatically: wheel slip, installation, and the code still matter. Learn the short routine before adding a complicated navigation library.
+
+Every action should have a clear end and a safe way to fail. A **timeout** is a maximum time allowed for an action. If a sensor target is never reached, the robot should stop trying instead of driving or lifting forever. The [non-blocking code guide](/docs/getting-started/nonblocking-code) explains how to keep reading controls while timed actions run.
+
+## Test the same setup
+
+Use the same starting marks, code version, game objects, and measured target for a set of trials. A **trial** is one attempt under recorded conditions.
+
+| Trial | Start correct? | Goal reached? | What happened? |
+| --- | --- | --- | --- |
+| 1 | Yes | Yes | Stopped inside the target. |
+| 2 | Yes | No | Turned slightly left. |
+| 3 | No | No | Started with the rear wheel outside its mark. |
+
+These rows are an example of a useful record, not results from a tested robot. Decide what counts as success before running your trials. Keep setup mistakes in the record: they show whether your team can repeat the procedure reliably.
+
+Change one thing at a time and repeat. Save the working program before experimenting. Give the drive team a fallback routine that has actually passed your tests.
+
+## Learn the controls
+
+Make a simple controller map showing what every button and stick does. **Tank controls** use separate inputs for the robot's left and right sides. **Arcade controls** combine a forward input with a turning input. Use whichever your team can practise with consistently.
+
+Start slowly. Practise driving straight, turning in place, stopping at a mark, and collecting an object from several angles. If the robot has mecanum wheels, add sideways movement after the basic controls make sense.
+
+Use a slow mode for precise work if it helps. Keep emergency stopping simple and known to everyone. Practise recovering from a missed collection or a robot facing the wrong way, not only the perfect scoring cycle.
+
+## Work as a drive team
+
+The **drive team** is the group allowed to operate and support the robot at the field. Check the current rules for its size, roles, and identification.
+
+Drivers use the gamepads. A **drive coach** watches the wider field and gives short instructions. A **human player** performs the game's allowed human interaction, such as loading game objects. That person's exact actions depend on the season rules.
+
+Practise communication with a timer and another robot if possible. Agree who calls the time, who watches the partner, and which words mean stop or change task. One clear instruction is more useful than several people talking at once.
+
+Before an event, run a complete practice match with the robot, operators, starting procedure, and battery change. Note what slowed you down between runs as well as during them.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC Docs — programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
+- [FIRST — current game and drive-team rules](https://ftc-resources.firstinspires.org/ftc/game)
+- [GM0 — driving practice](https://gm0.org/en/latest/docs/design-skills/design-strategy.html)
+
+</footer>

@@ -409,3 +409,131 @@
   .docs-sections a[aria-current]::after { background: CanvasText; forced-color-adjust: none; }
   #nd-sidebar a[data-active='true'], #nd-sidebar-mobile a[data-active='true'] { outline: 1px solid Highlight; outline-offset: -1px; }
 }
+
+/* A separate, numbered route through a team's first season. */
+:root {
+  --starter-ink: #765620;
+  --starter-surface: #f7f2e7;
+  --starter-line: #c8b68e;
+  --cad-top: #e8c79c;
+  --cad-side: #b88a55;
+  --cad-end: #c99f6c;
+  --cad-edge: #70512f;
+  --cad-hole: #584a39;
+  --cad-sketch: #eee3cb;
+}
+.dark {
+  --starter-ink: #e1c393;
+  --starter-surface: #24211c;
+  --starter-line: #807052;
+  --cad-top: #c6a16d;
+  --cad-side: #8d6b40;
+  --cad-end: #a17c4a;
+  --cad-edge: #e7d0aa;
+  --cad-hole: #211e19;
+  --cad-sketch: #383025;
+}
+.docs-sections .docs-starter-link { color: var(--starter-ink); padding-inline: 11px; margin-inline-end: 8px; isolation: isolate; }
+.docs-sections .docs-starter-link:is(:hover, [aria-current]) { color: var(--starter-ink); }
+.docs-starter-link::before { content: ''; position: absolute; z-index: -1; inset: 6px 0; background: var(--starter-surface); border-radius: 7px; }
+.docs-sections .docs-starter-link[aria-current]::after { background: var(--starter-ink); }
+.starter-sidebar { padding: 4px 8px 24px; }
+.starter-sidebar :is(ol, li) { margin: 0; padding: 0; list-style: none; }
+.starter-sidebar a { display: flex; align-items: center; gap: 11px; min-height: 38px; padding: 7px 9px; border-radius: 7px; font-size: 12px; line-height: 1.5; color: var(--muted-foreground); }
+.starter-sidebar a:hover { color: var(--foreground); background: var(--secondary); }
+.starter-sidebar a[aria-current] { background: var(--starter-surface); color: var(--starter-ink); font-weight: 600; }
+.starter-sidebar a > span { width: 17px; flex-shrink: 0; font-size: 10px; font-variant-numeric: tabular-nums; }
+.starter-sidebar p { padding-inline: 9px; font-size: 11px; margin-top: 20px; }
+.starter-sidebar .starter-sidebar-home { gap: 9px; color: var(--starter-ink); font-size: 14px; font-weight: 600; }
+.starter-sidebar .starter-sidebar-glossary { margin-top: 20px; }
+.starter-label { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-bottom: 16px; font-size: 12px; }
+.starter-label a { display: inline-flex; align-items: center; gap: 7px; color: var(--starter-ink); font-weight: 600; min-height: 28px; }
+.starter-label > span { color: var(--muted-foreground); }
+.starter-course { margin-block: 28px; }
+.starter-begin { display: flex; align-items: center; gap: 10px; width: fit-content; min-height: 48px; padding: 10px 16px; background: var(--starter-surface); border-radius: 8px; color: var(--starter-ink); font-size: 14px; font-weight: 600; }
+.starter-phase { margin-top: 44px; }
+#nd-page .prose .starter-phase h2 { margin: 0; padding: 0; font-size: 21px; }
+.starter-phase > p { margin: 8px 0 20px; font-size: 14px; line-height: 1.7; color: var(--muted-foreground); }
+.starter-phase ol { margin: 0; padding: 0; list-style: none; }
+.starter-phase li + li { border-top: 1px solid var(--border); }
+.starter-phase li a { display: flex; gap: 16px; align-items: center; padding: 16px 4px; text-decoration: none; }
+.starter-lesson-number { align-self: flex-start; padding-top: 2px; width: 22px; flex-shrink: 0; color: var(--starter-ink); font-size: 12px; font-variant-numeric: tabular-nums; }
+.starter-phase li a > span:nth-child(2) { flex: 1; min-width: 0; }
+.starter-phase strong { display: block; font-size: 15px; font-weight: 600; }
+.starter-phase strong + span { display: block; color: var(--muted-foreground); font-size: 13px; line-height: 1.6; margin-top: 4px; }
+.starter-phase li a > svg { flex-shrink: 0; color: var(--muted-foreground); }
+.starter-phase li a:hover strong, .starter-glossary:hover { color: var(--starter-ink); }
+.starter-glossary { display: inline-flex; gap: 8px; align-items: center; min-height: 44px; margin-top: 28px; font-size: 13px; }
+.home-starter { display: flex; align-items: center; gap: 24px; margin-bottom: 40px; padding: 28px; border-radius: 12px; background: var(--starter-surface); }
+.home-starter > svg { flex-shrink: 0; color: var(--starter-ink); }
+.home-starter > div { flex: 1; }
+.home-starter-label { color: var(--starter-ink); font-size: 12px; font-weight: 600; margin-bottom: 5px; }
+.home-starter h2 { font-size: 25px; }
+.home-starter h2 + p { max-width: 60ch; margin-top: 10px; font-size: 14px; line-height: 1.8; color: var(--muted-foreground); }
+.home-starter > a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; flex-shrink: 0; color: var(--starter-ink); font-size: 13px; font-weight: 600; }
+/* Native controls leave the CAD teaching model usable without dragging. */
+#nd-page .prose .cad-model { margin-block: 28px; padding: 18px; background: var(--starter-surface); border-radius: 12px; }
+.cad-model-heading { display: flex; gap: 16px; align-items: center; justify-content: space-between; font-size: 14px; }
+.cad-model button { min-height: 44px; padding: 8px 11px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+.cad-model-heading button { color: var(--muted-foreground); }
+.cad-model-steps { display: flex; gap: 4px; margin-top: 12px; }
+.cad-model-steps button { flex: 1; border: 1px solid transparent; }
+.cad-model button[aria-pressed='true'] { border: 1px solid var(--starter-line); background: var(--background); color: var(--starter-ink); font-weight: 600; }
+.cad-model button:hover { background: var(--background); }
+.cad-model > svg { display: block; width: 100%; height: auto; overflow: visible; }
+.cad-dimensions { fill: var(--starter-ink); font-size: 16px; font-family: var(--font-open-sans), sans-serif; }
+.cad-dimensions path { fill: none; stroke: var(--starter-ink); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.cad-model-views { display: flex; justify-content: center; gap: 8px; }
+.cad-model-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 20px; }
+.cad-model-controls label { min-width: 0; font-size: 12px; }
+.cad-model-controls label > span { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; }
+.cad-model-controls output { color: var(--starter-ink); font-variant-numeric: tabular-nums; }
+.cad-model-controls input { display: block; width: 100%; min-height: 44px; accent-color: var(--starter-ink); cursor: pointer; }
+.cad-model-controls label:has(input:disabled) { opacity: 0.55; }
+.cad-model-controls input:disabled { cursor: default; }
+#nd-page .prose .cad-model figcaption { margin: 12px 0 0; text-align: left; color: var(--muted-foreground); font-size: 12px; line-height: 1.8; }
+@media (max-width: 1023px) {
+  .home-starter { flex-wrap: wrap; }
+  .home-starter > a { margin-inline-start: 60px; }
+}
+@media (max-width: 767px) {
+  .docs-sections { gap: 16px; }
+  .docs-sections .docs-starter-link { margin-inline-end: 0; padding-inline: 8px; }
+  .starter-sidebar a { min-height: 44px; }
+  .home-starter { padding: 24px; align-items: flex-start; gap: 16px; }
+  .home-starter > svg { width: 28px; height: 28px; }
+  .home-starter > a { margin-inline-start: 44px; }
+  .home-starter h2 { font-size: 23px; }
+}
+@media (max-width: 479px) {
+  .docs-sections { padding-inline: 12px; gap: 12px; justify-content: space-between; }
+  .docs-sections a { font-size: 11px; gap: 5px; white-space: nowrap; }
+  .docs-sections a:not(.docs-starter-link) > svg { display: none; }
+  .docs-sections .docs-starter-link { padding-inline: 7px; }
+  .docs-starter-link > svg { width: 15px; height: 15px; }
+  .starter-phase li a { gap: 12px; }
+  #nd-page .prose .cad-model { padding: 12px; }
+  .cad-model-steps { gap: 0; }
+  .cad-model-steps button { padding-inline: 5px; font-size: 11px; }
+  .cad-model-controls { gap: 16px; }
+  .cad-dimensions { font-size: 28px; }
+  .cad-model-controls { grid-template-columns: 1fr; gap: 8px; }
+}
+@media (forced-colors: active) {
+  .cad-model button[aria-pressed='true'], .docs-starter-link::before { border: 1px solid Highlight; }
+  .cad-model > svg { forced-color-adjust: none; }
+  .starter-sidebar a[aria-current] { outline: 1px solid Highlight; }
+}
+@media (max-width: 359px) {
+  .docs-sections { gap: 8px; }
+  .docs-starter-link > svg { display: none; }
+}
+
+#nd-page .prose .starter-definitions { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(0, 3fr); margin-block: 24px; }
+#nd-page .prose .starter-definitions dt, #nd-page .prose .starter-definitions dd { margin: 0; padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.8; }
+#nd-page .prose .starter-definitions dt { padding-inline-end: 20px; font-weight: 600; }
+@media (max-width: 639px) {
+  #nd-page .prose .starter-definitions { display: block; }
+  #nd-page .prose .starter-definitions dt { border: 0; padding: 18px 0 4px; }
+  #nd-page .prose .starter-definitions dd { padding: 0 0 18px; }
+}

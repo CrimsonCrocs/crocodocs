@@ -1,0 +1,32 @@
+{
+  "title": "Starter Guide",
+  "description": "Your first FTC season, from starting a team to competition",
+  "icon": "phosphor:CompassTool",
+  "root": true,
+  "pages": [
+    "index",
+    "---Start your team---",
+    "first-and-ftc",
+    "starting-a-team",
+    "people-and-meetings",
+    "budget-and-equipment",
+    "safety",
+    "---Build your first robot---",
+    "game-and-strategy",
+    "robot-parts",
+    "first-build",
+    "wiring",
+    "first-program",
+    "autonomous-and-driving",
+    "---Design your own parts---",
+    "cad-first-part",
+    "cad-assemblies",
+    "making-parts",
+    "---Prepare for competition---",
+    "notebook-and-portfolio",
+    "outreach-and-funding",
+    "first-event",
+    "season-plan",
+    "glossary"
+  ]
+}

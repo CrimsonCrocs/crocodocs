@@ -1,6 +1,14 @@
 # CrocoDocs progress
 
-Last updated: 21 October 2026. Initial handbook release: `1ffb47a` on `main`.
+Last updated: 23 October 2026. Initial handbook release: `1ffb47a` on `main`.
+
+## New-team Starter Guide
+
+- [x] Plan a complete first-season route for high-school students, separate from Programming, Engineering, and Portfolio. Read the supplied Alan G. Smith Onshape book and current FIRST resources; keep regional registration details distinct from general guidance.
+- [x] Add a distinct Starter Guide landing page, numbered navigation, homepage entry, plain-English lessons, and a glossary. Cover team setup, costs, safety, strategy, hardware, wiring, programming, CAD, manufacturing, records, outreach, judging, and events.
+- [x] Use CCC for custom models and interactive elements. Adapt an inspected direct-manipulation teaching pattern for an original mounting-plate model; reuse the working Blocks playground with the documentation theme. Do not copy or redistribute the book's artwork or PDF.
+- [x] Check the new content, links, CAD geometry, interactive behavior, and desktop/mobile reading experience. All 133 MDX pages pass the docs check; the production build passes. The 20 new routes, 30 internal destinations, and 37 external source URLs resolve. Focused Intentional Verify: **ACCEPT**; evidence and limits are in `docs/audits/starter-guide.md`.
+- [ ] Publish the scoped Starter Guide release through the existing Git integration and verify the canonical production site.
 
 ## Geared multi-turn position
 

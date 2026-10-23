@@ -10,6 +10,7 @@ export default function Footer() {
           <p className="mt-2 text-xs text-muted-foreground">&copy; {new Date().getFullYear()} CrocoDocs</p>
         </div>
         <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 text-sm">
+          <Link href="/docs/starter-guide" className="inline-flex min-h-11 items-center hover:text-primary">Starter Guide</Link>
           <Link href="/docs/engineering" className="inline-flex min-h-11 items-center hover:text-primary">Engineering</Link>
           <Link href="/docs" className="inline-flex min-h-11 items-center hover:text-primary">Programming</Link>
           <Link href="/docs/portfolio" className="inline-flex min-h-11 items-center hover:text-primary">Portfolio</Link>

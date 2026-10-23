@@ -3,17 +3,19 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { BracketsCurly, GearSix, List, Notebook, X } from '@phosphor-icons/react';
+import { BracketsCurly, CompassTool, GearSix, List, Notebook, X } from '@phosphor-icons/react';
 import { useSidebar } from 'fumadocs-ui/contexts/sidebar';
 import { Navbar } from 'fumadocs-ui/layouts/docs';
 import { Sidebar, SidebarFooter, SidebarHeader, SidebarPageTree, SidebarViewport } from 'fumadocs-ui/components/layout/sidebar';
 import { SearchTrigger, ThemeSwitch } from '@/components/header-controls';
 import { Wordmark } from '@/components/wordmark';
+import { starterBase, starterLessons, starterPhases } from '@/lib/starter-guide';
 
 export function DocsHeader() {
   const pathname = usePathname();
   const engineering = pathname.startsWith('/docs/engineering');
   const portfolio = pathname.startsWith('/docs/portfolio');
+  const starter = pathname.startsWith(starterBase);
   const { open, setOpen } = useSidebar();
 
   return (
@@ -29,7 +31,8 @@ export function DocsHeader() {
         </div>
       </div>
       <nav className="docs-sections" aria-label="Documentation sections">
-        <Link href="/docs" aria-current={!engineering && !portfolio ? 'location' : undefined} onClick={() => setOpen(false)}><BracketsCurly weight="duotone" size={20} aria-hidden="true" />Programming</Link>
+        <Link href={starterBase} className="docs-starter-link" aria-current={starter ? 'location' : undefined} onClick={() => setOpen(false)}><CompassTool weight="duotone" size={20} aria-hidden="true" />Starter Guide</Link>
+        <Link href="/docs" aria-current={!starter && !engineering && !portfolio ? 'location' : undefined} onClick={() => setOpen(false)}><BracketsCurly weight="duotone" size={20} aria-hidden="true" />Programming</Link>
         <Link href="/docs/engineering" aria-current={engineering ? 'location' : undefined} onClick={() => setOpen(false)}><GearSix weight="duotone" size={20} aria-hidden="true" />Engineering</Link>
         <Link href="/docs/portfolio" aria-current={portfolio ? 'location' : undefined} onClick={() => setOpen(false)}><Notebook weight="duotone" size={20} aria-hidden="true" />Portfolio</Link>
       </nav>
@@ -39,6 +42,8 @@ export function DocsHeader() {
 
 export function DocsSidebar() {
   const { open, setOpen } = useSidebar();
+  const pathname = usePathname();
+  const starter = pathname.startsWith(starterBase);
   useEffect(() => {
     if (!open) return;
     const background = document.querySelectorAll<HTMLElement>('#nd-subnav, .docs-article, #nd-toc, #nd-tocnav');
@@ -74,13 +79,20 @@ export function DocsSidebar() {
   return (
     <Sidebar collapsible={false} className="docs-sidebar" aria-label="Article navigation" role={open ? 'dialog' : undefined} aria-modal={open || undefined}>
       <SidebarHeader className="docs-mobile-sidebar-header">
-        <span className="font-semibold">Documentation</span>
+        <span className="font-semibold">{starter ? 'Starter Guide' : 'Documentation'}</span>
         <button id="docs-menu-close" type="button" aria-label="Close navigation" onClick={() => {
           setOpen(false);
           document.getElementById('docs-menu-trigger')?.focus();
         }}><X size={20} aria-hidden="true" /></button>
       </SidebarHeader>
-      <SidebarViewport><SidebarPageTree /></SidebarViewport>
+      <SidebarViewport>{starter ? <nav className="starter-sidebar" aria-label="Starter Guide lessons">
+        <Link className="starter-sidebar-home" href={starterBase} aria-current={pathname === starterBase ? 'page' : undefined} onClick={() => setOpen(false)}><CompassTool size={20} weight="duotone" aria-hidden="true" />Starter Guide</Link>
+        {starterPhases.map(phase => <div key={phase.title}>
+          <p>{phase.title}</p>
+          <ol>{phase.lessons.map(lesson => <li key={lesson.slug}><Link href={`${starterBase}/${lesson.slug}`} aria-current={pathname === `${starterBase}/${lesson.slug}` ? 'page' : undefined} onClick={() => setOpen(false)}><span aria-hidden="true">{String(starterLessons.indexOf(lesson) + 1).padStart(2, '0')}</span>{lesson.title}</Link></li>)}</ol>
+        </div>)}
+        <Link className="starter-sidebar-glossary" href={`${starterBase}/glossary`} aria-current={pathname.endsWith('/glossary') ? 'page' : undefined} onClick={() => setOpen(false)}>Glossary</Link>
+      </nav> : <SidebarPageTree />}</SidebarViewport>
       <SidebarFooter className="docs-mobile-sidebar-footer"><span>Appearance</span><ThemeSwitch /></SidebarFooter>
     </Sidebar>
   );

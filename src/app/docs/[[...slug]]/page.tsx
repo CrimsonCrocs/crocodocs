@@ -16,6 +16,8 @@ import { Card, Cards } from "fumadocs-ui/components/card";
 import { SeeMain } from "@/components/see-main";
 import { Icon } from "@/components/icon";
 import { siteDescription, socialMetadata } from "@/lib/social-metadata";
+import { StarterLabel } from "@/components/starter-guide";
+import { starterPhases } from "@/lib/starter-guide";
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
@@ -25,9 +27,14 @@ export default async function Page(props: {
   if (!page) notFound();
 
   const MDXContent = page.data.body;
+  const starter = params.slug?.[0] === 'starter-guide';
+  const toc = starter && params.slug?.length === 1
+    ? [...starterPhases.map(phase => ({ title: phase.title, url: `#${phase.title.toLowerCase().replaceAll(' ', '-')}`, depth: 2 })), ...page.data.toc]
+    : page.data.toc;
 
   return (
-    <DocsPage key={page.url} toc={page.data.toc} full={page.data.full} article={{ id: 'main-content', tabIndex: -1, className: 'docs-article' }}>
+    <DocsPage key={page.url} toc={toc} full={page.data.full} article={{ id: 'main-content', tabIndex: -1, className: cn('docs-article', starter && 'starter-article') }}>
+      {starter && <StarterLabel slug={params.slug?.[1]} />}
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>

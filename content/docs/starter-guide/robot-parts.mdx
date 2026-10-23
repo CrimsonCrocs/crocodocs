@@ -1,0 +1,58 @@
+---
+title: Robot parts
+description: Learn what the main mechanical and electrical parts do.
+---
+
+An FTC robot combines a structure, moving parts, electronics, and code. Learning the names makes it easier to follow kit instructions and ask for help.
+
+## The structure and drive base
+
+The **chassis** is the robot's main frame. It holds parts in place and carries loads. A **drive base**, or **drivetrain**, is the arrangement of motors, wheels, and supporting parts that moves the robot across the floor.
+
+**Tank drive** uses wheels on the left and right sides. Running the sides at different speeds turns the robot. **Mecanum wheels** have angled rollers; with the right layout and code, four of them let the robot move sideways as well as forward and backward. That sideways movement is called **strafing**.
+
+Tank drive is a useful place to learn. Mecanum can give drivers more movement options, but wheel placement, weight distribution, and code must be correct. Start with a documented kit layout your team can support.
+
+A **fastener** joins parts together. Common examples are screws, nuts, and washers. A **standoff** is a spacer that holds two parts apart. Tighten parts securely without crushing plastic or damaging threads, the spiral ridges that let a screw engage with a nut.
+
+## Motors and servos
+
+A **motor** turns electrical energy into rotation. FTC drive motors usually have a **gearbox**, which uses gears to reduce speed and increase turning force at the output. That turning force is called **torque**.
+
+**RPM** means revolutions per minute: how many full turns a shaft makes in one minute. A faster motor is not automatically better. A heavy lift may need more torque and a slower output. The [motor and gear guide](/docs/engineering/mechanical/motors-and-gearing) explains this in more detail.
+
+A **servo** is a different kind of actuator. An **actuator** is a device that makes something move. A positional servo moves its output toward a commanded position; it is useful for a small latch or claw. A continuous-rotation servo is commanded by speed and direction instead, so check the model and operating mode you actually have.
+
+<figure className="hardware-photo">
+  <a href="/guides/engineering/hardware/rev-smart-servo-v2.jpg" target="_blank" rel="noreferrer"><img src="/guides/engineering/hardware/rev-smart-servo-v2.jpg" alt="REV Smart Robot Servo V2 with its output shaft and three-wire lead" width="1000" height="1000" /></a>
+  <figcaption>A REV servo. The three-wire lead carries power, ground, and a control signal. Check the instructions for its operating mode.</figcaption>
+</figure>
+
+## Gears, belts, and bearings
+
+**Gears** are toothed wheels that pass rotation between shafts. A **belt** passes motion between pulleys. **Chain** passes motion between toothed sprockets. These let you put a motor away from the part it drives, change speed and torque, or drive several parts together.
+
+A **bearing** supports a shaft while letting it rotate. A shaft with poor support can bend or bind. **Binding** means unwanted friction or misalignment prevents free movement.
+
+A **mechanism** is a set of parts arranged to perform a task. An intake collects objects. A lift raises something. A claw holds an object. Learn one mechanism at a time and test it with the real object.
+
+## Controllers and sensors
+
+The **Robot Controller** runs your robot program. A REV **Control Hub** combines that computer with ports for motors, servos, and sensors. An optional **Expansion Hub** adds more device connections; it does not replace the computer running the program.
+
+The **Driver Station** is the device students use to select a program, start and stop it, and send gamepad input. A REV Driver Hub is one type of Driver Station device.
+
+A **sensor** measures something. An **encoder** measures rotation, a distance sensor measures distance, and an **IMU** measures motion and orientation. IMU stands for *inertial measurement unit*. Sensors give your code information, but the code must decide what to do with it.
+
+Point out these parts on your kit robot. If you cannot find one, check whether your kit actually includes it before assuming something is missing.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC Docs — robot components](https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html)
+- [REV Robotics — Control Hub](https://docs.revrobotics.com/duo-control/control-hub-gs)
+- [REV Robotics — Smart Robot Servo](https://docs.revrobotics.com/rev-crossover-products/servo/smart-robot-servo-v2)
+- [GM0 — drivetrain guide](https://gm0.org/en/latest/docs/common-mechanisms/drivetrains/index.html)
+
+</footer>

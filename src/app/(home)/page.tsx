@@ -1,5 +1,5 @@
 import Footer from '@/components/footer';
-import { ArrowRight, BracketsCurly, GearSix, GithubLogo, Notebook } from '@phosphor-icons/react/ssr';
+import { ArrowRight, BracketsCurly, CompassTool, GearSix, GithubLogo, Notebook } from '@phosphor-icons/react/ssr';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -20,7 +20,7 @@ export default function HomePage() {
               experienced teams.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/docs" className="brand-button">
+              <Link href="/docs/starter-guide" className="brand-button">
                 Get started <ArrowRight size={18} aria-hidden="true" />
               </Link>
               <a href="https://github.com/CrimsonCrocs/crocodocs" className="inline-flex size-11 items-center justify-center self-center rounded-full text-muted-foreground transition-colors hover:text-foreground" target="_blank" rel="noreferrer" aria-label="View CrocoDocs on GitHub">
@@ -40,7 +40,12 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="grid gap-6 pb-16 md:grid-cols-2 md:pb-24 lg:grid-cols-3" aria-label="Documentation sections">
+        <section className="home-starter" aria-labelledby="starter-home-title">
+          <CompassTool size={36} weight="duotone" aria-hidden="true" />
+          <div><p className="home-starter-label">New to FTC?</p><h2 id="starter-home-title">Start your first season.</h2><p>From forming a team to your first competition. Learn the tools, build a robot, and try CAD in Onshape, one lesson at a time.</p></div>
+          <Link href="/docs/starter-guide">Open the Starter Guide <ArrowRight size={18} aria-hidden="true" /></Link>
+        </section>
+        <section className="grid gap-6 pb-16 md:grid-cols-2 md:pb-24 lg:grid-cols-3" aria-label="Handbook sections">
           <div className="home-guide">
             <GearSix size={36} weight="duotone" className="text-primary" aria-hidden="true" />
             <h2 className="text-3xl">Engineering</h2>

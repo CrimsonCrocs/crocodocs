@@ -1,0 +1,64 @@
+---
+title: Making parts
+description: Measure the real hardware, choose a manufacturing method, and check the result.
+---
+
+**Manufacturing** means making a physical part from a design. Before making one, check how it will attach to the robot, what loads it carries, and whether the team can produce it safely with its available tools.
+
+## Measure what matters
+
+Use the vendor drawing for a purchased part's exact dimensions. Check important dimensions on the real part too, especially if a custom part must fit around it. A **drawing** is a dimensioned technical view; a picture without a scale is not a reliable measurement source.
+
+A ruler is useful for general sizes. **Calipers** measure outside sizes, inside gaps, and depths more precisely. Ask someone to show you how to zero them, hold them square, and avoid squeezing a soft part. A digital display with many digits does not mean the measurement is equally accurate.
+
+Write down the units. A CAD model in inches exported or imported as millimetres can be the wrong size by a factor of 25.4.
+
+## Leave room for a fit
+
+Real parts vary slightly. **Tolerance** is the allowed variation in a dimension. **Clearance** is the intended gap between parts. A shaft and a hole modelled at exactly the same diameter may not fit in reality.
+
+For a screw passing freely through a plate, the hole normally needs appropriate clearance. A threaded hole, where the screw engages the material, is a different design. Check the screw specification and manufacturing method rather than choosing an arbitrary hole size.
+
+A small test piece can save a large print. Make a **test coupon**, a simple sample with several hole sizes or gaps, and check it using the actual hardware. Label the result and keep the printer settings with it.
+
+## Choose a method
+
+| Method | Useful for | What to check |
+| --- | --- | --- |
+| Hand fabrication | Simple plates, spacers, and trimmed kit parts. | Safe clamping, accurate marking, sharp edges, and tool training. |
+| 3D printing | Complex shapes, guides, and custom mounts. | Material, layer direction, heat, print time, and real load. |
+| Laser cutting | Flat profiles in suitable sheet material. | Machine-approved material, cut width, thickness, and supervision. |
+| CNC machining | Accurate parts cut by a computer-controlled machine. | Access, tooling, cost, setup, and operator training. |
+
+**CNC** means computer numerical control. It describes a machine controlled by programmed instructions. Beginners do not need to operate one to participate in FTC. Ordering a safe, correctly specified part or using a kit bracket is often the better choice.
+
+## Export the right file
+
+**Export** means saving a copy in a format another tool can read. Keep the original Onshape document; an export does not replace its editable features and history.
+
+- **STEP** describes solid geometry and is useful when sharing a part with other CAD systems or manufacturers.
+- **STL** describes the surface as triangles and is commonly used for 3D printing. It does not store a reliable unit label, so choose millimetres when exporting and confirm the size when importing.
+- **DXF** can describe a flat outline for a cutting workflow. Confirm the supplier's required format, scale, and drawing conventions.
+
+For the practice plate, right-click the part and choose **Export**. If printing, select STL and millimetres. Use a descriptive filename, such as `practice-plate-60x40x3-v1.stl`.
+
+A **slicer** turns a 3D model into instructions for a 3D printer. Open the STL in the correct printer's slicer and confirm its overall size is 60 × 40 × 3 mm. Have a trained person choose the material and settings and review the preview before printing.
+
+## Check the finished part
+
+After the part is safe to handle, measure it and compare it with the drawing. Check the screw fit, the mounting surface, and whether it collides with anything through the mechanism's full travel.
+
+Printed parts are often weaker across their layers than along them. A part that survives a hand test may still fail under a robot's repeated load or an impact. Test gradually in a safe setup, record the failure, and revise the design where needed.
+
+Label the part version and update the CAD file if you drill, trim, or change it. Otherwise, the next person may manufacture the old problem again. The [Manufacturing guides](/docs/engineering/manufacturing/3d-printing) goes further into printing, fabrication, and material choices.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Alan G. Smith — Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+- [Onshape Help — exporting files](https://cad.onshape.com/help/Content/File/exporting_files.htm)
+- [GM0 — 3D printing](https://gm0.org/en/latest/docs/custom-manufacturing/3d-printing.html)
+- [FIRST — safety resources](https://www.firstinspires.org/resources/library/safety)
+
+</footer>

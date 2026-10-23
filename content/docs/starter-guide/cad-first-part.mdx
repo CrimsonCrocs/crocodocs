@@ -1,0 +1,88 @@
+---
+title: Your first CAD part
+description: Make a mounting plate in Onshape using a sketch, dimensions, an extrusion, and two holes.
+---
+
+**CAD**, or *computer-aided design*, is software for making accurate drawings and 3D models. **3D** means three-dimensional: the model has length, width, and height. You can check whether a part fits before spending time and material making it.
+
+This exercise makes a simple rectangular mounting plate. It is a practice part, not a finished mount for a particular motor or robot kit.
+
+## See how the part is made
+
+Choose **Add thickness**, then **Make holes**. Change the thickness or hole diameter and compare the result. **Diameter** is the distance across a circle through its centre. Notice that making a hole wider does not move its centre.
+
+<CADPartModel />
+
+The model shows the same operations you will use in Onshape. It is a teaching diagram; build the actual CAD file by following the steps below.
+
+## Open Onshape
+
+**Onshape** is CAD software that runs in a browser. It offers education access for eligible students and educators. Ask a coach or teacher to help choose the correct account and team setup. Use your own account and share the document with teammates instead of sharing a password.
+
+A **document** holds a design's tabs and history. A **Part Studio** is the tab where you create parts. An **assembly** is a different tab where you position parts together and describe how they connect.
+
+Create a document called `Practice mounting plate`. Open its Part Studio. In the document's workspace units, choose millimetres (**mm**). A millimetre is one thousandth of a metre. Keep millimetres for every measurement in this exercise.
+
+Use a mouse if one is available. Onshape's view controls let you turn, pan, and zoom the model. **Pan** means move your view across the design without changing the model itself. The view cube lets you return to a named view, such as Top, when you get lost.
+
+## 1. Sketch the rectangle
+
+A **sketch** is a flat drawing used to make a part. A **plane** is a flat reference surface. Select the **Top plane** and start a sketch. Turn the view so you are looking straight at it.
+
+Choose a **corner rectangle**. Place its first corner on the **origin**, the fixed point where the reference axes meet. Make a rough rectangle extending to the right and upward. Its drawn size does not need to be exact yet.
+
+Use **Dimension** to set the horizontal side to **60 mm** and the vertical side to **40 mm**. A **dimension** is a measurement that controls the drawing. Do not try to get the final size by dragging with the mouse.
+
+A **constraint** is a relationship, such as keeping a line horizontal or joining two points. The rectangle tool supplies several constraints. Anchoring its corner to the origin and setting its width and height should leave it fully defined: it can no longer slide or change shape freely. Onshape normally shows fully defined sketch geometry in black. If a line is still free to move, check which position or dimension is missing.
+
+Do not fix a sketch by adding measurements at random. Too many conflicting constraints cause an **overconstrained** sketch. Undo the conflicting change and find the relationship you actually need.
+
+Accept the sketch and name it `Plate outline`.
+
+## 2. Add thickness
+
+**Extrude** takes a flat sketch region and extends it into a solid. Select the rectangle's enclosed region, choose **Extrude**, and use **Solid → New** with a depth of **3 mm**. Accept the operation.
+
+You should now have one solid plate. Rotate the view to see its thickness. Rename the part `Mounting plate`.
+
+Onshape stores the operations in a **feature list**. A **feature** is an operation such as a sketch, extrusion, or cut. You can edit the extrusion later to change the thickness without drawing the plate again. That is **parametric modelling**: measurements and relationships control the shape.
+
+## 3. Place two circles
+
+Select the plate's top face and start a new sketch. A **face** is one surface of a solid part. Look straight at this face.
+
+Draw two circles near the centre line of the plate. Set both diameters to **4.5 mm**. Then dimension their centre positions:
+
+| Circle | Horizontal position | Vertical position |
+| --- | --- | --- |
+| Left | 10 mm from the left edge | 20 mm from the bottom edge |
+| Right | 10 mm from the right edge | 20 mm from the bottom edge |
+
+Select a circle's centre and an edge to create the position dimension. If the tool offers a different measurement, check your selections before accepting it. The centres should be **40 mm apart**, because `60 − 10 − 10 = 40`.
+
+Accept the sketch and name it `Hole positions`.
+
+## 4. Cut the holes
+
+Choose **Extrude** again, select the two circular regions, and choose **Remove**. Set the end condition to **Through all**, pointing into the plate. **Remove** cuts material instead of adding it; **Through all** cuts through the full thickness even if you change that thickness later.
+
+Check the preview before accepting. You should see two holes through one plate, not two new cylinders standing on top. Rotate the view and look from underneath to check that neither hole stops inside the plate.
+
+## 5. Edit and check
+
+Edit the thickness from 3 mm to 5 mm. The holes should still go through. Restore 3 mm, then change both hole diameters to 5 mm. Their centres should stay in place. Restore 4.5 mm when you finish.
+
+Use the measurement tool to confirm 60 × 40 × 3 mm, two 4.5 mm holes, and 40 mm between their centres. Create a named **version**, a fixed snapshot of the design, called `Practice plate complete`. Onshape saves changes automatically, but a named version makes a specific design easy to find again.
+
+A hole that looks right in CAD may print too small or fit the wrong screw. The [making parts lesson](./making-parts) explains exporting and checking a physical part. Keep the editable document so you can insert the plate into a practice assembly.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Alan G. Smith — Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+- [Onshape — education resources for FIRST teams](https://www.onshape.com/en/education/first-robotics)
+- [Onshape Help — dimensions](https://cad.onshape.com/help/Content/Sketch/dimension.htm)
+- [Onshape Help — extrude](https://cad.onshape.com/help/Content/PartStudio/extrude.htm)
+
+</footer>

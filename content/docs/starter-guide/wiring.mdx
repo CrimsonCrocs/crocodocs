@@ -1,0 +1,73 @@
+---
+title: Wiring your robot
+description: Learn the power path, connect each device correctly, and label the connections.
+---
+
+**Wiring** connects the robot's power, motors, and sensors. Good wiring stays secure while the robot moves and is easy to check when something goes wrong. Turn off and disconnect robot power before changing connections.
+
+## Follow the power path
+
+The battery supplies electrical energy. The main power switch lets you disconnect the robot's power. The Control Hub distributes power to connected devices and runs the robot program.
+
+The basic power path is:
+
+**Approved robot battery → main power switch → Control Hub**
+
+If you add an Expansion Hub, use the approved power and communication connections described in the hub instructions. Do not invent a different battery connection or bypass the required switch and protection.
+
+**Voltage**, measured in volts (**V**), is the electrical difference that drives current. **Current**, measured in amperes or amps (**A**), is the flow of electric charge. A connector that fits physically is not proof that the voltage or wiring is correct.
+
+## Know the ports
+
+A **port** is a connection point on a device. Use the label on the hub and the instructions for the part.
+
+| Connection | What it does |
+| --- | --- |
+| Motor power | Supplies power to a drive motor or mechanism motor. |
+| Encoder | Returns a motor's rotation measurements through a separate connection. |
+| Servo | Carries power, ground, and a control signal on three wires. |
+| Sensor | Connects a compatible sensor through the correct kind of port. |
+| Hub communication | Lets a Control Hub communicate with an Expansion Hub. |
+
+**Ground** is the circuit's shared electrical reference. **Polarity** means which connection is positive and which is negative. A servo plug can be inserted the wrong way on some headers; check the hub and servo markings before powering up.
+
+Do not guess from wire colour alone. Adapted cables and different manufacturers can use different colours or pin arrangements. A **pinout** is the diagram showing what each contact does. Ask a mentor to check any adapter you are unsure about.
+
+## Connect one system at a time
+
+Secure the hubs and battery first. Connect the required power path, inspect it with a mentor, and verify that the controller starts correctly. Then add devices a few at a time, with power disconnected between changes.
+
+Give each motor a clear name, such as `leftDrive` or `intake`. Label both ends of its cable. Record the device name, hub, and port number in a wiring table. This table is what the programmers use to configure the robot.
+
+**Configuration** means telling the Robot Controller which device is connected to each port and what it is called. A name in the code must match the configured name exactly, including capital letters.
+
+## Protect the cables
+
+Use **strain relief**, a way of securing a cable so a tug is not carried by its connector. Leave enough slack for moving parts, but keep loops away from wheels, gears, and sharp edges. Check the robot at every position of a lift or arm.
+
+Secure cables without crushing them. Do not pull a plug out by its wires. Give the battery connector and main switch enough access for quick, safe use.
+
+## Find a fault
+
+A **fault** is something that prevents the system from working correctly. Start with what you can observe:
+
+1. Does the hub power on?
+2. Does the Driver Station connect?
+3. Is the correct configuration active?
+4. Does the code name match the device and port?
+5. Is the mechanism physically free to move?
+
+Stop if a motor stalls, a wire becomes hot, or a connector looks damaged. **Stalling** means a powered motor cannot turn; it can draw high current and overheat. A supervising adult should investigate electrical measurements or repairs.
+
+The [Electrical and wiring handbook](/docs/engineering/electrical) covers connectors, power faults, and static electricity in more detail.
+
+<footer className="article-sources">
+
+## Sources
+
+- [REV Robotics — Control Hub getting started](https://docs.revrobotics.com/duo-control/control-hub-gs)
+- [FTC Docs — configuring hardware](https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html)
+- [GM0 — wiring](https://gm0.org/en/latest/docs/power-and-electronics/wiring.html)
+- [FIRST — current robot construction rules](https://ftc-resources.firstinspires.org/ftc/game)
+
+</footer>

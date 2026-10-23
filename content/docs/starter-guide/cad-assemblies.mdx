@@ -1,0 +1,65 @@
+---
+title: CAD assemblies
+description: Position parts, control their movement, and plan space for the whole robot.
+---
+
+A CAD **assembly** places parts together so you can check how a mechanism or robot fits. It can show that a motor collides with a bracket before either is bolted to the robot.
+
+## Parts and assemblies
+
+In Onshape, use a **Part Studio** to make parts and an **Assembly** tab to connect them. You can insert several copies of a part into an assembly without drawing it again. Each placed copy is an **instance**.
+
+Start a practice assembly and insert the mounting plate from [Your first CAD part](./cad-first-part). Fix this first instance in position. **Fix** holds a part still so the assembly has a stable reference. Without that reference, the whole group can move when you drag a part.
+
+Add a simple spacer or a second plate to practise making a connection. A **spacer** holds parts a set distance apart. You can model one by sketching two concentric circles, circles with the same centre, and extruding the ring-shaped region between them.
+
+## Use mates to connect parts
+
+A **mate** describes how two parts are allowed to move relative to each other. **Degrees of freedom** are the independent movements still available, such as sliding along one direction or turning around an axis.
+
+| Mate | What remains possible | Example |
+| --- | --- | --- |
+| Fastened | No relative movement | A bracket bolted firmly to a frame. |
+| Revolute | Rotation around one axis | A wheel turning on a shaft. |
+| Slider | Translation along one axis | A carriage moving along a rail. |
+
+**Translation** means movement without rotation. An **axis** is an imaginary line that a part can move along or rotate around.
+
+Onshape uses **mate connectors** to define the position and orientation of a connection. Select suitable geometry, such as the centre of a hole, and check the connector preview. Use a Fastened mate to place the spacer against the plate with its hole aligned to a plate hole.
+
+If the spacer appears on the wrong side or points the wrong way, adjust the mate's alignment or flip its direction. Do not add extra mates to fight a wrongly aligned first mate. Drag the part afterward: a fastened spacer should stay still relative to the plate.
+
+Mates describe intended movement. They do not prove that a real screw is tight, a shaft is supported, or a part can carry the load.
+
+## Insert purchased parts
+
+A **parts library** is a collection of existing CAD models. Use the FTC libraries linked by Onshape and models supplied by your actual vendors. A **COTS** part is a commercial off-the-shelf part: something you buy ready-made.
+
+Check the exact part number and revision. Similar motors may have different shafts or mounting holes. Do not redraw a standard part from a photograph when an accurate vendor model is available.
+
+Keep the source document and part number with the design. If an inserted part uses a link to another Onshape document, pay attention to its version. Review an update before accepting it into an assembly your team is manufacturing from.
+
+## Plan the robot's space
+
+Make a rough robot layout before modelling every bracket. **Space planning** means reserving room for the main systems. Simple boxes can stand in for a battery, controller, intake, and lift while you compare arrangements.
+
+Include the parts people often forget: battery mount, main switch, wire connectors, cable bends, game objects, and the tools needed to reach a screw. Reserve the space a mechanism sweeps through as it moves. Check the current starting-size and expansion limits with a correctly sized reference shape.
+
+Share the layout with everyone designing a subsystem. A **subsystem** is one part of the robot with a particular job, such as the intake. Agree where it mounts and how much space it may use. If that changes, tell the other designers before their parts are made.
+
+## Make a parts list
+
+A **bill of materials (BOM)** is the list of parts and quantities in the design. Onshape can generate one from an assembly, but useful names, part numbers, and descriptions must be entered first.
+
+Compare the BOM with the team's inventory before ordering. Include screws, nuts, washers, and bearings, not just the large visible parts. Create a named version when the assembly is ready to build, and keep the physical robot and model in agreement as you make changes.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Alan G. Smith — Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+- [Onshape — FIRST robotics resources and parts libraries](https://www.onshape.com/en/education/first-robotics)
+- [Onshape Help — mates](https://cad.onshape.com/help/Content/Assembly/mates.htm)
+- [Onshape Help — bill of materials](https://cad.onshape.com/help/Content/Assembly/bill_of_material.htm)
+
+</footer>

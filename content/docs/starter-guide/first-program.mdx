@@ -1,0 +1,63 @@
+---
+title: Your first program
+description: Try an editable Blocks example, then learn how to run a program on your robot.
+---
+
+A **program** is a set of instructions for a computer. In FTC, your program reads inputs, such as gamepad buttons or sensor values, and controls outputs, such as motor power.
+
+**Blocks** lets you assemble those instructions as connected shapes. **Java** is a text-based programming language. Both can teach the same basic ideas; Blocks is a useful place to start if your team has never programmed before.
+
+## Try a sequence
+
+A **sequence** is a series of instructions performed in order. In this simulator, a computer model takes the place of a real robot. You can try code without connecting any hardware.
+
+Press **Play**. The robot drives forward, pauses, reverses, and stops. The numbers after **sleep** are milliseconds: `1000` milliseconds is one second.
+
+Find the first **sleep** block and change `700` to `1400`. Press **Reset** to return the robot to its starting position, then **Play** again. The forward movement now lasts twice as long. Press **Stop** to end a run early. If the blocks are too large to see together, use **−** in the editor to zoom out.
+
+<FTCPlayground example="blocks-sequence" />
+
+On a narrow screen, use **Code** to edit and **Simulator** to watch. The `drive` function is a named group of instructions that sets the four motors together. The collapsed `setup` function reverses the right-side motors for this simulated robot. Expand either function below the main stack to inspect it.
+
+A motor command of `0.25` is a low forward power setting on a scale from `-1` to `1`; a negative number reverses its direction. Power is not a speed in metres per second. Battery charge, load, friction, and the motor all affect how far the robot moves. Equal forward and reverse times do not guarantee it returns exactly to its starting point.
+
+The example uses the simulator's hardware names. Your own robot needs its own configuration and direction checks.
+
+## Set up your real robot
+
+Have an adult or experienced team help install the supported Robot Controller and Driver Station software. Use the current FTC setup instructions for your devices. **Software** means the programs and apps running on them.
+
+Connect the Driver Station to the Robot Controller using the documented robot network. Open the Robot Controller's **Program & Manage** address in your computer's browser. Use the address shown by your controller, rather than guessing one.
+
+Create and activate a hardware configuration. Add the connected motors with the names from your wiring table. Open the Blocks editor and start from a suitable official sample. A **sample** is a working example you adapt to your hardware.
+
+## Init, Start, and Stop
+
+An **OpMode** is one selectable FTC robot program. It may control driver-operated play or an autonomous routine.
+
+1. Select the OpMode on the Driver Station.
+2. Press **Init** to initialize it. **Initialize** means prepare the program, for example by finding its configured motors.
+3. Check that the test area is clear and the robot is ready.
+4. Press **Start** to begin the running part.
+5. Press **Stop** to end it.
+
+On a real robot, Init and Start are separate actions. This embedded simulator's Play control handles its run sequence for the example. Never assume a real mechanism is safe to touch during initialization.
+
+## Read code a little at a time
+
+A **variable** stores a value, such as the drive power. A **condition** asks a question, such as whether a button is pressed. A **loop** repeats instructions. Driver control normally uses a loop so the robot keeps reading the gamepad and updating its outputs.
+
+Start by changing one value in a sample, then predict and observe what happens. Download your `.blk` files regularly and save them with the team's work. Blocks programs live on the Robot Controller; a browser bookmark is not a backup.
+
+Use [the Programming setup guides](/docs/getting-started) when you are ready to configure devices, write a drive program, or move to Java.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC Docs — Blocks programming tutorial](https://ftc-docs.firstinspires.org/en/latest/programming_resources/blocks/Blocks-Tutorial.html)
+- [FTC Docs — creating a Blocks OpMode](https://ftc-docs.firstinspires.org/en/latest/programming_resources/tutorial_specific/blocks/creating_op_modes/Writing-an-Op-Mode-with-FTC-Blocks.html)
+- [FTC Docs — choosing a programming tool](https://ftc-docs.firstinspires.org/en/latest/programming_resources/shared/choosing_program_lang/choosing-program-lang.html)
+- [Crimson Crocs FTC Simulator](https://ftcsimulator.crimsoncrocs.org/embed)
+
+</footer>
