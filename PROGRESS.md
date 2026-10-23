@@ -5,7 +5,7 @@ Last updated: 23 October 2026. Initial handbook release: `1ffb47a` on `main`.
 ## New-team Starter Guide
 
 - [x] Remove the coloured background behind the Starter Guide header tab; retain its icon, text colour, and active underline.
-
+- [x] Label the opening page “Introduction” beside Starter Guide and rewrite its opening as a welcoming first-season introduction. Keep the lesson contents and table of contents unchanged.
 - [x] Plan a complete first-season route for high-school students, separate from Programming, Engineering, and Portfolio. Read the supplied Alan G. Smith Onshape book and current FIRST resources; keep regional registration details distinct from general guidance.
 - [x] Add a distinct Starter Guide landing page, numbered navigation, homepage entry, plain-English lessons, and a glossary. Cover team setup, costs, safety, strategy, hardware, wiring, programming, CAD, manufacturing, records, outreach, judging, and events.
 - [x] Use CCC for custom models and interactive elements. Adapt an inspected direct-manipulation teaching pattern for an original mounting-plate model; reuse the working Blocks playground with the documentation theme. Do not copy or redistribute the book's artwork or PDF.

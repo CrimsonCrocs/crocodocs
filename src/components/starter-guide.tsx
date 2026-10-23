@@ -59,6 +59,7 @@ export function StarterLabel({ slug }: { slug?: string }) {
         <CompassTool size={17} weight="duotone" aria-hidden="true" />
         Starter Guide
       </Link>
+      {slug === undefined && <span>Introduction</span>}
       {index >= 0 && (
         <span>
           Lesson {index + 1} of {starterLessons.length}
