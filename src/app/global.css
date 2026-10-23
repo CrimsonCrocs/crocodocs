@@ -433,9 +433,8 @@
   --cad-hole: #211e19;
   --cad-sketch: #383025;
 }
-.docs-sections .docs-starter-link { color: var(--starter-ink); padding-inline: 11px; margin-inline-end: 8px; isolation: isolate; }
+.docs-sections .docs-starter-link { color: var(--starter-ink); padding-inline: 11px; margin-inline-end: 8px; }
 .docs-sections .docs-starter-link:is(:hover, [aria-current]) { color: var(--starter-ink); }
-.docs-starter-link::before { content: ''; position: absolute; z-index: -1; inset: 6px 0; background: var(--starter-surface); border-radius: 7px; }
 .docs-sections .docs-starter-link[aria-current]::after { background: var(--starter-ink); }
 .starter-sidebar { padding: 4px 8px 24px; }
 .starter-sidebar :is(ol, li) { margin: 0; padding: 0; list-style: none; }
@@ -520,7 +519,7 @@
   .cad-model-controls { grid-template-columns: 1fr; gap: 8px; }
 }
 @media (forced-colors: active) {
-  .cad-model button[aria-pressed='true'], .docs-starter-link::before { border: 1px solid Highlight; }
+  .cad-model button[aria-pressed='true'] { border: 1px solid Highlight; }
   .cad-model > svg { forced-color-adjust: none; }
   .starter-sidebar a[aria-current] { outline: 1px solid Highlight; }
 }
