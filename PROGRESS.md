@@ -4,6 +4,8 @@ Last updated: 23 October 2026. Initial handbook release: `1ffb47a` on `main`.
 
 ## New-team Starter Guide
 
+- [x] Rename the homepage feature “Rookie season” and simplify its description. CCC reference: [GM0's Start Here](https://gm0.org/en/latest/docs/start-here.html) uses short descriptions of the work a guide helps with; apply that approach without copying its wording.
+
 - [x] Remove the coloured background behind the Starter Guide header tab; retain its icon, text colour, and active underline.
 - [x] Label the opening page “Introduction” beside Starter Guide and rewrite its opening as a welcoming first-season introduction. Keep the lesson contents and table of contents unchanged.
 - [x] Plan a complete first-season route for high-school students, separate from Programming, Engineering, and Portfolio. Read the supplied Alan G. Smith Onshape book and current FIRST resources; keep regional registration details distinct from general guidance.

@@ -42,7 +42,7 @@ export default function HomePage() {
 
         <section className="home-starter" aria-labelledby="starter-home-title">
           <CompassTool size={36} weight="duotone" aria-hidden="true" />
-          <div><p className="home-starter-label">New to FTC?</p><h2 id="starter-home-title">Start your first season.</h2><p>From forming a team to your first competition. Learn the tools, build a robot, and try CAD in Onshape, one lesson at a time.</p></div>
+          <div><p className="home-starter-label">New to FTC?</p><h2 id="starter-home-title">Rookie season</h2><p>What you need to get a team running and a robot ready for competition.</p></div>
           <Link href="/docs/starter-guide">Open the Starter Guide <ArrowRight size={18} aria-hidden="true" /></Link>
         </section>
         <section className="grid gap-6 pb-16 md:grid-cols-2 md:pb-24 lg:grid-cols-3" aria-label="Handbook sections">
