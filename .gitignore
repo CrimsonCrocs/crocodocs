@@ -26,3 +26,20 @@ yarn-error.log*
 .env*.local
 .vercel
 next-env.d.ts
+
+# Local development instructions and work journals
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+CODEX.md
+PLAN.md
+PLANS.md
+PROGRESS.md
+HANDOFF.md
+CONTEXT.md
+.agents/
+.claude/
+.codex/
+.cursor/
+/docs/audits/link-audit.md
+/docs/programming-audit.md
