@@ -8,7 +8,7 @@ Reviewed October 14, 2026. This records the evidence and boundaries behind `cont
 - Five case-study pages provide an index and four detailed Inspire examples.
 - Prepare portfolio evidence for every award a team pursues. This is practical preparation guidance; do not invent a universal official submission rule or add the eligibility-minimizing wording the user explicitly rejected.
 - Keep short, literal headings, self-contained explanations, and compact Sources footers. External citations belong in the footer; internal article links remain beside relevant explanations.
-- Label illustrative examples, predictions, targets, reported outcomes, and verified event results accurately. Original prose only; no reproduction of portfolio pages, photographs, or diagrams.
+- Label illustrative examples, predictions, targets, reported outcomes, and verified event results accurately. Original explanations; the eight selected page excerpts requested by Matthew are attributed and used for commentary. Original PDFs and other unselected artwork remain outside the repository.
 - Use existing MDX, Phosphor icons, root metadata, search, theme, and reading components. The Portfolio section adds no library or custom document viewer. The subsequent header update declares the already-used `next-themes` package as a direct dependency. Intentional Build owns implementation; My Taste supplies preference advice and Intentional Verify is the acceptance gate.
 - The top navigation gains a Portfolio section with a notebook icon and accurate active state. Homepage, footer, introduction, and engineering-notebook links expose the new section. Mobile section spacing must keep all three labels visible at 320 CSS pixels.
 
@@ -77,3 +77,17 @@ Required checks are MDX/local links/navigation, production build, TypeScript, al
 The follow-up prose review covers all 103 articles, including Programming and Engineering. See `docs/audits/deslop-review.md` and its per-article JSON manifest.
 
 Current execution results and the final acceptance verdict are recorded in `docs/audits/portfolio-verification.md` when verification completes.
+
+## Teaching audit — November 2, 2026
+
+Reviewed all fifteen Portfolio pages, their reading paths, source footers, and eight existing page excerpts. Main lessons now compare different books in context and lead to concrete drafting or review tasks. Engineering compares Super 7's mechanism rows, Rebel Robotics' competition-stage revisions, and Blu Cru's applied analysis. Programming compares Blu Cru's runtime state diagram with Seattle Solvers' development sequence and discusses Super 7's recovery plots. Outreach and team development connect project structure, relationships, applied learning, and continuity to the records a student writer needs.
+
+The current season archive lists full manual TU07 (October 29); the Awards section is TU06 (October 22). Section 6 was read, and A201's page dimensions and limits were checked against its rendered page. Outreach definitions remain September 2026; the question bank remains 26–27.1. Current source metadata and the Awards artifact hash are in `portfolio-sources.json`.
+
+Current Drive text was retrieved for Rebel Robotics, Super 7, and Seattle Solvers. Blu Cru is an image-only scan with empty extracted text; its two existing illustrated pages were inspected directly. The authenticated raw download returned HTTP 403, so this pass does not claim to have re-downloaded or re-hashed the original PDFs or visually re-audited all sixty-four pages. Original PDF hashes and the full October review remain historical source pins.
+
+All eight existing excerpts were visually inspected. No source-image bytes, redactions, original artwork, or Drive permissions were changed, and no new PDF pages were published. The topic guides reuse the existing images with full-size links, team/season/content-page captions, and compact source footers.
+
+New factual descriptions concern visible source-page structure and attributed historical examples. The revision introduces no Crimson Crocs achievements, outreach totals, measured robot performance, adopted plans, or new award credentials. Earlier invented engineering test results were replaced with real book observations; an unsupported generalisation about regional highlight-page preferences was narrowed to a conditional instruction to follow local guidance. Case studies remain positive explanations of the teams' documentation choices.
+
+Routes, section grouping, component APIs, site styling, analytics, and dependencies are unchanged. Tabs use the existing reader component; their hidden panes contain no new document headings that would create unreachable table-of-contents entries. The focused acceptance record is `docs/audits/portfolio-quality-2026-11-02.md`.

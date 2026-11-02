@@ -1,12 +1,12 @@
 {
-  "reviewed": "2026-10-14",
+  "reviewed": "2026-11-02",
   "official_manual": {
     "season": "2026–27 BIOBUZZ",
     "section": "6 Awards",
-    "version": "TU04",
-    "updated": "2026-10-08",
+    "version": "TU06",
+    "updated": "2026-10-22",
     "url": "https://ftc-resources.firstinspires.org/ftc/archive/2027/game/manual-06",
-    "sha256": "0fb7723224ef10b09a28e7675c6c2beb9a9afaabec8af0d9e9e082b47f29f1a7"
+    "sha256": "2e73e2740e3a4dc5954b47786cb01bf021ba616c16ddd56a3c456e5e4843b25c"
   },
   "portfolios": [
     {
@@ -20,7 +20,10 @@
       "content_pages_reviewed": "1–15",
       "award_verified": "Overall Championship Inspire and Franklin Division Inspire, 2025",
       "award_source": "https://ftc-events.firstinspires.org/2024/team/18139",
-      "review": "Full text/OCR and visual page inspection. Two selected content-page excerpts are illustrated in the case study at Matthew’s request. Original PDFs stay outside the repository."
+      "review": "Original full-document text/OCR and visual review retained. Existing attributed excerpts are reused in topic lessons and case studies; image bytes and redactions are unchanged.",
+      "full_document_reviewed": "2026-10-14",
+      "teaching_reviewed": "2026-11-02",
+      "current_readback": "Current Drive text retrieved; relevant passages and existing content-page images inspected."
     },
     {
       "team": 6417,
@@ -33,7 +36,10 @@
       "content_pages_reviewed": "1–15",
       "award_verified": "Goodall Division Inspire, 2026",
       "award_source": "https://ftc-events.firstinspires.org/2025/team/6417",
-      "review": "Full text/OCR and visual page inspection. Two selected content-page excerpts are illustrated in the case study at Matthew’s request. Original PDFs stay outside the repository."
+      "review": "Original full-document text/OCR and visual review retained. Existing attributed excerpts are reused in topic lessons and case studies; image bytes and redactions are unchanged.",
+      "full_document_reviewed": "2026-10-14",
+      "teaching_reviewed": "2026-11-02",
+      "current_readback": "Existing content-page images visually inspected; current Drive file metadata read. The image-only source returned no extracted text."
     },
     {
       "team": 7477,
@@ -46,7 +52,10 @@
       "content_pages_reviewed": "1–15",
       "award_verified": "Edison Division Inspire, 2026",
       "award_source": "https://ftc-events.firstinspires.org/2025/team/7477",
-      "review": "Full text/OCR and visual page inspection. Two selected content-page excerpts are illustrated in the case study at Matthew’s request. Original PDFs stay outside the repository."
+      "review": "Original full-document text/OCR and visual review retained. Existing attributed excerpts are reused in topic lessons and case studies; image bytes and redactions are unchanged.",
+      "full_document_reviewed": "2026-10-14",
+      "teaching_reviewed": "2026-11-02",
+      "current_readback": "Current Drive text retrieved; relevant passages and existing content-page images inspected."
     },
     {
       "team": 23511,
@@ -59,13 +68,25 @@
       "content_pages_reviewed": "1–15",
       "award_verified": "Lovelace Division Inspire second place, 2026",
       "award_source": "https://ftc-events.firstinspires.org/2025/team/23511",
-      "review": "Full text/OCR and visual page inspection. Two selected content-page excerpts are illustrated in the case study at Matthew’s request. Original PDFs stay outside the repository."
+      "review": "Original full-document text/OCR and visual review retained. Existing attributed excerpts are reused in topic lessons and case studies; image bytes and redactions are unchanged.",
+      "full_document_reviewed": "2026-10-14",
+      "teaching_reviewed": "2026-11-02",
+      "current_readback": "Current Drive text retrieved; relevant passages and existing content-page images inspected."
     }
   ],
   "limitations": [
     "Original PDFs stay outside the repository.",
     "No inference from redacted material.",
     "No claim that portfolio content caused awards.",
-    "The Hive, IronEagles, and Brickbot files were discovered but not read for detailed case studies."
-  ]
+    "The Hive, IronEagles, and Brickbot files were discovered but not read for detailed case studies.",
+    "The November 2 review did not repeat the complete original-PDF visual audit. It inspected the eight existing excerpts and retrieved text from Rebel Robotics, Super 7, and Seattle Solvers.",
+    "The authenticated raw-file download returned HTTP 403 during this review; portfolio PDF hashes remain the October source pins; the current Awards PDF hash was recomputed.",
+    "Other-team results remain attributed reports; no new Crimson Crocs achievements or measured performance are asserted."
+  ],
+  "season_archive_checked": {
+    "date": "2026-11-02",
+    "full_manual": "TU07, 2026-10-29",
+    "awards_section": "TU06, 2026-10-22",
+    "url": "https://ftc-resources.firstinspires.org/ftc/archive/2027/game"
+  }
 }

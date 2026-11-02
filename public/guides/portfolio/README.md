@@ -1,6 +1,6 @@
 # Portfolio page excerpts
 
-Eight selected pages illustrate the case studies at Matthew's explicit request. They are rendered from the portfolios in his Drive reference collection, with the authors' original page artwork retained. The original PDF files are not included in the repository. The images are examples for discussion, not CrocoDocs designs or reusable templates.
+Eight selected pages illustrate the case studies and topic guides at Matthew's explicit request. They are rendered from the portfolios in his Drive reference collection, with the authors' original page artwork retained. The original PDF files are not included in the repository. The images are examples for discussion, not CrocoDocs designs or reusable templates.
 
 | Team / author | Season | Numbered content pages | Original portfolio |
 | --- | --- | --- | --- |

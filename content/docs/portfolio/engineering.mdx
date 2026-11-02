@@ -1,6 +1,6 @@
 ---
 title: Engineering evidence
-description: Explain design decisions with alternatives, calculations, test results, and lessons.
+description: Build an engineering page from a real design decision, with examples from three team portfolios.
 icon: phosphor:CompassTool
 ---
 
@@ -25,14 +25,52 @@ If you used a weighted decision table, explain the scores and why some needs mat
 
 Pick changes that taught you something. Show the old design, what went wrong, what you changed, and the next test. Dates or version numbers help readers follow the order.
 
-Here is a **made-up example** of a lift test with the same load over twenty full-travel cycles:
+Two portfolios show different ways to organise those changes. Page numbers below exclude the cover.
 
-| Version | Result | What the team learned |
-| --- | --- | --- |
-| Earlier pulley position | Eight cycles completed without the string leaving its path | Pulley alignment needed work |
-| Revised pulley position | Eighteen cycles completed; two needed help | The change helped, but there was still a problem to solve |
+<Tabs items={['Super 7', 'Rebel Robotics']}>
+<Tab value="Super 7">
 
-Use your own test conditions and results. Failed attempts are useful because they explain why the next change was needed.
+**Compare one mechanism across versions**
+
+Super 7's DECODE page 12 gives each mechanism a row and each revision a column. Read only the intake row first: the pictures stay in comparable positions, while the notes explain the grip, compression, and jamming problems that prompted another version.
+
+<figure>
+  <a href="/guides/portfolio/super-7-iterations.webp" target="_blank" rel="noopener noreferrer" aria-label="Open Super 7 DECODE portfolio content page 12 at full size">
+    <img src="/guides/portfolio/super-7-iterations.webp" alt="Super 7 content page 12, with intake, shooter, and turret revisions arranged in rows and columns for comparison" width="1391" height="1800" loading="lazy" />
+  </a>
+  <figcaption>Super 7, DECODE, content page 12. Follow one row to see a mechanism develop. Select the page to open it full size.</figcaption>
+</figure>
+
+Notice three choices you can adapt:
+
+1. Each version shows the same mechanism, so the reader can locate the physical change.
+2. Advantages and remaining problems sit beside the relevant picture.
+3. The final column records a lesson, connecting the comparison to the team's next decisions.
+
+This arrangement suits several versions of one subsystem. Use consistent views and comparison points; choose the changes that explain your decision.
+
+</Tab>
+<Tab value="Rebel Robotics">
+
+**Follow a revision through the season**
+
+Rebel Robotics' INTO THE DEEP page 9 organises changes by competition stage. The changes are beside the team's assessment of that robot version, with a comparison chart beneath it.
+
+<figure>
+  <a href="/guides/portfolio/rebel-robotics-iterations.webp" target="_blank" rel="noopener noreferrer" aria-label="Open Rebel Robotics INTO THE DEEP portfolio content page 9 at full size">
+    <img src="/guides/portfolio/rebel-robotics-iterations.webp" alt="Rebel Robotics content page 9, pairing competition-stage changes with robot pictures, remaining problems, and samples-per-minute charts" width="1391" height="1800" loading="lazy" />
+  </a>
+  <figcaption>Rebel Robotics, INTO THE DEEP, content page 9. Read a stage's changes alongside its results. Select the page to open it full size.</figcaption>
+</figure>
+
+The page keeps unresolved problems visible. That gives the next revision a reason: the reader can follow what worked, what still failed, and what the team changed afterward.
+
+Use this structure when several mechanisms changed together between events. Describe the whole robot revision and its test setup, rather than assigning the entire improvement to one part.
+
+</Tab>
+</Tabs>
+
+Before laying out your own comparison, collect the earlier version's image, the observed problem, the change, and the retest record. If a retest is still pending, label it and explain the next test instead of supplying an expected result as though it happened.
 
 ## Measurements
 
@@ -48,6 +86,19 @@ Show the question, the values and units, the calculation, and the decision it he
 
 State assumptions such as estimated mass or ideal efficiency. For a simulation, show the applied load and supports, then explain what you changed after seeing the result.
 
+### Connect analysis to a part
+
+Blu Cru's DECODE page 10 places examples of corner relief, plate analysis, and machining simulation within its design process. The reader can connect an engineering tool to the part it helped the team make.
+
+<figure>
+  <a href="/guides/portfolio/blu-cru-design.webp" target="_blank" rel="noopener noreferrer" aria-label="Open Blu Cru DECODE portfolio content page 10 at full size">
+    <img src="/guides/portfolio/blu-cru-design.webp" alt="Blu Cru content page 10, connecting requirements, prototypes, CAD, manufacturing details, analysis, and testing" width="1391" height="1800" loading="lazy" />
+  </a>
+  <figcaption>Blu Cru, DECODE, content page 10. The lower design-and-simulation panel gives the process concrete examples. Select the page to open it full size.</figcaption>
+</figure>
+
+For your calculation, put the design question beside the relevant sketch. Identify the input you measured, any value you estimated, and the result that changed a dimension, ratio, material, or test plan. Explain the physical test that followed. A coloured stress plot needs its loads, constraints, units, and the decision it informed to be useful to another reader.
+
 The [design process](/docs/engineering/design/design-process), [CAD](/docs/engineering/design/cad), and [testing](/docs/engineering/team/testing-and-reliability) guides cover the engineering work behind these pages.
 
 ## Whole-robot design
@@ -56,6 +107,12 @@ Use a labelled robot overview to show how the intake, transfer, scoring mechanis
 
 For maintenance, show how a part comes out and what needs disconnecting. A photo with the surrounding robot visible can make the repair much easier to understand.
 
+## Draft one page
+
+Choose one decision and assemble five pieces: the requirement, the alternatives, the observation that separated them, the selected revision, and its test result. Give the most space to the comparison that explains your choice. Put a short conclusion beside it: what you kept, what remained unresolved, and what you planned to test next.
+
+Ask a teammate to identify the reason for the change without your help. If they can describe only the hardware, add the missing observation or comparison before polishing the [layout](/docs/portfolio/layout).
+
 <footer className="article-sources">
 
 ## Sources
@@ -63,5 +120,7 @@ For maintenance, show how a part comes out and what needs disconnecting. A photo
 - [FIRST: Award and portfolio requirements](https://ftc-resources.firstinspires.org/ftc/archive/2027/game/manual-06)
 - [Community advice: comparisons, statistics, and outcomes](https://discord.com/channels/1443377051305508896/1443405895055704146/1551311640924917861)
 - [Rebel Robotics: INTO THE DEEP portfolio, content pages 9–10](https://drive.google.com/file/d/1BwbpyaX3YCZ-lo-9cuNhbTGD0glnTJQr/view)
+- [Super 7: DECODE portfolio, content page 12](https://drive.google.com/file/d/1vXc7HtoYnBhZ8VZUYlZZGtNKuT_e-ftd/view)
+- [Blu Cru: DECODE portfolio, content page 10](https://drive.google.com/file/d/1wnucpLEzxrLYH6uO9_v3LXjHI8i9jVK7/view)
 
 </footer>
