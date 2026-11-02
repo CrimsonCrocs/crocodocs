@@ -2,8 +2,10 @@
   "pages": [
     "index",
     "joystick-mapping",
+    "field-centric-drive",
     "pid-control",
     "feedforward",
+    "flywheel-velocity",
     "system-identification",
     "motion-profiling",
     "kalman-filter",

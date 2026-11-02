@@ -178,6 +178,12 @@ This process shows whether the sensor can answer your robot's question at all. T
 
 The FTC SDK 12 Broadcom driver derives normalized alpha from RGB brightness; it is not an independent clear-channel measurement. Use it as a brightness indication and calibrate thresholds on the actual surface.
 
+### A passing piece is missed
+
+Compare a held object with an object moving through the intake. If held readings work, measure how long the moving object remains in the sensing region and compare that with the actual interval between sensor samples. A piece can pass between readings; averaging or requiring several matching samples cannot recover an event the sensor never observed.
+
+Log timestamps with the raw proximity and colour values, then repeat at a slower intake speed. Improve the sensor's view or increase the object's visible dwell time if necessary. Treat reflectivity-dependent proximity as one cue, and consider a beam-break or suitable presence sensor when detecting passage is more important than measuring colour. Count one event on entry and require a clear exit before counting another.
+
 <footer className="article-sources">
 
 ## Sources [#official-references]

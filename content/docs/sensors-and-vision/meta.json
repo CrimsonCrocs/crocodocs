@@ -3,6 +3,7 @@
     "pages": [
         "vision-overview",
         "vision-basics",
+        "limelight",
         "easyopencv",
         "visionportal",
         "advanced",

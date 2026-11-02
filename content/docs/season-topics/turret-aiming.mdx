@@ -1,0 +1,124 @@
+---
+title: Turret aiming
+description: Aim from the turret pivot, convert field bearings to mechanism angles, and choose a reachable turn
+icon: phosphor:Crosshair
+---
+
+Calculate the field bearing from the **turret pivot** to the target, subtract the robot heading, then convert that angle into the turret's calibrated reference. Verify this geometry with the shooter disabled before adding automatic feeding.
+
+## Reference and feedback
+
+Define which physical direction is turret zero and whether positive encoder movement is counterclockwise. Establish that reference with homing or a suitable absolute measurement. `Servo.getPosition()` reports the commanded position, not the turret's measured arrival.
+
+A positional servo can use its internal controller within its configured travel. A continuous-rotation servo needs external position feedback and a controller if you want it to hold an angle. The choice depends on gearing, travel, accuracy, and the servo model; changing modes is not automatically a better controller.
+
+A single-turn absolute encoder cannot distinguish two mechanism positions separated by one encoder revolution. Track or recover the full position when turn count matters for travel and cables. See [Multi-turn position](/docs/engineering/electrical/multi-turn-position).
+
+## Pivot position
+
+Use one field frame with counterclockwise-positive heading $\theta$, zero along +X. Let the robot reference position be $(x,y)$, and the turret pivot offset in the robot frame be $(o_x,o_y)$, with +X forward and +Y left. Then:
+
+$$
+\begin{aligned}
+x_t &= x+o_x\cos\theta-o_y\sin\theta \\
+y_t &= y+o_x\sin\theta+o_y\cos\theta
+\end{aligned}
+$$
+
+For a target at $(g_x,g_y)$, its field bearing is $\beta=\operatorname{atan2}(g_y-y_t,g_x-x_t)$. Aiming from the robot centre instead of the offset pivot introduces an error that varies with position and heading.
+
+If encoder angle zero points at a robot-relative angle $\alpha_0$, the requested encoder angle is:
+
+$$
+q=\operatorname{wrap}(\beta-\theta-\alpha_0)
+$$
+
+Here `wrap` selects an equivalent angle within one revolution. It does not decide whether that angle is mechanically reachable.
+
+### Worked geometry
+
+Suppose the robot reference is at $(24,24)$ inches, its heading is 90°, and the pivot is 6 inches forward and 2 inches left of that reference. Rotating the offset gives $(-2,6)$, so the field pivot is $(22,30)$ inches.
+
+A target at $(46,54)$ is 24 inches along each field axis from the pivot. Its bearing is therefore $\operatorname{atan2}(24,24)=45°$. With turret zero pointing forward on the chassis, $\alpha_0=0$, so the requested mechanism angle is $45°-90°=-45°$: clockwise from the robot's nose. Convert the example's degrees to radians before calling the helper below.
+
+<figure>
+  <a href="/guides/programming/turret-pivot.svg" target="_blank" rel="noopener noreferrer" aria-label="Open the turret pivot geometry at full size">
+    <img src="/guides/programming/turret-pivot.svg" alt="Top view of a robot at (24, 24) facing field +Y. A pivot six inches forward and two inches left lies at (22, 30). The target at (46, 54) has a 45-degree field bearing, requiring a minus 45-degree turret angle relative to the robot." width="800" height="480" loading="lazy" />
+  </a>
+  <figcaption>Illustrative coordinates in inches. Aim from the offset pivot, then subtract chassis heading and turret zero. Open the illustration for a larger view.</figcaption>
+</figure>
+
+## Reachable turns
+
+For continuous angular coordinates, $q$, $q+2\pi$, and $q-2\pi$ point in the same direction. A limited turret cannot necessarily travel between them safely. Select an equivalent target inside its calibrated limits and nearest its current **unwrapped** position.
+
+Save this Java 8 helper as `TurretAngles.java`. All angles are radians. An empty result means the target is invalid or unreachable, so leave automatic feeding disabled.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import java.util.OptionalDouble;
+
+public final class TurretAngles {
+    public static OptionalDouble reachable(double desiredRadians, double currentRadians,
+                                            double minRadians, double maxRadians) {
+        if (!Double.isFinite(desiredRadians) || !Double.isFinite(currentRadians)
+                || !Double.isFinite(minRadians) || !Double.isFinite(maxRadians)
+                || minRadians > maxRadians || currentRadians < minRadians
+                || currentRadians > maxRadians) return OptionalDouble.empty();
+        double turn = 2.0 * Math.PI;
+        double base = Math.atan2(Math.sin(desiredRadians), Math.cos(desiredRadians));
+        double firstTurn = Math.ceil((minRadians - base) / turn);
+        double lastTurn = Math.floor((maxRadians - base) / turn);
+        if (firstTurn > lastTurn) return OptionalDouble.empty();
+        double nearestTurn = Math.rint((currentRadians - base) / turn);
+        double selectedTurn = Math.max(firstTurn, Math.min(lastTurn, nearestTurn));
+        double target = base + selectedTurn * turn;
+        if (!Double.isFinite(target) || target < minRadians || target > maxRadians) {
+            return OptionalDouble.empty();
+        }
+        return OptionalDouble.of(target);
+    }
+}
+```
+
+For limits of -170° to +170°, a target at 180° is unreachable. Clamping it to 170° would silently aim ten degrees away. Either turn the chassis through a tested action, choose another shot, or withhold the shot. For a wider turret, the helper may choose another equivalent turn, while keeping the commanded path inside the declared interval.
+
+The helper assumes every angle between the two limits is clear. If an arm, intake, or cable creates an interior forbidden region, validate the entire sweep too. A mathematically reachable endpoint does not establish clearance.
+
+## Map the actuator
+
+If using a positional servo, measure two safe turret angles $q_a,q_b$ and their commands $u_a,u_b$. Within that calibrated interval, a first linear mapping is:
+
+$$
+u=u_a+(q-q_a)\frac{u_b-u_a}{q_b-q_a}
+$$
+
+That calibration includes the gear ratio and direction. It also allows mirrored servos to use different maps. Verify intermediate angles; do not assume a command range of 0–1 means 360° or that two coupled servos have identical zeros. Use the manufacturer's pulse range for that exact servo model.
+
+For a CR servo or motor, close the angle loop using the external encoder and a verified output sign. Keep full-position travel limits outside shortest-angle wrapping. Stop automatic motion if the reference or sensor becomes invalid.
+
+## Aiming tests
+
+Disable the flywheel and feeder. Place a visible target at a measured point and test:
+
+1. Known turret angles, including zero and ±90°, to check encoder and actuator conversion.
+2. Several robot headings at the same position to check robot-heading subtraction.
+3. Several positions with the same heading to check the field bearing and pivot offset.
+4. Both sides of the angle wrap and travel limits, including an unreachable target.
+5. Lost or stale localization, then STOP during a commanded turn.
+
+Record requested angle, measured angle, physical pointing error, and source age. Constant error suggests a zero offset; error that changes with heading suggests a frame, sign, or pivot issue. Backlash and flex can differ by approach direction.
+
+Start with stationary aiming. A moving shot also needs release delay, chassis translation and rotation, and launcher velocity; adding a derivative term to the bearing alone is incomplete. Continue with [shooting on the move](/docs/season-topics/shooting-on-the-move). If adding [Limelight](/docs/sensors-and-vision/limelight), account for its camera mount and image age before combining its correction with odometry.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC SDK 12 RobotCore source](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/RobotCore/12.0.0/RobotCore-12.0.0-sources.jar) — servo command and feedback interfaces.
+- [FIRST: universal IMU orientation conventions](https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html)
+- [GM0: full turrets](https://gm0.org/en/latest/docs/common-mechanisms/turrets/full-turret.html) — support, gearing, and travel considerations.
+- [Modern Robotics: rigid-body transformations](https://modernrobotics.northwestern.edu/nu-gm-book-resource/3-3-1-homogeneous-transformation-matrices/) — frame composition; the planar aiming equations and helper here are original applications.
+
+</footer>

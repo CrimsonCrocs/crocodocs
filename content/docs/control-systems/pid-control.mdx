@@ -532,6 +532,8 @@ A motor retains its previous power request until changed. Omitting the manual-re
 
 Once the arm's encoder and feedback loop make sense, continue to [motion profiling](./motion-profiling) to control how quickly a mechanism accelerates, or review [low-pass filters](./lowpass-filter) if sensor readings are noisy.
 
+For a continuously spinning shooter, use [Flywheel velocity control](/docs/control-systems/flywheel-velocity) to choose between the hub's velocity loop and your own controller, convert encoder units, and measure recovery before feeding.
+
 Check SDK-specific motor and OpMode behavior separately from the PID equations. Tune gains using your mechanism and measurements; the example values are not calibrated for your robot.
 
 <footer className="article-sources">

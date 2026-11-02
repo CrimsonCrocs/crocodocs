@@ -12,9 +12,34 @@ Read the **first relevant compiler error**, its file, and its line number. Later
 
 In Android Studio, jump to a method's definition and inspect its parameter types, units, return value, and lifecycle. Compare it with the official sample from the SDK version installed in the project. The standard FTC SDK 12 project uses Java 8 language compatibility; code that compiles in a desktop Java 17 project may rely on APIs unavailable on the robot's Android version.
 
+### Gradle and dependency failures
+
+| Error | Check before changing code |
+| --- | --- |
+| `Unknown host` or a dependency download fails | Sync on an internet connection first. Robot Wi-Fi usually does not provide internet access. Check the repository and exact artifact version next. |
+| JVM/Gradle incompatibility after an IDE update | Check the project's Gradle wrapper and Android plugin requirements, then the Gradle JDK selected in Android Studio. `./gradlew --version` shows the command-line runtime, which may differ. |
+| `Unable to delete directory` or `AccessDeniedException` in build output | Close processes holding the files. Keep the working checkout outside cloud-sync folders such as OneDrive; use Git to share source. |
+| `ClassNotFoundException`, `NoSuchMethodError`, or `IncompatibleClassChangeError` | Compare the dependency graph with the installed SDK and library major versions. Perform a full install after a dependency change. |
+
+The JDK that runs Gradle, the Java source language level, and the APIs available on Android are separate choices. Upgrading all three until the error changes can introduce another incompatibility. Start from the supported FTC project and the library's matching installation instructions.
+
+For a dependency conflict, run this read-only report from the project root, then inspect which version each library actually resolves to:
+
+```sh
+./gradlew :TeamCode:dependencies --configuration debugRuntimeClasspath
+```
+
 ## Installation
 
 Add a visible build label to telemetry, such as `telemetry.addLine("Practice build 3")`, and redeploy. If it does not change, verify the selected device, successful install, and correct OpMode. Android Studio's standard application module is **TeamCode**. With Sloth, clear remote hot-reloaded classes before a normal full install as described in the [Sloth guide](../libraries/sloth).
+
+Install the Robot Controller app on the **Control Hub**, then operate it with the Driver Station app on the Driver Hub. A successful install on the wrong device does not update the robot. An OpMode also needs its annotation, the expected package, a unique displayed name, and no `@Disabled` annotation. Plain subsystem/helper classes do not need `@TeleOp`.
+
+### Robot Controller startup crashes
+
+A blue hub light is a symptom, not a diagnosis. Capture the Robot Controller log around startup and find the first meaningful exception. Class scanning can encounter a dependency failure before any OpMode starts. A desktop dependency that requires Swing, for example, does not become Android-compatible because it is only used by a helper class.
+
+Compare the failing project with a known working full install, then narrow the changed dependencies or classes. Preserve Blocks and OnBot Java work before following any recovery procedure that removes files or app data. A reported fix for one stale generated class is not a reason to erase every team's programs. Use the hardware manufacturer's recovery process if the hub itself remains inaccessible.
 
 ## Hardware configuration
 
@@ -34,11 +59,23 @@ Log the smallest useful set of values: requested target, raw measurement, conver
 
 For an arm moving away from its target, stop and check output sign, sensor sign, encoder zero, and units before tuning gains. For an autonomous miss, compare the real position with localization telemetry. A correct encoder target can coexist with wheel slip and a wrong field endpoint.
 
+Use [localization troubleshooting](/docs/autonomous/localization-troubleshooting) when turns corrupt a pose, [field-centric drive](/docs/control-systems/field-centric-drive) when stick directions change with heading, and [loop timing](/docs/cegp/loop-timing) when measurements or controls lag.
+
+### Live tuning does not change behaviour
+
+Print the configurable field and the value the controller actually uses. A controller constructed with a copied gain may never reread the live field. Check supported public/static configuration fields, then reduce to one dashboard integration with the documented setup for the installed versions. Telemetry arriving in the browser does not prove that configuration writes reach the same loaded class. Save successful tuning values back into source.
+
 ## Repeatable tests
 
 Record the code revision, starting pose, battery condition, load, and result. Change one suspected cause, repeat the same test, and compare. Keep failed trials: removing them produces a misleading reliability estimate. After a repair, repeat the original failing case and a nearby normal case.
 
 If the fault remains unclear, reduce to a small OpMode with one device and enough telemetry to reproduce it. Keep private network details out of public logs. For mechanical failures and on-field testing, use [Testing and reliability](../engineering/team/testing-and-reliability).
+
+## Testing without a robot
+
+Keep geometry, unit conversions, and sequence decisions separate from hardware calls. Test those pure Java helpers in a normal Java project with representative inputs and explicit expected outcomes. The [arrival gate](/docs/autonomous/reliable-sequences) can exercise a timeout or stale measurement without a Control Hub; the [turret helper](/docs/season-topics/turret-aiming) can reject an unreachable angle without a servo.
+
+Compile robot-facing examples against the SDK version your team uses. A desktop compile does not exercise Android's class loading, device discovery, motor direction, or physical motion. Use a simulator for the hardware and APIs it supports, then repeat the affected behaviour on the robot. Creating an OpMode with `new` in a desktop `main()` method does not supply its hardware map or SDK lifecycle.
 
 <footer className="article-sources">
 
@@ -47,5 +84,8 @@ If the fault remains unclear, reduce to a small OpMode with one device and enoug
 - [Official FTC SDK source and samples](https://github.com/FIRST-Tech-Challenge/FtcRobotController/tree/e14c2aeb33e84d4ea21697beeea9ac49557be870/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples)
 - [FTC programming resources](https://ftc-docs.firstinspires.org/en/latest/programming_resources/index.html)
 - [Learn Java for FTC](https://github.com/alan412/LearnJavaForFTC) — API lookup and debugging exercises.
+- [Android Developers: JDKs, Gradle, and source compatibility](https://developer.android.com/build/jdks)
+- [Gradle: dependency reports](https://docs.gradle.org/current/userguide/viewing_debugging_dependencies.html)
+- [REV: Control Hub troubleshooting](https://docs.revrobotics.com/duo-control/troubleshooting-the-control-system/control-hub-troubleshooting)
 
 </footer>

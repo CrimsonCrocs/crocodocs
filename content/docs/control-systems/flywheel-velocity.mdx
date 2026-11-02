@@ -1,0 +1,104 @@
+---
+title: Flywheel velocity control
+description: Choose one velocity controller, convert encoder units, and wait for measured recovery before feeding
+icon: phosphor:GearSix
+---
+
+Control a flywheel's speed, then check that speed before feeding the next piece. Repeatedly changing PID gains will not fix an unplugged encoder, an unreachable speed, or a feeder that launches the next ball before the wheel recovers.
+
+## Choose one controller
+
+| Approach | Motor mode and command | Where the velocity feedback runs |
+| --- | --- | --- |
+| Hub velocity control | `RUN_USING_ENCODER` with `DcMotorEx.setVelocity()` | REV motor controller |
+| Your own PID/feedforward | `RUN_WITHOUT_ENCODER` with `setPower()` | Your control loop |
+
+`RUN_TO_POSITION` is a position target, not the normal choice for a continuously spinning flywheel. Do not run an external power-based velocity PID on top of the hub's velocity regulation by accident. Pick one owner and one interpretation of its output.
+
+## Encoder units
+
+The one-argument `setVelocity()` and `getVelocity()` use **ticks per second**, not RPM. Let $C_f$ be the encoder counts produced by one complete flywheel revolution, including any gearing between the encoder and flywheel:
+
+$$
+\text{ticks/s}=\frac{\text{flywheel RPM}\,C_f}{60},\qquad
+\text{flywheel RPM}=\frac{60\,\text{ticks/s}}{C_f}
+$$
+
+Check whether a motor specification describes the encoder shaft or gearbox output. Do not apply the gearbox ratio twice. Verify the sign and counts by rotating the unloaded assembly a known amount before a powered test.
+
+For example, suppose a measured assembly produces **28 counts per flywheel turn**. A target of 3,600 RPM becomes $3600\times28/60=1680$ ticks/s. A measured 1,540 ticks/s becomes $1540\times60/28=3300$ RPM, so the wheel is 300 RPM below target. The 28-count value is illustrative; using a gearbox-output specification for a different shaft changes the result.
+
+These FTC SDK 12 fragments belong in an OpMode. Set `COUNTS_PER_FLYWHEEL_TURN` from your assembly, and `targetRpm` from a measured operating range:
+
+```java
+// During initialization. Import DcMotor and DcMotorEx.
+DcMotorEx flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
+flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+// In the active control loop, after checking a finite, nonnegative target
+// and a positive, finite COUNTS_PER_FLYWHEEL_TURN:
+double requestedTicksPerSecond = targetRpm * COUNTS_PER_FLYWHEEL_TURN / 60.0;
+flywheel.setVelocity(requestedTicksPerSecond);
+double measuredTicksPerSecond = flywheel.getVelocity();
+double measuredRpm = measuredTicksPerSecond * 60.0 / COUNTS_PER_FLYWHEEL_TURN;
+```
+
+Start with a low, mechanically appropriate test speed and a guarded flywheel. On cancellation and STOP, command zero velocity and zero power in the OpMode's cleanup. Verify that the encoder responds before increasing speed; a missing or reversed feedback signal can make a controller demand excessive output.
+
+## Tune and measure
+
+Begin with one flywheel at a fixed target. Record target speed, measured speed, battery voltage, commanded output when available, and the instant a ball enters. Measure unloaded regulation and loaded recovery separately.
+
+For hub control, `setVelocityPIDFCoefficients(p, i, d, f)` configures its velocity gains. Those coefficients use the hub's controller conventions; they are not interchangeable with a custom controller's normalized-power gains.
+
+For custom control, establish the sign with `error = target - measured`, then combine feedback with a fitted velocity/feedforward model. Check saturation before increasing integral gain. A motor already receiving its maximum available output cannot reach an arbitrarily high target. Use [system identification](/docs/control-systems/system-identification) for voltage-based coefficients and consistent battery compensation.
+
+Two mechanically linked motors need compatible directions and targets. If one fluctuates, compare encoder traces, wiring, loading, and controller settings before declaring the motor defective. A common shaft can make two independently misconfigured controllers fight each other.
+
+## Gate the feeder
+
+Define a ready state from measured behaviour:
+
+1. The requested speed is positive and inside the calibrated range.
+2. The encoder data is valid and recent.
+3. The measured speed remains within the chosen RPM tolerance for a settling interval.
+4. The pose, turret, and hood satisfy their own conditions.
+
+Reset that settling interval whenever speed leaves tolerance, the target changes, or a ball is fed. Permit one feed event, confirm that the piece cleared, then wait for recovery again. Give recovery a deadline and report a failure instead of waiting forever.
+
+For an illustrative 3,600 RPM target, ±100 RPM band, and 0.15-second settling interval, a trace might look like this. Assume the other readiness conditions pass and the control loop keeps sampling between rows:
+
+| Time after spin-up begins | Measured RPM | Speed gate |
+| --- | --- | --- |
+| 0.20 s | 3,300 | Outside the band; not ready |
+| 0.30 s | 3,540 | Enter the band; start settling |
+| 0.40 s | 3,480 | Leave the band; reset settling |
+| 0.50 s | 3,560 | Re-enter; start a new interval |
+| 0.65 s | 3,590 | Ready if every intervening sample stayed in the band |
+| 0.67 s, after one feed | 3,180 | Reset readiness and wait for measured recovery |
+
+Checking only the first and last row cannot prove settling. A telemetry display may update less often than the control loop; evaluate the gate on each fresh control measurement.
+
+A fixed delay may work over a narrow tested setup, but measured recovery adapts to the actual speed dip. Faster feeding can reduce accuracy if the wheel has not recovered. Compare hit rate and the complete multi-ball cycle time using the same ball condition, compression, range, and battery conditions.
+
+## Diagnose the miss
+
+| Observation | Investigate |
+| --- | --- |
+| Speed units are off by a constant factor | Encoder counts, RPM conversion, and gearing |
+| Speed never reaches target and output saturates | Available motor speed/torque, battery, friction, and compression |
+| First shot works; following shots fall short | Recovery, feeder timing, and ball contact |
+| Speed recovers but shots still vary | Hood position, ball condition, alignment, and mechanical consistency |
+| Tuning changes appear on screen but not on the robot | Whether control rereads the live fields and whether the dashboard integration matches the installed libraries |
+
+For shot calibration, continue with [projectile mathematics](/docs/season-topics/projectile-mathematics). Add [shooting-on-the-move compensation](/docs/season-topics/shooting-on-the-move) after stationary shots and feeding are repeatable.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC SDK 12 RobotCore source](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/RobotCore/12.0.0/RobotCore-12.0.0-sources.jar) — `DcMotorEx` velocity units and PIDF methods.
+- [FTC SDK 12 Hardware source](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/Hardware/12.0.0/Hardware-12.0.0-sources.jar) — `LynxDcMotorController` velocity and motor-mode implementation.
+- [REV: encoder feedback and motor control](https://docs.revrobotics.com/duo-control/programming/using-encoder-feedback)
+
+</footer>

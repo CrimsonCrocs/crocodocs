@@ -1,0 +1,149 @@
+---
+title: Reliable autonomous sequences
+description: Keep paths and mechanisms updating, distinguish success from timeout, and recover when an action cannot finish
+icon: phosphor:FlowArrow
+---
+
+Start each action once, keep its controller updating, and decide explicitly whether it succeeded, timed out, or was cancelled. Sending a motor, servo, or path command is not the same as finishing it.
+
+## One loop, clear owners
+
+A responsive autonomous loop updates localization, the drive controller, mechanism controllers, and the sequence. Each update returns promptly. The sequence changes targets; it does not take over hardware already owned by another controller.
+
+For a state machine, request a path when **entering** the driving state. Re-requesting it every loop can restart its progress or completion timer. For a command framework, use its requirements or equivalent ownership mechanism so two commands cannot drive the same subsystem simultaneously.
+
+Keep motor-holding controllers running while another action waits. A parallel group does not resolve conflicts between two commands that both write the same motor. A background thread does not provide that ownership either.
+
+The basic flow is:
+
+```text
+enter DRIVE: request one path and start its deadline
+each loop: refresh inputs, update follower, update mechanisms, inspect outcome
+on successful arrival: enter the scoring state
+on timeout or sensor failure: cancel the path and enter a defined recovery state
+on STOP: cancel outstanding actions and stop outputs
+```
+
+This is pseudocode. Use the installed library's path, update, cancellation, and completion APIs; Pedro major versions have different contracts.
+
+## Define arrival
+
+A path's parameter reaching its endpoint, the follower becoming idle, and the robot physically settling are different conditions. For a precision task, check position error, wrapped heading error, and measured speed. Require them to remain acceptable for a short settling period.
+
+Pedro 3's documented end constraints can complete a segment after its endpoint correction timeout even when the pose tolerances were not met. Treat follower completion and permission to score as separate decisions.
+
+Choose tolerances from the task's actual clearance and localization repeatability. If the robot can only repeat within 15 mm, asking it to finish within 0.1 mm can make a sequence wait forever. Increasing a tolerance until a wrong pose passes hides a different problem.
+
+Use a separate deadline. A timeout is a failed or incomplete move, not permission to fire as though the robot arrived.
+
+## Arrival gate
+
+Save this Java 8 helper as `ArrivalGate.java` in TeamCode. It evaluates measurements; it does not move the robot. Use the same distance unit for distance error, speed, and their limits, and seconds for time. Heading values are radians.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+public final class ArrivalGate {
+    public enum Outcome { IDLE, RUNNING, SUCCEEDED, TIMED_OUT, FAILED, CANCELLED }
+    private final double distanceLimit, headingLimit, speedLimit, dwell, timeout;
+    private double started, lastTime, settledSince;
+    private Outcome outcome = Outcome.IDLE;
+
+    public ArrivalGate(double distanceLimit, double headingLimit,
+                       double speedLimit, double dwellSeconds, double timeoutSeconds) {
+        if (!Double.isFinite(distanceLimit) || distanceLimit <= 0
+                || !Double.isFinite(headingLimit) || headingLimit <= 0
+                || !Double.isFinite(speedLimit) || speedLimit < 0
+                || !Double.isFinite(dwellSeconds) || dwellSeconds < 0
+                || !Double.isFinite(timeoutSeconds) || timeoutSeconds <= dwellSeconds) {
+            throw new IllegalArgumentException("Invalid arrival limits");
+        }
+        this.distanceLimit = distanceLimit;
+        this.headingLimit = headingLimit;
+        this.speedLimit = speedLimit;
+        dwell = dwellSeconds;
+        timeout = timeoutSeconds;
+    }
+
+    public void begin(double nowSeconds) {
+        if (!Double.isFinite(nowSeconds)) throw new IllegalArgumentException("Invalid time");
+        started = lastTime = nowSeconds;
+        settledSince = Double.NaN;
+        outcome = Outcome.RUNNING;
+    }
+
+    public Outcome update(double distanceError, double headingErrorRadians,
+                          double speed, boolean measurementFresh, double nowSeconds) {
+        if (outcome != Outcome.RUNNING) return outcome;
+        if (!measurementFresh || !Double.isFinite(nowSeconds) || nowSeconds < lastTime
+                || !Double.isFinite(distanceError) || !Double.isFinite(headingErrorRadians)
+                || !Double.isFinite(speed)) {
+            outcome = Outcome.FAILED;
+            return outcome;
+        }
+        lastTime = nowSeconds;
+        if (nowSeconds - started >= timeout) {
+            outcome = Outcome.TIMED_OUT;
+            return outcome;
+        }
+        double headingError = Math.atan2(Math.sin(headingErrorRadians),
+                Math.cos(headingErrorRadians));
+        boolean inside = Math.abs(distanceError) <= distanceLimit
+                && Math.abs(headingError) <= headingLimit && Math.abs(speed) <= speedLimit;
+        if (!inside) {
+            settledSince = Double.NaN;
+        } else {
+            if (Double.isNaN(settledSince)) settledSince = nowSeconds;
+            if (nowSeconds - settledSince >= dwell) outcome = Outcome.SUCCEEDED;
+        }
+        return outcome;
+    }
+
+    public void cancel() {
+        if (outcome == Outcome.RUNNING) outcome = Outcome.CANCELLED;
+    }
+}
+```
+
+For example, `new ArrivalGate(0.75, Math.toRadians(3), 1.0, 0.15, 4.0)` uses inches, inches/second, a 0.15-second dwell, and a four-second deadline. These are illustrative limits. Measure your robot and scoring task before choosing yours.
+
+Call `begin()` once when the move starts. On each loop, calculate distance error with `Math.hypot(targetX - x, targetY - y)`, use the localizer's measured speed, and pass a monotonic time such as `System.nanoTime() / 1e9`. Establish `measurementFresh` from the sensor/update path; a stationary robot's pose may legitimately have unchanged numbers.
+
+The gate checks translational speed. If the mechanism needs the chassis to stop rotating too, include a measured angular-speed limit in the calling code or extend the gate for that task. It cannot certify arrival when the localizer's estimate is wrong.
+
+### Read the outcome
+
+With the illustrative limits above and `begin(0.0)`, these samples explain why entering the position tolerance is not enough. Assume fresh measurements, heading error within 3°, and continuing updates between rows:
+
+| Time | Distance error | Speed | Outcome |
+| --- | --- | --- | --- |
+| 0.50 s | 0.50 in | 4.0 in/s | `RUNNING`: passing the target too quickly |
+| 0.80 s | 0.40 in | 0.5 in/s | `RUNNING`: start the settling interval |
+| 0.90 s | 0.90 in | 0.4 in/s | `RUNNING`: outside position tolerance; reset settling |
+| 1.00 s | 0.35 in | 0.3 in/s | `RUNNING`: start a new interval |
+| 1.16 s | 0.30 in | 0.2 in/s | `SUCCEEDED` if every intervening update passed |
+
+On a separate run, reaching four seconds while still `RUNNING` produces `TIMED_OUT`, even if that update first enters tolerance. Losing fresh measurements produces `FAILED`. A terminal result stays latched until the next `begin()`; use the result to select the next state rather than interpreting every finished action as success.
+
+## Recovery and adaptive paths
+
+Handle every terminal outcome. On timeout or failure, cancel the active drive action and choose a tested response: stop, skip the action, or take a reachable fallback route. Do not continue a scoring sequence from an unknown pose. Cancellation must reach both the command scheduler and the hardware controller that still owns outputs.
+
+For a vision-selected route, validate one fresh target, convert it into the follower's frame, and commit to that target when entering the state. Regenerating a path from noisy detections every iteration can continually move its endpoint. Define when replanning is allowed, retain collision constraints, and set a fallback when no target is found.
+
+## Failure tests
+
+Run the normal arrival, an unreachable target, a transient pass through tolerance at high speed, lost localization, and STOP during movement. Confirm that the feeder stays disabled for every failed drive outcome. Repeat after a substantial change in robot mass or traction.
+
+If the robot oscillates at the endpoint, first verify localization and current drivetrain tuning. Then inspect settling conditions and the version-specific end constraints. Log the outcome and error values so a timeout is visible during practice.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Pedro Pathing: end constraints](https://pedropathing.com/docs/pathing/reference/endconstraints)
+- [Pedro Pathing: Foresight tuning](https://pedropathing.com/docs/pathing/tuning/foresight)
+- [Road Runner: actions](https://rr.brott.dev/docs/v1-0/actions/) — cooperative updates and parallel actions.
+- [FTCLib: command requirements and scheduling](https://docs.ftclib.org/ftclib/command-base/command-system/command-scheduler)
+
+</footer>

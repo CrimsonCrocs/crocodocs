@@ -3,9 +3,12 @@
         "index",
         "time-vs-encoder",
         "odometry",
+        "localization-troubleshooting",
         "motion-planning",
+        "reliable-sequences",
         "pure-pursuit",
-        "sensor-fusion"
+        "sensor-fusion",
+        "auto-to-teleop"
     ],
     "icon": "Navigation"
 }

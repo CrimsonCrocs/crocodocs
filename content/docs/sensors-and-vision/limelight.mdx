@@ -1,0 +1,130 @@
+---
+title: Limelight 3A
+description: Read a configured pipeline, reject stale results, and separate target aiming from field localization
+icon: phosphor:Crosshair
+---
+
+Start by displaying a Limelight result while the robot stays still. A target visible in the camera's web interface has not yet established that TeamCode receives the right pipeline or a current result.
+
+## Setup
+
+Use a Limelight 3A with its FTC setup procedure and an SDK that includes its driver; the example below uses FTC SDK 12. Connect and configure the device as `limelight`. For initial computer setup, use the manufacturer's Hardware Manager or USB browser connection. The robot's Wi-Fi connection and the camera's direct USB connection are different access paths.
+
+For the preview below, create a colour or AprilTag pipeline in the camera's web interface, note its index, and provide a clearly visible target. These pipelines supply the target offsets used by the example. A neural detector or Python pipeline may need its own result fields; installing a model does not change which pipeline TeamCode selects.
+
+For the BIOBUZZ neural-model workflow, follow [Hive Vision](/docs/community-software/hive-vision). For webcam processing on the Control Hub, use [VisionPortal](/docs/sensors-and-vision/visionportal/vision-portal) instead of the Limelight driver.
+
+## Stationary preview
+
+Save this complete file as `LimelightPreview.java`. Set `PIPELINE` to the configured slot. It reads and reports results without commanding motors or servos.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+@TeleOp(name = "Limelight Preview", group = "Tests")
+public class LimelightPreview extends LinearOpMode {
+    private static final int PIPELINE = 0;
+    private static final long MAX_AGE_MS = 250; // Initial diagnostic limit.
+
+    @Override
+    public void runOpMode() {
+        Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.setPollRateHz(50);
+        limelight.pipelineSwitch(PIPELINE);
+        limelight.start();
+        double lastFrameTimestamp = Double.NaN;
+        long frameAdvancedAt = 0;
+        try {
+            waitForStart();
+            while (opModeIsActive()) {
+                long now = System.nanoTime();
+                LLResult result = limelight.getLatestResult();
+                double timestamp = result == null ? Double.NaN : result.getTimestamp();
+                if (Double.isFinite(timestamp) && timestamp != lastFrameTimestamp) {
+                    lastFrameTimestamp = timestamp;
+                    frameAdvancedAt = now;
+                }
+                long receiptAgeMs = result == null ? Long.MAX_VALUE : result.getStaleness();
+                boolean usable = result != null && result.isValid()
+                        && result.getPipelineIndex() == PIPELINE
+                        && receiptAgeMs >= 0 && receiptAgeMs <= MAX_AGE_MS
+                        && frameAdvancedAt != 0
+                        && now - frameAdvancedAt <= MAX_AGE_MS * 1_000_000L
+                        && Double.isFinite(result.getTx()) && Double.isFinite(result.getTy());
+                telemetry.addData("Target", usable ? "Usable" : "Unavailable / stale / wrong pipeline");
+                if (result != null) {
+                    telemetry.addData("Pipeline", result.getPipelineIndex());
+                    telemetry.addData("Receipt age (ms)", receiptAgeMs);
+                    telemetry.addData("Camera timestamp", "%.3f", timestamp);
+                }
+                if (usable) {
+                    telemetry.addData("tx (deg)", "%.2f", result.getTx());
+                    telemetry.addData("ty (deg)", "%.2f", result.getTy());
+                }
+                telemetry.update();
+                idle();
+            }
+        } finally {
+            limelight.stop();
+        }
+    }
+}
+```
+
+`start()` begins polling. Call `setPollRateHz()` before it, and stop polling during cleanup. Polling at 50 Hz does not make a slow detector produce 50 distinct frames each second.
+
+SDK 12's `getLatestResult()` can retain a previous result when communication fails. Check validity and age rather than relying on a non-null object. `getStaleness()` measures time since receipt on the Control Hub, not the entire image-to-action delay. The camera timestamp check also notices a frame that stops advancing while results are still retrieved. The 250 ms limit is for diagnosis; choose a tighter or looser limit from measured motion, processing rate, and allowable aiming error.
+
+Cover the target, change pipeline, stop the pipeline, and disconnect the camera during this stationary test. The usable state should disappear. In a motion controller, clear the automatic correction and inhibit feeding when data becomes unavailable; do not keep the last steering output indefinitely.
+
+## Aiming and localization
+
+**Aiming** can use a target's image error without knowing the robot's field X/Y. `tx` and `ty` are angular image offsets in degrees. Verify the sign with a small manual motion before closing the loop. If several targets are visible, select the intended ID or class rather than blindly aiming at whichever result appears first.
+
+**Field localization** additionally needs a valid target map and the camera's pose on the robot. MegaTag1 estimates pose from the configured tags. MegaTag2 also takes a robot yaw aligned with that map through `updateRobotOrientation()`; convert radians to degrees at that API boundary.
+
+| Value | Meaning | Boundary to check |
+| --- | --- | --- |
+| `tx`, `ty` | Angular target offsets in the camera image, in degrees | Target selection, sign, and camera orientation |
+| Limelight `botpose` | Estimated robot pose in the configured field map | Map origin, axes, camera mounting, and returned units |
+| Follower pose | Robot reference point in the path library's field frame | Convert the entire pose before applying a correction |
+
+An image offset is not an X/Y field position. A valid aiming result also does not guarantee a usable mapped pose.
+
+Inspect the returned `Pose3D` position unit instead of treating it as inches. The SDK 12 Limelight driver constructs pose positions in metres. Convert units, origin, axis directions, and heading together before passing a pose to a follower. Test several known field points and headings, with correction disabled, to expose a bad transform.
+
+## Camera and target movement
+
+A fixed camera mount has a constant robot-to-camera transform. A camera on a turret has a changing one. Its field-pose calculation needs the camera orientation and offset for the image capture time; configuring one fixed offset does not account for turret motion.
+
+Likewise, a tag on a moving structure does not have one permanent field pose. Only use it for global relocalization when its position and orientation are known for that observation. Target-relative aiming may still be useful without a valid global map. For tilted cameras, compose the full 3D transform rather than subtracting one pitch angle from every detection.
+
+Before applying corrections, reject invalid or stale frames, implausible jumps, and observations that violate the map assumptions. Apply each accepted frame once. Reusing one frame as several independent measurements makes a fusion estimate overconfident. Use capture-time alignment when moving; see [Sensor fusion](/docs/autonomous/sensor-fusion).
+
+## Fault isolation
+
+| Symptom | Check |
+| --- | --- |
+| Web preview works; TeamCode has no target | Device name, polling, pipeline index, and result type |
+| Model file cannot be selected or loaded | The camera's required model/export format and the model's own installation guide |
+| Camera works until a heavy model runs | Status, power, cabling, processing load, and cooling; capture a log before changing several settings |
+| Two cameras work alone but not together | Device discovery, supported topology, and available USB power; verify the manufacturer's multi-device support |
+| Target correction jumps when the robot turns | Camera frame, turret angle, units, timestamp, and mounting transform |
+
+For a first automatic turret, establish [odometry-based aiming](/docs/season-topics/turret-aiming), then compare a camera correction against the same stationary targets. Keep the accepted source of aim and the reason for rejecting a measurement visible in telemetry.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Limelight: 3A quick start](https://docs.limelightvision.io/docs/docs-limelight/getting-started/limelight-3a)
+- [Limelight: FTC programming API](https://docs.limelightvision.io/docs/docs-limelight/apis/ftc-programming)
+- [FTC SDK 12 Hardware source](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/Hardware/12.0.0/Hardware-12.0.0-sources.jar) — `Limelight3A` polling and `LLResult` timestamps, units, and validity.
+- [FIRST: AprilTag reference frames and pose](https://ftc-docs.firstinspires.org/en/latest/apriltag/index.html)
+
+</footer>

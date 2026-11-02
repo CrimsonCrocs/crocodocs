@@ -1,0 +1,104 @@
+---
+title: Localization troubleshooting
+description: Separate scale, offset, heading, vibration, and stale-data failures before retuning a path follower
+icon: phosphor:TestTube
+---
+
+Push the unpowered drivetrain through a measured motion and compare the physical result with pose telemetry. If the pose is wrong, tuning the path follower makes it respond more strongly to the wrong measurement.
+
+## First measurement
+
+Keep the Robot Controller and localizer running, but disable drivetrain output. Mark the localizer's reference point on the chassis and record the starting pose. Follow [odometry calibration](/docs/autonomous/odometry#step-4-calibrate-with-short-tests) if the basic encoder scale has not been established.
+
+1. Push straight ahead a measured 24 inches, keeping heading fixed. Compare the reported displacement with the expected direction in your field frame.
+2. Return to the marked start, then push left 24 inches if the localizer measures sideways travel. Check that displacement separately.
+3. Return again and rotate 90° about the marked tracking point. Check heading sign and magnitude, then check for unexpected translation.
+4. Repeat the turn in the other direction. Record the result before changing one setting and repeating the same test.
+
+The 24-inch distance is a convenient test length, not a calibration constant. If you cannot rotate exactly about the reference point, measure its actual displacement; a turn about another point should change X/Y.
+
+## Separate the failures
+
+Record the reported X/Y, heading, sensor status, and update interval. Use one known reference point on the robot throughout the test.
+
+| Symptom | First check | Next action |
+| --- | --- | --- |
+| Forward and sideways distances have the wrong scale | Wheel diameter, encoder counts, and distance units | Compare a measured straight distance in each direction |
+| Forward works but strafe fails | Pod port assignment, direction, resolution, and contact | Read the raw encoders while moving each pod separately |
+| X/Y changes greatly during an in-place turn | Heading sign and perpendicular pod offsets | Rotate about the declared tracking point and compare both turn directions |
+| Heading drifts while stationary | Calibration motion, mounting, vibration, and sensor health | Compare still, intake-only, and flywheel-only runs |
+| Pose freezes while the loop counter advances | Cache clearing and the localizer's update call | Check that new sensor data reaches the controller |
+| I2C timeouts occur when turning or hitting bumps | Cable strain, loose connections, and power | Inspect wiring through its full motion before adjusting gains |
+| The dashboard pose is correct but the robot misses | Drive direction, traction, braking, load, or controller tuning | Test the follower after localization passes |
+| A vision correction jumps or keeps returning to one point | Frame conversion, units, age, and target map | Log raw and converted poses without applying the correction |
+
+An encoder measures wheel rotation, not guaranteed floor travel. Loose pods, poor spring contact, wheel slip, and a moving tracking point can produce convincing telemetry with the wrong physical result.
+
+## Pinpoint setup
+
+A Pinpoint reads two dead wheels and its internal IMU. It is an I2C device, not three more motor encoder ports. Map the configured driver instead of constructing it with a string or a null I2C client.
+
+These are FTC SDK 12 setup fragments inside an OpMode. Configure the device as `pinpoint`, then supply the measured offsets of your own pods:
+
+```java
+// Imports:
+// com.qualcomm.hardware.gobilda.GoBildaPinpointDriver
+// org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
+
+GoBildaPinpointDriver pinpoint = hardwareMap.get(
+        GoBildaPinpointDriver.class, "pinpoint");
+pinpoint.setOffsets(xPodSidewaysMm, yPodForwardMm, DistanceUnit.MM);
+pinpoint.setEncoderResolution(
+        GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+```
+
+The preset above is for the goBILDA 4-Bar pod. Select the actual pod or provide a custom resolution. For encoder counts $C$ per wheel revolution and wheel diameter $D$ in millimetres:
+
+$$
+\text{ticks/mm}=\frac{C}{\pi D}
+$$
+
+Use quadrature counts and the encoder-to-wheel ratio actually reported by the hardware. A shaft encoder's resolution alone is not the pod's distance scale. SDK 12's custom overload accepts an explicit unit: `setEncoderResolution(ticksPerMm, DistanceUnit.MM)`.
+
+Pinpoint's forward pod count should increase when pushed forward; its sideways pod count should increase when pushed left. Set encoder direction after checking those physical motions. Do not substitute motor direction settings for pod encoder direction.
+
+## Offset geometry
+
+The forward-reading pod's **X offset** is its sideways distance from the tracking point. The sideways-reading pod's **Y offset** is its forward distance. Measure perpendicular to the pod's rolling direction. For the manufacturer's convention, left and forward are positive.
+
+During rotation, a pod away from the tracking point rolls along an arc. The localizer must subtract that rotational contribution before treating the remainder as translation. A wrong offset may therefore look fine on a straight push and fail badly during a turn.
+
+Use a tracking point that you can identify physically. If the robot turns about another point, that tracking point really moves; nonzero X/Y change is then expected. Compare the reported movement with the chosen point rather than assuming every turn must leave X/Y unchanged.
+
+## Calibration and updates
+
+Keep the robot still during IMU calibration. For Pinpoint, `recalibrateIMU()` recalibrates the gyro; `resetPosAndIMU()` also resets the pose. Do not call either continuously or while driving. Follow the device status and manufacturer procedure before enabling motion.
+
+With the SDK 12 driver, call `pinpoint.update()` before reading its cached position each control cycle. When a pathing library owns the Pinpoint, its localizer may already do this. Confirm that owner instead of adding duplicate reads or resetting its pose in another subsystem.
+
+For an OTOS, use SparkFun's mounting, calibration, and scalar procedure for that device. Pinpoint pod offsets and ticks/mm do not apply to an optical sensor. Compare the two systems using measured endpoint and heading error rather than assuming one model cannot drift.
+
+## Vibration and power
+
+Run a stationary test for the expected operating duration. Compare heading drift with mechanisms off, then with each mechanism running at its normal test setting. Also inspect camera blur, pod mounting, sensor mounting, and the cables. A change that appears only with the flywheel running narrows the investigation; it does not by itself prove electrical interference or a failed IMU.
+
+If the sensor reports a timeout or stops updating, treat the estimate as unavailable. Withhold pose-dependent actions and diagnose the connection. Adding a time-based correction to X/Y can hide a fault while making the next run less accurate.
+
+## Retest the route
+
+After straight pushes and turns pass, drive a measured square and return to its starting reference. Repeat in both directions with the assembled robot. Record endpoint error, heading error, battery condition, and whether the mechanism was running.
+
+Then retune the follower for the current mass, gearing, and traction. Use [reliable sequences](/docs/autonomous/reliable-sequences) to distinguish an unreachable completion tolerance from a bad pose, and [loop timing](/docs/cegp/loop-timing) to check update delays.
+
+A known wall or fixture can provide a repeatable reset reference if the robot is actually seated against it and the pose is known. One flat wall alone does not locate the robot along that wall; establish the remaining position and heading with another measured constraint. A field-coordinate assignment is a claim about physical position; a timeout or an approximate visual guess does not establish that claim.
+
+<footer className="article-sources">
+
+## Sources
+
+- [goBILDA: Pinpoint user guide](https://www.gobilda.com/content/user_manuals/3110-0002-0001_user-guide.pdf) — pod resolution, offset geometry, calibration, and troubleshooting.
+- [FTC SDK 12 Hardware source](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/Hardware/12.0.0/Hardware-12.0.0-sources.jar) — `GoBildaPinpointDriver` units and update lifecycle.
+- [SparkFun: calibrating an OTOS](https://learn.sparkfun.com/tutorials/calibrating-your-odometry-sensor/all)
+- [FIRST: universal IMU interface](https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html)
+
+</footer>

@@ -1,0 +1,133 @@
+---
+title: Auto to TeleOp handoff
+description: Carry a pose between OpModes without accepting a stale position or resetting the field heading
+icon: phosphor:FlowArrow
+---
+
+Save the final autonomous pose, then deliberately choose whether TeleOp should use it. A pose left over from yesterday's practice is worse than an explicit request to set the starting position.
+
+## What survives
+
+FTC SDK 12 exposes `OpMode.blackboard`, a map for values shared between OpModes in the same Robot Controller app process. It is not storage across an app restart or robot reboot. Static fields have the same persistence limitation.
+
+Store a snapshot of numbers and their meaning: position, heading, coordinate frame, and when the estimate was captured. Do not carry motor, camera, follower, or OpMode objects into a new lifecycle. Initialize the new OpMode's devices normally.
+
+The snapshot must be the **measured final estimate**, not the route's requested endpoint. If autonomous stopped early or localization failed, withhold the handoff.
+
+## Snapshot helper
+
+Save this helper as `PoseHandoff.java` in TeamCode. It uses FTC SDK 12's blackboard and the same field frame as the [Pedro 3 guide](/docs/libraries/pedro-pathing): origin at the bottom-left of the field diagram, +X right, +Y up, distances in inches, and counterclockwise heading in radians with zero along +X. Both OpModes must use that exact frame. Convert another localizer's values before saving; the helper does not perform a coordinate conversion.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+public final class PoseHandoff {
+    private static final String KEY = "crocodocs.pose.v1";
+    private static final String FRAME = "pedro-bottom-left-in-ccw-rad";
+
+    public static final class Snapshot {
+        public final double xInches, yInches, headingRadians;
+        public final String frame;
+        public final long capturedNanos;
+
+        private Snapshot(double x, double y, double heading) {
+            xInches = x;
+            yInches = y;
+            headingRadians = heading;
+            frame = FRAME;
+            capturedNanos = System.nanoTime();
+        }
+    }
+
+    public static void clear() {
+        OpMode.blackboard.remove(KEY);
+    }
+
+    public static void save(double xInches, double yInches, double headingRadians) {
+        if (!Double.isFinite(xInches) || !Double.isFinite(yInches)
+                || !Double.isFinite(headingRadians)) {
+            clear();
+            return;
+        }
+        OpMode.blackboard.put(KEY, new Snapshot(xInches, yInches, headingRadians));
+    }
+
+    public static Snapshot take(double maxAgeSeconds) {
+        Object stored = OpMode.blackboard.remove(KEY); // Consume at most once.
+        if (!(stored instanceof Snapshot) || !Double.isFinite(maxAgeSeconds)
+                || maxAgeSeconds <= 0) return null;
+        Snapshot pose = (Snapshot) stored;
+        double age = (System.nanoTime() - pose.capturedNanos) / 1e9;
+        if (!FRAME.equals(pose.frame) || age < 0 || age > maxAgeSeconds) return null;
+        return pose;
+    }
+}
+```
+
+Clear the old snapshot when beginning an autonomous run. Save only while its estimate is valid, updating the capture time when new localization data arrives. Do not refresh the timestamp by repeatedly saving an old cached pose after the localizer fails.
+
+In TeleOp initialization, call `PoseHandoff.take(maxAgeSeconds)` once. Choose the age limit from the expected handoff time; a value such as 30 seconds is a practice setting, not proof that the robot stayed still. Display the result before enabling pose-dependent controls.
+
+## Use it with Pedro 3
+
+These fragments use the `follower` created in the [Pedro guide](/docs/libraries/pedro-pathing). Import `com.pedropathing.math.Pose` and `com.pedropathing.api.PoseFactory` in the calling files.
+
+In autonomous, clear the old value during initialization. Save after a successful final move and a fresh, valid localization update, before stopping the follower:
+
+```java
+// AUTO initialization:
+PoseHandoff.clear();
+
+// AUTO's successful finish branch, with valid localization:
+Pose finished = follower.pose();
+PoseHandoff.save(finished.x(), finished.y(), finished.heading());
+```
+
+Do not put the save unconditionally in `finally`: that branch also runs after STOP, a timeout, or a sensor failure. An intentional early handoff can still be useful, but it needs the same validity checks.
+
+In TeleOp initialization, after creating its follower and before accepting pose-dependent commands:
+
+```java
+PoseHandoff.Snapshot saved = PoseHandoff.take(30.0);
+if (saved != null) {
+    follower.setPose(PoseFactory.radians().of(
+            saved.xInches, saved.yInches, saved.headingRadians));
+    telemetry.addLine("AUTO pose restored; confirm robot has not moved.");
+} else {
+    telemetry.addLine("No recent AUTO pose. Set a known starting pose.");
+}
+telemetry.update();
+```
+
+The missing-pose branch reports the condition; it does not establish a pose. Keep automatic aiming and navigation disabled until the driver confirms a measured reference. Continue the follower's normal update lifecycle after initialization.
+
+## Restore heading consistently
+
+Set the new localizer's initial X/Y and heading from the accepted snapshot using its installed API. If the new localizer reads raw IMU yaw, align that yaw with the saved field heading:
+
+$$
+\theta_{field}=\operatorname{wrap}(\theta_{saved}+\theta_{raw}-\theta_{raw,start})
+$$
+
+Capture the raw yaw and encoder baselines together before movement. Do not also reset the field heading to zero. If your library establishes its own heading offset when you set the pose, use that mechanism once rather than applying the offset again.
+
+The robot may move between OpModes. A saved estimate cannot observe a lift, push, or rotation while the new localizer is inactive. Confirm the physical pose or choose a measured restart reference when that happens.
+
+## TeleOp without autonomous
+
+A missing or expired snapshot should lead to a normal practice path: place the robot at a known pose and explicitly initialize there. Keep ordinary robot-centric driving available if the team supports it, while leaving automatic aiming or field navigation disabled until localization is established.
+
+Test a normal handoff, TeleOp started directly, a stale snapshot, an app restart, and a robot moved after AUTO. At headings other than zero, [field-centric driving](/docs/control-systems/field-centric-drive) should retain the intended field direction. Repeated TeleOp initialization should not silently reuse a consumed snapshot.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FTC SDK 12 RobotCore source](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/RobotCore/12.0.0/RobotCore-12.0.0-sources.jar) — `OpMode.blackboard` and lifecycle.
+- [FIRST: universal IMU interface and yaw reset](https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html)
+- [Pedro Pathing: coordinates](https://pedropathing.com/docs/pathing/reference/coordinates) — field origin, axes, and heading convention.
+- [Pedro Pathing: pose factory](https://pedropathing.com/docs/pathing/reference/posefactory) — explicit angle units when creating a pose.
+
+</footer>

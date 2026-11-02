@@ -118,6 +118,8 @@ This method approximates a stationary shot toward a shifted target. Drag depends
 
 Before starting the feeder, check that the pose is recent, the shot lies in the tested range, the turret and hood have settled, and measured flywheel speed has recovered. Account for how long the ball takes to reach release; a solution for the current pose is already late when the feeder has a noticeable delay.
 
+[Turret aiming](/docs/season-topics/turret-aiming) shows the pivot-offset and reachable-angle calculations. [Flywheel velocity control](/docs/control-systems/flywheel-velocity) turns measured RPM recovery into a separate readiness condition. Establish both with stationary tests before combining them with this moving-shot model.
+
 Keep updating the prediction before the feed is committed. Once the ball is committed, coordinate setpoint changes with its actual release instead of changing the aim unpredictably during contact.
 
 In BIOBUZZ, a CELL can move as the HIVE tips. These equations assume a stationary target during flight. Use the current opening position and orientation, and avoid shooting during an unmodelled transition. A tag detection identifies a reference on the structure; it still needs the geometric transform to the scoring opening.

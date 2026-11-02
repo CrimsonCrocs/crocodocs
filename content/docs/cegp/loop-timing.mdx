@@ -1,0 +1,116 @@
+---
+title: Loop timing and bulk reads
+description: Measure the control loop, refresh cached inputs, and reduce hardware traffic before adding threads
+icon: phosphor:TestTube
+---
+
+Measure where a slow loop spends its time before rewriting the controller. A short calculation can still wait on hardware communication, and a fast telemetry counter can coexist with stale sensor data.
+
+## Measure the whole cycle
+
+Measure the interval between successive control updates as well as the time spent doing work inside one iteration. The interval includes waits and scheduling delays outside that work. Record the typical interval, slowest intervals, and the age of the measurements the controller uses.
+
+For a robot travelling at $1\,\mathrm{m/s}$, a 40 ms interval means about 40 mm of travel between updates. Reducing that interval can improve reaction time, but it does not repair an incorrect encoder scale or add traction.
+
+Keep the robot and workload the same when comparing changes. Include vision, mechanisms, and telemetry that normally run together. Compare stopping error and consistency alongside timing.
+
+## Bulk caching
+
+A REV hub can return several eligible inputs together. `LynxModule` exposes three cache modes:
+
+| Mode | Refresh behavior | Use |
+| --- | --- | --- |
+| `OFF` | Eligible reads do not reuse the bulk cache | Comparison or diagnosis |
+| `AUTO` | Repeating an eligible command refreshes the cache automatically | A useful starting point without manual cache ownership |
+| `MANUAL` | Reuse cached data until your code clears it | A coordinated read phase with one owner |
+
+With MANUAL, clear each hub's cache once at the beginning of the control cycle. The next eligible read fetches data. Forgetting to clear it can leave encoders apparently frozen while the robot keeps moving. Clearing it inside every subsystem defeats much of the benefit.
+
+Bulk caching covers eligible hub inputs, including motor encoder data. It does **not** turn separate I2C sensors such as a Pinpoint or colour sensor into part of the hub's encoder packet. They retain their own update and communication requirements.
+
+## Read-only timing OpMode
+
+Configure a motor with an encoder as `testMotor`. Save this complete FTC SDK 12 file as `LoopTiming.java`. It sends no motor power commands. With the robot safely supported and the mechanism unpowered, move the encoder by hand to confirm the readings continue to change.
+
+```java
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import java.util.List;
+
+@TeleOp(name = "Loop Timing", group = "Tests")
+public class LoopTiming extends LinearOpMode {
+    @Override
+    public void runOpMode() {
+        DcMotorEx motor = hardwareMap.get(DcMotorEx.class, "testMotor");
+        List<LynxModule> hubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : hubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
+        waitForStart();
+        if (!opModeIsActive()) return;
+        long previousStart = 0;
+        long nextReport = 0;
+        double sumMs = 0;
+        double maxMs = 0;
+        int samples = 0;
+        while (opModeIsActive()) {
+            long start = System.nanoTime();
+            if (previousStart != 0) {
+                double intervalMs = (start - previousStart) / 1e6;
+                sumMs += intervalMs;
+                maxMs = Math.max(maxMs, intervalMs);
+                samples++;
+            }
+            previousStart = start;
+            for (LynxModule hub : hubs) hub.clearBulkCache();
+            int ticks = motor.getCurrentPosition();
+            double ticksPerSecond = motor.getVelocity();
+            // In a real OpMode: update controllers here using these saved inputs.
+            double workMs = (System.nanoTime() - start) / 1e6;
+            if (start >= nextReport) {
+                telemetry.addData("Encoder (ticks)", ticks);
+                telemetry.addData("Velocity (ticks/s)", "%.1f", ticksPerSecond);
+                telemetry.addData("Mean interval (ms)", "%.2f",
+                        samples == 0 ? 0 : sumMs / samples);
+                telemetry.addData("Max interval (ms)", "%.2f", maxMs);
+                telemetry.addData("Read/control work (ms)", "%.2f", workMs);
+                telemetry.update();
+                nextReport = start + 250_000_000L;
+            }
+            idle();
+        }
+    }
+}
+```
+
+The work measurement excludes the telemetry block; the next cycle's interval includes it. These numbers describe this small OpMode, not your full autonomous routine. Add the same measurements around your real read, localization, control, and reporting phases to locate its bottleneck.
+
+## Reduce traffic
+
+Read each required input once, then share the saved value with control logic and telemetry. Avoid putting a second `getCurrentPosition()` call inside a telemetry statement. Rate-limit expensive reporting and camera previews independently from the controller.
+
+Check whether a library already manages bulk caching or updates the localizer. Give one layer ownership of those operations. Multiple resets, duplicate I2C updates, or competing motor writes can make integration worse even when each component works alone.
+
+For output caching, establish what the SDK or wrapper already caches before adding another layer. An overly large change threshold can discard the small corrections needed near a target. Test STOP and transitions to zero after any write-caching change.
+
+## Threads and freshness
+
+The SDK coordinates Lynx hardware communication with locks. Moving hardware calls onto more threads does not make a shared transport perform all of them simultaneously. It can also leave the controller reading values from different moments.
+
+Start with one responsive [nonblocking loop](/docs/getting-started/nonblocking-code). Vision frameworks already perform camera processing outside the ordinary OpMode loop. If a separate task is justified, define how it publishes a consistent result, its timestamp, shutdown, and who owns each hardware output. Measure end-to-end response; counting only the faster thread is misleading.
+
+Native communication projects such as [Blaze FTC](/docs/community-software/blaze-ftc) are a separate integration choice. Compare their supported hardware and robot results after establishing a baseline with the SDK.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FIRST: motor bulk-read sample](https://github.com/FIRST-Tech-Challenge/FtcRobotController/blob/master/FtcRobotController/src/main/java/org/firstinspires/ftc/robotcontroller/external/samples/ConceptMotorBulkRead.java)
+- [FTC SDK 12 Hardware source](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/Hardware/12.0.0/Hardware-12.0.0-sources.jar) — `LynxModule` cache modes and `LynxUsbDeviceImpl` transmission lock.
+- [FTC SDK 12 RobotCore source](https://repo.maven.apache.org/maven2/org/firstinspires/ftc/RobotCore/12.0.0/RobotCore-12.0.0-sources.jar) — motor velocity units.
+
+</footer>

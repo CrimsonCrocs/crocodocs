@@ -272,6 +272,8 @@ Maintaining robot pose requires careful coordinate math, encoder calibration, he
 
 Odometry alone drifts. Combining it with a known field target or another independent measurement can correct that drift; see [Sensor Fusion](./sensor-fusion).
 
+If measured pushes or turns disagree with telemetry, use [Localization troubleshooting](/docs/autonomous/localization-troubleshooting) to separate scale, offset, heading, update, and mounting problems before tuning the follower.
+
 ## Common checks
 
 - [ ] Encoder direction agrees with the wheel's direction of travel.
