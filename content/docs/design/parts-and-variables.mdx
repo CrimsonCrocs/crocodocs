@@ -6,11 +6,13 @@ icon: phosphor:Cube
 
 A **parametric model** uses dimensions and relationships to define a part. Instead of moving its faces until it looks right, you change the values that control its shape.
 
-Use the [two-hole practice plate](/docs/design/sketches) for this guide.
+Start with the `Plate outline` sketch from [Sketches](/docs/design/sketches): a 70 × 40 mm rectangle with two 4.5 mm holes, centered 40 mm apart. The Part Studio should contain no solid parts yet.
 
 ## Add thickness
 
-Finish the plate sketch and start **Extrude**. Select the plate region, leaving the two hole regions unselected. Choose **New** and enter a 3 mm depth. You should get one solid plate with two through holes.
+Finish the plate sketch and start **Extrude**. Select **Solid → New**, then select the plate region, leaving the two hole regions unselected. Use a **Blind** depth of **3 mm** in the positive Z direction. You should get one solid plate with two through holes, extending from Z = 0 to Z = 3 mm.
+
+If Onshape selects the hole regions automatically, remove them from the selection. Check the preview before accepting: two openings should remain, rather than two filled circles. Rename the feature `Plate thickness` and the part `Plate`.
 
 The Extrude result options do different jobs:
 
@@ -27,7 +29,11 @@ Rename important features by function, such as `Plate outline`, `Plate thickness
 
 ## Named dimensions
 
-A **variable** gives a value a name. Create it before the feature that uses it in the feature list. For example:
+A **variable** gives a value a name. Add these before the sketch so both the sketch and the extrusion can use them:
+
+1. Drag the **rollback bar** in the feature list to just above `Plate outline`, below the default reference geometry. The sketch and extrusion become temporarily inactive; they are still in the document.
+2. Choose **Variable** in the Part Studio toolbar. Create the three Length variables below, accepting each one.
+3. Right-click the rollback bar and choose **Roll to end**. The original plate should reappear.
 
 | Variable | Type | Practice value |
 | --- | --- | --- |
@@ -35,7 +41,21 @@ A **variable** gives a value a name. Create it before the feature that uses it i
 | `mountSpacing` | Length | 40 mm |
 | `holeDiameter` | Length | 4.5 mm |
 
-Use `#plateThickness` for the extrusion depth and `#holeDiameter` for the circle diameter. For centered holes, locate their centers at half the mounting spacing on either side of the origin.
+Edit `Plate outline`. Double-click the 4.5 mm diameter dimension and replace its value with `#holeDiameter`. The Equal constraint controls the second circle's diameter, so do not add another diameter dimension.
+
+Replace each 20 mm horizontal hole-center dimension with `#mountSpacing / 2`. Keep the centers on opposite sides of the origin. Accept the sketch, then edit `Plate thickness` and replace its depth with `#plateThickness`.
+
+The order should now be:
+
+```text
+plateThickness = 3 mm
+mountSpacing = 40 mm
+holeDiameter = 4.5 mm
+Plate outline
+Plate thickness
+```
+
+The Parts list still contains **one Plate**. The variables and sketch are features that define it, not extra parts.
 
 Keep independent quantities independent. Hole spacing may be set by the device you are mounting, while plate width may depend on available space. Making every dimension a fraction of plate width would break that relationship when the plate grows.
 
@@ -55,7 +75,9 @@ Use a pattern for evenly spaced ventilation holes. Use a mirror for identical le
 
 ## Check the part
 
-Change thickness to 4 mm. The through holes should remain open. Change hole diameter, then restore it. Check that there is still enough material between holes and edges.
+Edit `plateThickness` to 4 mm. Measure the solid: its thickness should change while the holes stay open. Change `mountSpacing` to 44 mm; each hole center should move 2 mm farther from the origin. Change `holeDiameter` to 5 mm; the centers should stay in place.
+
+Restore **3 mm thickness, 40 mm spacing, and 4.5 mm diameter** before continuing. Confirm one part measuring 70 × 40 × 3 mm, with hole centers 15 mm from the short ends and 20 mm from the long edges.
 
 These checks establish that the model updates as intended. To make a physical part, select material and manufacturing allowances using [Design for manufacturing](/docs/design/design-for-manufacturing). The 3 mm practice thickness is not a recommendation for a loaded robot bracket.
 
@@ -67,6 +89,7 @@ Continue with [Assemblies](/docs/design/assemblies).
 
 - [Onshape: Extrude](https://cad.onshape.com/help/Content/PartStudio/extrude.htm)
 - [Onshape: Variables](https://cad.onshape.com/help/Content/PartStudio/variable.htm)
+- [Onshape: Feature list and rollback bar](https://cad.onshape.com/help/Content/PartStudio/features_and_parts_lists.htm)
 - [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
 
 </footer>

@@ -1,63 +1,94 @@
 ---
 title: Assemblies
-description: Insert hardware, connect parts with mates, and check the motion and spacing of an FTC mechanism.
+description: Assemble two practice plates and two spacers, then check their position and freedom of movement.
 icon: phosphor:Stack
 ---
 
-An **assembly** contains instances of parts. An instance is one use of a part: four identical wheels can come from one wheel model.
+Build a small assembly from the plate in [Parts and variables](/docs/design/parts-and-variables). You will use the same plate twice, with two spacers between them.
 
-**Mates** define the allowed movement between instances. They should describe how the real hardware is connected.
+An **instance** is one use of a part. The two plate instances share one model: editing Plate changes both. A **mate** defines the allowed movement between two instances.
 
-## Insert parts
+## Make a spacer [#insert-parts]
 
-Create an Assembly tab and insert the [practice plate](/docs/design/parts-and-variables) from your document. Add a second plate or a purchased component with a matching mounting pattern.
+Keep the existing Plate Part Studio. Use the **+** menu at the bottom left to add a new Part Studio, and rename its tab `Spacer`.
 
-For purchased hardware, use the FTC parts resources or the manufacturer's model for the exact part number. A similar-looking motor may have a different shaft length or mounting pattern. Check a known dimension after importing.
+1. Start a sketch on its Top plane.
+2. Draw two circles centered on the origin. Set the outside diameter to **10 mm** and the inside diameter to **4.5 mm**.
+3. Accept the sketch, then Extrude the ring-shaped region using **Solid → New**, **Blind**, **12 mm**, in positive Z.
+4. Rename the part `Spacer`.
 
-Keep purchased parts separate from custom parts. Remodeling a complete motor rarely helps a bracket design; including its shaft, case, mounting holes, and cable exit usually does.
+You should have one hollow cylinder, with a hole through its full length. The 4.5 mm bore matches the practice plate's holes. These dimensions are for learning assembly placement; add suitable fasteners and material requirements before making a physical joint.
 
-## Establish a reference
+## Insert four parts [#establish-a-reference]
 
-Choose one base component to locate the assembly. You can fix it in a deliberate position or mate it to the assembly origin. Do this before connecting the other components, so the whole mechanism does not drift when dragged.
+Open the `Practice assembly` tab from [Onshape](/docs/design/onshape). If you need a new Assembly tab, create one with the **+** menu.
 
-A **mate connector** is a reference point with directions attached. Onshape can infer one from geometry, such as the center of a circular edge, or you can define one explicitly. Its orientation matters: it determines the axes used by the mate.
+Choose **Insert**, select **Current document**, and insert two instances of Plate and two of Spacer. Click in the workspace to place the instances apart so their faces are easy to select. Their starting locations do not matter for this exercise; the mates will establish their relative positions.
 
-## Choose a mate
+Rename the instances `Lower plate`, `Upper plate`, `Left spacer`, and `Right spacer`. These instance names identify their jobs without creating new part models.
 
-| Mate | Allowed motion | Robot example |
+Right-click Lower plate and choose **Fix** if it is not already fixed. This establishes a stationary base for the practice assembly. Drag it to check: it should stay still. The other three parts should still be free to move.
+
+<figure>
+  <a href="/guides/design/practice-assembly.svg" target="_blank" rel="noreferrer" aria-label="Open the practice assembly dimensions at full size">
+    <img src="/guides/design/practice-assembly.svg" alt="Front view of two 3 millimeter plates with two 12 millimeter spacers between them. The spacers are 40 millimeters apart, and total height is 18 millimeters." width="600" height="420" loading="lazy" />
+  </a>
+  <figcaption>The finished arrangement. Select the diagram to view it full size.</figcaption>
+</figure>
+
+## Fasten the spacers [#choose-a-mate]
+
+A **mate connector** is a reference point with axis directions. Onshape can infer one at the center of a circular edge. A **Fastened** mate removes all relative movement between its two connectors.
+
+1. Start a Fastened mate.
+2. On Lower plate, select the circular rim of the **left hole on the top face**. Check that the connector preview is at the hole center.
+3. Select the circular rim of the **bottom bore of Left spacer**. Rotate the view if you need to see it.
+4. Leave the offset at **0 mm**. Check the preview: the spacer's bottom face should touch the plate's top face, and their holes should share an axis.
+5. If the spacer extends into the plate, flip the mate's primary-axis alignment. Accept when it stands above the plate.
+6. Repeat for Right spacer and the right hole.
+
+Do not select the middle of the spacer's cylindrical wall. You need the connector at its **end**, so the two end faces meet.
+
+## Add the upper plate [#check-a-moving-mechanism]
+
+Create one more Fastened mate. Select the **top circular rim of Left spacer's bore**, then the **bottom circular rim of Upper plate's left hole**. Use zero offset and adjust the alignment so the plate sits above the spacers.
+
+The long edges of the plates should be parallel, with the right hole over Right spacer. If the second hole points the other way, rotate the mate connector half a turn about its primary axis using the mate’s rotation controls. Preview both hole locations before accepting. Do not add a second Fastened mate to hold the same upper plate: the first already fixes its relative position. If the other hole misses, check the part dimensions and selected connectors.
+
+Taking the bottom face of Lower plate as zero height, the finished stack is:
+
+| Instance | Bottom height | Top height |
 | --- | --- | --- |
-| Fastened | None between the two parts | Sensor attached to its mount |
-| Revolute | Rotation about one axis | Arm rotating around a supported shaft |
-| Slider | Movement along one axis | Slide carriage moving along its rail |
-| Cylindrical | Rotation and sliding along one axis | A shaft that genuinely has both motions |
+| Lower plate | 0 mm | 3 mm |
+| Both spacers | 3 mm | 15 mm |
+| Upper plate | 15 mm | 18 mm |
 
-For the practice assembly, fasten the second part to the plate using a suitable mounting reference. Check the offset and connector directions rather than dragging it until the surfaces appear aligned.
+## Check the assembly [#include-the-small-hardware]
 
-A revolute mate is not a bearing design. It permits motion in CAD even if the physical shaft has no support. Include the bearings, shaft retention, and mounting hardware that make that motion possible.
+Measure **12 mm between the facing plate surfaces**, **18 mm overall height**, and **40 mm between spacer axes**. Look through both holes from above. Drag each instance: none should move relative to the lower plate.
 
-## Check a moving mechanism
+The instance list should contain **two plates and two spacers**. There should be **three Fastened mates**, and Lower plate should remain fixed. If a part floats, inspect its mate. If parts overlap, correct the selected end or alignment rather than adding another mate.
 
-Drag or animate the intended joint. Add limits matching the usable physical range. Inspect intermediate positions as well as the two endpoints.
+Choose **Create version** in the document’s Versions and history tools and name it `Practice assembly complete`. Continue with [Drawings and exports](/docs/design/drawings-and-exports) to document the plate and list the assembly's parts.
 
-Do not assume that a CAD animation stops at every collision. Use interference checks and visual inspection at the important positions. Flexible wires, belt tension, bearing fits, and structural deflection also need separate checks.
+## Moving mates
 
-If a mechanism has been made rigid as a subassembly, check whether its intended internal motion is available in the parent assembly. A rigid representation can be useful for packaging, but it cannot demonstrate the full movement.
+The practice assembly is deliberately rigid. A robot's moving joints use other mates:
 
-## Include the small hardware
+| Mate | Allowed movement | Robot example |
+| --- | --- | --- |
+| Revolute | Rotation about one axis | Arm around a supported shaft |
+| Slider | Translation along one axis | Slide carriage along its rail |
+| Cylindrical | Rotation and translation along the same axis | A shaft that genuinely has both motions |
 
-Finish one representative joint completely: screw head, washers, spacer, bearings, collar or other retention, and nut. Then inspect a section through the shaft.
-
-Ask how the hardware is assembled. Can the shaft slide into place? Can a wrench reach the nut? Does tightening the fastener clamp a bearing correctly, or accidentally squeeze the rotating part?
-
-Use [Shafts and bearings](/docs/engineering/mechanical/shafts-and-bearings) for the physical details and [Robot packaging](/docs/design/packaging) for access and motion clearance.
+**Translation** means moving without rotating. For a moving mate, set the usable limits and inspect intermediate positions. An animation describes permitted motion; it does not supply bearings, stop every collision, or account for flexible wires. Use [Shafts and bearings](/docs/engineering/mechanical/shafts-and-bearings) and [Robot packaging](/docs/design/packaging) for those physical checks.
 
 <footer className="article-sources">
 
 ## Sources
 
 - [Onshape: Mates](https://cad.onshape.com/help/Content/Assembly/mates.htm)
-- [Onshape: Fastened mate and introductory mate examples](https://cad.onshape.com/help/Content/Assembly/fastened_mate.htm)
-- [Onshape: FIRST robotics parts resources](https://www.onshape.com/en/education/first-robotics)
+- [Onshape: Fastened mate, connector selection, and offsets](https://cad.onshape.com/help/Content/Assembly/fastened_mate.htm)
 - [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
 
 </footer>

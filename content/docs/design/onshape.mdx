@@ -10,7 +10,7 @@ icon: phosphor:CompassTool
 
 Use Onshape's education registration and FIRST robotics resources to check the account options available to your team. Each student should use their own account. Invite teammates to a shared document rather than sharing a password.
 
-Create a document named for its purpose, such as `Sensor mount practice`. In the document's workspace units, choose millimeters for length. Keep units visible while learning. You can enter an explicit value such as `1 in` in a dimension even when the document displays millimeters.
+On the documents page, choose **Create → Document** and name it `Practice plate assembly`. Open the document menu beside the Onshape logo, choose **Workspace units**, and set length to **Millimeter**. Accept the settings. You can still enter an explicit value such as `1 in` in a dimension; Onshape converts it to the document's display units.
 
 An imported component should match its real size. Measure one known distance, such as a wheel diameter, before building around it.
 
@@ -38,22 +38,32 @@ The origin is the model's reference point. The default planes are flat reference
 
 ## First document
 
-Make a practice plate before opening a complete robot model:
+Prepare the tabs for the next three lessons:
 
-1. Rename the first Part Studio `Mounting plate`.
-2. Create a sketch on the Top plane.
-3. Draw a rectangle around the origin. Its rough mouse-drawn size does not matter yet.
-4. Add dimensions for its length and width.
-5. Finish the sketch. Use **Extrude**, select the enclosed region, and give it a small thickness.
-6. Rename the resulting part so it is easy to find later.
+1. Open the first Part Studio and rename its tab `Plate`. To rename a tab, right-click its name and choose **Rename**.
+2. Find the **Top**, **Front**, and **Right** reference planes in the feature list. Select Top and use **Normal to** to look straight at it.
+3. Find the origin where the reference axes meet. The next lesson will center the plate here.
+4. Keep the Assembly tab for later. If the document does not have one, use the **+** menu at the bottom left to create an Assembly. Rename it `Practice assembly`.
+5. Return to the `Plate` Part Studio.
 
-The next two guides explain how to define this plate properly. For now, check that you can select a feature, reopen it, change a dimension, and see the part update.
+Stop here with an **empty Part Studio**. The next page creates its sketch; the following page adds thickness. There should be no solid part yet.
+
+The same document will eventually contain:
+
+| Tab | What you will put there |
+| --- | --- |
+| Plate | One 70 × 40 × 3 mm plate with two holes |
+| Spacer | One 12 mm-long spacer, used twice |
+| Practice assembly | Two instances of Plate and two of Spacer |
+| Plate drawing | Views and dimensions of the plate |
+
+You will create the Spacer and drawing tabs when you reach those lessons.
 
 ## Saving and sharing
 
 Onshape records edits in its history. A **version** marks a particular state that you want to return to or share, such as the design sent for cutting. It is different from your changing workspace.
 
-Create a version after completing the practice plate. Share the document with a teammate and ask them to find the plate, identify its units, and measure its thickness. That is a useful first check that your document makes sense to someone else.
+Share the document with a teammate using **Share** and their account address. Give editing access only to people who should change it. Ask them to find the Plate tab and its units. Keep working in the same document; you will create a named version after completing the assembly.
 
 Continue with [Sketches](/docs/design/sketches).
 

@@ -6,6 +6,8 @@ icon: phosphor:PencilSimple
 
 A **sketch** describes geometry on a flat plane. Dimensions set sizes and distances. **Constraints** set relationships: two lines stay parallel, two circles share a center, or a point stays on a line.
 
+Start in the empty `Plate` Part Studio from [Onshape](/docs/design/onshape). If you already made a practice solid while exploring, use a new empty Part Studio for this sequence. You will finish this page with one sketch and no solid parts.
+
 The goal is to describe what should stay true when the design changes.
 
 ## Dimensions and constraints
@@ -25,14 +27,23 @@ The goal is to describe what should stay true when the design changes.
 
 These are practice dimensions, not a vendor mounting pattern. All dimensions are in millimeters.
 
-![A 70 by 40 millimeter practice plate has two 4.5 millimeter holes, spaced 40 millimeters apart on its horizontal centerline.](/guides/design/practice-plate.svg)
+<figure>
+  <a href="/guides/design/practice-plate.svg" target="_blank" rel="noreferrer" aria-label="Open the practice sketch dimensions at full size">
+    <img src="/guides/design/practice-plate.svg" alt="A 70 by 40 millimeter plate sketch has two 4.5 millimeter holes, spaced 40 millimeters apart on its horizontal centerline." width="480" height="330" loading="lazy" />
+  </a>
+  <figcaption>Sketch dimensions for the practice plate. Select the diagram to view it full size.</figcaption>
+</figure>
 
 1. Create a sketch on the Top plane.
 2. Draw a center-point rectangle with its center at the origin. Dimension it to 70 mm wide and 40 mm high.
 3. Add a horizontal construction line through the origin.
 4. Draw two circles with their centers on that line.
-5. Put one center 20 mm left of the origin and the other 20 mm right. Use symmetry or suitable dimensions to keep the pattern centered.
+5. Put one center 20 mm left of the origin and the other 20 mm right. Dimension each center horizontally from the origin; use 20 mm for both. Keep the circles on opposite sides.
 6. Dimension one circle to 4.5 mm diameter and make the other equal.
+
+To add a size, choose **Dimension**, select the edge or circle, place the dimension, and enter its value. To locate a hole horizontally, select its center and the origin, then place a horizontal dimension. Keep the left center left of the origin and the right center right of it. Both distances are 20 mm.
+
+For **Equal**, select the two circles and apply the Equal constraint. Their centers remain separate; their diameters are linked. Rename the sketch `Plate outline`.
 
 The hole centers are now 40 mm apart. That leaves 15 mm from each center to the nearest short edge. These dimensions describe the geometry; whether this plate can carry a particular load is a separate [engineering question](/docs/engineering/mechanical/structure-and-fasteners).
 
@@ -57,7 +68,7 @@ If the wrong geometry moves, revise the constraints now. This small check is muc
 - **An unexpected constraint appears:** Onshape can infer relationships while drawing. Inspect what was added before accepting it.
 - **A dimension cannot drive the sketch:** it may be a reference measurement, already determined by other dimensions.
 
-Continue with [Parts and variables](/docs/design/parts-and-variables).
+Accept the sketch. The feature list should contain `Plate outline`, and the Parts list should still be empty. Continue in this same Part Studio with [Parts and variables](/docs/design/parts-and-variables).
 
 <footer className="article-sources">
 

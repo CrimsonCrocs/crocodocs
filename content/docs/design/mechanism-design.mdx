@@ -1,64 +1,89 @@
 ---
 title: Mechanism design
-description: Turn a game task into a tested mechanism with clear motion, load, and transfer requirements.
+description: Lay out a transfer arm, check the object's position and orientation, and test the receiving clearance.
 icon: phosphor:FlowArrow
 ---
 
-A mechanism should solve a defined robot task. Before modeling its plates, describe what it must move, where that object starts, where it must finish, and what variation it needs to tolerate.
+A transfer needs a repeatable **pose**: both the object's position and its orientation. Reaching the receiver's center is not enough if the object arrives turned the wrong way.
 
-For example, “transfer from intake to claw” leaves important questions open. Which way is the object facing? What supports it? How far apart can the mechanisms be? How does the robot detect a failed transfer?
+This example uses a simple pivoting arm and a rectangular practice object. Use a separate Onshape document called `Transfer layout practice`, with millimeter units. The [engineering design process](/docs/engineering/design/design-process) covers choosing requirements and prototypes; this page works through the geometry.
 
 ## Define the task
 
-Write a few measurable requirements. Use your own targets rather than treating these examples as competition standards.
+In a side-view sketch, use horizontal distance for forward position and vertical distance for height. The example has:
 
-| Requirement | Example question |
+| Quantity | Practice value |
 | --- | --- |
-| Reach | Which pickup and scoring positions must be reachable? |
-| Load | What mass is moved, including the mechanism's own moving parts? |
-| Alignment | How far can the object or robot be offset and still succeed? |
-| Time | How quickly must a complete operation finish, including recovery? |
-| Space | What must remain clear during every allowed movement? |
-| Control | What measurements and reference positions will software have? |
+| Arm pivot | (80, 100) mm |
+| Pivot to object center | 120 mm |
+| Intake position | 30° below horizontal |
+| Handoff position | 60° above horizontal |
+| Object | 40 × 20 mm rectangle, with its long side parallel to the arm |
+| Receiver opening | 44 × 24 mm, aligned with the handoff object |
 
-Use [Game strategy](/docs/engineering/design/game-strategy) to decide which tasks matter most. A mechanism for a rarely used task should not prevent the robot from performing its main task reliably.
+These describe a geometry exercise, not a complete claw or a season's game piece. The arm must move through **90°** between the two positions.
 
-## Compare simple layouts
+## Draw the two poses [#compare-simple-layouts]
 
-Sketch two or three ways to produce the required movement. A slide, pivoting arm, and linkage may reach the same point while needing very different space, support, and control.
+1. Start a sketch on the Front plane. Draw construction lines through the origin for the floor and horizontal reference.
+2. Locate the pivot 80 mm forward and 100 mm above the origin.
+3. Draw a 120 mm construction line from the pivot, angled **30° below horizontal**. Its endpoint is the intake object center.
+4. Draw a second 120 mm construction line from the same pivot, angled **60° above horizontal**. Its endpoint is the handoff center.
+5. At each endpoint, draw a centered 40 × 20 mm rectangle. Constrain its long sides parallel to that position's arm line.
+6. Add a centered 44 × 24 mm receiver rectangle at the handoff, with the same orientation.
 
-Count the **degrees of freedom**: the independent motions you need to control. Fewer can simplify a robot, but only if the remaining geometry still handles the required tasks and alignment error. Adding a wrist may be worthwhile when it solves a real placement problem.
+<figure>
+  <a href="/guides/design/transfer-poses.svg" target="_blank" rel="noreferrer" aria-label="Open the transfer pose example at full size">
+    <img src="/guides/design/transfer-poses.svg" alt="A 120 millimeter arm pivots from 30 degrees below horizontal to 60 degrees above it, moving a rectangular object to an angled receiver." width="600" height="480" loading="lazy" />
+  </a>
+  <figcaption>The object rotates with the arm. The receiver must accommodate its handoff orientation.</figcaption>
+</figure>
 
-Compare each option at its difficult positions. An arm's load changes with its angle. A linkage can approach a poor mechanical advantage near a straightened position. A long slide may become difficult to support even if it reaches the target.
+Measure the endpoints to check your sketch:
 
-## Prototype the uncertain part
+| Pose | Forward position | Height | Object angle |
+| --- | --- | --- | --- |
+| Intake | about 183.9 mm | 40.0 mm | −30° |
+| Handoff | 140.0 mm | about 203.9 mm | 60° |
 
-Build a quick test around the question CAD cannot answer. For an intake, that might be roller spacing and object rejection. For a transfer, it might be whether the receiver captures an object after a small offset.
+The coordinates come from `pivot + arm length × (cos(angle), sin(angle))`, with the calculator in degrees. Cosine gives the horizontal part of the arm's length; sine gives the vertical part.
 
-Use scrap, kit parts, or simple prints where they give a meaningful test. Do not spend days detailing a plate before finding out whether its contact geometry works.
+If the receiver required a **horizontal** object instead, the same arm motion would not satisfy that pose. You would need another arrangement: reorient the object earlier, add a wrist, or choose motion that preserves its angle. [Hyperion's example](/docs/design/cad-examples#hyperion) shows how an FTC team used transfer orientation to simplify its outtake.
 
-Record the geometry, material, speed setting, object condition, and result. Bring useful measured dimensions back into the layout. A successful hand-fed demonstration is only a starting point; test the object as it will actually arrive from the preceding mechanism.
+## Check capture clearance [#prototype-the-uncertain-part]
+
+The 44 × 24 mm opening gives the 40 × 20 mm object **2 mm per side** at the nominal pose. Now test a 3 mm offset perpendicular to its long side while keeping the object angle fixed. One edge extends **1 mm beyond** the opening.
+
+That tells you a 2 mm allowance cannot accept that particular offset. Widening the opening may help, but also check whether the guides can still retain the object and whether the claw's fingers fit. Rotation, flexible contact, and three-dimensional interference need their own checks.
+
+Build an adjustable receiver and present the object from the actual intake, including imperfect positions. Record successful captures and misses before choosing the final guide spacing. Use [Transfers](/docs/engineering/mechanisms/transfers) for contact, sensing, and recovery.
 
 ## Agree on interfaces
 
-An **interface** is where two parts of the robot meet. It can be a mounting pattern, a game-piece handoff, an electrical connector, or a software command.
+Record the result so the other mechanism designer and programmer use the same reference:
 
-For each mechanism, agree on mounting references, allowable space, input and output object positions, travel limits, sensor locations, and recovery behavior. Include who must be told when one changes.
+| Interface | What to communicate |
+| --- | --- |
+| Arm mounting | Pivot location and axis, measured from the robot datums |
+| Handoff | Object center (140, 203.9) mm and 60° orientation in this exercise |
+| Receiver | Opening, allowed offset, retention surfaces, and finger clearance |
+| Sequence | Receiver captures before donor releases, where the geometry allows it |
+| Recovery | A return path that clears both mechanisms after a miss |
 
-The [Transfers guide](/docs/engineering/mechanisms/transfers) explains why collecting an object and delivering it predictably are different jobs. [Mechanics and control](/docs/engineering/team/mechanics-and-control) covers the physical details that affect software feedback.
+A servo command or a closed-claw drawing does not establish capture. Decide what physical evidence or tested timing permits the next movement.
 
 ## Review before detailing
 
-Show the layout to someone who did not draw it. Ask them to trace the complete operation, including the return movement. Check motion, support, fastener access, wiring, and assembly order before adding cosmetic detail.
+Sweep the object and arm between the two poses. Add the neighboring frame, intake, receiver, and cable space to the sketch or assembly. Check intermediate positions and the return movement, then make the uncertain contact geometry as a small prototype.
 
-After building, compare the real mechanism with the model. Record play, flex, wear, and changes made by hand. Update the model before making its replacement parts.
+Only after that should you detail the plates, joints, and actuator mount. Use [Arms and linkages](/docs/engineering/mechanisms/arms-and-linkages) to size the load and support; the pose sketch establishes reach and orientation, not motor capacity.
 
 <footer className="article-sources">
 
 ## Sources
 
 - [GM0: Engineering design process](https://gm0.org/en/latest/docs/design-skills/engineering-design-process.html)
-- [Hyperion, FTC 9614: Centerstage outtake explanation](https://www.youtube.com/watch?v=ZRXmqdyVZK4)
-- [FRCDesign: Designing for controllability](https://frcdesign.org/design-handbook/design-writeups/designing-for-controllability/)
+- [GM0: Transfer design](https://gm0.org/en/latest/docs/common-mechanisms/transfers/transfer-design.html)
+- [Hyperion, FTC 9614: CENTERSTAGE outtake explanation](https://www.youtube.com/watch?v=ZRXmqdyVZK4)
 
 </footer>

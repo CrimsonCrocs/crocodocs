@@ -25,7 +25,28 @@ Mecanum wheels must be oriented correctly, and their rollers need room to rotate
 
 Neither arrangement dictates which side of the wheel holds the transmission. Putting it outside the central robot space may help packaging, but it can increase width or make the transmission more exposed.
 
-Build one complete axle stack in CAD before repeating it. Include bearing flanges, spacers, hubs, screw heads, and retention hardware. Check radial support, axial restraint, and how the joint is tightened.
+<figure>
+  <a href="/guides/design/axle-arrangements.svg" target="_blank" rel="noreferrer" aria-label="Open the live and dead axle comparison at full size">
+    <img src="/guides/design/axle-arrangements.svg" alt="Two teaching sections compare a live axle with bearings in the frame and a rotating shaft, and a dead axle with a stationary shaft and bearings in the wheel assembly." width="640" height="470" loading="lazy" />
+  </a>
+  <figcaption>Red parts rotate; gray parts stay fixed. These sections explain support and torque paths, not a dimensioned vendor assembly.</figcaption>
+</figure>
+
+For a live-axle wheel module, identify every interface before drawing its side plates:
+
+| Component | What it must match |
+| --- | --- |
+| Wheel and hub | Wheel bolt pattern, hub bore, and torque connection |
+| Shaft | Hub bore, bearing bores, and retention hardware |
+| Two bearings | Shaft diameter, plate seats, and flange/shoulder locations |
+| Pulley or sprocket and hub | Shaft connection, belt/chain profile, width, and alignment |
+| Spacers, shims, and collars | The races or shoulders they contact; clearance from rotating faces |
+
+Make a section along the axle. For an illustrative **60 mm gap between inner plate faces**, suppose each bearing projects 2 mm into the gap. That leaves **56 mm** for the rotating assembly. A 28 mm wheel/hub envelope, a 12 mm pulley/hub envelope, and 14 mm of spacers use **54 mm**, leaving **2 mm unallocated**.
+
+That remainder tells you the arrangement has room for adjustment; it is not a target for 2 mm of shaft endplay. Locate the shaft with suitable retention, choose the final spacer/shim stack, and check free rotation after tightening. A collar or spacer must bear on the intended rotating race without rubbing the fixed housing.
+
+For a real hardware study, the goBILDA Strafer hub-shaft `2110-0608-0002` uses an **8 mm-ID bearing and a 6 mm-ID bearing** at different shaft locations, with shims and an end screw/washer. Its assembly instructions show why choosing bearings from one nominal shaft size can be misleading. Inspect that supplier stack before adapting its support geometry to a custom plate.
 
 ## Fit the transmission
 
@@ -44,6 +65,16 @@ Here $m$ is module, the metric measure of tooth size, in millimeters. $N_1,N_2$ 
 For a timing pulley, pitch diameter is $D_p = Np/\pi$, where $p$ is belt pitch. A layout circle should represent this pitch diameter, not automatically the outside of the teeth or flange. Matching circles does not prove that a belt of the required length exists.
 
 Plan tension adjustment and tool access. A belt that can only be installed by bending the frame is an assembly problem. Excessive tension can overload bearings and bend plates.
+
+## Belt spacing
+
+Use the side layout from [Layout sketches](/docs/design/layout-sketches). Its example transmission has a **20-tooth driver**, **40-tooth driven pulley**, and **2 mm belt pitch**. The reduction is 40/20 = **2:1**: the wheel shaft turns once for every two motor-output turns.
+
+The pulley pitch diameters are approximately **12.73 mm** and **25.46 mm**. A 220 mm pitch-length belt has **220 / 2 = 110 teeth**. With this belt, the two-pulley geometry gives a center distance of about **79.75 mm**. A pitch length measures around the belt's working pitch line, not its outside surface.
+
+Use a calculator for the selected belt profile and pulley sizes, then confirm the manufacturer's installation and tension requirements. Include adjustment without shifting the wheel axes out of alignment. A nominal 80 mm center distance is close to this example, but it is not the same constraint as the chosen belt length.
+
+In the practice layout, the front wheel axis is 52 mm above the floor, so the motor axis goes at **52 + 79.75 = 131.75 mm**. Moving the motor changes the belt route and the available chassis space; it should update a shared layout, not an isolated mounting hole.
 
 ## Design the plates
 
@@ -65,6 +96,7 @@ The [Pretty Smart Robotics example](/docs/design/cad-examples#pretty-smart-robot
 - [GM0: Motion mounting and axle arrangements](https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/motion-mounting.html)
 - [goBILDA: Gears](https://www.gobilda.com/gears/)
 - [ReCalc: Mechanical design calculators](https://www.reca.lc/)
+- [goBILDA: Strafer assembly instructions, hub-shaft support and retention](https://www.gobilda.com/content/user_manuals/3209-0001-0007_assembly-instructions.min.pdf)
 - [Alan G. Smith: Learn Onshape for FTC, mecanum drivetrain](https://github.com/alan412/LearnOnshapeForFTC)
 
 </footer>

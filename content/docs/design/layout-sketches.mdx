@@ -26,7 +26,12 @@ Make a Part Studio named `Robot layout`. Begin with a side view and a top view. 
 
 The side view explains height and reach. The top view catches problems that the side view hides, such as a motor occupying the same width as a lift rail.
 
-![An example top-view robot layout separates the side drive modules, center game-piece route, rear battery, and electronics. Reserved connector space sits beside each hub.](/guides/design/robot-layout.svg)
+<figure>
+  <a href="/guides/design/robot-layout.svg" target="_blank" rel="noreferrer" aria-label="Open the top-view robot layout at full size">
+    <img src="/guides/design/robot-layout.svg" alt="Example top-view robot layout separating drive modules, a central game-piece path, rear battery, hubs, and reserved connector space." width="480" height="530" loading="lazy" />
+  </a>
+  <figcaption>Reserve the full space needed by each system. Select the example to view it full size.</figcaption>
+</figure>
 
 These are planning regions, not finished parts or a season-specific robot plan. Replace them with your dimensions and verify the actual rules for each robot state.
 
@@ -38,17 +43,52 @@ For a claw transfer, mark the object and both claw openings at the handoff. For 
 
 Use prototype measurements to choose contact spacing. A nominal game-piece model does not tell you how much a foam wheel should compress or how an irregular object will settle.
 
+## A drive layout
+
+Create a separate document called `Drive layout practice`. This example is independent of the plate assembly. Use millimeters and rename the first Part Studio `Layout`.
+
+Add these Length variables before making the sketch: `frontX = 80 mm`, `wheelbase = 200 mm`, `wheelRadius = 52 mm`, and `centerDistance = 79.75 mm`. **Wheelbase** is the distance between the front and rear wheel axes.
+
+On the **Front plane**, make a sketch named `Wheel positions`. Treat horizontal distance as forward position and vertical distance as height above the floor. Draw a construction line through the origin for the floor.
+
+| Item | Horizontal position | Height | Diameter |
+| --- | --- | --- | --- |
+| Front wheel | `#frontX` | `#wheelRadius` | `2 * #wheelRadius` |
+| Rear wheel | `#frontX + #wheelbase` | `#wheelRadius` | `2 * #wheelRadius` |
+| Motor envelope | `#frontX` | `#wheelRadius + #centerDistance` | 38 mm |
+
+Make the circles construction geometry. Dimension their centers from the origin so they cannot drift. The wheel centers should be at **(80, 52)** and **(280, 52) mm**. The motor-envelope center should be at **(80, 131.75) mm**.
+
+<figure>
+  <a href="/guides/design/drive-layout.svg" target="_blank" rel="noreferrer" aria-label="Open the dimensioned drive layout at full size">
+    <img src="/guides/design/drive-layout.svg" alt="Side layout with two 104 millimeter wheel envelopes, wheel axes 200 millimeters apart, and a motor axis 79.75 millimeters above the front wheel axis." width="600" height="480" loading="lazy" />
+  </a>
+  <figcaption>Practice layout. Construction circles reserve space; they do not model the wheels or motor in detail.</figcaption>
+</figure>
+
+The nominal gap between the 38 mm motor envelope and the 104 mm wheel is **131.75 − 19 − 104 = 8.75 mm** in this view. A top view is still needed to check their widths and mounting hardware. The [custom drivetrain example](/docs/design/custom-drivetrains#belt-spacing) explains the chosen transmission center distance.
+
 ## Share the layout
 
 Once the important positions make sense, use Onshape's **Derived** feature to bring the relevant layout sketches into the Part Studios that need them. Reference their geometry when locating mounting features.
 
-For example, both drivetrain plates should get their axle centers from the same layout. Independently typing the same center distance into two sketches makes it easy to update one and forget the other.
+Use the practice layout to make a dependent plate:
+
+1. Add a Part Studio named `Side plate`.
+2. Choose **Derived → Current document**, select the `Wheel positions` sketch from Layout, and accept. Keep the base-origin placement so the references stay aligned.
+3. Start a sketch on the same Front plane. Use **Use** to project the two wheel circles, and make the projected circles construction geometry if they are not already dashed.
+4. Draw a 14 mm circle concentric with each projected wheel circle. **Concentric** keeps the two centers together when the source moves. The 14 mm circles are practice bearing openings; choose the actual housing fit from your bearing's requirements before manufacturing.
+5. Draw a rectangle with its lower-left corner 30 mm forward of the origin and 30 mm above it. Make it 300 mm wide and 140 mm high. Accept the sketch and Extrude its plate region, excluding the two holes, as a New 3 mm-thick part.
+
+The part should have two openings **200 mm apart**, derived from the layout rather than independently positioned. Hide the Derived geometry to inspect the solid, then show it again when checking alignment.
 
 Keep references flowing one way: layout to subsystem, then subsystem to its parts. Avoid a circular dependency in which the layout depends on a plate that already depends on the layout. Linked documents and pinned versions may require an explicit update; check which state a derived reference uses.
 
 ## Try a change
 
-Move a wheel center or change a mechanism's required reach. Inspect what updates, what fails, and what must be reconsidered. A model that regenerates without errors can still have a collision or an impossible belt length.
+In Layout, change `wheelbase` from 200 to **220 mm**. The rear wheel center should move from X = 280 to **300 mm**. In Side plate, its concentric opening should follow, while the front opening stays at X = 80 mm.
+
+If the hole stays behind, check the Derived reference and Concentric constraint. If the reference is pinned to a version, update that reference deliberately. Restore 200 mm when finished. Inspect the remaining edge material and neighboring components after any layout change.
 
 Keep the layout readable. Name sketches by their job, hide unused references, and leave the detailed outlines of plates in their own Part Studios. Add detail to the layout only when it helps decide an important location.
 

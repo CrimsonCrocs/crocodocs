@@ -1,61 +1,86 @@
 ---
 title: Drawings and exports
-description: Prepare manufacturing files, useful dimensions, and a parts list from the same CAD revision.
+description: Make a drawing, export the practice plate, and produce a parts list for its assembly.
 icon: phosphor:Ruler
 ---
 
-A model describes the shape of a part. A manufacturing handoff also needs its material, quantity, important dimensions, and revision. Give the person making the part enough information to produce and check it without guessing.
+Use the **70 × 40 × 3 mm Plate** from [Parts and variables](/docs/design/parts-and-variables). You will make a dimensioned drawing and export its shape. If you completed [Assemblies](/docs/design/assemblies), you can also produce a four-part bill of materials.
 
 ## Choose the file
 
-Ask the recipient which format they need. Common choices are:
-
-| Format | Common use | Check before sending |
+| Format | What it carries | Typical use |
 | --- | --- | --- |
-| STEP | A solid model for machining or another CAD tool | Correct part, units, and revision |
-| DXF | Flat profiles for cutting or further drawing work | Correct face or sketch, scale, closed outlines, no duplicate cuts |
-| STL or 3MF | A mesh for a 3D-printing workflow | Units or imported size, mesh quality, and the slicer's supported format |
-| PDF drawing | Dimensions, notes, and inspection information | Legibility, material, thickness, and critical features |
+| STEP | Solid geometry | Sharing with another CAD tool or a machinist |
+| DXF | A flat profile | Cutting a sheet part |
+| STL or 3MF | A surface mesh, made of small flat faces | A supported 3D-printing workflow |
+| PDF drawing | Views, dimensions, and notes | Communicating requirements and checking a part |
+| CSV | Table values | Purchasing or reviewing a parts list |
 
-A **mesh** approximates surfaces with small flat faces. A solid CAD export and a mesh are different representations. Use the format the manufacturing workflow expects rather than converting through several formats unnecessarily.
+Keep the editable Onshape document. Exported geometry does not preserve its original feature history. Ask the recipient which format their process accepts.
 
-## Make a useful drawing
+## Make a plate drawing [#make-a-useful-drawing]
 
-Create a drawing from the part or assembly. Add enough views to explain its shape. A front view may show the mounting pattern while a side view establishes thickness. A section view can explain an internal pocket or bearing stack.
+1. Open the Plate Part Studio. In the **Parts list**, right-click Plate and choose **Create drawing of Plate**.
+2. Choose a millimeter drawing template with a suitable sheet size, such as A4. Use **Suggested views** to begin with views of the part.
+3. Keep a face-on view that shows both holes and an edge view that shows thickness. Delete redundant views if they crowd the sheet. Move the views apart before adding dimensions.
+4. Use **Dimension** to show the overall **70 mm width**, **40 mm height**, and **3 mm thickness**.
+5. Dimension a hole to **4.5 mm diameter** and add a note that it applies to **both through holes**.
+6. Locate the first hole center **15 mm from the left edge** and **20 mm from the bottom edge**. Show **40 mm between centers**. These locate the second hole without another chain of duplicate dimensions.
+7. Add the part name and a revision, such as `Plate — r1`. Check the drawing's displayed units and scale.
 
-Include the part name or number, revision, material, quantity, units, and applicable tolerances. Identify threads, countersinks, and other features that are not clear from the outline.
+<figure>
+  <a href="/guides/design/plate-drawing.svg" target="_blank" rel="noreferrer" aria-label="Open the practice plate drawing at full size">
+    <img src="/guides/design/plate-drawing.svg" alt="Example plate drawing with top and edge views: 70 by 40 millimeters, 3 millimeters thick, and two 4.5 millimeter through holes spaced 40 millimeters apart." width="640" height="500" loading="lazy" />
+  </a>
+  <figcaption>Arrange these views and dimensions on your own drawing. Select the example to view it full size.</figcaption>
+</figure>
 
-Dimension from useful references. For a mounting plate, hole locations measured from one datum are usually easier to inspect than a long chain of dimensions. Do not dimension the same geometry in contradictory ways.
+For an actual manufacturing order, add the chosen material, stock thickness, quantity, and functional tolerances. A bearing seat needs a different fit decision from a loose screw hole. Use [Fits and tolerances](/docs/engineering/manufacturing/fits-and-tolerances) to establish those requirements with the fabricator.
 
-## Specify the fits that matter
+Right-click the drawing tab, choose **Export**, and select **PDF**. Open the downloaded PDF and check that dimensions, notes, and the title block are legible. A drawing scale changes how a view appears on paper; its dimension values still describe the real part.
 
-A **tolerance** states the allowed variation. Tight tolerances can increase cost and manufacturing time, so apply them where function requires them.
+## Export the plate [#export-one-revision]
 
-A bearing seat needs a considered fit. The outside edge of a cover may only need to clear nearby parts. Do not give both the same demanding requirement just to make the drawing look professional.
+For a 3D-printing trial:
 
-Keep nominal design dimensions separate from process compensation. Ask whether the fabricator handles cutting kerf, tool offsets, or hole finishing. Use a measured coupon for uncertain printed fits rather than applying one guessed offset to every hole.
+1. Return to Plate and right-click the **part in the Parts list**, not the sketch. Choose **Export**.
+2. Select **STL**, **Millimeter**, and a suitable mesh resolution. Use a filename such as `practice-plate-70x40x3-r1.stl`.
+3. Open it in the intended printer's slicer. Confirm **70 × 40 × 3 mm** and two open holes before choosing print settings.
+
+For a flat cutting profile, right-click the plate's large **planar face** and choose **Export as DXF/DWG**. Select DXF and millimeters. Exporting the face gives its outside boundary and hole boundaries without the drawing's annotations.
+
+You can [download a reference DXF](/guides/design/practice-plate-70x40.dxf) to compare with your result. It is an original 2D profile of the same practice geometry: one 70 × 40 mm closed rectangle and two circles of radius 2.25 mm. It is not a substitute for your editable model.
+
+Open the DXF in the receiving tool and measure 70 mm across the outline and 40 mm between circle centers. If the size is wrong, correct the import/export units before cutting. Confirm whether the fabricator applies kerf or tool compensation; avoid applying it twice.
 
 ## Build a parts list
 
-A **bill of materials**, or **BOM**, lists the parts needed to build an assembly. Include quantities, exact purchased part numbers, custom part revisions, and material where relevant.
+A **bill of materials**, or **BOM**, lists the parts and quantities in an assembly. Open `Practice assembly`, then select the **BOM Table** icon on the right side of the Assembly workspace.
 
-An automatically generated BOM only knows what you modeled and how its properties are filled in. Check for missing screws, spacers, cable hardware, adhesives, and other assembly supplies. Distinguish items needed for one robot from spare parts you plan to order.
+Choose **Flattened** to combine repeated instances. Add the Name column if needed. For this exercise the list should contain:
 
-## Export one revision
+| Part | Quantity | Geometry |
+| --- | --- | --- |
+| Plate | 2 | 70 × 40 × 3 mm; two 4.5 mm holes |
+| Spacer | 2 | 10 mm OD, 4.5 mm ID, 12 mm length |
 
-Create a named CAD version before exporting. Export the model, drawing, and BOM from that agreed state, and put a matching revision in their filenames. For example, `intake-side-plate-r2.step` and `intake-side-plate-r2.pdf` should describe the same part.
+**OD** means outside diameter; **ID** means inside diameter. The two plate instances count as two of the same part, not two separately designed parts. If the count is wrong, check the Assembly instance list.
 
-Open each exported file in the tool that will use it, or ask the fabricator to check it. Measure a known distance after import. A screenshot of a DXF preview is not enough to establish its scale.
+Fill in part numbers and descriptions through each part's **Properties**. For practice, names such as `PLATE-001` and `SPACER-001` are enough; purchased components need their actual supplier part numbers.
 
-Before sending a batch, try one sample export from the [practice plate](/docs/design/sketches). Confirm the overall size, hole spacing, thickness, and units against the model.
+Use the BOM table's **three-dot menu → Export to CSV**. Open the CSV in a spreadsheet and check the two quantities. The [reference parts list](/guides/design/practice-assembly-bom.csv) shows the expected geometry count. Add real fasteners and assembly supplies before treating a BOM as a complete build order.
+
+## Revision files [#specify-the-fits-that-matter]
+
+Create a named version after accepting the final geometry. Keep the exported profile, 3D model, drawing, and BOM tied to that version. If a hole moves later, update the affected drawing and exports before someone makes the old plate.
 
 <footer className="article-sources">
 
 ## Sources
 
+- [Onshape: Creating a drawing](https://cad.onshape.com/help/Content/Drawing/creating_a_drawing.htm)
 - [Onshape: Exporting files](https://cad.onshape.com/help/Content/File/exporting_files.htm)
-- [Onshape: Drawings](https://cad.onshape.com/help/Content/Drawing/drawings.htm)
-- [Onshape: Bill of materials](https://cad.onshape.com/help/Content/Assembly/bill_of_material.htm)
-- [Alan G. Smith: Learn Onshape for FTC, robot assembly and BOM](https://github.com/alan412/LearnOnshapeForFTC)
+- [Onshape: Bill of materials and CSV export](https://cad.onshape.com/help/Content/Assembly/bill_of_material.htm)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
 
 </footer>

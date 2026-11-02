@@ -30,6 +30,28 @@ Start by identifying the load path: where forces enter, where they leave, and wh
 
 Decorative patterns are not a structural calculation. A pattern that works on another team's plate may be unsuitable for your bearing locations, material, thickness, and loads. Compare mass and measured deflection before deciding whether a cutout is useful.
 
+## A cutout example
+
+Consider a 3 mm-thick plate carrying an illustrative **100 N tension load** between two mounting regions. A large cutout leaves a narrow connecting web. Compare a **6 mm web** with a **12 mm web**, keeping thickness and load the same.
+
+<figure>
+  <a href="/guides/design/plate-load-path.svg" target="_blank" rel="noreferrer" aria-label="Open the plate cutout and load path comparison at full size">
+    <img src="/guides/design/plate-load-path.svg" alt="Two plate profiles compare a narrow 6 millimeter web and a wider 12 millimeter web connecting loaded mounting regions." width="600" height="460" loading="lazy" />
+  </a>
+  <figcaption>Follow the material connecting the mounting regions before adding weight-saving cutouts.</figcaption>
+</figure>
+
+For this simplified direct-tension comparison, cross-sectional area is web height × thickness:
+
+| Web | Area | Average tensile stress at 100 N |
+| --- | --- | --- |
+| 6 mm | 6 × 3 = 18 mm² | 100 / 18 ≈ 5.6 N/mm² |
+| 12 mm | 12 × 3 = 36 mm² | 100 / 36 ≈ 2.8 N/mm² |
+
+The wider web halves the average stress for that load. This calculation does not include bending, sharp-corner stress concentration, or bearing loads, so it cannot establish a safe part rating. Round internal transitions for the chosen cutting tool, preserve material around fasteners, and test the actual loading direction.
+
+In CAD, compare the uncut and cut profiles using the same material and thickness. Check mass properties, then make a simple load/deflection comparison on a prototype. Keep a cutout when the mass saving is useful and the remaining structure meets the task.
+
 ## Printed parts
 
 Orient a print with the loads and layer directions in mind. Avoid placing a major separating load across a weak layer interface. Include space for fasteners and a practical way to install nuts or inserts.
