@@ -1,0 +1,58 @@
+---
+title: Mechanics and control
+description: Design feedback, homing, and motion limits around what the robot can actually measure and repeat.
+icon: phosphor:FlowArrow
+---
+
+A controller can correct an error only when its measurements describe the movement you care about. Before tuning gains, check how the mechanism transmits force, where it can move freely, and what each sensor actually measures.
+
+## Encoder location
+
+A motor encoder measures the rotation of its shaft. Gearing converts that movement into an expected output position, but a loose hub, slipping belt, or moving shaft connection can break the relationship.
+
+**Backlash** is movement lost while a transmission takes up clearance after reversing direction. The motor can move while the output stays still. Increasing control gain cannot remove that physical gap.
+
+Check the transmission with power removed and the mechanism safely supported. Hold the input and gently move the output to find play. Inspect hubs, shaft interfaces, bearing support, gear mesh, and belt or chain adjustment. Avoid removing necessary gear clearance or overtensioning a belt to chase zero play.
+
+An output sensor can measure closer to the controlled part. It still needs a rigid mount, a suitable range, and a known relationship to that part. Compare the measured value with real movement before relying on it.
+
+## Homing
+
+**Homing** establishes a known physical reference, often using a switch or other sensor. Resetting an incremental encoder count does not move the mechanism to that reference.
+
+Design a home position that the mechanism can reach repeatedly without crushing a cable or damaging itself. Choose an approach direction and limited effort. Define what happens if the sensor is already active, never activates, or gives an impossible reading.
+
+Use a timeout and a way to cancel. Do not drive into an end stop indefinitely while waiting for a failed switch. A deliberate hard-stop homing method needs its own load, effort, and time limits; it should not be the accidental result of a missing sensor reading.
+
+## Motion limits
+
+A **hard stop** physically limits travel. A **software limit** prevents commands beyond a known position. They serve different roles: a software limit depends on a valid reference and working control, while the physical stop must withstand the loads it may see.
+
+Leave room to slow before the end of travel. Place switches where they can detect the approach reliably and where the mechanism cannot easily knock them out of alignment.
+
+Check power loss as well as normal motion. A raised load may fall or backdrive. Secure the mechanism before working on it, and choose suitable support or retention rather than assuming a zero-power command holds it in place.
+
+## Mechanism coordination
+
+Agree on safe combinations of positions. If the lift cannot retract with the wrist extended, the control sequence needs a clear condition for retracting the wrist first. Include a recovery plan when either movement fails.
+
+A command means that software requested an action. It does not prove that the action finished. Use suitable sensing, tested timing, and honest timeouts to decide when the next step is allowed.
+
+For an intake-to-launcher path, coordinate object staging, launcher speed, and release. The [Transfers guide](/docs/engineering/mechanisms/transfers) shows an example sequence and the measurements needed to test it.
+
+## A joint test
+
+Have a builder and programmer run the mechanism together. Compare commanded position, sensor position, and actual output movement. Test reversals, intended loads, the full travel, and the response to a blocked or missing sensor under controlled conditions.
+
+Fix binding, loose interfaces, and unreliable references before tuning [PID control](/docs/control-systems/pid-control). Keep those mechanical checks in the record so the next tuning session starts with a known robot state.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FRCDesign: Designing for controllability](https://frcdesign.org/design-handbook/design-writeups/designing-for-controllability/)
+- [REV DUO: Encoder basics](https://docs.revrobotics.com/duo-control/hello-robot-blocks/part-3/using-encoder)
+- [GM0: Motion mounting](https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/motion-mounting.html)
+- [CTRL ALT FTC: The PID controller](https://www.ctrlaltftc.com/the-pid-controller)
+
+</footer>

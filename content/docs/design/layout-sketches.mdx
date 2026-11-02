@@ -1,0 +1,68 @@
+---
+title: Layout sketches
+description: Plan an FTC robot with shared references before detailing individual parts.
+icon: phosphor:PencilSimple
+---
+
+A **layout sketch** is a simple drawing of where important parts will go. It can show wheel centers, pivots, game pieces, and the space needed by each mechanism without modeling every bracket.
+
+Use it to answer questions that cross subsystem boundaries: can the intake reach the floor, can the lift clear the battery, and where does the transfer happen?
+
+## Choose references
+
+Pick a robot origin and axis directions that the whole team can explain. One possible convention is an origin on the floor below the chassis center, with X forward, Y left, and Z up. Record your choice and agree with the programmers how it relates to their coordinate system.
+
+A **datum** is a reference used to locate other geometry. Good robot datums include a chassis center plane, a mounting surface, and a wheel axle. Use references that are unlikely to disappear when a decorative edge changes.
+
+## Draw the robot in simple views
+
+Make a Part Studio named `Robot layout`. Begin with a side view and a top view. Add a front view when side-to-side spacing matters.
+
+1. Mark the floor and the current season's relevant size limits.
+2. Place wheel centers and the outside of the chassis.
+3. Draw the game piece and the field feature it must reach.
+4. Add the major intake, transfer, and scoring positions.
+5. Reserve space for motors, battery, hubs, connectors, and wiring.
+
+The side view explains height and reach. The top view catches problems that the side view hides, such as a motor occupying the same width as a lift rail.
+
+![An example top-view robot layout separates the side drive modules, center game-piece route, rear battery, and electronics. Reserved connector space sits beside each hub.](/guides/design/robot-layout.svg)
+
+These are planning regions, not finished parts or a season-specific robot plan. Replace them with your dimensions and verify the actual rules for each robot state.
+
+## Define the game-piece path
+
+Draw the object at pickup, transfer, storage, and scoring. Include the surfaces that support it between those positions.
+
+For a claw transfer, mark the object and both claw openings at the handoff. For a ball path, mark roller contact locations, guides, and any gate. A line joining two subsystem boxes does not establish a workable transfer.
+
+Use prototype measurements to choose contact spacing. A nominal game-piece model does not tell you how much a foam wheel should compress or how an irregular object will settle.
+
+## Share the layout
+
+Once the important positions make sense, use Onshape's **Derived** feature to bring the relevant layout sketches into the Part Studios that need them. Reference their geometry when locating mounting features.
+
+For example, both drivetrain plates should get their axle centers from the same layout. Independently typing the same center distance into two sketches makes it easy to update one and forget the other.
+
+Keep references flowing one way: layout to subsystem, then subsystem to its parts. Avoid a circular dependency in which the layout depends on a plate that already depends on the layout. Linked documents and pinned versions may require an explicit update; check which state a derived reference uses.
+
+## Try a change
+
+Move a wheel center or change a mechanism's required reach. Inspect what updates, what fails, and what must be reconsidered. A model that regenerates without errors can still have a collision or an impossible belt length.
+
+Keep the layout readable. Name sketches by their job, hide unused references, and leave the detailed outlines of plates in their own Part Studios. Add detail to the layout only when it helps decide an important location.
+
+Next, check the design in three dimensions with [Robot packaging](/docs/design/packaging).
+
+<footer className="article-sources">
+
+## Sources
+
+- [FRCDesign: Layout sketch best practices](https://frcdesign.org/best-practices/master-sketch-setup/)
+- [FRCDesign: Top-down design](https://frcdesign.org/learning-course/stage1/1d/top-down-design/)
+- [Seattle Solvers, FTC 23511: Master Sketching](https://www.youtube.com/watch?v=myHrTdh2AOg)
+- [Onshape: Derived](https://cad.onshape.com/help/Content/PartStudio/derived.htm)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+- [FIRST: Current game manual](https://ftc-resources.firstinspires.org/ftc/game)
+
+</footer>

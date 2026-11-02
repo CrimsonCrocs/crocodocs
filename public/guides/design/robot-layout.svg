@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="530" viewBox="0 0 480 530" role="img" aria-labelledby="title desc">
+  <title id="title">Example robot layout, viewed from above</title>
+  <desc id="desc">Two side drive modules leave a central route from the front intake through the transfer to a launcher. Hubs sit on either side of the transfer, with separate reserved connector space. A battery sits at the rear. This is a planning example, not a dimensioned design.</desc>
+  <rect width="480" height="530" rx="14" fill="#faf9f6"/>
+  <g font-family="Arial, sans-serif" fill="#292927" text-anchor="middle">
+    <text x="240" y="33" font-size="21" font-weight="700">Robot layout · top view</text>
+    <text x="240" y="64" font-size="17" fill="#64645f">Front</text>
+    <rect x="38" y="83" width="404" height="357" rx="9" fill="none" stroke="#76756f" stroke-width="2" stroke-dasharray="7 5"/>
+    <g fill="#e6e2db" stroke="#8b8881" stroke-width="1.5"><rect x="51" y="99" width="61" height="323" rx="5"/><rect x="368" y="99" width="61" height="323" rx="5"/></g>
+    <text transform="translate(87 260) rotate(-90)" font-size="18">Drive module</text>
+    <text transform="translate(405 260) rotate(-90)" font-size="18">Drive module</text>
+    <g stroke="#b82730" stroke-width="1.5" fill="#f4e5e4"><rect x="127" y="99" width="226" height="53" rx="5"/><rect x="200" y="196" width="80" height="83" rx="5"/><rect x="191" y="324" width="98" height="52" rx="5"/></g>
+    <text x="240" y="132" font-size="19">Intake</text>
+    <text x="240" y="244" font-size="17">Transfer</text>
+    <text x="240" y="356" font-size="18">Launcher</text>
+    <path d="M240 160V183M234 176L240 184L246 176M240 287V310M234 303L240 311L246 303" fill="none" stroke="#b82730" stroke-width="2.5"/>
+    <g fill="#e4e8e5" stroke="#637669" stroke-width="1.5"><rect x="127" y="196" width="53" height="83" rx="4"/><rect x="300" y="196" width="53" height="83" rx="4"/></g>
+    <text x="153" y="244" font-size="16">Hub</text><text x="327" y="244" font-size="16">Hub</text>
+    <path d="M127 288H180V312H127ZM300 288H353V312H300Z" fill="none" stroke="#637669" stroke-dasharray="4 3"/>
+    <rect x="146" y="391" width="188" height="31" rx="4" fill="#e6e2db" stroke="#8b8881"/>
+    <text x="240" y="413" font-size="17">Battery</text>
+    <rect x="104" y="452" width="36" height="22" fill="none" stroke="#637669" stroke-dasharray="4 3"/>
+    <text x="153" y="469" text-anchor="start" font-size="17">Connector space</text>
+    <text x="240" y="512" font-size="16" fill="#63635e">Planning regions · not a dimensioned robot</text>
+  </g>
+</svg>

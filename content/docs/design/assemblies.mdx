@@ -1,0 +1,63 @@
+---
+title: Assemblies
+description: Insert hardware, connect parts with mates, and check the motion and spacing of an FTC mechanism.
+icon: phosphor:Stack
+---
+
+An **assembly** contains instances of parts. An instance is one use of a part: four identical wheels can come from one wheel model.
+
+**Mates** define the allowed movement between instances. They should describe how the real hardware is connected.
+
+## Insert parts
+
+Create an Assembly tab and insert the [practice plate](/docs/design/parts-and-variables) from your document. Add a second plate or a purchased component with a matching mounting pattern.
+
+For purchased hardware, use the FTC parts resources or the manufacturer's model for the exact part number. A similar-looking motor may have a different shaft length or mounting pattern. Check a known dimension after importing.
+
+Keep purchased parts separate from custom parts. Remodeling a complete motor rarely helps a bracket design; including its shaft, case, mounting holes, and cable exit usually does.
+
+## Establish a reference
+
+Choose one base component to locate the assembly. You can fix it in a deliberate position or mate it to the assembly origin. Do this before connecting the other components, so the whole mechanism does not drift when dragged.
+
+A **mate connector** is a reference point with directions attached. Onshape can infer one from geometry, such as the center of a circular edge, or you can define one explicitly. Its orientation matters: it determines the axes used by the mate.
+
+## Choose a mate
+
+| Mate | Allowed motion | Robot example |
+| --- | --- | --- |
+| Fastened | None between the two parts | Sensor attached to its mount |
+| Revolute | Rotation about one axis | Arm rotating around a supported shaft |
+| Slider | Movement along one axis | Slide carriage moving along its rail |
+| Cylindrical | Rotation and sliding along one axis | A shaft that genuinely has both motions |
+
+For the practice assembly, fasten the second part to the plate using a suitable mounting reference. Check the offset and connector directions rather than dragging it until the surfaces appear aligned.
+
+A revolute mate is not a bearing design. It permits motion in CAD even if the physical shaft has no support. Include the bearings, shaft retention, and mounting hardware that make that motion possible.
+
+## Check a moving mechanism
+
+Drag or animate the intended joint. Add limits matching the usable physical range. Inspect intermediate positions as well as the two endpoints.
+
+Do not assume that a CAD animation stops at every collision. Use interference checks and visual inspection at the important positions. Flexible wires, belt tension, bearing fits, and structural deflection also need separate checks.
+
+If a mechanism has been made rigid as a subassembly, check whether its intended internal motion is available in the parent assembly. A rigid representation can be useful for packaging, but it cannot demonstrate the full movement.
+
+## Include the small hardware
+
+Finish one representative joint completely: screw head, washers, spacer, bearings, collar or other retention, and nut. Then inspect a section through the shaft.
+
+Ask how the hardware is assembled. Can the shaft slide into place? Can a wrench reach the nut? Does tightening the fastener clamp a bearing correctly, or accidentally squeeze the rotating part?
+
+Use [Shafts and bearings](/docs/engineering/mechanical/shafts-and-bearings) for the physical details and [Robot packaging](/docs/design/packaging) for access and motion clearance.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Mates](https://cad.onshape.com/help/Content/Assembly/mates.htm)
+- [Onshape: Fastened mate and introductory mate examples](https://cad.onshape.com/help/Content/Assembly/fastened_mate.htm)
+- [Onshape: FIRST robotics parts resources](https://www.onshape.com/en/education/first-robotics)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+
+</footer>

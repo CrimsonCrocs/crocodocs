@@ -1,0 +1,62 @@
+---
+title: Design for manufacturing
+description: Choose shapes, materials, and fits that your team can make, assemble, and replace.
+icon: phosphor:Factory
+---
+
+A part that is easy to draw may be difficult to make. **Design for manufacturing** means choosing geometry with the actual tools, material, and assembly process in mind.
+
+Choose the process before finishing the model. A flat plate cut from sheet, a printed bracket, and a milled block each need different details.
+
+## Use stock sizes
+
+Check what your team can buy before choosing thicknesses, shaft lengths, or spacers. A 3 mm sheet and a 1/8 inch sheet are not the same thickness. That difference can matter in an axle stack or a tightly fitted assembly.
+
+Model the stock you will actually use. Confirm material and thickness with the supplier, and measure critical stock when it arrives. If a part needs several machining operations to replace a readily available spacer, compare the effort with buying the spacer.
+
+## Flat plates
+
+Flat plates work well when their important features can be cut from sheet and assembled with ordinary hardware.
+
+Keep access holes distinct from mounting holes. Check screw-head and nut clearance, distance from holes to edges, bearing retention, and the structure joining loaded areas. A thin strip around a large opening may flex even though the CAD model looks substantial.
+
+With a rotating cutting tool, internal corners cannot be perfectly square. Choose a corner radius the available tool can make, or provide suitable relief where a rectangular part must fit. Ask the manufacturer what its process requires before changing the geometry.
+
+## Weight-saving cutouts
+
+**Pocketing** removes material to reduce mass. A cut all the way through a plate is different from a shallow milled pocket; make sure your process can produce what the model shows.
+
+Start by identifying the load path: where forces enter, where they leave, and which material carries them. Preserve support around bearings, fasteners, and crossmember mounts. Large openings can reduce stiffness and make a plate easier to twist.
+
+Decorative patterns are not a structural calculation. A pattern that works on another team's plate may be unsuitable for your bearing locations, material, thickness, and loads. Compare mass and measured deflection before deciding whether a cutout is useful.
+
+## Printed parts
+
+Orient a print with the loads and layer directions in mind. Avoid placing a major separating load across a weak layer interface. Include space for fasteners and a practical way to install nuts or inserts.
+
+Use small test pieces for uncertain fits. A bearing pocket, shaft opening, and screw hole need not all use the same allowance. Check printer, material, orientation, and settings before applying a result to the final part.
+
+Allow adjustment where the mechanism needs tuning. Slotted roller mounts or replaceable spacers can make compression tests easier, provided the final joint can be locked securely.
+
+## Check the assembly
+
+For each custom part, answer four questions:
+
+1. How is it made, and which dimensions matter most?
+2. How is it held and measured during manufacturing?
+3. How does it go into the robot, including its fasteners?
+4. How is it removed when damaged?
+
+Then build one representative joint or fit coupon. Correct the model using measured evidence before making the whole set.
+
+Continue with [Drawings and exports](/docs/design/drawings-and-exports). For process details, use [3D printing](/docs/engineering/manufacturing/3d-printing), [CNC and sheet parts](/docs/engineering/manufacturing/machining-and-fabrication), and [Fits and tolerances](/docs/engineering/manufacturing/fits-and-tolerances).
+
+<footer className="article-sources">
+
+## Sources
+
+- [FRCDesign: Design for 3D printing](https://frcdesign.org/design-handbook/structure/design-for-3d-printing/)
+- [GM0: Manufacturing](https://gm0.org/en/latest/docs/custom-manufacturing/index.html)
+- [Pretty Smart Robotics, FTC 16441: Custom drivetrain plate and assembly examples](https://www.youtube.com/watch?v=WLALWovAUao)
+
+</footer>

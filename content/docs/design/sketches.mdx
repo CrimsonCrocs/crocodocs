@@ -1,0 +1,70 @@
+---
+title: Sketches
+description: Use dimensions and constraints to make a mounting pattern that stays correct when edited.
+icon: phosphor:PencilSimple
+---
+
+A **sketch** describes geometry on a flat plane. Dimensions set sizes and distances. **Constraints** set relationships: two lines stay parallel, two circles share a center, or a point stays on a line.
+
+The goal is to describe what should stay true when the design changes.
+
+## Dimensions and constraints
+
+| Tool | Example on an FTC part |
+| --- | --- |
+| Coincident | Put a hole center on a construction line |
+| Horizontal or vertical | Keep the edge of a plate aligned with the sketch axes |
+| Equal | Give two mounting holes the same diameter |
+| Symmetric | Keep holes equally spaced around the center of a bracket |
+| Concentric | Keep a bearing seat centered on a shaft opening |
+| Tangent | Join a straight guide to a curved section without a corner |
+
+**Construction geometry** is reference geometry. It helps locate features without becoming an edge of the region you extrude. A centerline through a mounting pattern is a good example.
+
+## A two-hole plate
+
+These are practice dimensions, not a vendor mounting pattern. All dimensions are in millimeters.
+
+![A 70 by 40 millimeter practice plate has two 4.5 millimeter holes, spaced 40 millimeters apart on its horizontal centerline.](/guides/design/practice-plate.svg)
+
+1. Create a sketch on the Top plane.
+2. Draw a center-point rectangle with its center at the origin. Dimension it to 70 mm wide and 40 mm high.
+3. Add a horizontal construction line through the origin.
+4. Draw two circles with their centers on that line.
+5. Put one center 20 mm left of the origin and the other 20 mm right. Use symmetry or suitable dimensions to keep the pattern centered.
+6. Dimension one circle to 4.5 mm diameter and make the other equal.
+
+The hole centers are now 40 mm apart. That leaves 15 mm from each center to the nearest short edge. These dimensions describe the geometry; whether this plate can carry a particular load is a separate [engineering question](/docs/engineering/mechanical/structure-and-fasteners).
+
+## Check what can move
+
+A **degree of freedom** is an independent way that geometry can still move or change. A circle might have a defined diameter but an unfixed center.
+
+Drag a line or circle gently while the sketch is open. If an intended fixed feature moves, find the missing relationship. Onshape normally shows under-constrained geometry in blue and fully constrained geometry in black; also inspect the constraints and solver messages rather than relying on color alone.
+
+Do not use **Fix** on every entity just to make everything black. That can preserve accidental mouse positions instead of the dimensions you meant to specify. Fix is useful for deliberately locked geometry, but dimensions and relationships are usually clearer for a part you will revise.
+
+## Test an edit
+
+Change the plate width from 70 to 80 mm. The holes should remain centered and 40 mm apart. Undo that change, then alter the hole spacing. The outside width should stay at 70 mm.
+
+If the wrong geometry moves, revise the constraints now. This small check is much easier than finding a shifted mounting hole after manufacturing.
+
+## Common problems
+
+- **The sketch turns red:** inspect conflicting dimensions or constraints. Remove the redundant relationship rather than adding more.
+- **A region will not extrude:** look for a small gap, duplicate line, or construction edge where a real boundary is needed.
+- **An unexpected constraint appears:** Onshape can infer relationships while drawing. Inspect what was added before accepting it.
+- **A dimension cannot drive the sketch:** it may be a reference measurement, already determined by other dimensions.
+
+Continue with [Parts and variables](/docs/design/parts-and-variables).
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Sketch basics](https://cad.onshape.com/help/Content/Sketch/sketch_basics.htm)
+- [Onshape: Working with constraints](https://cad.onshape.com/help/Content/Sketch/working_with_constraints.htm)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+
+</footer>

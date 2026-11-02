@@ -1,0 +1,72 @@
+---
+title: Parts and variables
+description: Build a solid part from a sketch and use named dimensions to make changes easier.
+icon: phosphor:Cube
+---
+
+A **parametric model** uses dimensions and relationships to define a part. Instead of moving its faces until it looks right, you change the values that control its shape.
+
+Use the [two-hole practice plate](/docs/design/sketches) for this guide.
+
+## Add thickness
+
+Finish the plate sketch and start **Extrude**. Select the plate region, leaving the two hole regions unselected. Choose **New** and enter a 3 mm depth. You should get one solid plate with two through holes.
+
+The Extrude result options do different jobs:
+
+| Result | Use |
+| --- | --- |
+| New | Make a separate part |
+| Add | Join material to an existing part |
+| Remove | Cut material away |
+| Intersect | Keep only the overlapping material |
+
+For a later hole or slot, make a new sketch and use Remove. Select **Through all** when the cut should pass through the entire part even after its thickness changes.
+
+Rename important features by function, such as `Plate outline`, `Plate thickness`, and `Cable slot`. A teammate should be able to find the mounting pattern without reopening every sketch.
+
+## Named dimensions
+
+A **variable** gives a value a name. Create it before the feature that uses it in the feature list. For example:
+
+| Variable | Type | Practice value |
+| --- | --- | --- |
+| `plateThickness` | Length | 3 mm |
+| `mountSpacing` | Length | 40 mm |
+| `holeDiameter` | Length | 4.5 mm |
+
+Use `#plateThickness` for the extrusion depth and `#holeDiameter` for the circle diameter. For centered holes, locate their centers at half the mounting spacing on either side of the origin.
+
+Keep independent quantities independent. Hole spacing may be set by the device you are mounting, while plate width may depend on available space. Making every dimension a fraction of plate width would break that relationship when the plate grows.
+
+## Feature order
+
+Later features depend on earlier geometry. A fillet that rounds an edge may remove the sharp edge another sketch was attached to. A deleted face can break a later feature.
+
+Use stable planes, the origin, and intentional reference geometry where practical. Put cosmetic edge rounding late in the feature list. Keep functional features, such as a guide surface or a required internal radius, in the order that makes their dependencies clear.
+
+When something fails after an edit, start with the first failed feature. Later red features may be consequences of that one failure.
+
+## Patterns and symmetry
+
+A **pattern** repeats a feature or part. A **mirror** reflects geometry across a plane or line. They are useful when repeated features are genuinely related.
+
+Use a pattern for evenly spaced ventilation holes. Use a mirror for identical left and right mounting holes. Before mirroring a complete robot plate, check whether both sides really use the same motor orientation, cable opening, and countersink direction.
+
+## Check the part
+
+Change thickness to 4 mm. The through holes should remain open. Change hole diameter, then restore it. Check that there is still enough material between holes and edges.
+
+These checks establish that the model updates as intended. To make a physical part, select material and manufacturing allowances using [Design for manufacturing](/docs/design/design-for-manufacturing). The 3 mm practice thickness is not a recommendation for a loaded robot bracket.
+
+Continue with [Assemblies](/docs/design/assemblies).
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Extrude](https://cad.onshape.com/help/Content/PartStudio/extrude.htm)
+- [Onshape: Variables](https://cad.onshape.com/help/Content/PartStudio/variable.htm)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+
+</footer>

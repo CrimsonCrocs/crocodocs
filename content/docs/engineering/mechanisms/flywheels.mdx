@@ -36,6 +36,18 @@ Measure wheel speed before, during, and after a feed. Use a defined readiness ba
 
 [PID control](/docs/control-systems/pid-control) provides background for speed regulation. Verify archived flywheel-control examples against your SDK and hardware instead of copying season-specific setpoints.
 
+## Repeated shots
+
+Tune the launcher and [transfer](/docs/engineering/mechanisms/transfers) as one system. The feeder controls when an object arrives; the wheel and contact geometry must still produce an acceptable shot at that interval.
+
+Start with enough time between shots for repeatable output, then reduce the interval in measured steps. Compare shot spread, wheel-speed drop, missed feeds, and double feeds. If the first shot works but later shots fall short, check both recovery and changes in the objects' arrival conditions.
+
+Define readiness from the range that passed your shooting tests. A wheel crossing the target speed for one reading is different from holding it steadily. Where needed, require the speed to remain in range briefly, with a timeout and a way to cancel. Include the aim and object-staging conditions too.
+
+Software cannot replace missing motor power or inconsistent contact. Check the actual control update timing, but do not assume that a faster loop alone fixes a feed path that changes the ball's position or spin. Test repeated shots while other mechanisms are running and at representative battery states.
+
+For trajectory and calibration, continue with [Projectile mathematics](/docs/season-topics/projectile-mathematics) and [Shooting on the move](/docs/season-topics/shooting-on-the-move).
+
 ## Testing and guards [#test-repeatability-and-contain-hazards]
 
 Use a controlled test area, an appropriate backstop, and a clear procedure for stopping motion. Keep hands and loose items away from the wheel and feed path. Remove power and wait for rotation to stop before clearing a jam.

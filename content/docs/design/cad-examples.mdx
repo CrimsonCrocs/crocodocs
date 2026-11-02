@@ -1,0 +1,72 @@
+---
+title: CAD examples
+description: Study FTC drivetrain, layout, and outtake designs with credited images and questions to guide your own work.
+icon: phosphor:Eye
+---
+
+Another team's CAD can help you understand a mechanism that is difficult to see on a finished robot. Start with one question, such as how an axle is supported or how a transfer clears the frame. Trace that part of the design before studying the whole machine.
+
+## Pretty Smart Robotics
+
+**Pretty Smart Robotics, FTC 16441**, explains custom mecanum drivetrains using live axles, dead axles, belts, and chain. The useful starting point is how the team separates the problem into side plates, motor assemblies, and wheel assemblies.
+
+<figure className="design-example">
+  <img src="/guides/design/pretty-smart-drivetrain.webp" alt="Pretty Smart Robotics CAD view of two green parallel side plates joined by crossmembers, with axle openings and weight-saving cutouts." width="640" height="360" loading="lazy" />
+  <figcaption>Pretty Smart Robotics · FTC 16441. CAD frame from the team's custom mecanum drivetrain tutorial, 3:28.</figcaption>
+</figure>
+
+Study the bearing and axle locations before the cutouts. Each opening has a job: supporting a shaft, mounting a motor, joining the frame, or providing clearance. The plate outline comes after those decisions.
+
+In the video, compare the live-axle and dead-axle assemblies. Identify which parts rotate, where the bearings sit, and what stops the assembly moving sideways. Notice that transmission placement is a packaging choice; it is not determined solely by axle type.
+
+For your own design, model one complete wheel module first. Include the small hardware and explain how it comes apart. Then use the [custom drivetrain guide](/docs/design/custom-drivetrains) to check its layout and manufacturing needs.
+
+## Hyperion
+
+**Hyperion, FTC 9614**, describes its CENTERSTAGE outtake design and revisions. The team starts with the desired object position, compares linkage layouts, and checks them against the rest of the robot.
+
+<figure className="design-example">
+  <img src="/guides/design/hyperion-outtake.webp" alt="Hyperion presentation showing an outtake side plate in CAD with slide reference sketches passing through it, illustrating how large components were placed before connecting parts." width="640" height="360" loading="lazy" />
+  <figcaption>Hyperion · FTC 9614 · CENTERSTAGE. Frame from the team's outtake design explanation, 2:55.</figcaption>
+</figure>
+
+The drawing is useful because the plate is shown alongside the slide geometry it must connect. Watch the following linkage comparisons: the team checks height, interference with other mechanisms, and the required transfer and scoring positions.
+
+Later, the team explains changes prompted by competition use, including extra reach and a revised linkage. This connects the CAD work to observed robot behavior. A design review should ask both “does this move in the model?” and “what happened when the robot used it?”
+
+Try the same method with your mechanism. Sketch its important positions, include nearby parts, and compare two possible layouts. Build a simple prototype of the uncertain movement before detailing the final plates.
+
+## Seattle Solvers
+
+**Seattle Solvers, FTC 23511**, demonstrates master sketching with simplified robot components. A **master sketch** is a shared layout that drives more detailed parts.
+
+In the tutorial, look at how changing a layout dimension affects the dependent geometry. Then watch how sketches are derived into a Part Studio and used to locate features. That connection is the useful part of the method; independently redrawing the same dimensions would lose it.
+
+Use the team's published CAD collection to explore further. First find the main assembly and shared layout. Hide one subsystem at a time, trace a shaft or game-piece path, and identify the interfaces between mechanisms. Check the document's stated season and revision before comparing it with a robot video.
+
+<figure className="design-example">
+  <img src="/guides/design/seattle-solvers-cypher.webp" alt="Seattle Solvers' Cypher CAD render showing a compact chassis, swerve drive modules, a turret-mounted launcher, and the 23511 team plate." width="1379" height="1400" loading="lazy" />
+  <figcaption>Seattle Solvers · FTC 23511 · Cypher, DECODE. CAD render published by the team.</figcaption>
+</figure>
+
+In Cypher's model, start with the space shared by the drivetrain and launcher. Inspect the rotating launcher's clearance through its allowed range, then look for motor, wiring, and fastener access. A render helps you understand the arrangement; the assembly and physical tests are needed to check its movement and performance.
+
+## Use an example well
+
+Write down the design decision you learned, the conditions it depends on, and how you would test it on your robot. A plate shape alone does not explain its material, load, tolerances, or manufacturing process.
+
+Keep the original team's credit when sharing an image or adapted design. Check the creator's permission or license before redistributing CAD files or derivatives. Public viewing access does not automatically grant every reuse right.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Pretty Smart Robotics, FTC 16441: Custom mecanum drivetrain tutorial — image at 3:28](https://www.youtube.com/watch?v=WLALWovAUao&t=208s)
+- [Hyperion, FTC 9614: CENTERSTAGE outtake explanation — image at 2:55](https://www.youtube.com/watch?v=ZRXmqdyVZK4&t=175s)
+- [Seattle Solvers, FTC 23511: Master Sketching](https://www.youtube.com/watch?v=myHrTdh2AOg)
+- [Seattle Solvers, FTC 23511: Published CAD designs and Cypher image](https://www.seattlesolvers.com/resources/designs)
+- [Seattle Solvers, FTC 23511: Cypher in Onshape](https://cad.onshape.com/documents/c021b03986672773c2100272/w/e693f3949bf6e50777651f00/e/b8bffd930c2a2d8248794936)
+- [FTC community CAD pinboard](https://pinboard.opera.com/view/46e5f111-ed87-4aa8-a692-78372649410e)
+- [FTC community mechanical pinboard](https://pinboard.opera.com/view/cf0e583c-6e52-4318-9625-362a7b055ef7)
+
+</footer>

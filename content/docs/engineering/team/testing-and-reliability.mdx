@@ -34,6 +34,22 @@ Start with the symptom and identify what is known. "Lift stopped at half travel"
 
 Use a known working part, cable, battery, or code revision as a controlled substitution where appropriate. Avoid changing several components together unless immediate safe shutdown requires it.
 
+## Transfer and launcher tests
+
+Run a complete load through the robot's actual intake, staging path, and launcher. Hand-placing every object directly against the flywheel can hide a transfer problem.
+
+Use a short record for each object:
+
+| Record | What it helps separate |
+| --- | --- |
+| Arrival and release times | Slow delivery, inconsistent spacing, or an unexpected pause |
+| Staging and passage readings | A missed object, double feed, or sensor placement issue |
+| Wheel speed before and after contact | Speed recovery from changes in arrival conditions |
+| Shot result | Whether the chosen feed interval still gives acceptable accuracy |
+| Jam and recovery outcome | A recoverable miss from a sequence that disables the mechanism |
+
+When two changes happen together, such as lower wheel speed and an off-center feed, investigate both rather than assigning every miss to PID tuning. Repeat the sequence with driving and other intended simultaneous actions. Stop a trial if a roller remains blocked or a component overheats; do not complete a run at the expense of the hardware.
+
 ## Failure priorities [#prioritize-failures-before-polishing-speed]
 
 List credible failure modes and their consequences. Give attention to failures that disable the robot, cause damage, create unsafe motion, or cannot be recovered from during a match. Include how the failure is detected and what the operator or software should do.

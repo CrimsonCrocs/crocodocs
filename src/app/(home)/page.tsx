@@ -1,5 +1,5 @@
 import Footer from '@/components/footer';
-import { ArrowRight, BracketsCurly, CompassTool, GearSix, GithubLogo, Notebook } from '@phosphor-icons/react/ssr';
+import { ArrowRight, BracketsCurly, CompassTool, Cube, GearSix, GithubLogo, Notebook } from '@phosphor-icons/react/ssr';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -11,7 +11,7 @@ export default function HomePage() {
           <div>
             <h1 id="home-title" className="croc-display">Croco<wbr /><span className="text-primary">Docs</span></h1>
             <p className="max-w-xl text-xl leading-relaxed sm:text-2xl">
-              Engineering, programming, and portfolios for <em>FIRST</em> Tech Challenge.
+              Design, engineering, programming, and portfolios for <em>FIRST</em> Tech Challenge.
             </p>
             <p className="mt-5 max-w-xl leading-relaxed text-muted-foreground">
               Build your first robot, improve a mechanism, or work through the code
@@ -45,7 +45,23 @@ export default function HomePage() {
           <div><p className="home-starter-label">New to FTC?</p><h2 id="starter-home-title">Rookie season</h2><p>What you need to get a team running and a robot ready for competition.</p></div>
           <Link href="/docs/starter-guide">Open the Starter Guide <ArrowRight size={18} aria-hidden="true" /></Link>
         </section>
-        <section className="grid gap-6 pb-16 md:grid-cols-2 md:pb-24 lg:grid-cols-3" aria-label="Handbook sections">
+        <section className="grid gap-6 pb-16 md:grid-cols-2 md:pb-24" aria-label="Handbook sections">
+          <div className="home-guide">
+            <Cube size={36} weight="duotone" className="text-primary" aria-hidden="true" />
+            <h2 className="text-3xl">Design</h2>
+            <p>
+              Learn Onshape, plan your robot, and make parts ready to build.
+              Work through sketches, assemblies, layouts, and FTC team examples.
+            </p>
+            <Link href="/docs/design" className="mt-auto inline-flex min-h-11 items-center gap-2 font-semibold text-primary">
+              Explore Design <ArrowRight size={18} aria-hidden="true" />
+            </Link>
+            <div className="home-guide-links flex flex-wrap gap-x-6 text-sm">
+              <Link href="/docs/design/onshape">Onshape basics</Link>
+              <Link href="/docs/design/layout-sketches">Robot layouts</Link>
+              <Link href="/docs/design/cad-examples">CAD examples</Link>
+            </div>
+          </div>
           <div className="home-guide">
             <GearSix size={36} weight="duotone" className="text-primary" aria-hidden="true" />
             <h2 className="text-3xl">Engineering</h2>
@@ -59,7 +75,7 @@ export default function HomePage() {
             <div className="home-guide-links flex flex-wrap gap-x-6 text-sm">
               <Link href="/docs/engineering/first-build">Your first build</Link>
               <Link href="/docs/engineering/mechanisms/drivetrains">Drivetrains</Link>
-              <Link href="/docs/engineering/design/cad">CAD</Link>
+              <Link href="/docs/engineering/mechanisms/transfers">Transfers</Link>
             </div>
           </div>
           <div className="home-guide">
@@ -78,7 +94,7 @@ export default function HomePage() {
               <Link href="/docs/cegp">Code organization</Link>
             </div>
           </div>
-          <div className="home-guide md:col-span-2 lg:col-span-1">
+          <div className="home-guide">
             <Notebook size={36} weight="duotone" className="text-primary" aria-hidden="true" />
             <h2 className="text-3xl">Portfolio</h2>
             <p>

@@ -1,0 +1,58 @@
+---
+title: CAD teamwork
+description: Organize shared models, coordinate changes, and keep manufacturing files matched to the robot.
+icon: phosphor:UsersThree
+---
+
+A shared CAD document helps only if teammates know where to work and which geometry they can depend on. Agree on a small set of conventions before several people start designing connected mechanisms.
+
+## Organize by job
+
+Use names that tell a new student what a tab contains. `Robot layout`, `Intake parts`, `Intake assembly`, and `Main robot` are easier to follow than `Part Studio 17`.
+
+One document can be enough for a small team. Larger projects may benefit from separate subsystem documents linked into a main robot assembly. Split the work when it makes ownership or performance clearer, not simply to create more folders.
+
+Keep purchased components identifiable by their actual part numbers. Give custom parts a stable name or number, and keep their revision in the manufacturing record. Record quantity and material in the part properties so the BOM is useful.
+
+## Assign responsibility
+
+For each shared area, name a person who coordinates changes. Teammates can still contribute, but someone should know when a mounting pattern or mechanism position changes.
+
+Before changing an interface, tell the people affected. Moving an intake pivot can change a transfer position, belt length, mounting plate, sensor location, and software setpoint at once.
+
+Keep a short interface note with the reference planes, mounting holes, reserved space, travel range, and object handoff position. The note should point to the actual geometry rather than repeat dimensions that will soon disagree with it.
+
+## Use history and versions
+
+Onshape's history records edits. A named **version** preserves a particular document state. Make versions at useful milestones, such as a tested prototype or the design sent for manufacturing.
+
+A **workspace** is editable. A **branch** lets you explore a different approach from an existing state. Use a branch when a change genuinely needs comparison or isolation; a separate branch for every tiny adjustment can create unnecessary coordination work.
+
+Name milestones by what they mean, such as `Intake prototype ready` or `Parts sent for cutting`. “Final” becomes confusing when it is followed by “final 2.”
+
+## Update linked parts deliberately
+
+A linked component may reference a specific version of another document. Updating its source does not mean every consuming assembly has adopted the change.
+
+Check the update indicators, review the change, and inspect the affected assembly after updating. Verify the mounting interface and motion, not just whether the model regenerates without an error.
+
+Keep shared dependencies simple. A central layout can drive subsystem geometry. Avoid a loop where each subsystem needs an update from the other before either can rebuild.
+
+## Match the real robot
+
+Builders sometimes drill a new hole, trim a spacer, or move a sensor to finish an assembly. Record these changes while they are fresh and update the model before ordering replacements.
+
+Keep the released CAD version, drawings, and parts list together. Mark a replaced revision clearly so another student does not manufacture an obsolete plate.
+
+At the end of a design change, ask someone else to find the part, explain its mounting, and locate the correct manufacturing file. If they cannot, improve the document before adding more detail.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Versioning and branching](https://cad.onshape.com/help/Content/Document/versions_and_history.htm)
+- [Onshape: Bill of materials and part properties](https://cad.onshape.com/help/Content/Assembly/bill_of_material.htm)
+- [FRCDesign: Document setup](https://frcdesign.org/best-practices/document-setup/)
+- [FRCDesign: Part Studio best practices](https://frcdesign.org/best-practices/feature-tree-setup/)
+
+</footer>

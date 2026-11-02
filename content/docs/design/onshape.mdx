@@ -1,0 +1,69 @@
+---
+title: Onshape
+description: Set up a document, choose units, and learn the difference between sketches, parts, and assemblies.
+icon: phosphor:CompassTool
+---
+
+**Onshape** is a CAD tool that runs in a web browser. Your design lives in a document that teammates can share. You do not need to email a new model file after every edit.
+
+## Account and units
+
+Use Onshape's education registration and FIRST robotics resources to check the account options available to your team. Each student should use their own account. Invite teammates to a shared document rather than sharing a password.
+
+Create a document named for its purpose, such as `Sensor mount practice`. In the document's workspace units, choose millimeters for length. Keep units visible while learning. You can enter an explicit value such as `1 in` in a dimension even when the document displays millimeters.
+
+An imported component should match its real size. Measure one known distance, such as a wheel diameter, before building around it.
+
+## What is in a document?
+
+| Term | Meaning |
+| --- | --- |
+| Document | The shared container for your design |
+| Part Studio | A tab where you make the shapes of one or more parts |
+| Sketch | A flat drawing used to define geometry |
+| Feature | A modeling operation, such as adding thickness or cutting a hole |
+| Part | A solid object, such as one bracket |
+| Assembly | A tab where you position parts and define how they move |
+| Drawing | A sheet with views, dimensions, and manufacturing notes |
+
+A Part Studio can contain several related parts. That does not join them physically. The Assembly describes how the separate components fit together.
+
+## Find your way around
+
+The feature list records how a Part Studio was built. Tabs at the bottom switch between Part Studios, Assemblies, and drawings. The view cube changes the direction you are looking from.
+
+Practice rotating, panning, and zooming before drawing. Mouse and trackpad controls depend on your selected navigation settings; use the controls listed in Onshape's help for your setup. **Zoom to fit** brings the model back into view. Selecting a plane and using **Normal to** gives a straight-on view for sketching.
+
+The origin is the model's reference point. The default planes are flat references through that point. Choose a plane deliberately instead of sketching on whichever face happens to be visible.
+
+## First document
+
+Make a practice plate before opening a complete robot model:
+
+1. Rename the first Part Studio `Mounting plate`.
+2. Create a sketch on the Top plane.
+3. Draw a rectangle around the origin. Its rough mouse-drawn size does not matter yet.
+4. Add dimensions for its length and width.
+5. Finish the sketch. Use **Extrude**, select the enclosed region, and give it a small thickness.
+6. Rename the resulting part so it is easy to find later.
+
+The next two guides explain how to define this plate properly. For now, check that you can select a feature, reopen it, change a dimension, and see the part update.
+
+## Saving and sharing
+
+Onshape records edits in its history. A **version** marks a particular state that you want to return to or share, such as the design sent for cutting. It is different from your changing workspace.
+
+Create a version after completing the practice plate. Share the document with a teammate and ask them to find the plate, identify its units, and measure its thickness. That is a useful first check that your document makes sense to someone else.
+
+Continue with [Sketches](/docs/design/sketches).
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: FIRST robotics resources and account setup](https://www.onshape.com/en/education/first-robotics)
+- [Onshape: Sketch basics](https://cad.onshape.com/help/Content/Sketch/sketch_basics.htm)
+- [Onshape: Versioning and branching](https://cad.onshape.com/help/Content/Document/versions_and_history.htm)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+
+</footer>

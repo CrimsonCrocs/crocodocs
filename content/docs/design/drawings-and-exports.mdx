@@ -1,0 +1,61 @@
+---
+title: Drawings and exports
+description: Prepare manufacturing files, useful dimensions, and a parts list from the same CAD revision.
+icon: phosphor:Ruler
+---
+
+A model describes the shape of a part. A manufacturing handoff also needs its material, quantity, important dimensions, and revision. Give the person making the part enough information to produce and check it without guessing.
+
+## Choose the file
+
+Ask the recipient which format they need. Common choices are:
+
+| Format | Common use | Check before sending |
+| --- | --- | --- |
+| STEP | A solid model for machining or another CAD tool | Correct part, units, and revision |
+| DXF | Flat profiles for cutting or further drawing work | Correct face or sketch, scale, closed outlines, no duplicate cuts |
+| STL or 3MF | A mesh for a 3D-printing workflow | Units or imported size, mesh quality, and the slicer's supported format |
+| PDF drawing | Dimensions, notes, and inspection information | Legibility, material, thickness, and critical features |
+
+A **mesh** approximates surfaces with small flat faces. A solid CAD export and a mesh are different representations. Use the format the manufacturing workflow expects rather than converting through several formats unnecessarily.
+
+## Make a useful drawing
+
+Create a drawing from the part or assembly. Add enough views to explain its shape. A front view may show the mounting pattern while a side view establishes thickness. A section view can explain an internal pocket or bearing stack.
+
+Include the part name or number, revision, material, quantity, units, and applicable tolerances. Identify threads, countersinks, and other features that are not clear from the outline.
+
+Dimension from useful references. For a mounting plate, hole locations measured from one datum are usually easier to inspect than a long chain of dimensions. Do not dimension the same geometry in contradictory ways.
+
+## Specify the fits that matter
+
+A **tolerance** states the allowed variation. Tight tolerances can increase cost and manufacturing time, so apply them where function requires them.
+
+A bearing seat needs a considered fit. The outside edge of a cover may only need to clear nearby parts. Do not give both the same demanding requirement just to make the drawing look professional.
+
+Keep nominal design dimensions separate from process compensation. Ask whether the fabricator handles cutting kerf, tool offsets, or hole finishing. Use a measured coupon for uncertain printed fits rather than applying one guessed offset to every hole.
+
+## Build a parts list
+
+A **bill of materials**, or **BOM**, lists the parts needed to build an assembly. Include quantities, exact purchased part numbers, custom part revisions, and material where relevant.
+
+An automatically generated BOM only knows what you modeled and how its properties are filled in. Check for missing screws, spacers, cable hardware, adhesives, and other assembly supplies. Distinguish items needed for one robot from spare parts you plan to order.
+
+## Export one revision
+
+Create a named CAD version before exporting. Export the model, drawing, and BOM from that agreed state, and put a matching revision in their filenames. For example, `intake-side-plate-r2.step` and `intake-side-plate-r2.pdf` should describe the same part.
+
+Open each exported file in the tool that will use it, or ask the fabricator to check it. Measure a known distance after import. A screenshot of a DXF preview is not enough to establish its scale.
+
+Before sending a batch, try one sample export from the [practice plate](/docs/design/sketches). Confirm the overall size, hole spacing, thickness, and units against the model.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Exporting files](https://cad.onshape.com/help/Content/File/exporting_files.htm)
+- [Onshape: Drawings](https://cad.onshape.com/help/Content/Drawing/drawings.htm)
+- [Onshape: Bill of materials](https://cad.onshape.com/help/Content/Assembly/bill_of_material.htm)
+- [Alan G. Smith: Learn Onshape for FTC, robot assembly and BOM](https://github.com/alan412/LearnOnshapeForFTC)
+
+</footer>

@@ -1,0 +1,66 @@
+---
+title: Robot packaging
+description: Make room for moving mechanisms, game pieces, wires, tools, and repairs.
+icon: phosphor:Cube
+---
+
+**Packaging** means arranging the robot's parts so they fit and work together. It includes the empty space needed for motion, wiring, assembly, and maintenance.
+
+Start with a [layout sketch](/docs/design/layout-sketches), then check the design as a three-dimensional assembly. Two parts can look clear in a side view while occupying the same space across the robot's width.
+
+## Reserve space early
+
+Place the battery, hubs, switch, large motors, and major mechanisms before filling the remaining space with custom parts. Use simple blocks when a detailed model would slow the work down.
+
+Give each block a meaningful size. A hub needs room for plugged-in connectors and cable bends, not just its case. A battery needs a path into and out of its holder. A slide assembly needs its carriage, string, mounting hardware, and moving cables.
+
+Model a larger **keep-out region** around components where another part must not go. Keep-outs can represent a wheel's swept space, a cable bend, or the room needed to operate a latch.
+
+## Check the full motion
+
+An **envelope** is the space occupied by something over its intended movement. Inspect the positions between the start and finish, especially where an arm passes a frame rail or a cable changes direction.
+
+Use a small table to choose the combinations that need checking:
+
+| Robot state | Check |
+| --- | --- |
+| Stowed | Size limits, retained objects, switch access |
+| Pickup | Floor clearance, intake opening, nearby wheels |
+| Transfer | Alignment, donor and receiver movement, object support |
+| Scoring | Reach, field contact, cable travel, stability |
+| Recovery | A safe way back after a miss or partial movement |
+
+Also test combinations that software permits. A wrist may fit with the lift raised but hit the frame while the lift retracts. Either change the geometry or define and test an interlock that prevents that movement.
+
+## Leave room for variation
+
+**Clearance** is intentional space between parts. **Tolerance** is the permitted variation in a dimension. A nominal 1 mm gap can disappear when manufacturing error, assembly play, and deflection act together.
+
+For a simple example, suppose two parts can each shift 0.5 mm toward a gap and the loaded mechanism can deflect another 1 mm. Those contributions could consume 2 mm of the nominal space. Choose a margin for the remaining uncertainty and verify it on the robot; this is not a universal clearance recommendation.
+
+Use [Fits and tolerances](/docs/engineering/manufacturing/fits-and-tolerances) for a more detailed check. Pay particular attention to flexible rollers, slide play, and shafts loaded far from their bearings.
+
+## Check assembly and repairs
+
+Trace the order in which parts are installed. A trapped nut is useful only if you can insert it before closing the pocket. A shaft needs an insertion path and a way to remove its retention hardware.
+
+Place a simple cylinder along a screw's axis to represent driver access. Include the real tool head and room to turn it where space is tight. Check how you would replace the intake roller or remove a damaged servo at an event.
+
+Try a battery change with a cardboard mock-up if the arrangement is difficult to judge on screen. Test the cable route through the complete mechanism travel before securing the harness.
+
+## Review with the team
+
+Ask a builder and a programmer to inspect the assembly with you. Have them explain how the robot is assembled, homed, driven, stopped, and repaired. Record any missing space or unclear movement before releasing the parts.
+
+Use [Assembly and serviceability](/docs/engineering/team/assembly-and-serviceability) and [Wiring layout](/docs/engineering/electrical/wiring-and-power) for the next checks.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Alan G. Smith: Learn Onshape for FTC, space planning](https://github.com/alan412/LearnOnshapeForFTC)
+- [Hyperion, FTC 9614: Centerstage outtake explanation](https://www.youtube.com/watch?v=ZRXmqdyVZK4)
+- [FRCDesign: Layout sketch best practices](https://frcdesign.org/best-practices/master-sketch-setup/)
+- [GM0: Wiring guide](https://gm0.org/en/latest/docs/power-and-electronics/wiring.html)
+
+</footer>

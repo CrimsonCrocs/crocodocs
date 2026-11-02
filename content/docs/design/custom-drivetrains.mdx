@@ -1,0 +1,70 @@
+---
+title: Custom drivetrains
+description: Plan a parallel-plate FTC drivetrain around supported axles, available transmissions, and usable space.
+icon: phosphor:GearSix
+---
+
+A custom drivetrain can free space for an intake or place motors where a kit chassis cannot. It also makes your team responsible for axle alignment, shaft support, tensioning, and replacement parts.
+
+Keep a kit drivetrain when it meets your needs. Choose custom plates to solve a specific problem you can describe and test.
+
+## Start with the wheels
+
+Choose the wheel type, diameter, wheelbase, and track width. **Wheelbase** is the front-to-back distance between axle centers. **Track width** is the side-to-side distance between wheel centers.
+
+Draw the wheels and floor in the layout. Include the real width of the wheel, its hub, and the space needed by nearby plates. Check ground clearance with the expected load and field surface.
+
+Mecanum wheels must be oriented correctly, and their rollers need room to rotate. Use [Drivetrains](/docs/engineering/mechanisms/drivetrains) for wheel arrangement and drive behavior.
+
+## Live and dead axles
+
+| Arrangement | What rotates | Main design checks |
+| --- | --- | --- |
+| Live axle | The shaft turns with the wheel and driven pulley or sprocket | Bearings support the shaft; hubs transmit torque; collars or clips retain it |
+| Dead axle | The wheel assembly rotates around a stationary axle | Bearings are in the rotating assembly; the axle is secured; tightening does not clamp the rotating assembly solid |
+
+Neither arrangement dictates which side of the wheel holds the transmission. Putting it outside the central robot space may help packaging, but it can increase width or make the transmission more exposed.
+
+Build one complete axle stack in CAD before repeating it. Include bearing flanges, spacers, hubs, screw heads, and retention hardware. Check radial support, axial restraint, and how the joint is tightened.
+
+## Fit the transmission
+
+The **transmission** carries rotation from the motor to the wheel, using gears, a belt, or a chain. **Pitch** describes the spacing of its teeth or links; matching pitch alone is not enough if their profiles differ.
+
+Pick real gears, pulleys, belts, or sprockets before fixing their centers in the plate. Tooth pitch, tooth profile, width, and available lengths must match.
+
+For compatible standard spur gears, the nominal center distance is:
+
+$$
+C = \frac{m(N_1+N_2)}{2}
+$$
+
+Here $m$ is module, the metric measure of tooth size, in millimeters. $N_1,N_2$ are tooth counts. Two illustrative module-0.8 gears with 20 and 40 teeth have a nominal center distance of 24 mm. Confirm the manufacturer's requirements, including backlash and any profile changes, before using that dimension.
+
+For a timing pulley, pitch diameter is $D_p = Np/\pi$, where $p$ is belt pitch. A layout circle should represent this pitch diameter, not automatically the outside of the teeth or flange. Matching circles does not prove that a belt of the required length exists.
+
+Plan tension adjustment and tool access. A belt that can only be installed by bending the frame is an assembly problem. Excessive tension can overload bearings and bend plates.
+
+## Design the plates
+
+Locate axle centers and motor mounts from the shared layout. Add crossmembers or standoffs that keep the two plates parallel under load.
+
+Leave material around bearing seats and attachment points. Draw the likely force path from wheel contact through the axle supports into the frame before adding weight-saving cutouts. Read [Design for manufacturing](/docs/design/design-for-manufacturing) before pocketing the plate.
+
+## Prototype one side
+
+Check one drive module before cutting the whole chassis. Verify that it assembles, rotates freely, tensions correctly, and can be serviced. Then test straight driving, turning, braking, and simultaneous mechanism use on the complete robot.
+
+The [Pretty Smart Robotics example](/docs/design/cad-examples#pretty-smart-robotics) shows how one team separates the side plates, motor assembly, and wheel assemblies into manageable design tasks.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Pretty Smart Robotics, FTC 16441: Custom mecanum drivetrain with belts and chains](https://www.youtube.com/watch?v=WLALWovAUao)
+- [GM0: Motion mounting and axle arrangements](https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/motion-mounting.html)
+- [goBILDA: Gears](https://www.gobilda.com/gears/)
+- [ReCalc: Mechanical design calculators](https://www.reca.lc/)
+- [Alan G. Smith: Learn Onshape for FTC, mecanum drivetrain](https://github.com/alan412/LearnOnshapeForFTC)
+
+</footer>

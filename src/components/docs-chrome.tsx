@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { BracketsCurly, CompassTool, GearSix, List, Notebook, X } from '@phosphor-icons/react';
+import { BracketsCurly, CompassTool, Cube, GearSix, List, Notebook, X } from '@phosphor-icons/react';
 import { useSidebar } from 'fumadocs-ui/contexts/sidebar';
 import { Navbar } from 'fumadocs-ui/layouts/docs';
 import { Sidebar, SidebarFooter, SidebarHeader, SidebarPageTree, SidebarViewport } from 'fumadocs-ui/components/layout/sidebar';
@@ -14,6 +14,7 @@ import { starterBase, starterLessons, starterPhases } from '@/lib/starter-guide'
 export function DocsHeader() {
   const pathname = usePathname();
   const engineering = pathname.startsWith('/docs/engineering');
+  const design = pathname.startsWith('/docs/design');
   const portfolio = pathname.startsWith('/docs/portfolio');
   const starter = pathname.startsWith(starterBase);
   const { open, setOpen } = useSidebar();
@@ -32,8 +33,9 @@ export function DocsHeader() {
       </div>
       <nav className="docs-sections" aria-label="Documentation sections">
         <Link href={starterBase} className="docs-starter-link" aria-current={starter ? 'location' : undefined} onClick={() => setOpen(false)}><CompassTool weight="duotone" size={20} aria-hidden="true" />Starter Guide</Link>
-        <Link href="/docs" aria-current={!starter && !engineering && !portfolio ? 'location' : undefined} onClick={() => setOpen(false)}><BracketsCurly weight="duotone" size={20} aria-hidden="true" />Programming</Link>
+        <Link href="/docs" aria-current={!starter && !engineering && !design && !portfolio ? 'location' : undefined} onClick={() => setOpen(false)}><BracketsCurly weight="duotone" size={20} aria-hidden="true" />Programming</Link>
         <Link href="/docs/engineering" aria-current={engineering ? 'location' : undefined} onClick={() => setOpen(false)}><GearSix weight="duotone" size={20} aria-hidden="true" />Engineering</Link>
+        <Link href="/docs/design" aria-current={design ? 'location' : undefined} onClick={() => setOpen(false)}><Cube weight="duotone" size={20} aria-hidden="true" />Design</Link>
         <Link href="/docs/portfolio" aria-current={portfolio ? 'location' : undefined} onClick={() => setOpen(false)}><Notebook weight="duotone" size={20} aria-hidden="true" />Portfolio</Link>
       </nav>
     </Navbar>

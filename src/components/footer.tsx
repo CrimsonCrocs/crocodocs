@@ -12,6 +12,7 @@ export default function Footer() {
         <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 text-sm">
           <Link href="/docs/starter-guide" className="inline-flex min-h-11 items-center hover:text-primary">Starter Guide</Link>
           <Link href="/docs/engineering" className="inline-flex min-h-11 items-center hover:text-primary">Engineering</Link>
+          <Link href="/docs/design" className="inline-flex min-h-11 items-center hover:text-primary">Design</Link>
           <Link href="/docs" className="inline-flex min-h-11 items-center hover:text-primary">Programming</Link>
           <Link href="/docs/portfolio" className="inline-flex min-h-11 items-center hover:text-primary">Portfolio</Link>
           <a href="https://github.com/CrimsonCrocs/crocodocs" className="inline-flex min-h-11 items-center hover:text-primary" target="_blank" rel="noreferrer">GitHub</a>

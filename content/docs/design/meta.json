@@ -1,0 +1,24 @@
+{
+  "title": "Design",
+  "description": "CAD, robot layouts, and parts ready to build",
+  "icon": "phosphor:Cube",
+  "root": true,
+  "pages": [
+    "index",
+    "---Onshape basics---",
+    "onshape",
+    "sketches",
+    "parts-and-variables",
+    "assemblies",
+    "---Robot design---",
+    "layout-sketches",
+    "packaging",
+    "custom-drivetrains",
+    "mechanism-design",
+    "---From CAD to robot---",
+    "design-for-manufacturing",
+    "drawings-and-exports",
+    "cad-teamwork",
+    "cad-examples"
+  ]
+}
