@@ -4,7 +4,7 @@ description: Find the correct hardware model, check its dimensions, and use it w
 icon: phosphor:Toolbox
 ---
 
-Insert purchased hardware before designing the custom parts around it. The motor, bearing, shaft, and screw determine interfaces that a bracket must match. Check the exact part number; a model that looks similar can still have a different shaft or mounting face.
+Insert purchased hardware before designing the custom parts around it. Your bracket has to fit the motor’s mounting holes, the bearing, the shaft, and the screws. Check the exact part number; a model that looks similar can still have a different shaft or mounting face.
 
 ## Choose a source
 
@@ -46,11 +46,11 @@ Find the translated solid and check:
 
 If a known 25.4 mm dimension measures 1 mm or 645.16 mm, investigate units before continuing. Do not resize a model merely until it appears to fit. Scaling also changes every hole, shaft, and connector.
 
-In an Assembly, use mates for placement. In a Part Studio, **Transform** can reorient an imported solid when you need it as a design reference. Keep the reference transformation understandable and avoid repeatedly moving it by arbitrary offsets.
+In an Assembly, use mates for placement. In a Part Studio, **Transform** can reorient an imported solid when you need it as a design reference. Name the Transform feature and use a clear reference for its position, so a teammate can understand why you moved it there.
 
 ## Make a simple hardware envelope
 
-An **envelope** reserves the space occupied by a component. It can omit cooling fins, logos, and screw threads while preserving the interfaces that affect your design.
+An **envelope** is a simple model used to reserve space for a part. You can leave out cooling fins, logos, and screw threads, but keep the mounting holes, shaft, and other features that your design must fit.
 
 For a practice motor envelope, make a separate Part Studio with:
 
@@ -60,9 +60,9 @@ For a practice motor envelope, make a separate Part Studio with:
 
 These are teaching dimensions for a dummy component. For your motor, use its actual drawing and retain the mounting pattern, shaft shoulder, connector, and installed wire path.
 
-Rename the dummy part `Motor envelope — practice`. Give the mounting face and shaft axis clear reference geometry. That prevents someone from mistaking the simplified shape for a complete vendor model with verified fastening details.
+Rename the dummy part `Motor envelope — practice`. Give the mounting face and shaft axis clear reference geometry. The name tells teammates that this is a practice shape, so they will still need the real motor’s mounting pattern and screw-depth limits.
 
-## Model the interfaces
+## Keep the details that affect fit [#model-the-interfaces]
 
 Keep detail when it changes a decision:
 
@@ -76,11 +76,11 @@ Keep detail when it changes a decision:
 
 Detailed helical threads usually add little to a whole-robot model. A screw's head size and installed length are often more useful. Keep an accurate representation of any feature that can collide or stop a joint from assembling.
 
-## Keep updates controlled
+## Update purchased parts [#keep-updates-controlled]
 
 A linked component may refer to a particular document version. Check update indicators and review changes before adopting a new source version. An updated supplier model might correct a hole position that affects a manufactured plate.
 
-After updating, inspect the mounting interface, motion, and part number. Record substitutions: “same diameter motor” does not establish that the replacement uses the same screw length or electrical connection.
+After updating, check the mounting holes, movement, and part number. If you substitute a part, record what changed. A motor with the same diameter may still need different screws or connectors.
 
 Use [Motor mounts](/docs/design/motor-mounts), [Shaft supports](/docs/design/shaft-supports), and [Electronics mounting](/docs/design/electronics-mounting) to design around these references. Keep the team's purchased-part library separate from the custom parts it helps define.
 

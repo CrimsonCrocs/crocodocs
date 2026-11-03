@@ -4,7 +4,7 @@ description: Choose screws, nuts, spacers, and access so parts clamp together wi
 icon: phosphor:Nut
 ---
 
-A joint must keep the parts located under the loads they will see. Draw the fasteners and their contact surfaces, not only the holes. Then check how the joint will be tightened and taken apart.
+A joint has to keep its parts in place while the robot moves, takes impacts, and carries loads. Draw the fasteners and their contact surfaces, not only the holes. Then check how the joint will be tightened and taken apart.
 
 Start with the two plates and spacers from [Assemblies](/docs/design/assemblies). That model defines their position; this page adds the decisions needed for a physical fastening arrangement.
 
@@ -14,7 +14,7 @@ Start with the two plates and spacers from [Assemblies](/docs/design/assemblies)
 
 Most projecting-head screws measure length from underneath the head. Countersunk screws generally include the head in their stated length. Confirm the supplier drawing when length or head seating is important.
 
-A screw needs compatible mating threads. Similar diameters do not make metric and imperial threads interchangeable. Keep kit standards clear in the BOM so a builder does not force a nearly matching screw into a motor or nut.
+A screw needs compatible mating threads. Similar diameters do not make metric and imperial threads interchangeable. List the thread type and size in the BOM so a builder can choose the right screw without trying a nearly matching one in the motor or nut.
 
 ## Clearance or thread
 
@@ -22,7 +22,7 @@ A **clearance hole** lets a screw pass through without engaging its threads. A *
 
 For the practice plate's 4.5 mm holes, an M4 screw has nominal clearance. Choose the actual hole fit for the process and alignment requirement. A printed 4.5 mm opening may need a different nominal CAD value or finishing operation to achieve that fit.
 
-If a screw passes through two independently located plates, both patterns must line up. Use common references, suitable clearance, and any deliberate locating features. Two tight holes are not a substitute for a controlled alignment method.
+If a screw passes through two independently located plates, both patterns must line up. Locate the holes from shared references and leave suitable clearance for the screws. If the parts need more precise alignment, design features to locate them rather than relying on two tight screw holes.
 
 ## Work out the length
 
@@ -48,15 +48,15 @@ The clamping force should pass through surfaces intended to carry it. In the pla
 
 Thin-walled tube can be crushed by a through-bolt if the joint lacks appropriate support. A suitable internal spacer or crush block can carry the clamp force, but its length and contact surfaces must match the tube and load.
 
-Printed plastic can also deform under sustained clamp load. Use appropriate washers, inserts, spacers, geometry, and material. Check the joint after representative use instead of assuming it will retain its original preload indefinitely.
+Printed plastic can also deform under sustained clamp load. Use appropriate washers, inserts, spacers, geometry, and material. Check the joint after the robot has been used. Plastic can slowly deform under pressure, leaving the joint less firmly clamped even if the screw has not turned.
 
 **Preload** is the tension created in a tightened fastener. Follow the hardware and component guidance for tightening; there is no single torque setting for every M4 joint in every material.
 
 ## Keep pivots moving
 
-A pivot has a different job from a rigid clamped joint. The fastener or shaft must remain retained while the intended part rotates freely.
+A pivot has a different job from a rigid clamped joint. The fastener or shaft must stay in place while the moving part turns freely.
 
-Use a shoulder, spacer, bearing, or bushing arrangement that allows the stationary stack to be tightened without squeezing the moving member. Check which bearing races each spacer contacts. A collar rubbing a stationary housing can add friction even when the shaft fits its bore.
+Use a shoulder, spacer, bearing, or bushing arrangement that allows the stationary stack to be tightened without squeezing the moving link. Check which bearing races each spacer contacts. A collar rubbing a stationary housing can add friction even when the shaft fits its bore.
 
 Model the installed washers and heads. A joint can have enough axial clearance at its center while a large washer touches the neighboring link during rotation. Use [Shaft supports](/docs/design/shaft-supports) for a complete rotating stack.
 
@@ -76,7 +76,7 @@ Reserve the space needed by the driver, hex key, socket, or wrench in the instal
 
 Model the assembly order. If the nut must be inserted before a cover closes, show that in the instructions. If replacing a motor requires cutting a trapped cable tie or removing a structural axle, decide whether the mount can be made easier to service.
 
-Add each fastener, washer, spacer, nut, and insert to the BOM. Then ask another student to assemble the practice joint from the drawing and parts list, noting any missing dimension or tool route.
+Add each fastener, washer, spacer, nut, and insert to the BOM. Then ask another student to assemble the practice joint from the drawing and parts list, noting any missing dimension or screw they cannot reach.
 
 <footer className="article-sources">
 

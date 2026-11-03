@@ -4,21 +4,21 @@ description: Plain definitions of the CAD, mechanical, and manufacturing terms u
 icon: phosphor:BookOpen
 ---
 
-Use these definitions when an unfamiliar word interrupts a lesson. The linked guides show the term in a complete example.
+Look up unfamiliar terms here as you work through the lessons. The linked guides show the term in a complete example.
 
 ## CAD
 
 | Term | Meaning |
 | --- | --- |
 | CAD | Computer-aided design: software for accurate drawings and models |
-| Document | Onshape's container for tabs, shared access, and design history |
+| Document | An Onshape project that holds your tabs and design history and can be shared with teammates |
 | Part Studio | A tab in which sketches and features define one or more parts |
 | Sketch | Geometry drawn on a plane or other supported reference |
 | Origin | The fixed reference point where the model's axes meet |
 | Plane | A flat reference surface |
 | Constraint | A relationship such as parallel, equal, or coincident |
 | Dimension | A value that controls or reports a size, angle, or distance |
-| Construction geometry | Reference geometry that does not form the solid's profile boundary |
+| Construction geometry | Lines or curves used to line things up, without becoming edges of the shape you extrude |
 | Feature | A modeling operation, such as Extrude, Hole, or Fillet |
 | Extrude | Extend a flat region into a solid, or use it to add or remove material |
 | Revolve | Turn a profile around an axis to create or modify geometry |
@@ -30,7 +30,7 @@ Use these definitions when an unfamiliar word interrupts a lesson. The linked gu
 | Variable | A named value used in dimensions or other expressions |
 | Configuration | A selectable variant of one model |
 | Derived | A feature that brings reference geometry from another Part Studio or document |
-| Suppress | Temporarily exclude a feature or instance without deleting its definition |
+| Suppress | Temporarily turn off a feature or exclude a part instance from an assembly without deleting it |
 | Rollback | Temporarily return the feature list to an earlier point for inspection or editing |
 | FeatureScript | Onshape's language for defining custom CAD features |
 
@@ -48,10 +48,10 @@ Start with [Onshape](/docs/design/onshape), [Sketches](/docs/design/sketches), a
 | Degree of freedom | An independent way a part can move |
 | Translation | Movement without rotation |
 | Fastened mate | A mate that permits no relative movement |
-| Revolute mate | A mate that permits one rotation |
-| Slider mate | A mate that permits one translation |
+| Revolute mate | Lets two parts turn relative to each other about one shared axis |
+| Slider mate | Lets a part slide along one axis without turning |
 | Interference | Overlapping solid geometry between parts |
-| Pose | A position together with an orientation |
+| Pose | Where something is and which way it faces |
 | Envelope | The space reserved for a component, object, or movement |
 | Datum | A reference face, axis, point, or plane used to locate geometry |
 | BOM | Bill of materials: a list of parts and quantities |
@@ -66,15 +66,15 @@ Use [Assemblies](/docs/design/assemblies) and [Moving assemblies](/docs/design/m
 | Torque | A force's turning effect about an axis, measured in newton-meters |
 | Center of mass | The point used to represent an object's mass distribution for many calculations |
 | Stiffness | Resistance to deflection under load |
-| Strength | Ability to withstand load without the relevant damage or failure |
+| Strength | How much load a part can take before permanent bending, cracking, or another kind of failure |
 | Load path | The route by which forces pass through a structure |
 | Radial | Perpendicular to an axis |
 | Axial | Along an axis |
 | Shaft | A component that commonly transmits rotation and torque |
 | Live axle | An arrangement in which the shaft turns with the driven mechanism |
 | Dead axle | An arrangement in which the axle stays fixed and the mechanism rotates around it |
-| Bearing race | One of a bearing's supported inner or outer rings |
-| Retention | Features or hardware that prevent unwanted movement out of position |
+| Bearing race | An inner or outer ring that the bearing’s balls or rollers run against |
+| Retention | Features or hardware that keep a part from sliding or falling out of place |
 | Reduction | A transmission ratio that lowers output speed and increases ideal torque |
 | Pitch | A repeating spacing; its exact meaning depends on teeth, chain links, or screw threads |
 | Module | A metric measure of gear tooth size |
@@ -108,8 +108,8 @@ Use [Forces and motion](/docs/design/forces-and-motion), [Transmission layouts](
 | DXF | A drawing exchange format often used for flat cutting profiles |
 | STL | A triangular surface mesh commonly used for printing |
 | CSV | A plain-text table format, useful for exporting a BOM |
-| Version | A preserved document state |
-| Revision | An identified design issue used to distinguish approved or changed parts and files |
+| Version | A named point saved in an Onshape document’s history |
+| Revision | A name or number that identifies a design change or an approved set of parts and files |
 
 Use [Tolerances and fit](/docs/design/tolerances-and-fit), [Fastened joints](/docs/design/fastened-joints), and [Drawings and exports](/docs/design/drawings-and-exports).
 

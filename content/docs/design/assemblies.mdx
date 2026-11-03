@@ -23,11 +23,11 @@ You should have one hollow cylinder, with a hole through its full length. The 4.
 
 Open the `Practice assembly` tab from [Onshape](/docs/design/onshape). If you need a new Assembly tab, create one with the **+** menu.
 
-Choose **Insert**, select **Current document**, and insert two instances of Plate and two of Spacer. Click in the workspace to place the instances apart so their faces are easy to select. Their starting locations do not matter for this exercise; the mates will establish their relative positions.
+Choose **Insert**, select **Current document**, and insert two instances of Plate and two of Spacer. Click in the workspace to place the instances apart so their faces are easy to select. You can place them anywhere for now; the mates will move them into place.
 
 Rename the instances `Lower plate`, `Upper plate`, `Left spacer`, and `Right spacer`. These instance names identify their jobs without creating new part models.
 
-Right-click Lower plate and choose **Fix** if it is not already fixed. This establishes a stationary base for the practice assembly. Drag it to check: it should stay still. The other three parts should still be free to move.
+Right-click Lower plate and choose **Fix** if it is not already fixed. This holds the lower plate still while you attach the other parts. Drag it to check: it should stay still. The other three parts should still be free to move.
 
 <figure>
   <a href="/guides/design/practice-assembly.svg" target="_blank" rel="noreferrer" aria-label="Open the practice assembly dimensions at full size">
@@ -79,9 +79,9 @@ The practice assembly is deliberately rigid. A robot's moving joints use other m
 | --- | --- | --- |
 | Revolute | Rotation about one axis | Arm around a supported shaft |
 | Slider | Translation along one axis | Slide carriage along its rail |
-| Cylindrical | Rotation and translation along the same axis | A shaft that genuinely has both motions |
+| Cylindrical | Rotation and translation along the same axis | A shaft that can slide along its axis as well as turn |
 
-**Translation** means moving without rotating. For a moving mate, set the usable limits and inspect intermediate positions. An animation describes permitted motion; it does not supply bearings, stop every collision, or account for flexible wires. Use [Shafts and bearings](/docs/engineering/mechanical/shafts-and-bearings) and [Robot packaging](/docs/design/packaging) for those physical checks.
+**Translation** means moving without rotating. For a moving mate, set the usable limits and inspect intermediate positions. You can animate a mate to check movement, but you still need to design the bearings and look for collisions and snagged wires. Use [Shafts and bearings](/docs/engineering/mechanical/shafts-and-bearings) and [Robot packaging](/docs/design/packaging) for those physical checks.
 
 <footer className="article-sources">
 

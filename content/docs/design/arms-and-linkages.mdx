@@ -4,21 +4,21 @@ description: Lay out pivots and four-bars, preserve a carried object's angle, an
 icon: phosphor:FlowArrow
 ---
 
-Begin an arm design with its required positions and the object it carries. Locate the pivots and motion before shaping the links. The outline can change later; a pivot in the wrong place changes the mechanism's job.
+Start by drawing what the arm carries and where it needs to go. Place the pivots and check the movement before drawing the links’ outlines. It is easy to change an outline later; moving a pivot can change where the whole mechanism reaches.
 
-Use [Mechanism design](/docs/design/mechanism-design) for a first single-arm pose exercise. This page extends that work to linkages and actuator placement.
+Use [Mechanism design](/docs/design/mechanism-design) to practice planning a single arm’s movement. This page extends that work to linkages and actuator placement.
 
 ## A single arm
 
-A rigid arm rotates everything attached to it by the same angle. If it turns 90°, a fixed claw on its end turns 90° too. That can be useful when the intake and scoring pose need different orientations.
+A rigid arm rotates everything attached to it by the same angle. If it turns 90°, a fixed claw on its end turns 90° too. That can be useful when you need to pick up a game piece at one angle and score it at another.
 
 If the claw must keep a constant angle, you need another arrangement: a wrist actuator, a suitable linkage, a belt-driven orientation mechanism, or a different path. Decide which movements are actually needed before adding another servo.
 
-Draw the arm in its stowed, pickup, transfer, and scoring poses. Include the carried object's outer shape. Check the return movement after release, when a claw or guide may be open instead of closed.
+Draw the arm when folded in, picking up, transferring, and scoring. Include the full shape of the game piece it carries. Check the return movement after release, when a claw or guide may be open instead of closed.
 
 ## Draw a parallelogram
 
-A **four-bar linkage** has four links connected by pivots, including the fixed frame. A parallelogram is a useful special case: opposite links have equal lengths, and the moving coupler stays parallel to the fixed link on the intended assembly branch.
+A **four-bar linkage** has four links connected by pivots, including the fixed frame. A parallelogram is a useful special case: opposite links have equal lengths, and the moving link, called the **coupler**, stays parallel to the fixed link as long as the linkage stays in the same open or folded arrangement.
 
 Create a separate document named `Four-bar layout`. On Front, draw construction geometry using these pivot-center dimensions:
 
@@ -41,7 +41,7 @@ Change the angle to **90°**. C should move to **(0, 120) mm** and D to **(80, 1
   <a href="/guides/design/four-bar-layout.svg" target="_blank" rel="noreferrer" aria-label="Open the four-bar layout at full size">
     <img src="/guides/design/four-bar-layout.svg" alt="A parallelogram linkage with 80 millimeter fixed and moving links and 120 millimeter arms is shown at 30 and 90 degrees. Its coupler stays parallel while its position changes." width="600" height="550" loading="lazy" />
   </a>
-  <figcaption>Pivot-center geometry for the practice linkage. The dashed lines show the 90° pose; select the diagram to view it full size.</figcaption>
+  <figcaption>Pivot-center geometry for the practice linkage. The dashed lines show the arm at 90°; select the diagram to view it full size.</figcaption>
 </figure>
 
 ## Choose the motion range
@@ -66,7 +66,7 @@ $$
 
 Suppose the arm needs **0.8 N·m**, and the pushrod attaches **30 mm** from its pivot. At a 90° angle, the required pushrod force is about **26.7 N**. At 15°, it rises to about **103 N**. The same attachment point can therefore be much less effective near one end of the motion.
 
-Draw the servo horn, pushrod, and driven arm at several poses. Check the horn's full travel and the angles at both ends. A horn chosen only for maximum reach may leave poor leverage or an impossible pose elsewhere.
+Draw the servo horn, pushrod, and driven arm at several points in the movement. Check the horn’s full travel and the angles at both ends of the pushrod. A horn that gives plenty of reach in one position may have poor leverage, or be unable to reach, in another.
 
 ## Model the joints
 
@@ -78,9 +78,9 @@ Use [Moving assemblies](/docs/design/moving-assemblies) to represent the permitt
 
 Decide what physically limits the motion, how the robot finds its reference position, and what happens when power is removed. A tall arm may fall under gravity. A servo's command range is not a substitute for a well-supported joint or a safe stop arrangement.
 
-Place sensors where they observe a useful reference and remain protected through the movement. Leave room for their wires. Agree with the programmer on the zero pose, positive direction, and usable range.
+Place sensors where they observe a useful reference and remain protected through the movement. Leave room for their wires. Agree with the programmer on which position counts as zero, which direction increases the angle, and how far the arm can safely move.
 
-Finish the practice layout with three saved poses and a marked object envelope. Use the [Engineering arms guide](/docs/engineering/mechanisms/arms-and-linkages) for torque and support details, then prototype the joint and actuator arrangement before making the complete mechanism.
+Save three positions in the practice layout and show the space taken up by the game piece in each one. Use the [Engineering arms guide](/docs/engineering/mechanisms/arms-and-linkages) for torque and support details, then prototype the joint and actuator arrangement before making the complete mechanism.
 
 <footer className="article-sources">
 

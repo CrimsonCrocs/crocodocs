@@ -6,61 +6,61 @@ icon: phosphor:ClipboardText
 
 Before drawing a mechanism, write down what it must do. A **design brief** is a short description of the task, its limits, and how you will check the result. One page is enough for a small FTC mechanism.
 
-Suppose a team needs a roller to move a game piece from an intake into a claw. “Make a fast transfer” leaves several questions unanswered. Where does the object start? Which way must it face? What happens if it arrives crooked? How much room is available?
+Suppose your team needs a roller to move a game piece from the intake into a claw. “Make a fast transfer” leaves a lot unanswered. Where does the game piece start? Which way should it face when the claw grabs it? What happens if it comes out of the intake crooked? How much room do you have?
 
-Answering those questions gives the CAD work a purpose. You can compare two designs against the same task instead of choosing the one that looks more complicated.
+Write those answers down so everyone is designing for the same job. They also give you a way to compare ideas before spending time on detailed CAD.
 
 ## Describe the object and movement
 
-Begin with the real game piece and the two mechanisms that touch it. Measure several objects if you can. Note their dimensions, flexible surfaces, seams, and the orientations in which the intake can deliver them.
+Start with the actual game piece, intake, and claw. Measure several game pieces if you can. Check their size, where they flex, and whether seams or other features affect how they roll or grip. Try feeding them through the intake in different ways and see how they come out.
 
-Draw a side view and a top view. Mark the object before pickup, during the handoff, and after capture. A **pose** includes both position and orientation: a claw may reach the correct point while holding the object at the wrong angle.
+Draw a side view and a top view. Show the game piece in the intake, as it moves toward the claw, and inside the closed claw. At each step, show where it sits and which way it faces. Reaching the claw is only part of the job: the game piece also needs to be at an angle the claw can grab. In robotics, **pose** means position and orientation together.
 
-For a first brief, complete these sentences:
+Use these questions to describe the handoff:
 
-- The object arrives from ___, in these possible positions: ___.
-- The receiving mechanism needs its center at ___ and its angle at ___.
-- The object must stay supported by ___ during the movement.
-- After a miss, the operator can recover by ___.
+- How does the game piece come out of the intake? Could it be sideways or off to one side?
+- Where does it need to be for the claw to grab it? Does it need to face a certain way?
+- What holds it up while it moves from the intake to the claw?
+- If the handoff fails, what can the driver do to try again?
 
-Use sketches, coordinates, and photographs beside the words. A marked photograph of the actual intake can explain a starting condition more clearly than a paragraph.
+Add sketches, dimensions, and photographs where they help. For example, draw arrows on a photo of the intake to show where the game piece can sit.
 
 ## Requirements and preferences
 
 A **requirement** is something the design must satisfy. A **preference** helps rank designs that satisfy the requirements. A **constraint** limits the available choices, such as a fixed mounting face, budget, or manufacturing process.
 
-For an illustrative bench transfer, a brief might contain:
+For a transfer you are testing on the bench, your notes might look like this:
 
 | Item | Example | How to check |
 | --- | --- | --- |
-| Starting condition | Object rests in the existing intake guide | Use that intake, with deliberately varied object positions |
-| Final pose | Center and orientation match the receiver drawing | Measure the layout and inspect captures |
-| Space | Mechanism stays inside its assigned volume | Check all poses in the robot assembly |
-| Timing | Complete the handoff within the team's chosen cycle budget | Time complete attempts, including recovery |
+| Starting point | Game piece rests in the intake guide | Put it in different positions and try the handoff |
+| At the claw | Game piece reaches the place and angle shown in the claw drawing | Check the dimensions and watch whether the claw grabs it |
+| Space | The transfer fits in the room left for it | Move it through its full travel in the robot assembly |
+| Timing | Finish within the time the team has allowed for the handoff | Time the whole attempt, including any retry |
 | Construction | Make custom parts with the team's printer and drill press | Review every feature with the people making it |
-| Preference | Lower moving mass | Compare mass after the required behavior works |
+| Preference | Less weight for the motor to move | Compare the weight of designs that can do the job |
 
-Choose your own timing and success targets from the robot's job. A number becomes useful when it changes a decision and you have a way to measure it. Writing an ambitious percentage without defining the test conditions gives the team little guidance.
+Choose timing and success targets that suit your robot. Say how you will measure them. For a reliability test, record how you place the game piece and what counts as a successful handoff, so everyone tests the same thing.
 
-Current rules belong in the brief too. Record the applicable size, extension, material, actuator, and game-piece-handling constraints from the current manual. Keep their source beside the internal requirements so someone can check them after a rule update.
+Check the current game manual for rules that affect the design, including size, extension, materials, motors or servos, and game-piece handling. Keep the relevant rule references with your notes so the team can find them again.
 
 ## Compare different mechanisms
 
-Make two or three rough concepts before detailing one. For the transfer, these might be a pivoting donor claw, a guided roller path, and a receiver that moves toward the intake.
+Sketch two or three ideas before choosing one to model in detail. You could try a claw that swings the game piece over, rollers that push it along a guide, or a claw that moves toward the intake to pick it up.
 
-Compare the complete movement. A roller concept needs guides, supports, a drive connection, and a way to stage the object. A claw concept needs opening clearance and a release sequence. Include the work required from software and the driver.
+Think through the whole handoff for each idea. Rollers need guides, supports, a connection to the motor, and somewhere to hold the game piece until the claw is ready. Claws need room to open, and the code needs to release one only after the other has a grip. Include what the programmers must write and what the driver must do.
 
 You can use a small decision table:
 
 | Question | What to record |
 | --- | --- |
-| Can it reach both poses? | A dimensioned layout, including object orientation |
+| Can it pick up and deliver the game piece? | A sketch with dimensions showing both positions and which way the game piece faces |
 | What is uncertain? | The contact, stiffness, or movement you have not tested |
 | Can the team build it? | Stock, tools, purchased components, and difficult operations |
 | Can it be repaired? | Removal steps and parts needed for a replacement |
-| What would reject it? | A specific failure, such as losing the object during rotation |
+| What would make it fail? | A specific problem, such as dropping the game piece while turning |
 
-Avoid adding scores that hide an obvious failure. A design that cannot reach the receiver is not rescued by being inexpensive. Eliminate it or change the concept before ranking smaller benefits.
+If an idea cannot get the game piece into the claw, change it or set it aside. A low cost or weight does not make up for being unable to do the job.
 
 ## Prototype the uncertain part
 
@@ -72,9 +72,9 @@ Write the question before making the prototype. Then record what changed between
 
 ## Give the designer a starting package
 
-Before detailed CAD, collect the brief, measured objects, mounting interfaces, purchased-part models, a rough layout, and the prototype result. Identify which dimensions are fixed and which may change.
+Before you start detailed CAD, put your notes, measurements, purchased-part models, layout sketch, and prototype results in one place. Include the mounting-hole positions and the surfaces the new part will attach to. Make clear which dimensions are fixed and which can change.
 
-For example, a kit rail's mounting pattern is fixed by the rail. The distance between two custom side plates may still be adjustable. Naming that distinction prevents one student from moving the rail holes to solve another student's packaging problem.
+For example, you cannot move the holes in a rail you already own, but you may be able to change the gap between two custom side plates. Agree on that before teammates start designing parts around them.
 
 Use [Measuring parts](/docs/design/measuring-parts) to collect dimensions, then [Layout sketches](/docs/design/layout-sketches) to turn the brief into shared geometry. If CAD is new to you, start the [Onshape lessons](/docs/design/onshape) alongside this work.
 

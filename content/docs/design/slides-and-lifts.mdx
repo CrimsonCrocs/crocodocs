@@ -18,7 +18,7 @@ Two parallel rails can support a wide carriage, but they must be aligned. A rigi
 
 ## Draw the travel first
 
-On a side-view layout, mark the fully retracted and fully extended carriage positions. Include the claw or other mechanism it carries, its open pose, the object, and any offset from the rail.
+In a side-view layout, draw the carriage fully down and fully up. Include the claw or other mechanism it carries, the room needed to open it, the game piece, and how far these sit from the rail.
 
 The offset matters. A load whose center is far in front of the rail creates a bending moment. A longer extension can increase that effect even when the mass stays the same. Check the load path through the carriage, moving stages, supports, and chassis.
 
@@ -53,7 +53,7 @@ At a **12 mm working drum radius**, that is about **0.171 N·m** at the drum bef
 
 To move the final carriage 400 mm in one second at constant speed, this drive would take up 200 mm of cable. At a 12 mm radius, that is about **2.65 drum revolutions**, or **159 rpm**. Real motion needs time and torque for acceleration and deceleration too.
 
-Use the actual rigging's input travel for your calculation. Moving a pulley, anchor, or drive attachment can change the relationship; “two stages” alone does not establish a 2:1 travel ratio.
+Use the actual rigging's input travel for your calculation. Moving a pulley, anchor, or drive attachment can change how far the carriage moves for each turn of the drum. Check the cable route before assuming that two stages give the 2:1 travel ratio described above.
 
 ## Keep tension and alignment
 
@@ -61,19 +61,19 @@ Choose pulleys, grooves, and bend diameters compatible with the cable or belt. C
 
 Provide a practical way to set and maintain tension. Check the attachment at each end, including how a student will replace the line. Leave room to reach the anchor and rethread it without dismantling the entire robot.
 
-A lift may need powered retraction or another deliberate return method. Gravity can be unreliable when the rail is angled, loaded unevenly, or has changing friction. Design the return path and account for the loads it introduces.
+Work out how the lift will come back down. It may need a motor to pull it down. Gravity can be unreliable when the rail is angled, loaded unevenly, or has changing friction. Design the return path and account for the loads it introduces.
 
 ## Route wires through the stroke
 
 Model the wiring to the moving claw, sensors, or wrist. Reserve a loop or cable-management arrangement that accommodates full travel without pulling on connectors or entering the pulleys.
 
-Check the fully retracted state as carefully as the extended state. Extra cable must go somewhere when the carriage comes down. Keep its bend controlled and provide strain relief near connectors.
+Check the fully retracted state as carefully as the extended state. Extra cable must go somewhere when the carriage comes down. Guide the cable into a smooth bend and secure it near connectors so a tug cannot pull on the electrical connection.
 
 Place a home reference or limit sensor where it remains accessible and protected. Agree on the usable range and the behavior after power loss or a jam with the programmers. The physical stop and software limit should work together.
 
 ## Review the complete lift
 
-In the robot assembly, check retracted height, extension envelope, carriage clearance, chassis stability, access to fasteners, and battery or electronics interference. Move the lift while the other mechanisms are in their likely poses.
+In the robot assembly, check how tall the lift is when retracted, how much room it takes when extended, and whether it clears the battery and electronics. Check stability and access to fasteners too. Move it with the other mechanisms in the positions you expect to use.
 
 Build and test the rigging on a small bench setup before loading the final mechanism. Keep hands clear of supported or suspended loads and control stored energy during maintenance. Record the final cable route and attachment details in the model and assembly instructions.
 

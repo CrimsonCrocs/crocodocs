@@ -1,10 +1,10 @@
 ---
 title: Mechanism design
-description: Lay out a transfer arm, check the object's position and orientation, and test the receiving clearance.
+description: Lay out a transfer arm and check whether it delivers a game piece to the right place and angle.
 icon: phosphor:FlowArrow
 ---
 
-A transfer needs a repeatable **pose**: both the object's position and its orientation. Reaching the receiver's center is not enough if the object arrives turned the wrong way.
+A transfer has to put the game piece where the next mechanism can grab or guide it, facing the right way. In robotics, its position and orientation together are called its **pose**. A game piece can reach the right spot and still be too tilted for a claw to grab.
 
 This example uses a simple pivoting arm and a rectangular practice object. Use a separate Onshape document called `Transfer layout practice`, with millimeter units. The [engineering design process](/docs/engineering/design/design-process) covers choosing requirements and prototypes; this page works through the geometry.
 
@@ -23,7 +23,7 @@ In a side-view sketch, use horizontal distance for forward position and vertical
 
 These describe a geometry exercise, not a complete claw or a season's game piece. The arm must move through **90°** between the two positions.
 
-## Draw the two poses [#compare-simple-layouts]
+## Draw the start and finish [#compare-simple-layouts]
 
 1. Start a sketch on the Front plane. Draw construction lines through the origin for the floor and horizontal reference.
 2. Locate the pivot 80 mm forward and 100 mm above the origin.
@@ -36,7 +36,7 @@ These describe a geometry exercise, not a complete claw or a season's game piece
   <a href="/guides/design/transfer-poses.svg" target="_blank" rel="noreferrer" aria-label="Open the transfer pose example at full size">
     <img src="/guides/design/transfer-poses.svg" alt="A 120 millimeter arm pivots from 30 degrees below horizontal to 60 degrees above it, moving a rectangular object to an angled receiver." width="600" height="480" loading="lazy" />
   </a>
-  <figcaption>The object rotates with the arm. The receiver must accommodate its handoff orientation.</figcaption>
+  <figcaption>The block turns with the arm, so the opening must line up with the angle at which it arrives.</figcaption>
 </figure>
 
 Measure the endpoints to check your sketch:
@@ -48,35 +48,35 @@ Measure the endpoints to check your sketch:
 
 The coordinates come from `pivot + arm length × (cos(angle), sin(angle))`, with the calculator in degrees. Cosine gives the horizontal part of the arm's length; sine gives the vertical part.
 
-If the receiver required a **horizontal** object instead, the same arm motion would not satisfy that pose. You would need another arrangement: reorient the object earlier, add a wrist, or choose motion that preserves its angle. [Hyperion's example](/docs/design/cad-examples#hyperion) shows how an FTC team used transfer orientation to simplify its outtake.
+If the next mechanism needs the block to arrive **horizontal**, this arm alone cannot do the job. You could turn the block earlier, add a wrist to the arm, or use a mechanism that keeps the block at the same angle as it moves. [Hyperion's example](/docs/design/cad-examples#hyperion) shows how an FTC team used transfer orientation to simplify its outtake.
 
-## Check capture clearance [#prototype-the-uncertain-part]
+## Check the opening [#prototype-the-uncertain-part]
 
-The 44 × 24 mm opening gives the 40 × 20 mm object **2 mm per side** at the nominal pose. Now test a 3 mm offset perpendicular to its long side while keeping the object angle fixed. One edge extends **1 mm beyond** the opening.
+With the 40 × 20 mm block centered in the 44 × 24 mm opening, there is **2 mm of space on each side**. Keep its angle the same and move it 3 mm sideways, perpendicular to its long edge. One edge now extends **1 mm beyond** the opening.
 
-That tells you a 2 mm allowance cannot accept that particular offset. Widening the opening may help, but also check whether the guides can still retain the object and whether the claw's fingers fit. Rotation, flexible contact, and three-dimensional interference need their own checks.
+That block would catch on the edge. You could widen the opening, but check that the guides would still hold the game piece and leave room for the claw’s fingers. Try tilted positions too, and check from other views. Flexible wheels and game pieces will also behave differently from rigid CAD shapes.
 
-Build an adjustable receiver and present the object from the actual intake, including imperfect positions. Record successful captures and misses before choosing the final guide spacing. Use [Transfers](/docs/engineering/mechanisms/transfers) for contact, sensing, and recovery.
+Build an adjustable version of the opening and feed game pieces into it from the actual intake. Try crooked and off-center pieces as well as neatly placed ones. Record which attempts work before choosing the final guide spacing. Use [Transfers](/docs/engineering/mechanisms/transfers) for contact, sensing, and recovery.
 
-## Agree on interfaces
+## Share the dimensions and sequence [#agree-on-interfaces]
 
-Record the result so the other mechanism designer and programmer use the same reference:
+Share these dimensions and decisions with the teammate designing the next mechanism and the programmer:
 
 | Interface | What to communicate |
 | --- | --- |
 | Arm mounting | Pivot location and axis, measured from the robot datums |
 | Handoff | Object center (140, 203.9) mm and 60° orientation in this exercise |
-| Receiver | Opening, allowed offset, retention surfaces, and finger clearance |
-| Sequence | Receiver captures before donor releases, where the geometry allows it |
+| Receiver | Opening size, how far off-center a game piece can be, what holds it, and room for claw fingers |
+| Sequence | When possible, have the second claw grip the game piece before the first lets go |
 | Recovery | A return path that clears both mechanisms after a miss |
 
-A servo command or a closed-claw drawing does not establish capture. Decide what physical evidence or tested timing permits the next movement.
+Sending a “close” command does not tell the code whether the claw has caught the game piece. Decide how a sensor or tested delay will tell it when to move on.
 
 ## Review before detailing
 
-Sweep the object and arm between the two poses. Add the neighboring frame, intake, receiver, and cable space to the sketch or assembly. Check intermediate positions and the return movement, then make the uncertain contact geometry as a small prototype.
+Move the block and arm through the full handoff. Add the nearby frame, intake, receiving mechanism, and cables to the sketch or assembly. Check the movement back as well as forward. If you are unsure how the guides or claw will grip the game piece, make a small prototype and try it.
 
-Only after that should you detail the plates, joints, and actuator mount. Use [Arms and linkages](/docs/engineering/mechanisms/arms-and-linkages) to size the load and support; the pose sketch establishes reach and orientation, not motor capacity.
+Only after that should you detail the plates, joints, and actuator mount. Use [Arms and linkages](/docs/engineering/mechanisms/arms-and-linkages) to size the load and support; the sketch tells you where the arm reaches and which way the game piece faces. You still need to calculate whether the motor can move the load.
 
 <footer className="article-sources">
 

@@ -16,7 +16,7 @@ This circle describes the outside of the part before it is hollowed. The clear o
 
 ## Add an offset plane
 
-A **reference plane** gives a sketch a controlled location in space. Choose **Plane**, select Top as its reference, and use an **Offset** distance of **50 mm**. Flip the direction if needed so the new plane is above Top, then accept.
+A **reference plane** lets you place a sketch at a chosen distance and angle from the rest of the model. Choose **Plane**, select Top as its reference, and use an **Offset** distance of **50 mm**. Flip the direction if needed so the new plane is above Top, then accept.
 
 Rename it `Inlet plane`. Start a sketch on that plane, draw a concentric **100 mm diameter** circle, and name the sketch `Inlet outside`.
 
@@ -36,7 +36,7 @@ Choose **Shell** and select **both flat circular end faces** for removal. Set th
 
 Rotate the model and look through it from each end. It should have an open inlet, an open outlet, and a continuous tapered wall. If one end remains closed, edit the Shell face selection. If the outside grows, check the shell direction.
 
-Shell thickness is measured normal to the wall. On a sloped wall, the difference between outside and inside radii in a horizontal section is not exactly the same as that thickness. Use a section view and measure the actual clear outlet rather than subtracting a guessed per-side gap from a screenshot.
+Shell measures thickness perpendicular to the wall. Because this wall slopes, subtracting the inside radius from the outside radius in a horizontal section does not give exactly the wall thickness. Use a section view to measure how much room is left at the outlet.
 
 <figure>
   <a href="/guides/design/funnel-section.svg" target="_blank" rel="noreferrer" aria-label="Open the funnel section at full size">
@@ -47,17 +47,17 @@ Shell thickness is measured normal to the wall. On a sloped wall, the difference
 
 ## Check an object
 
-Make a separate Part Studio for a **50 mm-diameter sphere envelope**. On Front, sketch a semicircle of 25 mm radius and close it with its diameter line. Revolve that closed half-circle region through 360° about the diameter, using Solid → New. Insert the sphere with the funnel into an Assembly and check the clear passage from inlet through outlet, including any mounting details you add later.
+Make a separate Part Studio for a **50 mm-diameter sphere** to represent a ball. On Front, sketch a semicircle of 25 mm radius and close it with its diameter line. Revolve that closed half-circle region through 360° about the diameter, using Solid → New. Insert the sphere with the funnel into an Assembly and check the clear passage from inlet through outlet, including any mounting details you add later.
 
-For this concentric circular example, begin with the sphere centered on the funnel axis. Then try off-center approaches. A smooth CAD passage helps identify interference, while real surface friction, object shape, and flexibility determine how reliably it feeds.
+Start with the sphere on the funnel’s center axis, then move it off to the sides to check less tidy approaches. Look for places where it catches on the model. Test the real ball as well: friction, shape, and flexibility affect whether it will feed smoothly.
 
-If the outlet is too small, change the outside profile or wall design deliberately. Do not scale the finished funnel: that would also change its height, inlet, and wall thickness.
+If the outlet is too small, edit the circle that defines it or change the wall thickness. Do not scale the finished funnel: that would also change its height, inlet, and wall thickness.
 
 ## Add mounting features
 
-Decide which robot surfaces locate the funnel and how it can be removed. Add tabs, a supported rim, or a separate holder with appropriate fasteners. Keep mounting screws and nuts out of the object path.
+Decide where the funnel will attach to the robot and how you will remove it for repairs. Add tabs, a supported rim, or a separate holder with appropriate fasteners. Keep mounting screws and nuts out of the object path.
 
-For a tab made by Extrude Add, its volume must genuinely overlap the existing part. A sketch that only touches the funnel at one point may not create a valid joined solid. Inspect the preview and the Parts list; you should know whether you created one joined part or separate components.
+For a tab made by Extrude Add, the tab must overlap the existing part so Onshape can join them. A sketch that only touches the funnel at one point may not create a valid joined solid. Inspect the preview and the Parts list; you should know whether you created one joined part or separate components.
 
 Add fillets where they help the loaded connection and the chosen process. Check the remaining material around holes and the tool path for tightening the fasteners. Use [Fastened joints](/docs/design/fastened-joints) to design the complete attachment.
 
@@ -65,7 +65,7 @@ Add fillets where they help the loaded connection and the chosen process. Check 
 
 Choose an orientation that balances supports, wall quality, mounting surfaces, and the object's contact path. Inspect the slicer's walls at both ends. A thin tapered edge should not disappear because it is too small for the selected process.
 
-Print a small outlet or wall trial if fit and surface behavior are uncertain. Use the actual object to check passage before committing to the full guide. Keep the editable profiles and Shell thickness easy to find so the next iteration changes the intended quantity.
+Print a small outlet or wall trial if fit and surface behavior are uncertain. Use the actual object to check passage before committing to the full guide. Name the sketches and Shell feature so you can find the opening sizes and wall thickness when you need to adjust them.
 
 Use [Printed parts](/docs/design/printed-parts) for layer direction and fit trials, and [Intake and transfer layouts](/docs/design/intake-and-transfer-layouts) to integrate the guide with the mechanisms on either side.
 

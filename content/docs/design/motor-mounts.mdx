@@ -4,7 +4,7 @@ description: Design a motor plate around its real mounting face, transmission, f
 icon: phosphor:GearSix
 ---
 
-A motor mount holds the motor body while its shaft drives something else. Its job includes resisting reaction torque, keeping transmission axes aligned, and giving the motor a route out when it needs replacing.
+A motor mount holds the motor body still while its shaft turns. It has to resist the motor’s tendency to twist, keep gears or pulleys lined up, and leave enough room to remove the motor when it needs replacing.
 
 Start with the motor's exact drawing and model. A gearbox, bare motor, and servo can each need a different mounting method. Use [Hardware and imports](/docs/design/hardware-and-imports) to check the part before sketching its plate.
 
@@ -32,7 +32,7 @@ Add these openings:
 
 Extrude the plate region **4 mm** as a new part, leaving all seven openings clear. The four motor holes form a **24 × 24 mm square** centered on the shaft axis. The two frame holes are 60 mm apart.
 
-Keep the pattern dimensions separate from the outside outline. The motor interface may stay fixed while the plate's frame connection or edge shape changes.
+Dimension the motor holes separately from the plate outline. You may need to change the plate’s edges or how it attaches to the frame while keeping the same motor-hole pattern.
 
 ## Assemble the motor
 
@@ -56,15 +56,15 @@ The mount also carries reaction torque: as the motor turns the mechanism one way
 
 For a belt or chain drive, choose the transmission geometry before adding slots. The adjustment must change the center distance in the intended direction while keeping the shafts parallel and the pulleys or sprockets in line.
 
-If the motor rotates around a pivot for tensioning, the other fastener normally needs an arc around that pivot. If it translates, use parallel straight slots or another guided adjustment. Check the complete adjustment range in the assembly, including washer coverage and tool access.
+If the motor rotates around a pivot for tensioning, the other fastener normally needs an arc around that pivot. If the motor slides in a straight line, use parallel straight slots or another way to guide it. Check the complete adjustment range in the assembly, including washer coverage and tool access.
 
-After tensioning, the clamped joint must resist the operating loads. A slot by itself does not hold the motor in position. Use appropriate fasteners, contact area, and any positive adjustment or locating features your design needs.
+After tensioning, the clamped joint must resist the operating loads. A slot by itself does not hold the motor in position. Choose fasteners and enough clamping area to keep it still. If needed, add an adjustment screw or another feature that supports the motor against the belt or chain pull.
 
 ## Make replacement possible
 
 Try removing the motor in CAD. Identify which screws come out first, where the shaft coupling releases, and how the body clears the frame. Check whether the belt can be removed without dismantling a whole side of the robot.
 
-Leave access to screw heads and hub set screws in the installed state. A screwdriver needs an approach direction; an opening that only fits the screw head is not necessarily tool access.
+Check that you can reach the screw heads and hub set screws after installing the motor. Leave room to line up and turn the actual tool, not just a hole big enough to see the screw.
 
 For printed mounts, consider layer direction, heat, and long-term deformation under clamp load. For a metal plate, consider stiffness, edge distances, and the manufacturing process. Use [Fastened joints](/docs/design/fastened-joints) and [Printed parts](/docs/design/printed-parts) before choosing the final details.
 

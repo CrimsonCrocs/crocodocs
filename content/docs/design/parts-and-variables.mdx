@@ -57,19 +57,19 @@ Plate thickness
 
 The Parts list still contains **one Plate**. The variables and sketch are features that define it, not extra parts.
 
-Keep independent quantities independent. Hole spacing may be set by the device you are mounting, while plate width may depend on available space. Making every dimension a fraction of plate width would break that relationship when the plate grows.
+Choose variables for dimensions you actually need to change together. Hole spacing may come from the device you are mounting, while plate width depends on the room available. If you make the hole spacing a fraction of the width, widening the plate will move the holes away from the places they need to be.
 
 ## Feature order
 
 Later features depend on earlier geometry. A fillet that rounds an edge may remove the sharp edge another sketch was attached to. A deleted face can break a later feature.
 
-Use stable planes, the origin, and intentional reference geometry where practical. Put cosmetic edge rounding late in the feature list. Keep functional features, such as a guide surface or a required internal radius, in the order that makes their dependencies clear.
+Where possible, attach sketches to planes, the origin, or reference geometry you have created for that purpose. Put cosmetic edge rounding late in the feature list. Keep functional features, such as a guide surface or a required internal radius, in the order that makes their dependencies clear.
 
 When something fails after an edit, start with the first failed feature. Later red features may be consequences of that one failure.
 
 ## Patterns and symmetry
 
-A **pattern** repeats a feature or part. A **mirror** reflects geometry across a plane or line. They are useful when repeated features are genuinely related.
+A **pattern** repeats a feature or part. A **mirror** reflects geometry across a plane or line. Use them for features that should change together.
 
 Use a pattern for evenly spaced ventilation holes. Use a mirror for identical left and right mounting holes. Before mirroring a complete robot plate, check whether both sides really use the same motor orientation, cable opening, and countersink direction.
 
@@ -79,7 +79,7 @@ Edit `plateThickness` to 4 mm. Measure the solid: its thickness should change wh
 
 Restore **3 mm thickness, 40 mm spacing, and 4.5 mm diameter** before continuing. Confirm one part measuring 70 × 40 × 3 mm, with hole centers 15 mm from the short ends and 20 mm from the long edges.
 
-These checks establish that the model updates as intended. To make a physical part, select material and manufacturing allowances using [Design for manufacturing](/docs/design/design-for-manufacturing). The 3 mm practice thickness is not a recommendation for a loaded robot bracket.
+After these checks, you should be able to change the plate’s thickness, hole spacing, and hole size without breaking the other dimensions. To make a physical part, select material and manufacturing allowances using [Design for manufacturing](/docs/design/design-for-manufacturing). The 3 mm practice thickness is not a recommendation for a loaded robot bracket.
 
 Continue with [Assemblies](/docs/design/assemblies).
 

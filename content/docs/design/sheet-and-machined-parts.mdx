@@ -6,7 +6,7 @@ icon: phosphor:Factory
 
 Choose the material and manufacturing process before detailing every corner. A flat cut plate, bent sheet bracket, and milled block can solve the same mounting problem with different shapes, costs, and assembly methods.
 
-Talk to the person or service making the part. Their tooling, stock, minimum features, tolerances, and file requirements belong in the design from the start.
+Talk to the person or service making the part. Find out what stock and tools they have, how small they can make features, how accurate the parts will be, and which files they need.
 
 ## Flat plates
 
@@ -22,7 +22,7 @@ Keep the cutting file clean. It should contain the intended boundaries without d
 
 Choose stock for the loads, stiffness, impact, environment, and fabrication process. Aluminum alloy and temper affect behavior; “aluminum” is not a complete material specification. Plastics also differ in stiffness, toughness, friction, and heat response.
 
-Use available thicknesses rather than designing around a value nobody can buy locally. Measure stock where the fit depends on it. A nominal thickness can vary, and a protective coating or surface finish can affect an interface.
+Use available thicknesses rather than designing around a value nobody can buy locally. Measure stock where the fit depends on it. The stock may be thicker or thinner than its stated size, and a coating or finish can change how it fits other parts.
 
 Keep the load path in mind when shaping the outline. Leave material around mounting and bearing holes, and use crossmembers or other supports when a broad plate would otherwise flex. See [Design for manufacturing](/docs/design/design-for-manufacturing) for the worked cutout comparison.
 
@@ -50,7 +50,7 @@ Check pocket depth against stock thickness. A 2 mm-deep pocket in a 3 mm plate l
 
 Choose drilled, reamed, tapped, countersunk, or counterbored features according to the joint. A **reamed hole** uses a finishing operation for a more controlled diameter and surface than a rough opening alone.
 
-A cut opening may need a secondary operation for the intended bearing or shaft fit. Put that requirement on the drawing. Do not silently assume a laser-cut or routed hole will provide the same interface as a specified machined fit.
+You may need to drill, ream, or otherwise finish a cut opening to get the fit a bearing or shaft needs. Put that work on the drawing, and ask the fabricator what accuracy the cutting process can achieve on its own.
 
 For threads in thin material, consider the usable engagement after chamfers and tool lead-in. Use suitable nuts, inserts, or increased supporting thickness when the joint requires them. The [fastened-joint guide](/docs/design/fastened-joints) explains the stack and access checks.
 
@@ -66,7 +66,7 @@ Manual parts need an achievable marking, drilling, and finishing process too. Ch
 
 Include the agreed geometry file, drawing, material, thickness, quantity, units, revision, and functional tolerances. Mark any required secondary work, such as tapping or finishing a bearing seat. Ask the fabricator to raise an unclear requirement before making the batch.
 
-When the parts return, inspect the important dimensions, edge condition, and fit with actual hardware. Update CAD and drawings for any agreed correction. Keep the approved files together so a replacement uses the same definition.
+When the parts return, inspect the important dimensions, edge condition, and fit with actual hardware. Update CAD and drawings for any agreed correction. Keep the approved files together so someone making a replacement knows which drawing and model to use.
 
 <footer className="article-sources">
 

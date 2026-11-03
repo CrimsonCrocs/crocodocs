@@ -6,7 +6,7 @@ icon: phosphor:Ruler
 
 Two parts with matching nominal CAD dimensions may not fit when manufactured. Decide which surfaces locate the parts, how much movement is acceptable, and how the chosen process varies before setting the final dimensions.
 
-A **nominal dimension** is the stated target. A **tolerance** is its permitted variation. **Clearance** is the space between mating features. These are related, but they are not the same quantity.
+A **nominal dimension** is the stated target. A **tolerance** is its permitted variation. **Clearance** is the space between mating features. For example, you can design a gap between parts and still have variation in the size of both parts.
 
 ## Start with the intended fit
 
@@ -18,7 +18,7 @@ A **nominal dimension** is the stated target. A **tolerance** is its permitted v
 
 The useful fit depends on the material, temperature, load, surface, and process. A bearing housing in machined aluminum and a printed sensor bracket should not automatically use the same allowance.
 
-Use the supplier's fit guidance for bearings, shafts, inserts, and other specified interfaces. For a printed custom joint, use a representative fit coupon and measure the result.
+Use the supplier's fit guidance for bearings, shafts, inserts, and other specified interfaces. For a printed joint, print a small test piece with the same hole or mating shape and measure how it fits.
 
 ## Diameter and per-side clearance
 
@@ -48,7 +48,7 @@ A negative result means interference: the allowed parts can overlap by 0.10 mm. 
   <figcaption>Check both ends of the allowed size ranges. Select the diagram to view it full size.</figcaption>
 </figure>
 
-If the opening changes to **10.40 ± 0.15 mm**, the resulting clearance becomes **0.30 to 0.90 mm**. That avoids interference within these assumed limits, but may create too much play. You may instead need a more controlled process, a different locating feature, or an adjustable joint.
+If the opening changes to **10.40 ± 0.15 mm**, the resulting clearance becomes **0.30 to 0.90 mm**. That avoids interference within these assumed limits, but may create too much play. If that much play is a problem, you could use a process with less size variation, add a feature that locates the parts, or make the joint adjustable.
 
 Do not simply enlarge every opening until the whole assembly fits. Decide where the parts should be located and where clearance is harmless.
 
@@ -75,11 +75,11 @@ Locate critical features from common **datums**, the reference faces, axes, or p
 
 Repeatedly dimensioning hole-to-hole distances can accumulate error. A coordinate or baseline scheme from a common reference often makes the intended positions clearer. Avoid duplicate driving dimensions that ask the drawing or sketch to satisfy conflicting definitions.
 
-Check the real assembly too. Clearance screws may let a plate shift before tightening, so the CAD nominal position is not automatically the physical location. Use a suitable locating method where that shift would affect a gear mesh or transfer pose.
+Check the real assembly too. Clearance screws may let a plate shift before tightening, so the CAD nominal position is not automatically the physical location. Add a feature that locates the plate if that shift would misalign gears or move the place where a transfer delivers the game piece.
 
 ## Test the manufacturing process
 
-Make a small coupon using the same material, orientation, and settings as the final part. Include the relevant hole, slot, insert pocket, or mating tab. Measure what comes off the machine, then test it with the actual mating component.
+Make a small test piece using the same material, print orientation or machining setup, and settings as the final part. Include the relevant hole, slot, insert pocket, or mating tab. Measure what comes off the machine, then test it with the actual mating component.
 
 Keep the correction separate from the nominal hardware dimension. For example, a variable named `shaftDiameter` can describe the real shaft, while `boreAllowance` describes the deliberate CAD adjustment. That makes the reason for the change visible.
 

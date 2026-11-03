@@ -4,7 +4,7 @@ description: Design holders, cable routes, and service access for hubs, batterie
 icon: phosphor:Plug
 ---
 
-Place the battery, hubs, connectors, and wiring in the robot layout early. They occupy real space and need access after the mechanisms are assembled. A remaining empty rectangle is not automatically a useful electronics bay.
+Place the battery, hubs, connectors, and wiring in the robot layout early. Leave room to plug them in, reach their controls, and remove them after the rest of the robot is assembled. Check those jobs before choosing an electronics bay just because it is the last empty space.
 
 Use the actual component model or a measured envelope. Include the installed plugs and cable bends, not just the bare housing.
 
@@ -12,7 +12,7 @@ Use the actual component model or a measured envelope. Include the installed plu
 
 For each component, identify its mounting points, cooling needs, connectors, controls, and removal path. A hub that can be seen through a window may still be impossible to unplug or replace.
 
-Keep the main power switch reachable in the robot's expected poses. Plan a battery change with the intake, lift, and covers installed. Avoid a holder that depends on removing several unrelated mechanisms to release the battery.
+Keep the main power switch reachable as the mechanisms move. Plan a battery change with the intake, lift, and covers installed. Avoid a holder that depends on removing several unrelated mechanisms to release the battery.
 
 Protect electronics from direct impact, debris, moving shafts, and loose conductive parts. Use suitable standoffs or insulating arrangements where required. Follow the component's mounting and electrical guidance; do not clamp a bare board by pressing on its components.
 
@@ -38,11 +38,11 @@ The clearances are practice dimensions. Use a measured fit trial for the real ho
 
 ## Add connectors and retention
 
-Put connector envelopes on the dummy housing where the real component has them. Cut the cradle's walls where needed for plugs, latches, and cable exits. Keep enough material to support the component and avoid sharp edges against wires.
+Add simple shapes for the plugs at the connector positions on the actual component. Cut the cradle's walls where needed for plugs, latches, and cable exits. Keep enough material to support the component and avoid sharp edges against wires.
 
-Choose a retention method, such as the manufacturer's mounting holes or a suitable strap around a rigid housing. Model its route and attachment. The side walls locate the housing laterally; they do not, by themselves, stop it lifting out.
+Decide what will hold the component down, such as its mounting screws or a suitable strap around a rigid housing. Include the screws or strap in CAD. The cradle’s walls stop the housing sliding sideways, but it can still lift out unless something holds it down.
 
-Add mounting flanges or another deliberate connection to the chassis. Include screw heads and nuts. A screw protruding through the base must not press into the component or its battery casing.
+Add mounting flanges or another way to attach the cradle to the chassis. Include screw heads and nuts. A screw protruding through the base must not press into the component or its battery casing.
 
 Test removal with the real plug and retention hardware. Some connectors need space for a finger to release the latch before the plug can move.
 
@@ -52,17 +52,17 @@ A cable route needs a start, an end, support along the way, and room at each con
 
 Provide **strain relief**: an attachment that prevents cable tension reaching the electrical connection. Leave enough slack for service and movement, while supporting extra cable so it cannot enter a mechanism.
 
-For a moving claw, draw the cable at both ends of travel. In the retracted pose, decide where the extra length goes. At full extension, check that the cable remains relaxed and the connector is not carrying the pull.
+For a moving claw, draw the cable at both ends of travel. When the claw comes back in, check where the extra cable goes. At full extension, check that the cable remains relaxed and the connector is not carrying the pull.
 
 Label routes and connectors where that helps a new student maintain the robot. Keep a path available for adding a sensor without threading its wire through an inaccessible closed frame.
 
 ## Mount cameras and sensors
 
-A camera mount needs stiffness and a clear view. Check its field of view in the installed pose, including moving mechanisms that can block it. Avoid mounting it on a flexible cover that changes angle when touched.
+A camera mount needs stiffness and a clear view. Check what the camera can see from its mounting position, including whether a moving mechanism blocks its view. Avoid mounting it on a flexible cover that changes angle when touched.
 
 Record its reference position and orientation in CAD. The programmer needs the transform between the camera and robot: where it is and which way it points. After adjusting the mount, update that information and any required calibration.
 
-A limit switch, distance sensor, or color sensor needs a useful sensing location, access for adjustment, and protection from impact. Include its bracket, fasteners, connector, and target surface. A sensor drawn near a mechanism does not establish that it can observe the required state.
+A limit switch, distance sensor, or color sensor needs a useful sensing location, access for adjustment, and protection from impact. Include its bracket, fasteners, connector, and target surface. Check that the sensor can actually detect what you need, with the surrounding parts and game piece in place.
 
 ## Review with the builders
 

@@ -4,7 +4,7 @@ description: Choose ratios, place shafts, and make room for gears, belts, chains
 icon: phosphor:GearSix
 ---
 
-A **transmission** carries rotation between shafts. Choose its ratio and real components before fixing the shaft locations in your plates. Tooth count alone does not establish that the parts will mesh, fit, or carry the load.
+A **transmission** carries rotation between shafts. Choose its ratio and real components before fixing the shaft locations in your plates. As well as tooth count, check that the parts fit each other and can carry the load.
 
 Use [Forces and motion](/docs/design/forces-and-motion) to estimate the required torque and speed. Then sketch the transmission around the mechanism's output axis and the space available for its motor.
 
@@ -30,7 +30,7 @@ $$
 C=\frac{m(N_1+N_2)}{2}
 $$
 
-For module 0.8, a 20/40 pair has **24 mm** between shaft centers. Their pitch diameters are 16 and 32 mm. Use those pitch circles in the layout, while reserving the larger actual outside geometry for collision checks.
+For module 0.8, a 20/40 pair has **24 mm** between shaft centers. Their pitch diameters are 16 and 32 mm. Use those pitch circles to position the shafts. Also draw the actual outside of each gear when checking whether it hits anything nearby.
 
 Create construction circles at the pitch diameters. Dimension the centers, then locate the bearing seats and motor mount from the same references. In the solid model, check face width, hub length, shaft retention, and nearby plates.
 
@@ -50,7 +50,7 @@ Here $p$ is the belt pitch. A 20-tooth, 2 mm-pitch pulley has a pitch diameter o
 
 The [drive-layout example](/docs/design/custom-drivetrains#belt-spacing) uses a 20/40-tooth pair, 2 mm pitch, and a 220 mm pitch-length belt. Its geometric center distance is approximately **79.75 mm**. Choose an available, compatible belt and use the manufacturer's calculator or installation guidance before detailing the plate.
 
-An ordinary open belt pair turns both shafts in the same direction. Put the pulley working surfaces in the same plane, and keep their axes parallel. A belt that tracks into a flange may be exposing an alignment problem.
+An ordinary open belt pair turns both shafts in the same direction. Put the pulley working surfaces in the same plane, and keep their axes parallel. If the belt keeps running against a flange, check whether the shafts and pulleys are lined up.
 
 ## Place chain
 
@@ -66,7 +66,7 @@ Choose a chain length that can be assembled with the intended links and connecti
 
 ## Add adjustment
 
-Tension adjustment needs a direction, range, and way to stay set. A translating motor changes center distance; an idler changes the belt or chain path. These affect contact and bearing loads differently.
+Decide which way the tension adjustment moves, how far it moves, and what holds it in place. A translating motor changes center distance; an idler changes the belt or chain path. These affect contact and bearing loads differently.
 
 For a translating motor, guide the adjustment so the shaft stays parallel to the driven shaft. Keep washers supported at both ends of each slot. Check that the motor body, connectors, and screws remain accessible throughout the range.
 
@@ -78,9 +78,9 @@ More tension is not a universal fix for slipping or skipping. Excessive tension 
 
 A side-view layout can place the axes correctly while the real hubs collide. Add a section along each shaft and assign a plane to each gear, pulley, or sprocket.
 
-For a compound gearbox, put the two meshes in their intended axial layers. Include the supports, spacers, collars, and a tool route to every clamping screw. Reserve a removal path for the belt or chain and enough room to disengage a gear when replacing it.
+For a compound gearbox, place each pair of meshing gears at the right position along its shafts. Include supports, spacers, and collars, and check that you can reach every clamping screw with a tool. Reserve a removal path for the belt or chain and enough room to disengage a gear when replacing it.
 
-Check torque transmission at every interface. A gear that spins freely on its shaft will not drive the next stage merely because its teeth mesh. Finish with [Shaft supports](/docs/design/shaft-supports), then prototype one module before cutting all the robot's transmission plates.
+Check how each gear, pulley, or sprocket is attached to its shaft. A gear that spins freely on the shaft cannot drive the next stage, even if its teeth mesh correctly. Finish with [Shaft supports](/docs/design/shaft-supports), then prototype one module before cutting all the robot's transmission plates.
 
 <footer className="article-sources">
 

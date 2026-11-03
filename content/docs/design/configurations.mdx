@@ -4,9 +4,9 @@ description: Make a family of spacer lengths and insert the correct variant into
 icon: phosphor:Stack
 ---
 
-A **configuration** is a named variation of one model. Use it when several parts share the same modeling steps but differ in a few controlled values: spacer length, bracket offset, or rail length.
+A **configuration** lets one model offer several versions of a part, such as different spacer lengths, bracket offsets, or rail lengths. The parts use the same modeling steps, with a few dimensions or features changed.
 
-A variable controls a value within the model. A configuration gives the person using that model a choice of variants. A version preserves the document's state at a point in time. These solve different problems.
+Use a variable to name a dimension, a configuration to offer a choice of parts, and a version to save a point in the document’s history. For example, a spacer can have a length variable, Short and Long configurations, and a saved version of the model you sent for printing.
 
 ## Make a spacer family
 
@@ -27,7 +27,7 @@ Open the **Configurations** panel on the right side of the Part Studio:
 
 Select each option from the configuration controls above the feature list. The length should change while the bore stays 4.5 mm and the outside diameter stays 10 mm. If another dimension changes, check which parameter you added to the table.
 
-The option names help readers choose; the actual dimension belongs in the table and part properties. A name such as `Long` is ambiguous outside this family, so include the physical length in the description used for manufacturing or purchasing.
+Names like `Short` and `Long` are convenient while working in this model. Include the actual length in the part description too, so someone printing or buying the part knows which size you mean.
 
 ## Insert the required variant
 
@@ -55,13 +55,13 @@ Different physical variants need distinguishable part numbers or descriptions. T
 
 Configure the relevant properties and review the BOM. Confirm that each row identifies the correct variant and quantity. When making a drawing or export, select the intended configuration before creating the file, then open the output and measure it.
 
-Use a filename such as `spacer-10od-4p5id-16long-r1.stl`. A clear filename helps, but the controlled model, properties, and released version remain the source for its definition.
+Use a filename such as `spacer-10od-4p5id-16long-r1.stl`. Make sure the file, part properties, and saved model version all describe the same size.
 
 ## Keep the model understandable
 
-Use configurations for genuine families. If two mechanisms have different load paths, mounting methods, and feature trees, separate models may be clearer than dozens of suppression switches.
+Use configurations for parts that share a design. If two mechanisms carry loads differently, mount differently, and need different modeling steps, separate models will probably be easier to follow than a long list of features to turn on and off.
 
-Record which input controls each interface. Teammates should know that changing Length moves the spacer's end face but leaves its bore unchanged. Use [CAD teamwork](/docs/design/cad-teamwork) to coordinate updates in assemblies that depend on the family.
+Explain what each input changes. Here, changing Length moves the spacer’s end face but leaves its bore unchanged. Use [CAD teamwork](/docs/design/cad-teamwork) to coordinate updates in assemblies that depend on the family.
 
 Keep one version with all three spacer options working. In your practice Assembly, leave one Short and one Long instance so another student can check that both remain defined by the same model.
 

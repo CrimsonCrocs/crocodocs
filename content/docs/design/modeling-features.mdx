@@ -43,7 +43,7 @@ You can repeat that cut:
 3. Select the foot's long straight edge for the pattern direction.
 4. Enter **25 mm** between instances and an instance count of **2**. The ordinary one-direction count includes the original hole.
 5. Reverse the direction if needed. The second center should be 45 mm from the same upright reference face.
-6. Keep the bracket in the affected-part scope, inspect the preview, and accept.
+6. Make sure the bracket is selected as the part the pattern will change, inspect the preview, and accept.
 
 You should have two holes, centered across the foot, with 25 mm between them. Increasing the instance count to three would place another hole at 70 mm, beyond the 60 mm foot. Use the preview to catch this instead of accepting a failing pattern.
 
@@ -55,7 +55,7 @@ Extrude Remove is useful for simple openings. The **Hole** feature also supports
 
 A **counterbore** is a larger cylindrical recess, often used for a screw head. A **countersink** is a conical recess for a matching countersunk head. A **tapped hole** has an internal thread. These require the appropriate screw dimensions and enough material around and below the feature.
 
-For a practice Hole feature, start a sketch containing a point at the required location, accept it, then choose Hole and select that point. Choose the type, size, start, end condition, and part scope. Inspect a section view to see the resulting depths. Keep a useful shoulder below a counterbore; a deep recess in a thin plate can leave too little material to support the head.
+For a practice Hole feature, start a sketch containing a point at the required location, accept it, then choose Hole and select that point. Choose the type, size, start, end condition, and part scope. Inspect a section view to see the resulting depths. Leave enough material below a counterbore to support the screw head. A deep recess in a thin plate can remove most of that support.
 
 ## Fillets and chamfers
 
@@ -85,7 +85,7 @@ The result should be one spacer: **16 mm outside diameter, 8 mm inside diameter,
 
 Use Extrude for a constant cross-section, Revolve for a shape around an axis, **Sweep** for a section following a path, and **Loft** for a transition between sections. Begin with the simpler operations when they describe the part well.
 
-Keep one feature responsible for a clear change. A teammate should be able to find the foot thickness, mounting holes, and corner radius without deciphering a single enormous sketch. Use [CAD troubleshooting](/docs/design/cad-troubleshooting) when a later feature breaks after an edit.
+Give each feature a clear job. A teammate should be able to find the foot thickness, mounting holes, and corner radius without working through one enormous sketch. Use [CAD troubleshooting](/docs/design/cad-troubleshooting) when a later feature breaks after an edit.
 
 <footer className="article-sources">
 

@@ -4,7 +4,7 @@ description: Bring the lessons together in a supported, belt-driven bench roller
 icon: phosphor:Toolbox
 ---
 
-Design a bench roller module with two side plates, a supported shaft, and a belt drive. The task combines layout, custom parts, purchased hardware, mates, a parts list, and manufacturing files. It is a practice module; adapting it into an intake or transfer also needs the actual object path and contact tests.
+Design a belt-driven roller between two side plates. You will plan its layout, model the custom parts, add hardware, assemble it, and prepare a drawing and parts list. This is a practice project you can build on. To use it in an intake or transfer, you will also need to work out the game-piece path and test the roller contact.
 
 Complete the plate tutorial first, then use the relevant mechanism chapters as references. Create a separate Onshape document named `Roller module practice`, in millimeters.
 
@@ -18,14 +18,14 @@ Use the plate's lower-edge midpoint as the side-view origin. Horizontal position
 | Gap between inner plate faces | 120 mm |
 | Roller | 40 mm diameter, 100 mm long |
 | Roller shaft axis | (0, 45) mm in side view |
-| Practice shaft envelope | 8 mm diameter, 170 mm long |
-| Practice bearing envelope | 8 mm bore, 16 mm body diameter, 5 mm width |
-| Motor envelope | 38 mm diameter, 60 mm body length |
+| Simple shaft model | 8 mm diameter, 170 mm long |
+| Simple bearing model | 8 mm bore, 16 mm body diameter, 5 mm width |
+| Simple motor model | 38 mm diameter, 60 mm body length |
 | Motor axis | (0, 124.75) mm in side view |
 
 The **79.75 mm** separation between the axes comes from the illustrative 20/40-tooth, 2 mm-pitch, 220 mm pitch-length belt example. Use [Transmission layouts](/docs/design/transmission-layouts) to understand that choice.
 
-Reserve space for the real pulley flanges, hubs, and motor connector as well. Replace the practice envelopes with the actual parts selected for a physical build before finalizing their fits and mounting patterns.
+Leave room for pulley flanges, hubs, and the motor connector too. Before making parts, replace these simple practice shapes with models or measurements of the hardware you will use, then check the fits and mounting holes.
 
 <figure>
   <a href="/guides/design/roller-module-layout.svg" target="_blank" rel="noreferrer" aria-label="Open the practice roller module layout at full size">
@@ -51,35 +51,35 @@ Keep the axis spacing and mounting patterns as named dimensions or variables. Yo
 
 ## Make the simple parts
 
-In separate Part Studios, model the roller, shaft, bearing envelopes, and the spacers needed for the intended stack. Use concentric sketches and Extrude or Revolve as appropriate.
+In separate Part Studios, model the roller, shaft, simple bearings, and spacers you will assemble along the shaft. Use concentric sketches and Extrude or Revolve as appropriate.
 
-Give the roller an 8 mm nominal through bore for the geometry exercise. A physical roller also needs a torque connection to the shaft: a suitable hub, clamp, shaped bore, or another designed interface. Do not rely on an unfastened round bore to transmit rotation.
+Give the roller an 8 mm nominal through bore for the geometry exercise. On a real robot, the roller must be attached to the shaft so they turn together. Use a suitable hub, clamp, shaped bore, or another connection that can carry the torque. A loose round hole will just let the shaft spin inside the roller.
 
-Use a real motor and compatible pulley models when available. If you use the dummy motor, keep its mounting face and output axis clear and mark its part name as an envelope. A simplified cylinder cannot supply unspecified screw depths or a verified tooth profile.
+Use a real motor and compatible pulley models when available. If you use the dummy motor, keep its mounting face and output axis clear and mark its part name as an envelope. Use the actual motor drawing for screw depths and the actual pulley model or specification for tooth shape.
 
 ## Assemble the supports
 
 Insert two side plates and place their inner faces 120 mm apart. Use modeled standoffs or other structural parts to maintain that gap. Fix one plate for the practice assembly and Fasten the rigid frame parts to it.
 
-Center each 5 mm-wide bearing envelope in its 3 mm plate for this layout exercise, giving a 1 mm projection on each side. Align their axes. In a physical design, use the selected bearing's flange, shoulder, housing fit, and retention arrangement instead of relying on a floating CAD ring.
+Center each simple 5 mm-wide bearing model in its 3 mm plate, so it sticks out 1 mm on each side. Line up the two bearing axes. For a real build, include the bearing’s flange or shoulder, the correct fit in the plate, and something to hold it in place.
 
-Place the 100 mm roller midway between the supports. With 1 mm inward bearing projections, the nominal space between them is 118 mm, leaving **18 mm** around the roller for the appropriate spacer and retention arrangement. Inspect the full section and divide that space according to the actual contacts.
+Place the 100 mm roller midway between the supports. With 1 mm inward bearing projections, the nominal space between them is 118 mm, leaving **18 mm** around the roller for the appropriate spacer and retention arrangement. Look at a section through the shaft and choose spacers that fill the gaps without rubbing the stationary parts of the bearings.
 
 ## Add the drive
 
 Mate the motor body to its plate. Place the driver and driven pulleys in the same belt plane with parallel axes. Check the shaft engagement, hub screws, collars, and the length available outside the bearing.
 
-The 170 mm shaft envelope extends 21 mm beyond each bearing's outer face in this symmetric practice arrangement. That is room to investigate a stack, not a prescribed final cut length. Add the actual pulley/hub and retention dimensions, then choose the shaft length that suits them and the surrounding robot.
+The 170 mm practice shaft sticks out 21 mm beyond each bearing’s outer face. Use that space to try placing the pulley, hub, and retaining hardware. Once you know their actual lengths and how much room you have in the robot, choose the final shaft length.
 
 Give the shaft/roller assembly a Revolute mate relative to the frame. Fasten the parts that should turn together. If you model a drive relation, one driver turn should produce half a driven turn in the same direction for this open 2:1 belt pair.
 
-Design a practical tension adjustment while keeping the roller axis located. Check the belt's installation path and the motor's full adjustment range.
+Add a way to tension the belt without moving the roller axis. Check the belt's installation path and the motor's full adjustment range.
 
 ## Review and document
 
 Use [Design review](/docs/design/design-review) with a teammate. Check support alignment, rotation, retention, tension, tool access, and a route for removing the roller. Inspect the complete assembly, including the motor connector and mounting screws.
 
-Make a drawing of the side plate, export its cutting profile, and create a BOM. Identify which items are custom parts, actual purchased hardware, and temporary envelopes. Include the fastening and retention parts needed for a real build.
+Make a drawing of the side plate, export its cutting profile, and create a BOM. Identify which items you will make, which you will buy, and which are still simple placeholder models. Include the fastening and retention parts needed for a real build.
 
 Create a named version `Roller module review`. Ask another student to find the shaft spacing, identify the torque path, locate the bearing retention, and explain the assembly order. Use their questions to correct the model and drawings before manufacturing.
 

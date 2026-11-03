@@ -6,7 +6,7 @@ icon: phosphor:ListChecks
 
 A design review is a working session in which teammates try to find problems while they are still inexpensive to change. Bring the requirements, model, load estimates, prototype results, and proposed parts list. Include people who will build, program, and maintain the mechanism.
 
-The result should be a decision about the next step and a short list of specific changes. An attractive screenshot is useful context, but it cannot show every fit, movement, or assembly dependency.
+By the end, agree on what happens next and who will make any needed changes. Open the actual assembly during the review so you can move it, measure it, and look inside parts that a screenshot would hide.
 
 ## Review at useful stages
 
@@ -14,15 +14,15 @@ Review the concept before detailed CAD, the assembly before manufacturing, and t
 
 At the concept stage, compare the movement and uncertain contacts. At the detailed stage, inspect dimensions, supports, hardware, and tool access. After testing, update the model to match changes that actually worked.
 
-Keep the review proportional. A small sensor bracket may need ten focused minutes with its builder. A new lift and transfer need a deeper discussion of interfaces, loads, motion, and recovery.
+Keep the review proportional. A small sensor bracket may need ten focused minutes with its builder. A new lift and transfer need more time to discuss how they fit together, what loads they carry, and how they move and recover from a miss.
 
 ## Begin with the job
 
-Show the task from the [design brief](/docs/design/design-brief), including the starting and final poses. Identify the fixed interfaces and the dimensions that remain adjustable.
+Show the task from the [design brief](/docs/design/design-brief), including where the game piece or mechanism starts and finishes. Point out the mounting positions that cannot move and the dimensions you can still adjust.
 
 For an intake, show the range of object arrival positions. For a lift, show the payload, reach, and retracted state. For a drivetrain plate, show the actual wheel, shaft supports, and transmission.
 
-Separate known measurements from assumptions. If a roller's compression has not been tested, identify the adjustable prototype that will resolve it. Do not let a polished model make an uncertain contact look settled.
+Say which dimensions you have measured and which are still estimates. If you have not tested how much the rollers should squeeze a game piece, plan an adjustable prototype to find out before making the final mounts.
 
 ## Walk through the movement
 
@@ -36,9 +36,9 @@ Use section views for hidden stacks and interference analysis where it helps. In
 
 Point to the place where a load enters the mechanism, then follow it through shafts, bearings, plates, fasteners, and the frame. Ask what keeps the supports aligned and what happens under a reversal or impact.
 
-Show the torque and speed estimate for the chosen actuator and ratio. Include the mechanism's mass, payload, and demanding pose. Check the difference between a working operating point and stall data.
+Show the torque and speed estimate for the chosen actuator and ratio. Include the weight of the mechanism and payload, and show the position that needs the most torque. Use the motor’s performance at the intended working speed, rather than its stall torque.
 
-For printed or pocketed parts, inspect the remaining material at loaded interfaces. If the calculation is too uncertain, choose a prototype test that measures the behavior you need, such as deflection at the receiver.
+For printed parts or plates with cutouts, look at the material left around mounting holes and other places that carry loads. If you cannot estimate the bending confidently, test a prototype and measure how far it moves under load at the point that matters to the handoff.
 
 ## Assemble it in order
 
@@ -58,9 +58,9 @@ Open the exports rather than only looking at the source model. Verify units, sca
 
 ## Agree with the programmers
 
-Record the mechanism's zero pose, positive direction, travel limits, and sensor locations. Identify the evidence that permits each transition: a detected object, reached position, closed receiver, or tested timing condition.
+Record the mechanism’s zero position, which direction counts as positive, its travel limits, and where the sensors go. Talk through what tells the code to start each action. That might be a sensor detecting a game piece, an encoder reaching a position, a claw closing, or a delay you have tested.
 
-Discuss jams, missing objects, power loss, and manual override. If a roller should stop when its staging area is occupied, make that behavior part of the shared interface. A mechanical guide and a software state sequence must describe the same object path.
+Discuss jams, missing objects, power loss, and manual override. If a roller should stop when a game piece reaches the waiting area, write that down for the programmer. Go through the planned code sequence alongside the CAD layout so both describe the same movement.
 
 Check whether a mounting change affects camera calibration, encoder references, or motor direction. Update those dependencies before the new parts reach the robot.
 
@@ -76,7 +76,7 @@ Use a compact review note:
 | Uncertainty | The test or measurement still needed |
 | Recheck | What must be inspected after the change |
 
-For example, if a transfer misses when the object arrives sideways, the next step may be an adjustable centering-guide test rather than a full new outtake. Recheck the delivery poses after choosing the guide geometry.
+For example, if a transfer misses when the object arrives sideways, the next step may be an adjustable centering-guide test rather than a full new outtake. After choosing the guides, check where the game piece arrives and which way it faces.
 
 Create a named version at the agreed release point. Keep the approved drawings, exports, and BOM tied to it. After the build, use [CAD teamwork](/docs/design/cad-teamwork) to record physical changes and [CAD troubleshooting](/docs/design/cad-troubleshooting) to repair model problems without losing the design intent.
 

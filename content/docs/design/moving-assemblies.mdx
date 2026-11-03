@@ -4,7 +4,7 @@ description: Give a joint the right movement, set its limits, and check the mech
 icon: phosphor:ArrowsClockwise
 ---
 
-A moving assembly needs the correct **degrees of freedom**: the independent movements a joint permits. A hinge should rotate about its pin while staying located in every other direction. A slide should translate along its rail without rotating freely.
+A hinge should turn about its pin without sliding sideways or pulling apart. A slide should move along its rail without turning. Each independent movement a joint allows is called a **degree of freedom**. Choose mates that allow the movements you need and hold everything else in place.
 
 Complete the rigid [plate assembly](/docs/design/assemblies) first. Then use a separate document named `Hinge practice` for the moving example below.
 
@@ -31,9 +31,9 @@ The 1 mm gap helps you see the two parts in this exercise. A physical hinge also
 
 If the link will not rotate, check whether it is fixed or has another Fastened mate. If it both rotates and slides, you may have chosen a Cylindrical mate. Remove the unwanted freedom rather than adding unrelated constraints until the model stops moving.
 
-## Set the zero pose and limits
+## Set zero and movement limits [#set-the-zero-pose-and-limits]
 
-The mate's angle is measured between its connector coordinate systems. It may read zero in a pose you did not expect. Edit the connectors' orientation so the zero pose has the long edges pointing in the same direction, then inspect the angle while moving the link.
+The mate measures its angle between the two connectors, so zero may not put the links where you expect. Rotate the connectors so the links point in the same direction at zero, then move the link and watch the angle reading.
 
 Enable the mate's **Limits** and set a minimum of **15°** and maximum of **120°**. Drag the link to both ends. It should stop at the limits in the intended direction. If it travels through the opposite sector, correct the connector orientation or limits.
 
@@ -43,9 +43,9 @@ These limits describe the model's allowed travel. They do not create a physical 
 
 Right-click the mate and use **Animate** to inspect its range. Move slowly through intermediate positions, not just the two endpoints.
 
-Look for collisions between the moving part, frame, screw heads, connectors, and the object it carries. A claw can fit in its open pose and closed pose while scraping a rail between them. Include the opening motion of the claw's fingers as well as the arm's main rotation.
+Look for collisions with the frame, screw heads, connectors, and the game piece. A claw can fit when fully open and fully closed but still scrape a rail as it moves between them. Include the opening motion of the claw's fingers as well as the arm's main rotation.
 
-Use section views and interference analysis for geometry that is hidden inside the model. Interpret the results: intentional fits or simplified hardware may need a closer look. An interference-free pose does not establish clearance throughout an untested movement.
+Use section views and interference analysis to find overlaps you cannot see from outside. Some overlaps may be intentional, such as a press fit, so inspect what the tool highlights. Keep checking as the mechanism moves; clearing the frame in one position does not mean it clears it everywhere.
 
 ## Choose a different mate
 
@@ -56,7 +56,7 @@ Use section views and interference analysis for geometry that is hidden inside t
 | Slider | One translation | Carriage along a straight guide |
 | Cylindrical | Rotation and translation along one axis | A joint that really permits both motions |
 
-For a Slider mate, align the connector's primary axis with the travel direction. Establish a meaningful zero position, then enter limits from the rail's usable stroke. Do not assume the rail's total physical length equals its travel.
+For a Slider mate, align the connector's primary axis with the travel direction. Choose a zero position you can identify on the real robot, then set the limits from the rail’s usable travel. Do not assume the rail's total physical length equals its travel.
 
 Onshape normally respects a subassembly's internal mates in the top-level assembly. If its movement stops there, inspect fixed instances, rigid groups, and the new parent-level mates. Dissolving the subassembly reorganizes its parts and mates; it is not the first repair for a joint constrained twice.
 
@@ -72,7 +72,7 @@ The relation is a motion model. It does not calculate motor torque, belt stretch
 
 Your practice assembly should have two link instances, one fixed base, and one Revolute mate. Moving link should rotate only between the chosen limits and stay in its layer with a 1 mm face gap.
 
-Ask another student to drag it, identify the axis, and explain what limits its real movement. If the CAD mate is doing a job that no physical part will do, add the missing support or change the mechanism before detailing it.
+Ask another student to drag it, identify the axis, and explain what limits its real movement. If only the CAD mate is holding the joint together, work out which bearing, spacer, or fastener will do that job on the real robot before going further.
 
 <footer className="article-sources">
 

@@ -32,7 +32,7 @@ Neither arrangement dictates which side of the wheel holds the transmission. Put
   <figcaption>Red parts rotate; gray parts stay fixed. These sections explain support and torque paths, not a dimensioned vendor assembly.</figcaption>
 </figure>
 
-For a live-axle wheel module, identify every interface before drawing its side plates:
+Before drawing side plates for a live-axle wheel, check how all the parts will fit together:
 
 | Component | What it must match |
 | --- | --- |
@@ -44,7 +44,7 @@ For a live-axle wheel module, identify every interface before drawing its side p
 
 Make a section along the axle. For an illustrative **60 mm gap between inner plate faces**, suppose each bearing projects 2 mm into the gap. That leaves **56 mm** for the rotating assembly. A 28 mm wheel/hub envelope, a 12 mm pulley/hub envelope, and 14 mm of spacers use **54 mm**, leaving **2 mm unallocated**.
 
-That remainder tells you the arrangement has room for adjustment; it is not a target for 2 mm of shaft endplay. Locate the shaft with suitable retention, choose the final spacer/shim stack, and check free rotation after tightening. A collar or spacer must bear on the intended rotating race without rubbing the fixed housing.
+You still have 2 mm to account for with the final spacers and shims. Do not leave the shaft free to slide back and forth by that amount. Add the hardware that holds it in place, then tighten the assembly and check that it turns freely. Make sure collars and spacers contact the intended rotating bearing race without rubbing the fixed housing.
 
 For a real hardware study, the goBILDA Strafer hub-shaft `2110-0608-0002` uses an **8 mm-ID bearing and a 6 mm-ID bearing** at different shaft locations, with shims and an end screw/washer. Its assembly instructions show why choosing bearings from one nominal shaft size can be misleading. Inspect that supplier stack before adapting its support geometry to a custom plate.
 
@@ -72,9 +72,9 @@ Use the side layout from [Layout sketches](/docs/design/layout-sketches). Its ex
 
 The pulley pitch diameters are approximately **12.73 mm** and **25.46 mm**. A 220 mm pitch-length belt has **220 / 2 = 110 teeth**. With this belt, the two-pulley geometry gives a center distance of about **79.75 mm**. A pitch length measures around the belt's working pitch line, not its outside surface.
 
-Use a calculator for the selected belt profile and pulley sizes, then confirm the manufacturer's installation and tension requirements. Include adjustment without shifting the wheel axes out of alignment. A nominal 80 mm center distance is close to this example, but it is not the same constraint as the chosen belt length.
+Use a calculator for the selected belt profile and pulley sizes, then confirm the manufacturer's installation and tension requirements. Include adjustment without shifting the wheel axes out of alignment. Rounding the center distance to 80 mm changes the fit of that 220 mm belt, so include enough adjustment to tension it correctly.
 
-In the practice layout, the front wheel axis is 52 mm above the floor, so the motor axis goes at **52 + 79.75 = 131.75 mm**. Moving the motor changes the belt route and the available chassis space; it should update a shared layout, not an isolated mounting hole.
+In the practice layout, the front wheel axis is 52 mm above the floor, so the motor axis goes at **52 + 79.75 = 131.75 mm**. If you move the motor, update the shared layout so everyone sees the new belt route and the room it needs in the chassis.
 
 ## Design the plates
 

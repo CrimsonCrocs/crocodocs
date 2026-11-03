@@ -4,17 +4,17 @@ description: Design the game-piece path, roller contact, staging, and handoff as
 icon: phosphor:HandGrabbing
 ---
 
-An intake collects objects from varied positions. A transfer delivers them to the next mechanism in a controlled state. Draw both jobs together, including the surfaces that support and align the object between them.
+An intake picks up game pieces that may be crooked or off to one side. The transfer has to get each piece into the next mechanism where it is needed and facing the right way. Design that whole route together, including the guides and rollers that hold the piece along the way.
 
-Start with measured game pieces, the required receiving pose, and the space available in the robot. Use [Your first design brief](/docs/design/design-brief) to record the task before choosing rollers or claws.
+Measure the game pieces, decide where the next mechanism needs them, and work out how much room you have in the robot. Use [Your first design brief](/docs/design/design-brief) to record the task before choosing rollers or claws.
 
 ## Trace the object
 
-Draw the object at pickup, inside the intake, before transfer, during handoff, and inside the receiver. Use a side view and a top view. Mark which surfaces touch it in each position.
+Draw the game piece on the floor, inside the intake, along the transfer, and in the mechanism that will score it. Use a side view and a top view. Mark which surfaces touch it in each position.
 
 For a round object, place a circle at several points along the proposed path. Its radius extends to both sides of the center path. A centerline that clears a screw is insufficient if the object itself hits it.
 
-For a rectangular or irregular object, include the orientations in which it can arrive. Check corners and protrusions. A single neat CAD pose can conceal the variation that the intake must handle.
+For rectangular or irregular game pieces, try the different angles at which they might enter. Check corners and protrusions. A neatly centered piece in CAD can hide problems that appear when the driver picks one up crooked.
 
 Look for gaps where neither mechanism supports the object, abrupt steps that can catch an edge, and openings where it can escape. A guide can be useful even when it never appears in the motor or servo list.
 
@@ -26,11 +26,11 @@ Consider an illustrative **70 mm ball**, a **50 mm-diameter roller**, and a flat
 
 For a 64 mm object, that overlap becomes 4 mm. For a 76 mm object, it becomes 16 mm. The same fixed arrangement therefore behaves differently across object sizes. The actual contact force also depends on material, wheel construction, and deformation.
 
-Make the prototype adjustable. Test pickup and transport across the expected object sizes and starting positions. Keep enough range to investigate both insufficient contact and excessive squeeze, then record the successful geometry in CAD.
+Make the roller spacing adjustable on your prototype. Try game pieces of different sizes, placed at different angles. See what happens when the gap is too wide to grip well and when it squeezes too much. Record the spacing that works in CAD.
 
 ## Shape the guides
 
-Use guides to keep the object in contact with the driven surface and bring it toward the receiver's required pose. A gradual funnel may accept a wider range of arrival positions than a sharp entrance, but it still needs enough width and height for the real object.
+Use guides to keep the game piece against the rollers and turn or center it as needed before the next mechanism. A gradual funnel may accept a wider range of arrival positions than a sharp entrance, but it still needs enough width and height for the real object.
 
 Avoid trapping an object between opposing surfaces whose clear distance becomes too small along the path. Inspect bends using several object positions. For foam or irregular pieces, use the physical prototype to establish a workable shape instead of relying on a perfectly rigid model.
 
@@ -38,17 +38,17 @@ In the top view, check whether the guides center the object or allow it to enter
 
 ## Separate pickup from delivery
 
-The intake can accept variation that the receiver cannot. Put the alignment work before the receiver's most demanding contact, using guides, rollers, a pocket, or another deliberate locating arrangement.
+An intake may pick up a game piece from several angles, while a claw or shooter needs it in one particular place. Use guides, rollers, or a shaped pocket to line it up before it reaches that mechanism.
 
-For a claw handoff, locate the object relative to both sets of fingers. Check that the receiver can close before the donor releases where the geometry permits that sequence. Then check that the donor can withdraw without pulling the object back out.
+For a claw-to-claw handoff, draw the game piece inside both sets of fingers. Where there is room, have the second claw close before the first opens. Then check that the first claw can move away without pulling the piece back out.
 
 For a launcher feed, control arrival position, spin, velocity, and spacing between objects. Extra rollers may help, but only when they produce the intended contact. A backroller can also add friction, a jam point, or a motor load; test the whole path.
 
-Use the positive [Hyperion example](/docs/design/cad-examples#hyperion) to study how choosing the transfer orientation can remove a later movement from the outtake.
+Use the [Hyperion example](/docs/design/cad-examples#hyperion) to study how choosing the transfer orientation can remove a later movement from the outtake.
 
 ## Add staging and sensing
 
-A **staging position** holds an object ready for the next action. Define its actual resting surfaces and the gate or stop that retains it. Include the object against the stop in CAD, rather than leaving it floating midway through the channel.
+A **staging position** is where a game piece waits until the next mechanism is ready. Draw what it rests on and the gate or stop that holds it there. In CAD, place the piece against that stop so you can check the contact.
 
 Check what each roller does while the object is stopped. Continuously forcing an object into a closed gate can stall a motor or damage a contact surface. Consider separate drive sections and a sensor that lets the controller stop the occupied section.
 
@@ -58,7 +58,7 @@ Place sensors where the object reliably enters their sensing region and where ne
 
 The feed rate depends on the complete mechanism. A launcher may need time to recover speed, while a gate or transfer may set the minimum spacing. Increasing roller speed alone can make the next stage less consistent.
 
-Record the sequence beside the layout: object detected, section stopped, receiver ready, gate opened, object delivered, path checked clear. Include a bounded recovery action for a miss or jam, with a path that does not collide with another mechanism.
+Write down what the code should do beside the layout. It might detect a game piece, stop that set of rollers, wait for the shooter, open the gate, feed the piece, and check that it has left. Decide how to retry a failed feed or clear a jam, how long to try before stopping, and which movements would hit another mechanism.
 
 Give the driver or software a clear way to stop the sequence. A sensor disagreement should not leave a roller applying force indefinitely.
 
@@ -66,7 +66,7 @@ Give the driver or software a clear way to stop the sequence. A sensor disagreem
 
 Add bearings, shafts, hubs, tensioning, guide attachments, and removable covers. Check wheel replacement and jam access. A transfer buried between structural plates can be hard to repair even if it is compact.
 
-Test the intake and receiver together before finalizing both. Record the object variation, starting pose, settings, successful deliveries, misses, and recovery behavior. Use [Transfers](/docs/engineering/mechanisms/transfers) for the deeper contact and control discussion, and [Design review](/docs/design/design-review) before releasing the parts.
+Test the intake and receiver together before finalizing both. Record which game pieces you used, how you placed them, the settings, which attempts worked, and what happened when you tried again after a miss. Use [Transfers](/docs/engineering/mechanisms/transfers) for the deeper contact and control discussion, and [Design review](/docs/design/design-review) before releasing the parts.
 
 <footer className="article-sources">
 

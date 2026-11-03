@@ -18,23 +18,23 @@ Keep purchased components identifiable by their actual part numbers. Give custom
 
 For each shared area, name a person who coordinates changes. Teammates can still contribute, but someone should know when a mounting pattern or mechanism position changes.
 
-Before changing an interface, tell the people affected. Moving an intake pivot can change a transfer position, belt length, mounting plate, sensor location, and software setpoint at once.
+Before moving a mounting hole, pivot, or other shared part of the design, tell the people whose work depends on it. Moving an intake pivot can change a transfer position, belt length, mounting plate, sensor location, and software setpoint at once.
 
-Keep a short interface note with the reference planes, mounting holes, reserved space, travel range, and object handoff position. The note should point to the actual geometry rather than repeat dimensions that will soon disagree with it.
+Keep a short note explaining which reference planes and mounting holes teammates should use, how much room the mechanism needs, how far it moves, and where it passes the game piece. Link to the relevant sketches and parts so everyone can find the current dimensions.
 
 ## Use history and versions
 
 Onshape's history records edits. A named **version** preserves a particular document state. Make versions at useful milestones, such as a tested prototype or the design sent for manufacturing.
 
-A **workspace** is editable. A **branch** lets you explore a different approach from an existing state. Use a branch when a change genuinely needs comparison or isolation; a separate branch for every tiny adjustment can create unnecessary coordination work.
+A **workspace** is editable. A **branch** lets you explore a different approach from an existing state. Use a branch to try an idea separately from the main design; a separate branch for every tiny adjustment can create unnecessary coordination work.
 
 Name milestones by what they mean, such as `Intake prototype ready` or `Parts sent for cutting`. “Final” becomes confusing when it is followed by “final 2.”
 
 ## Update linked parts deliberately
 
-A linked component may reference a specific version of another document. Updating its source does not mean every consuming assembly has adopted the change.
+A linked component may reference a specific version of another document. If someone changes the source model, assemblies that use an older version may still show the old part.
 
-Check the update indicators, review the change, and inspect the affected assembly after updating. Verify the mounting interface and motion, not just whether the model regenerates without an error.
+Check the update indicators, review the change, and inspect the affected assembly after updating. Check that the mounting holes still line up and the mechanism still moves as expected, even if Onshape shows no errors.
 
 Keep shared dependencies simple. A central layout can drive subsystem geometry. Avoid a loop where each subsystem needs an update from the other before either can rebuild.
 

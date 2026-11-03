@@ -28,11 +28,11 @@ With a rotating cutting tool, internal corners cannot be perfectly square. Choos
 
 Start by identifying the load path: where forces enter, where they leave, and which material carries them. Preserve support around bearings, fasteners, and crossmember mounts. Large openings can reduce stiffness and make a plate easier to twist.
 
-Decorative patterns are not a structural calculation. A pattern that works on another team's plate may be unsuitable for your bearing locations, material, thickness, and loads. Compare mass and measured deflection before deciding whether a cutout is useful.
+Before copying cutouts from another robot, check how your plate carries its loads. Different bearing positions, material, or thickness can make the same pattern much weaker. Compare how much weight the cutouts save with how much the plate bends under load.
 
 ## A cutout example
 
-Consider a 3 mm-thick plate carrying an illustrative **100 N tension load** between two mounting regions. A large cutout leaves a narrow connecting web. Compare a **6 mm web** with a **12 mm web**, keeping thickness and load the same.
+Suppose a 3 mm-thick plate carries a **100 N pulling force** between two sets of mounting holes. A large cutout leaves a narrow strip of material between them, called a **web**. Compare a **6 mm web** with a **12 mm web**, keeping thickness and load the same.
 
 <figure>
   <a href="/guides/design/plate-load-path.svg" target="_blank" rel="noreferrer" aria-label="Open the plate cutout and load path comparison at full size">
@@ -69,7 +69,7 @@ For each custom part, answer four questions:
 3. How does it go into the robot, including its fasteners?
 4. How is it removed when damaged?
 
-Then build one representative joint or fit coupon. Correct the model using measured evidence before making the whole set.
+Then make one joint or a small test piece with the same fit. Measure it and try the actual hardware, adjust the model if needed, and only then make the full set.
 
 Continue with [Drawings and exports](/docs/design/drawings-and-exports). For process details, use [3D printing](/docs/engineering/manufacturing/3d-printing), [CNC and sheet parts](/docs/engineering/manufacturing/machining-and-fabrication), and [Fits and tolerances](/docs/engineering/manufacturing/fits-and-tolerances).
 

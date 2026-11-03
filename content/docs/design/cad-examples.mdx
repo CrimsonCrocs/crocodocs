@@ -8,7 +8,7 @@ Another team's CAD can help you understand a mechanism that is difficult to see 
 
 ## Pretty Smart Robotics
 
-**Pretty Smart Robotics, FTC 16441**, explains custom mecanum drivetrains using live axles, dead axles, belts, and chain. The useful starting point is how the team separates the problem into side plates, motor assemblies, and wheel assemblies.
+**Pretty Smart Robotics, FTC 16441**, explains custom mecanum drivetrains using live axles, dead axles, belts, and chain. The team breaks the drivetrain down into side plates, motor assemblies, and wheel assemblies, which makes it easier to work through one section at a time.
 
 <figure className="design-example">
   <a href="/guides/design/pretty-smart-drivetrain.webp" target="_blank" rel="noreferrer" aria-label="Open Pretty Smart Robotics CAD image at full size">
@@ -17,7 +17,7 @@ Another team's CAD can help you understand a mechanism that is difficult to see 
   <figcaption>Pretty Smart Robotics · FTC 16441. CAD frame from the team's custom mecanum drivetrain tutorial, 3:28. Select the image to view it full size.</figcaption>
 </figure>
 
-The side plates connect axle supports into a rigid module. Start with the round axle openings and the smaller attachment holes around the plate edges; then look at the material joining those regions. The cutout pattern can only be chosen after those interfaces have room and support.
+The side plates connect axle supports into a rigid module. Start with the round axle openings and the smaller attachment holes around the plate edges; then look at the material joining those regions. Before choosing the cutouts, leave enough material around those holes to support the axles and attach the crossmembers.
 
 The tutorial's live-axle and dead-axle examples answer a specific question: **which part should turn, and where should its bearings sit?** In the live arrangement the shaft, wheel, and driven sprocket turn together, with bearings in the frame. In the dead arrangement the axle stays fixed and bearings travel with the wheel assembly. A pulley or sprocket must therefore drive that rotating assembly directly.
 
@@ -54,9 +54,9 @@ One of the team's early decisions was to transfer pixels already at **60°**, ma
   <figcaption>Hyperion · FTC 9614 · CENTERSTAGE. Original teaching sketch of the stated angle choice, not a reproduction of the team's mechanism.</figcaption>
 </figure>
 
-The CAD view above shows how the team placed large slide components before designing their connecting plate. Its linkage comparisons then check concrete conflicts: height, interference with the climb mechanism, and space occupied by the intake. A side-view sketch makes those competing positions visible before every part has been detailed.
+In the CAD view above, the team placed the large slide components before designing the plate that connects them. It compared linkage layouts by checking their height and whether they would hit the climb mechanism or intake. A side-view sketch let the team check those movements before modeling every part in detail.
 
-Competition use gave the team another design input: it needed more reach so the drive base could stay farther from the backdrop. The revised design used a double-reverse four-bar linkage, followed by a printed motion prototype. The useful lesson is the connection between an observed robot interaction, a changed reach requirement, and a tested linkage layout.
+After using the robot in competition, the team wanted more reach so the drive base could stay farther from the backdrop. It revised the design with a double-reverse four-bar linkage and made a printed prototype to check the movement. That gave the team a way to test whether the new layout solved the problem before building the complete outtake.
 
 Try the same method with your mechanism. Sketch its important positions, include nearby parts, and compare two possible layouts. Build a simple prototype of the uncertain movement before detailing the final plates.
 
@@ -64,11 +64,11 @@ Try the same method with your mechanism. Sketch its important positions, include
 
 **Seattle Solvers, FTC 23511**, demonstrates master sketching with simplified robot components. A **master sketch** is a shared layout that drives more detailed parts.
 
-The tutorial represents motors and wheels with circles and the hubs with simple envelopes. Pulley pitch circles and their center spacing establish the transmission layout. The detailed Part Studios then derive those sketches and locate mounting features from them.
+The tutorial uses circles for motors and wheels and simple shapes for the hubs. Pulley pitch circles and the distance between their centers set the belt layout. The team brings those sketches into the detailed Part Studios and uses them to position mounting holes and other features.
 
 This is why a layout change can move the corresponding mounting geometry. A hole that merely has the same typed coordinates is independent; a hole constrained to the shared reference follows it. The [drive-layout exercise](/docs/design/layout-sketches#a-drive-layout) lets you make that distinction by moving the rear wheel and checking its dependent bearing opening.
 
-Use the team's published CAD collection to explore further. First find the main assembly and shared layout. Hide one subsystem at a time, trace a shaft or game-piece path, and identify the interfaces between mechanisms. Check the document's stated season and revision before comparing it with a robot video.
+Use the team's published CAD collection to explore further. First find the main assembly and shared layout. Hide one subsystem at a time, trace a shaft or game-piece path, and look at where the mechanisms mount and pass game pieces between them. Check the document's stated season and revision before comparing it with a robot video.
 
 <figure className="design-example">
   <a href="/guides/design/seattle-solvers-cypher.webp" target="_blank" rel="noreferrer" aria-label="Open Seattle Solvers CAD image at full size">
@@ -77,7 +77,7 @@ Use the team's published CAD collection to explore further. First find the main 
   <figcaption>Seattle Solvers · FTC 23511 · Cypher, DECODE. CAD render published by the team. Select the image to view it full size.</figcaption>
 </figure>
 
-Cypher's render shows another reason to plan beyond one pose: the launcher sits on a rotating turret above a compact drivetrain. In a top-view layout, mark the turret axis and the radius to the outermost rotating part. That swept region reserves space around the mechanism even when the stowed view looks clear.
+Cypher’s launcher sits on a rotating turret above a compact drivetrain. Check the room it needs as it turns, not just when parked. In a top view, mark the turret axis and draw a circle out to the farthest rotating part. That circle shows space you need to check around the mechanism.
 
 Use the detailed assembly to check differences in height, fastener access, and cable travel. A top-view circle is a useful early check, while the three-dimensional model resolves which parts actually share the same space.
 

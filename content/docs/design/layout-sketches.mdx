@@ -6,7 +6,7 @@ icon: phosphor:PencilSimple
 
 A **layout sketch** is a simple drawing of where important parts will go. It can show wheel centers, pivots, game pieces, and the space needed by each mechanism without modeling every bracket.
 
-Use it to answer questions that cross subsystem boundaries: can the intake reach the floor, can the lift clear the battery, and where does the transfer happen?
+Use it to check how mechanisms fit together. Can the intake reach the floor? Will the lift clear the battery? Where will the intake pass the game piece to the next mechanism?
 
 ## Choose references
 
@@ -33,15 +33,15 @@ The side view explains height and reach. The top view catches problems that the 
   <figcaption>Reserve the full space needed by each system. Select the example to view it full size.</figcaption>
 </figure>
 
-These are planning regions, not finished parts or a season-specific robot plan. Replace them with your dimensions and verify the actual rules for each robot state.
+The colored areas reserve space while you plan. Replace them with your robot’s dimensions, and check the game’s size and extension rules in each position.
 
 ## Define the game-piece path
 
-Draw the object at pickup, transfer, storage, and scoring. Include the surfaces that support it between those positions.
+Draw the game piece where you pick it up, pass it between mechanisms, hold it, and score it. Include the surfaces that hold it up along the way.
 
-For a claw transfer, mark the object and both claw openings at the handoff. For a ball path, mark roller contact locations, guides, and any gate. A line joining two subsystem boxes does not establish a workable transfer.
+For a claw-to-claw transfer, draw both open claws and the game piece between them. For balls, draw the rollers, guides, and any gate that stops them. Show what actually moves the game piece between mechanisms; an arrow between two boxes leaves that question unanswered.
 
-Use prototype measurements to choose contact spacing. A nominal game-piece model does not tell you how much a foam wheel should compress or how an irregular object will settle.
+Use a prototype to choose the gap between rollers or guides. Try actual game pieces to see how much the wheels compress and where each piece comes to rest. A CAD model of the standard game-piece dimensions cannot tell you that on its own.
 
 ## A drive layout
 
@@ -82,7 +82,7 @@ Use the practice layout to make a dependent plate:
 
 The part should have two openings **200 mm apart**, derived from the layout rather than independently positioned. Hide the Derived geometry to inspect the solid, then show it again when checking alignment.
 
-Keep references flowing one way: layout to subsystem, then subsystem to its parts. Avoid a circular dependency in which the layout depends on a plate that already depends on the layout. Linked documents and pinned versions may require an explicit update; check which state a derived reference uses.
+Have each mechanism use positions from the layout, and have its individual parts use those same references. Avoid a circular dependency in which the layout depends on a plate that already depends on the layout. Linked documents and pinned versions may require an explicit update; check which state a derived reference uses.
 
 ## Try a change
 

@@ -14,7 +14,7 @@ Look for a feature that saves a repeated operation you already understand. A con
 
 For a gear or pulley generator, check more than tooth count. The tooth system, pitch or module, profile, width, and shaft connection must match the real mating components. Similar-looking teeth can use incompatible profiles.
 
-Prefer a tool whose purpose, inputs, and source document are clear. Read its instructions and inspect an example part. A familiar author or popular library does not replace checking your selected dimensions.
+Read the tool’s instructions and look at an example part before using it. You should be able to find its source document, understand the inputs, and check the dimensions of the part it makes.
 
 ## Add it to the toolbar
 
@@ -33,16 +33,16 @@ Check these questions before using the output on the robot:
 - Does it create a new part, alter an existing part, or both?
 - Are dimensions entered as radius, diameter, tooth count, or distance across flats?
 - Is an allowance added to the nominal bore? If so, in which direction and by how much?
-- Are generated faces stable enough for the references you plan to attach?
+- If you change a setting, do the faces used by your sketches and mates still exist?
 - Can the part be made with your process, including its smallest teeth or walls?
 
 An **across-flats** dimension measures between two opposite flat sides of a polygonal shaft. It differs from the distance across its corners. This distinction matters for hexagonal and other shaped bores.
 
-## Try a controlled change
+## Change one setting [#try-a-controlled-change]
 
 For a spacer, generate two lengths with the same bore. Measure them, then change only the bore. The length should remain unchanged. For a mounting-pattern tool, change one pattern size and inspect every hole's location.
 
-This small exercise reveals how the parameters relate before several custom parts depend on them. If a feature produces unexpected geometry, inspect its inputs and documentation; do not compensate with unexplained scaling or extra cuts that hide the mistake.
+Try this before using the feature in several robot parts. If the result is wrong, check the settings and instructions first. Scaling the part or adding cuts to fix it can hide a wrong input and make later edits harder.
 
 If you need a fit trial, print a short test piece before making a complete mechanism. Record the material, printer settings, orientation, and dimension that worked. Use [Printed parts](/docs/design/printed-parts) and [Tolerances and fit](/docs/design/tolerances-and-fit) to interpret the result.
 
@@ -52,13 +52,13 @@ A linked custom feature references a document version. Updating that reference c
 
 The feature version used in a Part Studio and the version selected by your toolbar can differ. Check both when two students get different results from what appears to be the same tool. Keep the source document and chosen version in the team's CAD instructions.
 
-When updating, compare the mounting interfaces, critical dimensions, and exports. A feature that regenerates successfully can still have changed its output. Create a named version of your own document before a consequential update so the previous design remains recoverable.
+Before an update that could affect parts you have made, save a named version of your document. After updating, compare the mounting holes, important dimensions, and exported files. Onshape may rebuild the feature without an error even though its shape has changed.
 
 ## Keep a manual fallback
 
 For a simple spacer or plate, a sketch and extrusion may be easier to maintain than a specialized feature. For repeated complex geometry, a custom feature can save considerable work.
 
-Choose based on the part and your team's ability to understand it. Keep the editable source, meaningful names, and manufacturing information either way. The tool should reduce repeated drawing work while leaving the physical design clear.
+Choose the approach your team can understand and maintain. Either way, keep the editable model, name the features clearly, and include the information needed to make the part. A useful tool saves repetitive work without making the design harder to understand.
 
 <footer className="article-sources">
 

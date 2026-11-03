@@ -8,7 +8,7 @@ A **sketch** describes geometry on a flat plane. Dimensions set sizes and distan
 
 Start in the empty `Plate` Part Studio from [Onshape](/docs/design/onshape). If you already made a practice solid while exploring, use a new empty Part Studio for this sequence. You will finish this page with one sketch and no solid parts.
 
-The goal is to describe what should stay true when the design changes.
+Decide which sizes and relationships should stay the same when you edit the part. For example, widening a plate should not change the spacing of holes that fit an existing motor.
 
 ## Dimensions and constraints
 
@@ -21,7 +21,7 @@ The goal is to describe what should stay true when the design changes.
 | Concentric | Keep a bearing seat centered on a shaft opening |
 | Tangent | Join a straight guide to a curved section without a corner |
 
-**Construction geometry** is reference geometry. It helps locate features without becoming an edge of the region you extrude. A centerline through a mounting pattern is a good example.
+**Construction geometry** helps you line things up without becoming part of the outline you will extrude. For example, a centerline can keep a row of mounting holes straight without dividing the region you will extrude.
 
 ## A two-hole plate
 
@@ -51,7 +51,7 @@ The hole centers are now 40 mm apart. That leaves 15 mm from each center to the 
 
 A **degree of freedom** is an independent way that geometry can still move or change. A circle might have a defined diameter but an unfixed center.
 
-Drag a line or circle gently while the sketch is open. If an intended fixed feature moves, find the missing relationship. Onshape normally shows under-constrained geometry in blue and fully constrained geometry in black; also inspect the constraints and solver messages rather than relying on color alone.
+Drag a line or circle gently while the sketch is open. If something moves that should stay in place, look for the missing dimension or constraint. Onshape normally shows under-constrained geometry in blue and fully constrained geometry in black; also inspect the constraints and solver messages rather than relying on color alone.
 
 Do not use **Fix** on every entity just to make everything black. That can preserve accidental mouse positions instead of the dimensions you meant to specify. Fix is useful for deliberately locked geometry, but dimensions and relationships are usually clearer for a part you will revise.
 

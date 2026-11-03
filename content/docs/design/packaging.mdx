@@ -12,7 +12,7 @@ Start with a [layout sketch](/docs/design/layout-sketches), then check the desig
 
 Place the battery, hubs, switch, large motors, and major mechanisms before filling the remaining space with custom parts. Use simple blocks when a detailed model would slow the work down.
 
-Give each block a meaningful size. A hub needs room for plugged-in connectors and cable bends, not just its case. A battery needs a path into and out of its holder. A slide assembly needs its carriage, string, mounting hardware, and moving cables.
+Make each block large enough for the hardware you will install. A hub needs room for plugged-in connectors and cable bends, not just its case. A battery needs a path into and out of its holder. A slide assembly needs its carriage, string, mounting hardware, and moving cables.
 
 Model a larger **keep-out region** around components where another part must not go. Keep-outs can represent a wheel's swept space, a cable bend, or the room needed to operate a latch.
 
@@ -24,13 +24,13 @@ Use a small table to choose the combinations that need checking:
 
 | Robot state | Check |
 | --- | --- |
-| Stowed | Size limits, retained objects, switch access |
+| Stowed | Size limits, game pieces held on the robot, switch access |
 | Pickup | Floor clearance, intake opening, nearby wheels |
-| Transfer | Alignment, donor and receiver movement, object support |
+| Transfer | Alignment, movement of both mechanisms, support under the game piece |
 | Scoring | Reach, field contact, cable travel, stability |
 | Recovery | A safe way back after a miss or partial movement |
 
-Also test combinations that software permits. A wrist may fit with the lift raised but hit the frame while the lift retracts. Either change the geometry or define and test an interlock that prevents that movement.
+Also test combinations that software permits. A wrist may fit with the lift raised but hit the frame while the lift retracts. Either change the parts to give it room or add and test a software interlock: a rule in the code that prevents that unsafe movement.
 
 ## Leave room for variation
 
@@ -50,7 +50,7 @@ Try a battery change with a cardboard mock-up if the arrangement is difficult to
 
 ## Review with the team
 
-Ask a builder and a programmer to inspect the assembly with you. Have them explain how the robot is assembled, homed, driven, stopped, and repaired. Record any missing space or unclear movement before releasing the parts.
+Go through the assembly with a builder and a programmer. Talk through how you will assemble it, find the mechanisms’ starting positions, drive it, stop it, and repair it. Fix any missing space or unclear movement before sending parts to be made.
 
 Use [Assembly and serviceability](/docs/engineering/team/assembly-and-serviceability) and [Wiring layout](/docs/engineering/electrical/wiring-and-power) for the next checks.
 

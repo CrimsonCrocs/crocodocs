@@ -32,7 +32,7 @@ $r$ is the perpendicular distance from the pivot to the force's line of action, 
 
 For gravity on an arm, use the horizontal distance from the pivot to each mass's **center of mass**, the point where you can treat its weight as acting. The arm's own mass belongs in the calculation too.
 
-Consider an illustrative horizontal arm:
+For example, take this horizontal arm:
 
 | Load | Mass | Horizontal distance from pivot | Gravity torque |
 | --- | --- | --- | --- |
@@ -40,7 +40,7 @@ Consider an illustrative horizontal arm:
 | Payload | 0.2 kg | 0.25 m | 0.491 N·m |
 | Total | | | **0.883 N·m** |
 
-When the arm moves toward vertical, those horizontal distances decrease. Check the most demanding pose, including any extension. Also account for acceleration, friction, and contact forces before selecting hardware.
+As the arm moves toward vertical, those horizontal distances get smaller. Work out where the arm puts the greatest load on the motor, including when it extends. Allow for acceleration, friction, and forces from anything the arm touches before choosing the hardware.
 
 <figure>
   <a href="/guides/design/arm-gravity-load.svg" target="_blank" rel="noreferrer" aria-label="Open the arm gravity-load example at full size">
@@ -77,7 +77,7 @@ $$
 
 A 12 mm working radius gives about 75.4 mm per revolution. Lifting a 10 N cable load at that radius requires 0.12 N·m at the drum before losses. If the cable stacks into layers, its working radius changes, affecting both torque and travel.
 
-A cascaded lift can move its final carriage farther than its first stage. That extra travel also changes the required force and power. Calculate the complete reeving arrangement, meaning the route of the lifting cable or belt, rather than sizing the motor from payload weight alone.
+A cascaded lift can move its final carriage farther than its first stage. That extra travel also changes the required force and power. Calculate the forces for the whole cable or belt route, called its **reeving**, before choosing a motor. Payload weight alone does not tell you the force the motor must provide.
 
 ## Strength and stiffness
 

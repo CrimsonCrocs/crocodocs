@@ -16,7 +16,7 @@ Dimension positions from the origin or a stable reference. If a hole must remain
 
 ## Make an adjustment slot
 
-A straight **slot** has two parallel sides joined by semicircular ends. It lets a screw move along a controlled path. The useful adjustment is the distance between the end-circle centers; the overall slot length also includes its width.
+A straight **slot** has two parallel sides joined by semicircular ends. It lets you slide a screw along the slot to adjust a part’s position. The screw center can travel between the two end-circle centers; the slot’s overall length also includes its width.
 
 Make this practice sketch on the Top plane:
 
@@ -61,7 +61,7 @@ Choose one way to control the repetition. A mirrored hole does not also need ind
 
 ## Project an existing edge
 
-The **Use** tool projects existing geometry into the active sketch. It is useful when a new part must follow a hole center, face, or layout sketch that already exists.
+The **Use** tool projects existing geometry onto the sketch you are editing. The projected shape stays linked to the original. It is useful when a new part must follow a hole center, face, or layout sketch that already exists.
 
 Start a sketch on the desired plane, choose Use, and select the relevant edge or curve. The projected geometry remains linked to its source. Make it construction geometry when you only need its location, then draw the new profile around it.
 
@@ -73,7 +73,7 @@ Project only the references you need. A detailed imported motor can contain many
 
 If a sketch stops behaving as expected, drag the feature you intend to control and inspect its constraints. A line that must stay horizontal needs a Horizontal constraint; a hole that must stay on a centerline needs its center Coincident with that line.
 
-If adding a dimension turns the sketch red, undo it and look for an existing relationship that already determines the value. A reference dimension can report a value without driving it. Keep the meaningful constraint and remove the duplicate instruction.
+If adding a dimension turns the sketch red, undo it and look for an existing relationship that already determines the value. A reference dimension can report a value without driving it. Keep the constraint that describes how the part should behave, and remove the extra dimension that conflicts with it.
 
 Before continuing, confirm the slot's 20 mm center path and 4.5 mm width, and the link's 40 mm hole spacing. Keep each exercise in its own sketch or Part Studio so that overlapping practice geometry does not create accidental extra regions.
 
