@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
+import { createHash } from "node:crypto";
 
 export const siteUrl = new URL("https://crocodocs.crimsoncrocs.org");
 export const siteDescription = "A student-written guide to FIRST Tech Challenge engineering, programming, portfolios, and judging, with practical explanations and Inspire case studies.";
 
 export function socialMetadata(title: string, description: string, path = "/"): Pick<Metadata, "openGraph" | "twitter" | "alternates"> {
+  const version = createHash("sha256").update(`2:${title}:${description}`).digest("hex").slice(0, 12);
+  const parameters = new URLSearchParams({ path, v: version });
   const image = {
-    url: "/social/crocodocs.png",
+    url: `/api/og?${parameters}`,
     width: 1200,
     height: 630,
     type: "image/png",
-    alt: "CrocoDocs: engineering, programming, and portfolios for FIRST Tech Challenge, with the Crimson Crocs crocodile reading a book.",
+    alt: `${title} — ${description}`,
   };
 
   return {

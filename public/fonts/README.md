@@ -13,3 +13,9 @@ Retrieved from the official Google Fonts CSS API on 2026-10-14:
 - `oswald-600-latin.woff2`: Oswald, weight 600, retained from the earlier theme but no longer loaded.
 
 Sources and licenses: [Open Sans](https://github.com/google/fonts/tree/main/ofl/opensans), [Oswald](https://github.com/google/fonts/tree/main/ofl/oswald). Both are distributed under the SIL Open Font License 1.1; the accompanying `opensans-OFL.txt` and `oswald-OFL.txt` retain the copyright notices and full terms. Existing Poppins files are retained but are no longer loaded.
+
+## Social-card fonts
+
+The social-image renderer uses TTF files because Next.js ImageResponse does not support WOFF2. `haettenschweiler.ttf` is copied unchanged from the same supplied sibling-site font identified above.
+
+`open-sans-regular.ttf` and `open-sans-600.ttf` are the static Regular and SemiBold files from the [official Open Sans repository](https://github.com/googlefonts/opensans/tree/main/fonts/ttf), retrieved 3 November 2026. Their original SIL Open Font License and copyright notice are retained in `open-sans-ttf-OFL.txt`. These files are used only by the server-side image renderer; the website continues using its existing WOFF2 fonts.
