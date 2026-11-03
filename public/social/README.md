@@ -1,7 +1,9 @@
 # Social preview
 
-`crocodocs.png` is the 1200×630 Open Graph and Twitter card for CrocoDocs. The artwork uses the existing CrocoDocs mascot, supplied Haettenschweiler font, Open Sans, and the project's Phosphor icons. It contains no generated robot or invented product screenshot.
+CrocoDocs generates 1200×630 Open Graph and Twitter cards with the existing mascot, slanted Haettenschweiler wordmark, and Open Sans. The composition has a page title and description, with no section list or bottom footer.
 
-The editable composition is `scripts/social-preview.html`. Serve the repository root locally, open that file at a 1200×630 viewport, wait for local fonts and the mascot to load, and export a PNG at that size. The checked-in image was rendered at DPR 2 and reduced to 1200×630. No extra browser or image package is needed by the deployed site.
+The shared renderer is `src/lib/social-image.tsx`, using Next.js ImageResponse. `/api/og?path=/docs/design/design-brief` looks up that article's title and description in the documentation source. `/api/og` renders the homepage card. Unknown pages return 404. Font and artwork files are read locally; rendering needs no external service or additional dependency.
 
-Metadata lives in `src/lib/social-metadata.ts`. Both the homepage and individual articles use this image; articles supply their own title, description, and canonical URL under `https://crocodocs.crimsoncrocs.org`.
+Metadata lives in `src/lib/social-metadata.ts`. Its image URL includes the canonical page path and a content fingerprint, so changing the page title or description produces a new share-image URL. Bump the renderer version prefix there after changing the composition. Open Graph and Twitter use the same image.
+
+`crocodocs.png` is retained as a static homepage fallback for existing image links. Refresh it from the deployed `/api/og` endpoint after changing the shared renderer. Font provenance and licenses are recorded in `public/fonts/README.md`.
