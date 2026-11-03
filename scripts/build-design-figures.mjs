@@ -46,13 +46,13 @@ function save(name, title, description, height, body) {
 // A and B are fixed 80 apart; the equal 120 arms are shown at 30 and 90 degrees.
 {
   const A=[90,385], B=[250,385], C=[90+240*Math.cos(Math.PI/6),265], D=[250+240*Math.cos(Math.PI/6),265];
-  let b=t(30,38,'A parallelogram keeps the angle',25,'start','font-weight="700"')+t(30,76,'Pivot-center layout · two poses',19);
+  let b=t(30,38,'Parallelogram linkage',25,'start','font-weight="700"')+t(30,76,'Pivot-center layout · two poses',19);
   const dashed='stroke-dasharray="7 5"';
   b+=l(...A,90,145,muted,dashed)+l(...B,250,145,muted,dashed)+l(90,145,250,145,muted,dashed);
   b+=l(...A,...B,ink)+l(...A,...C,red)+l(...B,...D,red)+l(...C,...D,red);
   for(const p of [A,B,C,D])b+=c(...p,6,paper,ink);
   b+=t(65,413,'A',21)+t(260,413,'B',21)+t(C[0]-3,C[1]-20,'C',21)+t(D[0]+5,D[1]-20,'D',21);
-  b+=t(270,151,'90° pose',21)+t(350,305,'30° pose',21);
+  b+=t(270,151,'90° pose',21)+t(390,355,'30° pose',21);
   b+=l(90,420,90,441)+l(250,420,250,441)+dim(90,250,438,'80 mm');
   b+=t(30,483,'Both arms: 120 mm',21)+t(30,517,'Fixed link and coupler: 80 mm each',21);
   save('four-bar-layout','Parallelogram at thirty and ninety degrees','Fixed pivots A and B are 80 mm apart. Equal 120 mm arms keep an 80 mm coupler parallel while moving it upward and backward.',550,b);
