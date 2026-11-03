@@ -1,0 +1,82 @@
+---
+title: Printed parts
+description: Design printable robot parts with useful layer direction, walls, holes, fasteners, and fit trials.
+icon: phosphor:Printer
+---
+
+Design the part for the way it will be printed and loaded. A shape that looks solid in CAD becomes layers, walls, and internal paths in the printer. Inspect those paths before committing to a long print.
+
+This page focuses on common filament printing, often called **FDM** or **FFF**, where a nozzle deposits softened material layer by layer. Other printing processes have different constraints.
+
+## Choose the job and material
+
+Printing is useful for brackets, guides, sensor mounts, prototypes, spacers, and shapes that are awkward to machine. Decide whether the part must carry load, resist impacts, hold a precise interface, remain stiff, or tolerate heat.
+
+Read the material's data and the printer's supported settings. PLA, PETG, nylon, and flexible materials have different behavior. Filled materials also need appropriate printer hardware and processing. A material name alone does not establish how a particular print will perform.
+
+Use a purchased component or another process when it better meets the task. A printed pulley needs the correct tooth profile and a torque connection that will survive use. A rigid-looking printed arm may still deflect too much for a precise handoff.
+
+## Choose the orientation
+
+Layer direction affects strength, surface quality, support needs, and hole shape. Consider how the load could pull layers apart, bend the part, or crush a fastened surface.
+
+Use the L-bracket from [Modeling features](/docs/design/modeling-features). Printed upright on its foot, its layers lie horizontally through the upright. Printed on its side, the layer paths can follow the L-shaped profile. Compare the bending load with those layer directions, the support required, and the quality of its mounting faces.
+
+There is no single best orientation for every bracket. Choose the important load and interfaces first, then inspect the slicer's result. If no orientation works well, split the part, change the geometry, or use a different process.
+
+## Walls and internal structure
+
+The **walls** or **perimeters** form the outside of a print. **Infill** is the internal pattern. A thin region may contain mostly walls, while a large volume may contain substantial infill.
+
+Inspect the toolpaths around screw holes, bearing seats, and narrow links. Increasing a global infill percentage does not repair a wall that is only one fragile path wide. Give loaded interfaces enough surrounding material and use ribs or section depth where they help the load path.
+
+Avoid decorative weight-saving pockets before understanding the load. A pocket can cut through the material connecting a mounting hole to the rest of the part. Compare stiffness and mass with a prototype under the expected load.
+
+## Overhangs and supports
+
+An **overhang** extends beyond the material beneath it. **Support material** provides a temporary printing surface, but it takes time to remove and can leave a rough interface.
+
+Orient important fit surfaces so they do not rely on difficult-to-remove supports where possible. A horizontal circular bore may print differently from a vertical bore. A chamfer, teardrop-shaped opening, or split part can sometimes make the geometry easier to produce, provided the functional contact remains suitable.
+
+Check whether a support is trapped inside a long enclosed passage. A part that prints successfully but cannot be cleaned out is not ready to assemble. Include access or change the design.
+
+## Make a hole coupon
+
+Before printing a full mounting plate, make a small fit test:
+
+1. Create a **60 × 20 × 5 mm** plate in Onshape.
+2. Put three through holes on its centerline, at X = **12, 30, and 48 mm** from the left end.
+3. Set the diameters to **4.4, 4.6, and 4.8 mm**, respectively.
+4. Add a small readable label or keep a marked drawing identifying each hole.
+5. Export in millimeters and print with the material, orientation, and settings intended for the final part.
+6. Measure the holes and try the actual screw or mating component without forcing it.
+
+These are trial sizes, not a universal M4 clearance recommendation. Record which result suits the intended joint. If the final part puts the hole on a different axis or uses a different material, make a representative trial for that condition.
+
+Keep the correction as a named allowance in CAD. That is easier to explain and revise than changing every dimension by memory.
+
+## Fasteners and inserts
+
+Give screw heads and washers a supported contact area. Decide whether a screw passes through to a nut, engages a suitable insert, or uses another intended fastening method. Do not assume a few printed thread ridges can carry every load.
+
+For captive nuts, measure the actual nut's width and height and test the pocket. Keep an insertion route. For heat-installed inserts, use the insert manufacturer's geometry and installation guidance, including material around the hole.
+
+Check sustained clamp loads and heat. Plastic can **creep**, meaning deform gradually while loaded. A joint may loosen after use even if it felt tight during assembly. A metal spacer or another load path may be appropriate where the design would otherwise squeeze a printed wall continuously.
+
+## Slice, print, and inspect
+
+Open the export in the slicer and confirm the overall size, orientation, walls, supports, and critical small features. The slicer preview should show material where the CAD model needs it. Features too small for the selected process may disappear or be simplified.
+
+After printing, remove supports as intended, inspect cracks or incomplete layers, and measure the functional interfaces. Assemble with the real hardware and check movement before applying power.
+
+Record the model revision, material, settings, orientation, and result. Keep an approved replacement file with the team's manufacturing record, so a later reprint does not depend on guessing which of several similar STL files was used.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FRCDesign: Design for 3D printing](https://frcdesign.org/design-handbook/structure/design-for-3d-printing/)
+- [Prusa: Material guide](https://help.prusa3d.com/category/material-guide_220)
+- [Onshape: Exporting files](https://cad.onshape.com/help/Content/File/exporting_files.htm)
+
+</footer>

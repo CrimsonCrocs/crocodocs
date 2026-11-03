@@ -1,0 +1,80 @@
+---
+title: Intake and transfer layouts
+description: Design the game-piece path, roller contact, staging, and handoff as one connected system.
+icon: phosphor:HandGrabbing
+---
+
+An intake collects objects from varied positions. A transfer delivers them to the next mechanism in a controlled state. Draw both jobs together, including the surfaces that support and align the object between them.
+
+Start with measured game pieces, the required receiving pose, and the space available in the robot. Use [Your first design brief](/docs/design/design-brief) to record the task before choosing rollers or claws.
+
+## Trace the object
+
+Draw the object at pickup, inside the intake, before transfer, during handoff, and inside the receiver. Use a side view and a top view. Mark which surfaces touch it in each position.
+
+For a round object, place a circle at several points along the proposed path. Its radius extends to both sides of the center path. A centerline that clears a screw is insufficient if the object itself hits it.
+
+For a rectangular or irregular object, include the orientations in which it can arrive. Check corners and protrusions. A single neat CAD pose can conceal the variation that the intake must handle.
+
+Look for gaps where neither mechanism supports the object, abrupt steps that can catch an edge, and openings where it can escape. A guide can be useful even when it never appears in the motor or servo list.
+
+## Choose roller contact
+
+An active roller needs enough contact to move the object without causing excessive deformation or resistance. Flexible wheels, tires, belts, and brushes behave differently; geometry gives a starting point for a prototype.
+
+Consider an illustrative **70 mm ball**, a **50 mm-diameter roller**, and a flat guide. If the roller's nearest surface is **60 mm above the guide**, the nominal overlap is **10 mm**. The roller center is 25 + 60 = **85 mm above the guide**.
+
+For a 64 mm object, that overlap becomes 4 mm. For a 76 mm object, it becomes 16 mm. The same fixed arrangement therefore behaves differently across object sizes. The actual contact force also depends on material, wheel construction, and deformation.
+
+Make the prototype adjustable. Test pickup and transport across the expected object sizes and starting positions. Keep enough range to investigate both insufficient contact and excessive squeeze, then record the successful geometry in CAD.
+
+## Shape the guides
+
+Use guides to keep the object in contact with the driven surface and bring it toward the receiver's required pose. A gradual funnel may accept a wider range of arrival positions than a sharp entrance, but it still needs enough width and height for the real object.
+
+Avoid trapping an object between opposing surfaces whose clear distance becomes too small along the path. Inspect bends using several object positions. For foam or irregular pieces, use the physical prototype to establish a workable shape instead of relying on a perfectly rigid model.
+
+In the top view, check whether the guides center the object or allow it to enter the next stage diagonally. In the side view, check changes in height, spin, and contact. Both views contribute to a repeatable transfer.
+
+## Separate pickup from delivery
+
+The intake can accept variation that the receiver cannot. Put the alignment work before the receiver's most demanding contact, using guides, rollers, a pocket, or another deliberate locating arrangement.
+
+For a claw handoff, locate the object relative to both sets of fingers. Check that the receiver can close before the donor releases where the geometry permits that sequence. Then check that the donor can withdraw without pulling the object back out.
+
+For a launcher feed, control arrival position, spin, velocity, and spacing between objects. Extra rollers may help, but only when they produce the intended contact. A backroller can also add friction, a jam point, or a motor load; test the whole path.
+
+Use the positive [Hyperion example](/docs/design/cad-examples#hyperion) to study how choosing the transfer orientation can remove a later movement from the outtake.
+
+## Add staging and sensing
+
+A **staging position** holds an object ready for the next action. Define its actual resting surfaces and the gate or stop that retains it. Include the object against the stop in CAD, rather than leaving it floating midway through the channel.
+
+Check what each roller does while the object is stopped. Continuously forcing an object into a closed gate can stall a motor or damage a contact surface. Consider separate drive sections and a sensor that lets the controller stop the occupied section.
+
+Place sensors where the object reliably enters their sensing region and where neighboring geometry does not obscure it. Leave access to replace and adjust the sensor. Agree with the programmer on what the reading means: object present, aligned, captured, or simply passing nearby.
+
+## Design the timing together
+
+The feed rate depends on the complete mechanism. A launcher may need time to recover speed, while a gate or transfer may set the minimum spacing. Increasing roller speed alone can make the next stage less consistent.
+
+Record the sequence beside the layout: object detected, section stopped, receiver ready, gate opened, object delivered, path checked clear. Include a bounded recovery action for a miss or jam, with a path that does not collide with another mechanism.
+
+Give the driver or software a clear way to stop the sequence. A sensor disagreement should not leave a roller applying force indefinitely.
+
+## Detail the module
+
+Add bearings, shafts, hubs, tensioning, guide attachments, and removable covers. Check wheel replacement and jam access. A transfer buried between structural plates can be hard to repair even if it is compact.
+
+Test the intake and receiver together before finalizing both. Record the object variation, starting pose, settings, successful deliveries, misses, and recovery behavior. Use [Transfers](/docs/engineering/mechanisms/transfers) for the deeper contact and control discussion, and [Design review](/docs/design/design-review) before releasing the parts.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Active intakes](https://gm0.org/en/latest/docs/common-mechanisms/active-intake/index.html)
+- [GM0: Transfer design](https://gm0.org/en/latest/docs/common-mechanisms/transfers/transfer-design.html)
+- [FRCDesign: Slapdown intake](https://frcdesign.org/learning-course/stage2/2c/introduction/)
+- [Hyperion, FTC 9614: CENTERSTAGE outtake explanation](https://www.youtube.com/watch?v=ZRXmqdyVZK4)
+
+</footer>

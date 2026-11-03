@@ -1,0 +1,89 @@
+---
+title: Your first design brief
+description: Turn a robot task into requirements you can measure, compare, and test.
+icon: phosphor:ClipboardText
+---
+
+Before drawing a mechanism, write down what it must do. A **design brief** is a short description of the task, its limits, and how you will check the result. One page is enough for a small FTC mechanism.
+
+Suppose a team needs a roller to move a game piece from an intake into a claw. “Make a fast transfer” leaves several questions unanswered. Where does the object start? Which way must it face? What happens if it arrives crooked? How much room is available?
+
+Answering those questions gives the CAD work a purpose. You can compare two designs against the same task instead of choosing the one that looks more complicated.
+
+## Describe the object and movement
+
+Begin with the real game piece and the two mechanisms that touch it. Measure several objects if you can. Note their dimensions, flexible surfaces, seams, and the orientations in which the intake can deliver them.
+
+Draw a side view and a top view. Mark the object before pickup, during the handoff, and after capture. A **pose** includes both position and orientation: a claw may reach the correct point while holding the object at the wrong angle.
+
+For a first brief, complete these sentences:
+
+- The object arrives from ___, in these possible positions: ___.
+- The receiving mechanism needs its center at ___ and its angle at ___.
+- The object must stay supported by ___ during the movement.
+- After a miss, the operator can recover by ___.
+
+Use sketches, coordinates, and photographs beside the words. A marked photograph of the actual intake can explain a starting condition more clearly than a paragraph.
+
+## Requirements and preferences
+
+A **requirement** is something the design must satisfy. A **preference** helps rank designs that satisfy the requirements. A **constraint** limits the available choices, such as a fixed mounting face, budget, or manufacturing process.
+
+For an illustrative bench transfer, a brief might contain:
+
+| Item | Example | How to check |
+| --- | --- | --- |
+| Starting condition | Object rests in the existing intake guide | Use that intake, with deliberately varied object positions |
+| Final pose | Center and orientation match the receiver drawing | Measure the layout and inspect captures |
+| Space | Mechanism stays inside its assigned volume | Check all poses in the robot assembly |
+| Timing | Complete the handoff within the team's chosen cycle budget | Time complete attempts, including recovery |
+| Construction | Make custom parts with the team's printer and drill press | Review every feature with the people making it |
+| Preference | Lower moving mass | Compare mass after the required behavior works |
+
+Choose your own timing and success targets from the robot's job. A number becomes useful when it changes a decision and you have a way to measure it. Writing an ambitious percentage without defining the test conditions gives the team little guidance.
+
+Current rules belong in the brief too. Record the applicable size, extension, material, actuator, and game-piece-handling constraints from the current manual. Keep their source beside the internal requirements so someone can check them after a rule update.
+
+## Compare different mechanisms
+
+Make two or three rough concepts before detailing one. For the transfer, these might be a pivoting donor claw, a guided roller path, and a receiver that moves toward the intake.
+
+Compare the complete movement. A roller concept needs guides, supports, a drive connection, and a way to stage the object. A claw concept needs opening clearance and a release sequence. Include the work required from software and the driver.
+
+You can use a small decision table:
+
+| Question | What to record |
+| --- | --- |
+| Can it reach both poses? | A dimensioned layout, including object orientation |
+| What is uncertain? | The contact, stiffness, or movement you have not tested |
+| Can the team build it? | Stock, tools, purchased components, and difficult operations |
+| Can it be repaired? | Removal steps and parts needed for a replacement |
+| What would reject it? | A specific failure, such as losing the object during rotation |
+
+Avoid adding scores that hide an obvious failure. A design that cannot reach the receiver is not rescued by being inexpensive. Eliminate it or change the concept before ranking smaller benefits.
+
+## Prototype the uncertain part
+
+A **prototype** answers a question before you commit to the full design. It can be cardboard, a printed guide, or two rollers on adjustable mounts.
+
+If the uncertainty is ball contact, test the roller spacing and guide shape. You do not need a finished chassis for that experiment. If the uncertainty is access to a mounting screw, a full-size cardboard mock-up may be enough.
+
+Write the question before making the prototype. Then record what changed between attempts, the starting conditions, and what happened. Keep failed attempts: they often explain why the final geometry has a guide, a larger opening, or a different pivot.
+
+## Give the designer a starting package
+
+Before detailed CAD, collect the brief, measured objects, mounting interfaces, purchased-part models, a rough layout, and the prototype result. Identify which dimensions are fixed and which may change.
+
+For example, a kit rail's mounting pattern is fixed by the rail. The distance between two custom side plates may still be adjustable. Naming that distinction prevents one student from moving the rail holes to solve another student's packaging problem.
+
+Use [Measuring parts](/docs/design/measuring-parts) to collect dimensions, then [Layout sketches](/docs/design/layout-sketches) to turn the brief into shared geometry. If CAD is new to you, start the [Onshape lessons](/docs/design/onshape) alongside this work.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Engineering design process](https://gm0.org/en/latest/docs/design-skills/engineering-design-process.html)
+- [FRCDesign: Top-down design](https://frcdesign.org/learning-course/stage1/1d/top-down-design/)
+- [FIRST: Current game and robot construction rules](https://ftc-resources.firstinspires.org/ftc/game)
+
+</footer>

@@ -1,0 +1,100 @@
+---
+title: Modeling features
+description: Build a bracket, repeat its holes, and make a round spacer with a revolve.
+icon: phosphor:Cube
+---
+
+A **feature** changes the model: an extrusion adds thickness, a cut removes material, and a fillet rounds an edge. Choose the operation that describes the part's shape clearly. You will make an L-shaped practice bracket, then a separate round spacer.
+
+Use a new document named `Bracket practice`, with millimeter units. This exercise leaves the original plate tutorial untouched.
+
+## Extrude a bracket
+
+Start a sketch on the Front plane. Use the sketch's horizontal and vertical directions as the coordinates below. Draw this closed outline, returning to the first point:
+
+```text
+(0, 0) → (60, 0) → (60, 4) → (4, 4)
+       → (4, 40) → (0, 40) → (0, 0)
+```
+
+Set the overall horizontal length to **60 mm**, the height to **40 mm**, and both legs' thickness to **4 mm**. Use Horizontal, Vertical, Coincident, and dimensions to control it. The outline is an L in this side view.
+
+Accept the sketch. Extrude its region using **Solid → New**, with a **30 mm symmetric** extrusion centered on the sketch plane. The total width should be 30 mm, extending 15 mm to each side. Rename the part `Practice bracket`.
+
+Check the result from an isometric view. You should see a 60 mm-long foot and a 40 mm-high upright, each 4 mm thick, across a 30 mm width. If you see two disconnected parts, inspect the corner where the legs meet.
+
+<figure>
+  <a href="/guides/design/bracket-profile.svg" target="_blank" rel="noreferrer" aria-label="Open the bracket profile at full size">
+    <img src="/guides/design/bracket-profile.svg" alt="The side profile of an L bracket is 60 millimeters long and 40 millimeters high, with both legs 4 millimeters thick. It is extruded to a total width of 30 millimeters." width="600" height="500" loading="lazy" />
+  </a>
+  <figcaption>One closed side profile defines the two legs. Select the diagram to view it full size.</figcaption>
+</figure>
+
+This shape could represent a printed bracket or a part machined from solid material. A bracket made by bending sheet needs a bend radius and a flat pattern; use [Sheet and machined parts](/docs/design/sheet-and-machined-parts) for that workflow.
+
+## Cut and repeat the holes
+
+Start a sketch on the foot's upper face. Place one **4.5 mm diameter** circle, centered across the 30 mm width, with its center **20 mm from the outside upright face**. Accept the sketch and Extrude **Remove → Through all** into the foot.
+
+You can repeat that cut:
+
+1. Choose **Linear pattern** in the Part Studio toolbar.
+2. Set the pattern type to **Feature**, and select the hole's Extrude Remove feature.
+3. Select the foot's long straight edge for the pattern direction.
+4. Enter **25 mm** between instances and an instance count of **2**. The ordinary one-direction count includes the original hole.
+5. Reverse the direction if needed. The second center should be 45 mm from the same upright reference face.
+6. Keep the bracket in the affected-part scope, inspect the preview, and accept.
+
+You should have two holes, centered across the foot, with 25 mm between them. Increasing the instance count to three would place another hole at 70 mm, beyond the 60 mm foot. Use the preview to catch this instead of accepting a failing pattern.
+
+Patterning a **part** would make additional solid parts. Patterning this **feature** repeats cuts in the existing part. Choose the intended type before selecting geometry.
+
+## Hole types
+
+Extrude Remove is useful for simple openings. The **Hole** feature also supports drilled, clearance, tapped, counterbore, and countersink definitions.
+
+A **counterbore** is a larger cylindrical recess, often used for a screw head. A **countersink** is a conical recess for a matching countersunk head. A **tapped hole** has an internal thread. These require the appropriate screw dimensions and enough material around and below the feature.
+
+For a practice Hole feature, start a sketch containing a point at the required location, accept it, then choose Hole and select that point. Choose the type, size, start, end condition, and part scope. Inspect a section view to see the resulting depths. Keep a useful shoulder below a counterbore; a deep recess in a thin plate can leave too little material to support the head.
+
+## Fillets and chamfers
+
+A **fillet** rounds an edge with a radius. A **chamfer** cuts a bevel. They can remove sharp edges, provide a lead-in, or improve a shape for manufacturing.
+
+On the bracket, try a **3 mm fillet at the internal corner** where the foot meets the upright. Inspect the curved transition. Then try a **0.5 mm chamfer** on an exposed outside edge, keeping the mounting faces and hole interfaces unchanged.
+
+Add small finishing features late in the feature list. If a fillet fails, reduce its radius and check adjacent geometry. A large radius may consume a nearby face or collide with another edge. Suppress the finishing feature while repairing earlier geometry, then restore it.
+
+An internal CNC pocket cannot have a perfectly sharp corner when cut by a round end mill. A printed corner has different constraints. The manufacturing process determines which radii are useful; adding the same fillet everywhere does not solve every case.
+
+## Revolve a spacer
+
+A **revolve** turns a profile around an axis. Use it for a part described naturally by its radial section, such as a spacer, pulley blank, or stepped bushing.
+
+Add a separate Part Studio named `Revolve practice`:
+
+1. Start a sketch on Front. Draw a vertical construction line through the origin for the axis.
+2. Draw a rectangle whose nearest edge is **4 mm from the axis**, whose far edge is **8 mm from the axis**, and whose height is **10 mm**. Its bottom is level with the origin.
+3. Accept the sketch. Choose **Revolve → Solid → New**.
+4. Select the rectangle's region, then select the construction line as the revolve axis.
+5. Use a full **360°** revolution and accept.
+
+The result should be one spacer: **16 mm outside diameter, 8 mm inside diameter, and 10 mm long**. The sketch distances were radii; the resulting diameters are twice as large. A rectangle that touches the axis would make a solid cylinder instead of an open bore.
+
+## Choose the simplest feature
+
+Use Extrude for a constant cross-section, Revolve for a shape around an axis, **Sweep** for a section following a path, and **Loft** for a transition between sections. Begin with the simpler operations when they describe the part well.
+
+Keep one feature responsible for a clear change. A teammate should be able to find the foot thickness, mounting holes, and corner radius without deciphering a single enormous sketch. Use [CAD troubleshooting](/docs/design/cad-troubleshooting) when a later feature breaks after an edit.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Extrude](https://cad.onshape.com/help/Content/PartStudio/extrude.htm)
+- [Onshape: Linear pattern and instance counts](https://cad.onshape.com/help/Content/PartStudio/linear_pattern.htm)
+- [Onshape: Hole](https://cad.onshape.com/help/Content/PartStudio/hole.htm)
+- [Onshape: Revolve](https://cad.onshape.com/help/Content/PartStudio/revolve.htm)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+
+</footer>

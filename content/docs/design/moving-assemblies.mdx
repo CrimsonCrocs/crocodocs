@@ -1,0 +1,86 @@
+---
+title: Moving assemblies
+description: Give a joint the right movement, set its limits, and check the mechanism between its end positions.
+icon: phosphor:ArrowsClockwise
+---
+
+A moving assembly needs the correct **degrees of freedom**: the independent movements a joint permits. A hinge should rotate about its pin while staying located in every other direction. A slide should translate along its rail without rotating freely.
+
+Complete the rigid [plate assembly](/docs/design/assemblies) first. Then use a separate document named `Hinge practice` for the moving example below.
+
+## Make a simple link
+
+On the Top plane, sketch a **60 × 16 mm** center-point rectangle at the origin. Add two **4.5 mm diameter** circles, centered at (−20, 0) and (20, 0) mm. Extrude the plate region **3 mm**, leaving both holes open. Rename the part `Link`.
+
+In an Assembly, insert two instances. Rename them `Base link` and `Moving link`. Fix Base link only. The second link should be free to drag before you add its mate.
+
+Both instances share one source part. Changing Link changes both instances. Their position and movement belong to the Assembly, not to independent copies of the part's sketch.
+
+## Add a revolute mate
+
+A **Revolute** mate allows one rotation about its primary axis. Onshape displays that primary axis as the connector's Z direction; it need not be the document's global Z axis.
+
+1. Start a Revolute mate.
+2. Select the circular rim of Moving link's left hole on its bottom face, then Base link's left hole on its top face.
+3. Check that the inferred connectors are at the hole centers and their primary axes follow the intended pin axis.
+4. Flip the primary alignment if necessary so the links occupy separate parallel layers.
+5. Use an axial offset to leave **1 mm between their facing surfaces**. Check the resulting gap; the sign depends on the selected connector directions.
+6. Accept the mate. Drag Moving link: it should rotate around the shared hole axis without sliding away from it.
+
+The 1 mm gap helps you see the two parts in this exercise. A physical hinge also needs a shaft or pin, bearings or bushings, spacing, and retention. Use [Shaft supports](/docs/design/shaft-supports) to design that joint.
+
+If the link will not rotate, check whether it is fixed or has another Fastened mate. If it both rotates and slides, you may have chosen a Cylindrical mate. Remove the unwanted freedom rather than adding unrelated constraints until the model stops moving.
+
+## Set the zero pose and limits
+
+The mate's angle is measured between its connector coordinate systems. It may read zero in a pose you did not expect. Edit the connectors' orientation so the zero pose has the long edges pointing in the same direction, then inspect the angle while moving the link.
+
+Enable the mate's **Limits** and set a minimum of **15°** and maximum of **120°**. Drag the link to both ends. It should stop at the limits in the intended direction. If it travels through the opposite sector, correct the connector orientation or limits.
+
+These limits describe the model's allowed travel. They do not create a physical stop or configure the robot's software. Record the actual stop positions, sensor references, and safe commanded range when the mechanism is built.
+
+## Inspect the whole movement
+
+Right-click the mate and use **Animate** to inspect its range. Move slowly through intermediate positions, not just the two endpoints.
+
+Look for collisions between the moving part, frame, screw heads, connectors, and the object it carries. A claw can fit in its open pose and closed pose while scraping a rail between them. Include the opening motion of the claw's fingers as well as the arm's main rotation.
+
+Use section views and interference analysis for geometry that is hidden inside the model. Interpret the results: intentional fits or simplified hardware may need a closer look. An interference-free pose does not establish clearance throughout an untested movement.
+
+## Choose a different mate
+
+| Mate | Movement | Typical use |
+| --- | --- | --- |
+| Fastened | None | Motor body attached to a mounting plate |
+| Revolute | One rotation | Arm, roller, or wheel around an axis |
+| Slider | One translation | Carriage along a straight guide |
+| Cylindrical | Rotation and translation along one axis | A joint that really permits both motions |
+
+For a Slider mate, align the connector's primary axis with the travel direction. Establish a meaningful zero position, then enter limits from the rail's usable stroke. Do not assume the rail's total physical length equals its travel.
+
+Onshape normally respects a subassembly's internal mates in the top-level assembly. If its movement stops there, inspect fixed instances, rigid groups, and the new parent-level mates. Dissolving the subassembly reorganizes its parts and mates; it is not the first repair for a joint constrained twice.
+
+## Relationships between joints
+
+A **mate relation** connects existing movements. A gear relation can make two Revolute mates turn at a chosen ratio. A rack-and-pinion relation connects rotation to translation.
+
+Create the mates first, then the relation. Check direction and ratio with an easy input: one full turn of a 20-tooth driver should produce half a turn of a 40-tooth driven wheel in a 2:1 reduction. External meshing gears turn opposite ways; an ordinary open belt pair turns the same way.
+
+The relation is a motion model. It does not calculate motor torque, belt stretch, tooth strength, or slip. Combine it with the load estimates in [Forces and motion](/docs/design/forces-and-motion) and a physical prototype.
+
+## Check the result
+
+Your practice assembly should have two link instances, one fixed base, and one Revolute mate. Moving link should rotate only between the chosen limits and stay in its layer with a 1 mm face gap.
+
+Ask another student to drag it, identify the axis, and explain what limits its real movement. If the CAD mate is doing a job that no physical part will do, add the missing support or change the mechanism before detailing it.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Revolute mate](https://cad.onshape.com/help/Content/Assembly/revolute_mate.htm)
+- [Onshape: Mates](https://cad.onshape.com/help/Content/Assembly/mates.htm)
+- [Onshape: Mate relations](https://cad.onshape.com/help/Content/Assembly/relations.htm)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+
+</footer>

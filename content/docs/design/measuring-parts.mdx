@@ -1,0 +1,105 @@
+---
+title: Measuring parts
+description: Read drawings, measure real hardware, and locate holes from useful references.
+icon: phosphor:Ruler
+---
+
+Model the dimensions that make a part fit: mounting holes, mating surfaces, shaft locations, and the space around it. Decorative grooves can wait. A simplified model with correct interfaces is more useful than a detailed model with the wrong hole spacing.
+
+Use a supplier drawing when one exists, and compare it with the hardware you actually have. Similar-looking motors, hubs, and rails can have different patterns or revisions.
+
+## Read a drawing
+
+A drawing usually shows several views of the same part. A **section view** shows a cut through it, exposing features hidden inside. A **centerline** marks the center of a hole, shaft, or symmetric feature.
+
+Start by finding the units and overall dimensions. Then identify the face against which your custom part will sit. This is a useful **datum**: a reference from which you locate other geometry.
+
+Common markings include:
+
+| Marking | Meaning |
+| --- | --- |
+| Ø8 | An 8 mm diameter, if the drawing uses millimeters |
+| R3 | A 3 mm radius; the full circle would have a 6 mm diameter |
+| 4× | The same feature occurs four times |
+| THRU | The opening passes through the full part |
+| M4 × 0.7 | A metric thread with 4 mm nominal diameter and 0.7 mm pitch |
+| PCD or BCD | Pitch-circle or bolt-circle diameter, measured through hole centers |
+
+A thread label is not a clearance-hole size. An M4 tapped hole accepts an M4 screw; a plate through which that screw passes freely needs a suitable clearance hole. Use the fastener drawing and the chosen fit.
+
+Check which view defines a dimension. A 16 mm hole spacing may be measured horizontally between centers, rather than diagonally or around a circle. Do not infer a missing dimension from how large the drawing looks on your screen.
+
+## Use a ruler and calipers
+
+A ruler is useful for overall envelopes and rough layouts. **Calipers** measure outside sizes with their large jaws, inside sizes with their small jaws, and depths with a depth rod. They are useful for checking stock, shaft diameters, and simple mounting geometry.
+
+Before measuring:
+
+1. Clean the measuring faces and the part.
+2. Close the calipers gently and check zero.
+3. Confirm the displayed units.
+4. Hold the jaws square to the feature, with light, repeatable pressure.
+5. Repeat the measurement after removing and repositioning the tool.
+
+Write the result at a precision the tool, surface, and method can support. A display with many decimal places does not make a soft foam ball equally precise. Flexible parts also change shape under jaw pressure; record how you held them.
+
+Keep calipers away from powered mechanisms. Measure stationary parts with power disconnected and stored energy controlled.
+
+## Find hole spacing
+
+The distance between hole centers is often the dimension you need, even though the centers are empty space. For two equal round holes, you can measure the total outside span and subtract one hole diameter.
+
+Suppose two 4.5 mm holes have an outside-to-outside span of 44.5 mm:
+
+$$
+\text{center spacing} = 44.5 - 4.5 = 40.0\text{ mm}
+$$
+
+You can also measure the gap between the closest edges and add one diameter. A 35.5 mm inside gap gives the same 40 mm spacing. Comparing the methods helps expose a poor measurement.
+
+For unequal diameters $d_1$ and $d_2$, measured along the line joining their centers:
+
+$$
+\text{center spacing} = \text{outside span} - \frac{d_1+d_2}{2}
+$$
+
+These methods depend on reaching the correct edges. Small, chamfered, or inaccessible holes are harder to measure accurately. Prefer the manufacturer's center coordinates when available; use a test print or drilled template to check an uncertain pattern before making an expensive plate.
+
+## Locate a pattern
+
+Choose one origin and two perpendicular directions on the mounting face. Record every hole center from those references. This is easier to reconstruct than a chain of measurements taken from changing edges.
+
+For the practice plate, put the origin at its center:
+
+| Feature | X | Y | Diameter |
+| --- | --- | --- | --- |
+| Left hole | −20 mm | 0 mm | 4.5 mm |
+| Right hole | 20 mm | 0 mm | 4.5 mm |
+
+The plate edges are at X = −35 and 35 mm, and Y = −20 and 20 mm. You can describe the same pattern from the lower-left corner, but do not mix coordinates from the two origins in one sketch.
+
+Photograph the measured face and mark the references on the image. Include connector positions, protruding screws, and any shoulder that stops the custom mount from sitting flat.
+
+## Measure the installed space
+
+The part's body is only one part of its envelope. A motor needs room for its wires and gearbox. A hub needs connector access. A bearing may have a flange wider than its housing diameter.
+
+Measure the hardware in the state in which it will be used. Include the plug, strain relief, screw head, retaining collar, or belt flange. Also reserve the space needed to insert a tool and remove the component.
+
+For a moving part, record its range of motion and the space it passes through. Measure flexible cables in their most demanding pose, with an appropriate bend rather than a sharp fold.
+
+## Check the CAD model
+
+In Onshape, select the relevant edge, face, or pair of entities and inspect the measurement readout. Check a known distance immediately after importing a part. An inch-to-millimeter error changes linear size by a factor of **25.4**.
+
+Make a short measurement sheet with the part number, units, reference face, dimensions, and any uncertainty. Then use [Hardware and imports](/docs/design/hardware-and-imports) to create or insert a model. Keep uncertain dimensions easy to change instead of hiding them inside several unrelated sketches.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Measure tool](https://cad.onshape.com/help/Content/View/measure_tool.htm)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+- [FRCDesign: Part Studio best practices](https://frcdesign.org/best-practices/feature-tree-setup/)
+
+</footer>

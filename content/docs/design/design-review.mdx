@@ -1,0 +1,92 @@
+---
+title: Design review
+description: Review a mechanism with builders and programmers before ordering parts or manufacturing a batch.
+icon: phosphor:ListChecks
+---
+
+A design review is a working session in which teammates try to find problems while they are still inexpensive to change. Bring the requirements, model, load estimates, prototype results, and proposed parts list. Include people who will build, program, and maintain the mechanism.
+
+The result should be a decision about the next step and a short list of specific changes. An attractive screenshot is useful context, but it cannot show every fit, movement, or assembly dependency.
+
+## Review at useful stages
+
+Review the concept before detailed CAD, the assembly before manufacturing, and the physical result after testing. Each stage answers different questions.
+
+At the concept stage, compare the movement and uncertain contacts. At the detailed stage, inspect dimensions, supports, hardware, and tool access. After testing, update the model to match changes that actually worked.
+
+Keep the review proportional. A small sensor bracket may need ten focused minutes with its builder. A new lift and transfer need a deeper discussion of interfaces, loads, motion, and recovery.
+
+## Begin with the job
+
+Show the task from the [design brief](/docs/design/design-brief), including the starting and final poses. Identify the fixed interfaces and the dimensions that remain adjustable.
+
+For an intake, show the range of object arrival positions. For a lift, show the payload, reach, and retracted state. For a drivetrain plate, show the actual wheel, shaft supports, and transmission.
+
+Separate known measurements from assumptions. If a roller's compression has not been tested, identify the adjustable prototype that will resolve it. Do not let a polished model make an uncertain contact look settled.
+
+## Walk through the movement
+
+Move the full assembly through its useful range. Include the object and neighboring mechanisms. Inspect intermediate positions, open claws, gates, belts, and cables.
+
+Check the stowed state, pickup, transfer, scoring, and return movement. Then try a recovery path after a miss. The route back from a bad handoff can require different clearance from the normal forward sequence.
+
+Use section views for hidden stacks and interference analysis where it helps. Include screw heads and connectors in the check. A simplified component model should still reserve the space that matters.
+
+## Follow the loads
+
+Point to the place where a load enters the mechanism, then follow it through shafts, bearings, plates, fasteners, and the frame. Ask what keeps the supports aligned and what happens under a reversal or impact.
+
+Show the torque and speed estimate for the chosen actuator and ratio. Include the mechanism's mass, payload, and demanding pose. Check the difference between a working operating point and stall data.
+
+For printed or pocketed parts, inspect the remaining material at loaded interfaces. If the calculation is too uncertain, choose a prototype test that measures the behavior you need, such as deflection at the receiver.
+
+## Assemble it in order
+
+Choose a starting part and describe every assembly step. Can the bearing be inserted before the shaft? Can the nut be held after the cover closes? Does a belt need to be installed before the side plates are joined?
+
+Walk through a common repair as well. Remove a motor, wheel, roller, cable, or sensor in the model. Identify the screws and parts that come out, and check where they can move.
+
+Record a discovered problem as a concrete action. “Service access is bad” is vague. “The right roller collar screw is blocked by the guide; add a tool opening and check it with the selected hex key” gives the designer something to fix.
+
+## Check the manufacturing package
+
+Review the custom-part files, drawings, material, thickness, quantity, and revision. Compare the BOM with the assembly. Check purchased part numbers and all small hardware.
+
+Choose functional tolerances and fits with the fabricator. Confirm that inside corners, thin walls, bend details, and holes can be made by the selected process. Check that someone can measure the dimensions you require.
+
+Open the exports rather than only looking at the source model. Verify units, scale, boundaries, mesh detail where relevant, and the selected configuration. A correct editable model can still have an incorrect or obsolete exported file.
+
+## Agree with the programmers
+
+Record the mechanism's zero pose, positive direction, travel limits, and sensor locations. Identify the evidence that permits each transition: a detected object, reached position, closed receiver, or tested timing condition.
+
+Discuss jams, missing objects, power loss, and manual override. If a roller should stop when its staging area is occupied, make that behavior part of the shared interface. A mechanical guide and a software state sequence must describe the same object path.
+
+Check whether a mounting change affects camera calibration, encoder references, or motor direction. Update those dependencies before the new parts reach the robot.
+
+## Record the decision
+
+Use a compact review note:
+
+| Field | What to record |
+| --- | --- |
+| Design | Document and named version |
+| Next step | Prototype, revise, or manufacture |
+| Changes | Specific part or interface, action, and responsible person |
+| Uncertainty | The test or measurement still needed |
+| Recheck | What must be inspected after the change |
+
+For example, if a transfer misses when the object arrives sideways, the next step may be an adjustable centering-guide test rather than a full new outtake. Recheck the delivery poses after choosing the guide geometry.
+
+Create a named version at the agreed release point. Keep the approved drawings, exports, and BOM tied to it. After the build, use [CAD teamwork](/docs/design/cad-teamwork) to record physical changes and [CAD troubleshooting](/docs/design/cad-troubleshooting) to repair model problems without losing the design intent.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Engineering design process](https://gm0.org/en/latest/docs/design-skills/engineering-design-process.html)
+- [FRCDesign: CAD best practices](https://frcdesign.org/best-practices/)
+- [Onshape: Interference detection](https://cad.onshape.com/help/Content/View/interference_detection.htm)
+- [Onshape: Versioning and branching](https://cad.onshape.com/help/Content/Document/versions_and_history.htm)
+
+</footer>

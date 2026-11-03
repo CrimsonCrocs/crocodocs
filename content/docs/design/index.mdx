@@ -1,12 +1,14 @@
 ---
 title: Design
-description: Learn Onshape, plan an FTC robot, and turn a CAD model into parts your team can build.
+description: An FTC design handbook, from your first CAD sketch to mechanisms, manufacturing, and a complete assembly.
 icon: phosphor:Cube
 ---
 
-Design starts with a question: where should this part go, how should it move, or how will we make it? **CAD**, short for computer-aided design, lets you answer those questions with a model before spending material and build time.
+Learn to design parts and mechanisms for an FTC robot, even if you have never opened CAD. **CAD**, short for computer-aided design, lets you make accurate models, check how parts fit, and prepare the files used to make them.
 
-This section takes you from your first Onshape sketch to a complete robot layout. The examples use FTC parts and problems: sensor mounts, parallel-plate drivetrains, transfers, and crowded electronics bays.
+The handbook starts with measurement, simple sketches, and a plate assembly. It then works through moving joints, transmissions, arms, lifts, intakes, wiring space, and manufacturing. You can follow the learning route or open a chapter when your team reaches that job.
+
+Keep a notebook beside the model. Record why you chose a dimension, what you measured, and what changed after a test. Those details help the next student understand the design instead of merely copying its shape.
 
 ## Start here
 
@@ -18,29 +20,77 @@ If you have never used CAD, work through these five guides in order. You will ma
 4. [Assemblies](/docs/design/assemblies): build a plate-and-spacer assembly and check its dimensions.
 5. [Drawings and exports](/docs/design/drawings-and-exports): make a drawing, export the plate, and list the assembly’s parts.
 
-For the wider job of starting a team, use the [Starter Guide](/docs/starter-guide). Its [first CAD lesson](/docs/starter-guide/cad-first-part) is a shorter introduction.
+If a term interrupts you, use the [Design glossary](/docs/design/glossary). For the wider job of starting an FTC team, use the [Starter Guide](/docs/starter-guide).
+
+## Before you design
+
+You can practice CAD before you have a robot kit. For a real mechanism, begin with the task and the hardware you will use.
+
+| Chapter | What you will learn |
+| --- | --- |
+| [Your first design brief](/docs/design/design-brief) | Describe the task, compare concepts, and choose a useful prototype |
+| [Measuring parts](/docs/design/measuring-parts) | Read drawings, find hole centers, and record mounting interfaces |
+| [Forces and motion](/docs/design/forces-and-motion) | Estimate torque, speed, loads, and the effect of a reduction |
+
+The examples use millimeters for CAD and meters where the physics equations require them. They identify their practice dimensions; replace those with the selected hardware and current game requirements when designing your robot.
+
+## Learn more Onshape
+
+After the first plate, make a bracket, a moving hinge, and a family of spacers. These exercises introduce tools you will use repeatedly on the robot.
+
+| Chapter | What you will make or check |
+| --- | --- |
+| [More sketch tools](/docs/design/sketch-tools) | An adjustment slot and a rounded link |
+| [Modeling features](/docs/design/modeling-features) | An L-bracket, repeated cuts, and a revolved spacer |
+| [Curved and hollow parts](/docs/design/curved-and-hollow-parts) | A funnel using offset planes, Loft, and Shell |
+| [Moving assemblies](/docs/design/moving-assemblies) | A hinge with a defined axis, offset, and travel limits |
+| [Hardware and imports](/docs/design/hardware-and-imports) | Correct purchased-part references and simple envelopes |
+| [Configurations](/docs/design/configurations) | Three spacer lengths controlled by one model |
+| [Custom features](/docs/design/custom-features) | Reusable FeatureScript tools and controlled updates |
+
+Stay with the standard tools until the operation makes sense. A custom feature can save drawing work, but you still need to understand the part it creates.
 
 ## Plan a robot
 
 Once you can make and assemble simple parts, work out how the whole robot fits together.
 
-| Guide | What you will work out |
+| Chapter | What you will work out |
 | --- | --- |
 | [Layout sketches](/docs/design/layout-sketches) | Wheel positions, mechanism locations, and the game-piece path |
 | [Robot packaging](/docs/design/packaging) | Motion clearance, wiring, battery changes, and repair access |
 | [Custom drivetrains](/docs/design/custom-drivetrains) | Axles, bearings, transmissions, and side plates |
-| [Mechanism design](/docs/design/mechanism-design) | Required motion, useful prototypes, and interfaces between mechanisms |
+| [Motor mounts](/docs/design/motor-mounts) | Mounting patterns, screw depth, adjustment, and replacement access |
+| [Shaft supports](/docs/design/shaft-supports) | Bearing positions, load paths, spacing, and retention |
+| [Transmission layouts](/docs/design/transmission-layouts) | Gear, belt, and chain geometry in three dimensions |
+| [Mechanism design](/docs/design/mechanism-design) | A transfer's position, orientation, and capture clearance |
+| [Arms and linkages](/docs/design/arms-and-linkages) | Four-bar geometry and actuator leverage through the motion |
+| [Slides and lifts](/docs/design/slides-and-lifts) | Stroke, rigging, moving masses, and cable routes |
+| [Intake and transfer layouts](/docs/design/intake-and-transfer-layouts) | Pickup variation, roller contact, staging, and controlled delivery |
+| [Shooter layouts](/docs/design/shooter-layouts) | Wheel contact, a curved guide, release direction, and feed integration |
+| [Electronics mounting](/docs/design/electronics-mounting) | A practice cradle, connectors, retention, and service access |
 
 Start with simple shapes. A rectangle reserving room for the battery is useful long before you model its latch. Add detail when it answers a fit, motion, strength, or manufacturing question.
 
-## Get ready to build
+## Make parts [#get-ready-to-build]
 
 A finished model needs more than an attractive view. Someone must be able to buy its hardware, make its custom parts, and put it together.
 
-- [Design for manufacturing](/docs/design/design-for-manufacturing): choose shapes your team can make and inspect.
-- [Drawings and exports](/docs/design/drawings-and-exports): prepare files, dimensions, and a parts list.
-- [CAD teamwork](/docs/design/cad-teamwork): share references and keep the model matched to the robot.
-- [CAD examples](/docs/design/cad-examples): study FTC teams' design decisions with credited images and videos.
+| Chapter | What you will decide or prepare |
+| --- | --- |
+| [Fastened joints](/docs/design/fastened-joints) | Screw lengths, clamp paths, pivots, nuts, and inserts |
+| [Tolerances and fit](/docs/design/tolerances-and-fit) | Clearance, variation, and accumulated dimensional error |
+| [Design for manufacturing](/docs/design/design-for-manufacturing) | Processes, material around loads, and useful cutouts |
+| [Printed parts](/docs/design/printed-parts) | Orientation, walls, supports, hardware, and a fit coupon |
+| [Sheet and machined parts](/docs/design/sheet-and-machined-parts) | Stock, bends, cutter access, corners, and secondary operations |
+| [Drawings and exports](/docs/design/drawings-and-exports) | Views, dimensions, geometry files, and a parts list |
+
+## Review and practice
+
+Use [CAD teamwork](/docs/design/cad-teamwork) to share references and keep files matched to the robot. Before making a batch, run a [Design review](/docs/design/design-review) with the builders and programmers. Use [CAD troubleshooting](/docs/design/cad-troubleshooting) when a sketch, feature, mate, or export stops behaving correctly.
+
+The [Practice project](/docs/design/practice-project) brings the lessons together in a belt-driven bench roller module. Make the layout, parts, moving assembly, drawing, and BOM, then ask another student to review it.
+
+The [CAD examples](/docs/design/cad-examples) study specific choices by Pretty Smart Robotics 16441, Hyperion 9614, and Seattle Solvers 23511, with credited images you can open at full size. Use their decisions as questions to investigate in your own design, rather than treating one team's geometry as a universal template.
 
 The [Engineering handbook](/docs/engineering) covers the mechanics behind these designs, including motors, gears, materials, wiring, and testing. Use both sections together: CAD can show that parts fit, while a physical test tells you whether the mechanism works.
 

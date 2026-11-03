@@ -1,0 +1,100 @@
+---
+title: Forces and motion
+description: Estimate the loads, torque, speed, and stiffness that a robot design needs.
+icon: phosphor:GearSix
+---
+
+A CAD model can fit perfectly and still bend, stall, or tip over. Estimate the main forces and movements before choosing an actuator or cutting a plate. Start with a simple sketch; you can refine the calculation when the design becomes clearer.
+
+## Force and weight
+
+A **force** is a push or pull, measured in newtons, written **N**. **Mass**, measured in kilograms, describes how much matter an object has. Its **weight** is the force of gravity on that mass.
+
+Near Earth's surface:
+
+$$
+F_g = mg
+$$
+
+Here $m$ is mass in kilograms and $g$ is approximately $9.81\text{ m/s}^2$. A 0.6 kg carriage has a weight of about 5.89 N. Moving it upward requires more than balancing that weight: the mechanism also has friction and must accelerate.
+
+Draw the forces on the part you are studying. This is a **free-body diagram**. For a simple carriage, include downward weight, upward lifting force, and the guide reactions that prevent it from rotating or moving sideways. Keep the force directions consistent with the actual mechanism.
+
+## Torque
+
+**Torque** is a force's turning effect about an axis, measured in newton-meters, **N·m**. A force perpendicular to an arm produces:
+
+$$
+\tau = Fr
+$$
+
+$r$ is the perpendicular distance from the pivot to the force's line of action, in meters. A 10 N force acting 0.12 m from a pivot produces 1.2 N·m. The same force at 0.04 m produces 0.4 N·m.
+
+For gravity on an arm, use the horizontal distance from the pivot to each mass's **center of mass**, the point where you can treat its weight as acting. The arm's own mass belongs in the calculation too.
+
+Consider an illustrative horizontal arm:
+
+| Load | Mass | Horizontal distance from pivot | Gravity torque |
+| --- | --- | --- | --- |
+| Arm | 0.4 kg | 0.10 m to its center of mass | 0.392 N·m |
+| Payload | 0.2 kg | 0.25 m | 0.491 N·m |
+| Total | | | **0.883 N·m** |
+
+When the arm moves toward vertical, those horizontal distances decrease. Check the most demanding pose, including any extension. Also account for acceleration, friction, and contact forces before selecting hardware.
+
+<figure>
+  <a href="/guides/design/arm-gravity-load.svg" target="_blank" rel="noreferrer" aria-label="Open the arm gravity-load example at full size">
+    <img src="/guides/design/arm-gravity-load.svg" alt="A horizontal arm has its 0.4 kilogram mass center 100 millimeters from the pivot and a 0.2 kilogram payload 250 millimeters from it. Their gravity torques add to 0.883 newton meters." width="600" height="490" loading="lazy" />
+  </a>
+  <figcaption>Use the arm's own center of mass as well as the payload. Select the diagram to view it full size.</figcaption>
+</figure>
+
+## Reduction and speed
+
+A **reduction** trades output speed for output torque. For a simple gear or belt pair, divide the driven tooth count by the driver tooth count. A 20-tooth driver turning a 60-tooth driven pulley gives a 3:1 reduction.
+
+Ignoring losses, the output turns one-third as fast and has three times the input torque. With estimated efficiency $\eta$:
+
+$$
+\tau_{out} \approx \tau_{in} G\eta,\qquad n_{out}=\frac{n_{in}}{G}
+$$
+
+$G$ is the reduction ratio, and $n$ is rotational speed, such as revolutions per minute (**rpm**). Efficiency accounts for losses and depends on the real transmission and operating condition.
+
+Suppose a hypothetical actuator can provide 0.30 N·m at the intended operating point. A 5:1 reduction at an assumed 80% efficiency gives about 1.20 N·m at the arm. Compare that with the 0.883 N·m gravity load, then allow for acceleration and other loads. These values illustrate the calculation; select a real actuator from its ratings and performance data.
+
+Do not use stall torque as a continuous working rating. **Stall** means the motor is powered but cannot turn. Current and heating can be high. A mechanism that only works near stall needs a different load, ratio, actuator, or support arrangement.
+
+If the input speed were 120 rpm, a 5:1 reduction would give 24 rpm. That is 144 degrees per second, so a 90° movement would take 0.625 seconds at constant speed. A real move also includes acceleration, deceleration, and load-dependent speed.
+
+## Linear movement
+
+A drum converts rotation into cable travel. One revolution takes up a cable length equal to the drum's circumference:
+
+$$
+\text{travel per revolution}=2\pi r
+$$
+
+A 12 mm working radius gives about 75.4 mm per revolution. Lifting a 10 N cable load at that radius requires 0.12 N·m at the drum before losses. If the cable stacks into layers, its working radius changes, affecting both torque and travel.
+
+A cascaded lift can move its final carriage farther than its first stage. That extra travel also changes the required force and power. Calculate the complete reeving arrangement, meaning the route of the lifting cable or belt, rather than sizing the motor from payload weight alone.
+
+## Strength and stiffness
+
+**Strength** concerns damage or failure under load. **Stiffness** concerns how far a part deflects, or bends, while loaded. A plate can survive but bend enough to misalign bearings or miss a transfer.
+
+Follow the load from the point of contact through the supports into the chassis. Shorten unnecessary overhangs, support shafts near their loads, and use section depth or bracing where bending occurs. Adding material far from the bending center can be more effective than making every surface uniformly thicker.
+
+Keep the robot's center of mass in mind. A high or extended mechanism can reduce stability during acceleration and braking. A static model of the robot sitting still does not cover those movements.
+
+Use [Arms and linkages](/docs/design/arms-and-linkages), [Slides and lifts](/docs/design/slides-and-lifts), and the [Engineering motor guide](/docs/engineering/mechanical/motors-and-gearing) to apply these ideas. For an uncertain load, make an adjustable prototype and measure its behavior before committing to the final structure.
+
+<footer className="article-sources">
+
+## Sources
+
+- [OpenStax: Torque](https://openstax.org/books/university-physics-volume-1/pages/10-6-torque)
+- [FRCDesign: Torque and speed](https://frcdesign.org/learning-course/stage1/1b/torque-speed/)
+- [GM0: Choosing motors](https://gm0.org/en/latest/docs/power-and-electronics/motor-guide/choosing-motor.html)
+
+</footer>

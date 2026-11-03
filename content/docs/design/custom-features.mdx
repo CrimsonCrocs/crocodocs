@@ -1,0 +1,71 @@
+---
+title: Custom features
+description: Use FeatureScript tools for repeated CAD work while checking their geometry and references.
+icon: phosphor:Wrench
+---
+
+Onshape can add tools written in **FeatureScript**, its language for defining CAD features. A custom feature might generate a pulley, make a shaft spacer, or add a standard mounting pattern. You can use one without writing the program yourself.
+
+Learn the ordinary sketch, extrusion, and pattern tools first. They help you understand the result a custom tool creates and give you a fallback when it does not match your part.
+
+## Choose a useful tool
+
+Look for a feature that saves a repeated operation you already understand. A configurable spacer is a good example. It should let you identify the bore, outside shape, length, and any manufacturing allowance.
+
+For a gear or pulley generator, check more than tooth count. The tooth system, pitch or module, profile, width, and shaft connection must match the real mating components. Similar-looking teeth can use incompatible profiles.
+
+Prefer a tool whose purpose, inputs, and source document are clear. Read its instructions and inspect an example part. A familiar author or popular library does not replace checking your selected dimensions.
+
+## Add it to the toolbar
+
+In a Part Studio, choose **Add custom features** from the feature toolbar. Locate the feature's document by search or its shared document URL. Select the required feature and the document version, then close the dialog.
+
+The new icon belongs to your account's toolbar, rather than being a normal part inserted into this document. Teammates may need to add the tool to their own toolbars. Existing uses of a linked feature remain in the document's feature list.
+
+Start in a separate practice Part Studio. Select the tool, enter the required inputs, inspect the preview, and accept. Rename the feature to describe the geometry it produces, such as `Intake pulley — 24 teeth`, while keeping the actual dimensions in its parameters.
+
+## Inspect the result
+
+For a spacer generator, measure the bore, length, outside dimensions, and end faces. Compare those with the intended shaft and bearing contact. For a pulley, also inspect the pitch definition, flanges, hub, and fastening method.
+
+Check these questions before using the output on the robot:
+
+- Does it create a new part, alter an existing part, or both?
+- Are dimensions entered as radius, diameter, tooth count, or distance across flats?
+- Is an allowance added to the nominal bore? If so, in which direction and by how much?
+- Are generated faces stable enough for the references you plan to attach?
+- Can the part be made with your process, including its smallest teeth or walls?
+
+An **across-flats** dimension measures between two opposite flat sides of a polygonal shaft. It differs from the distance across its corners. This distinction matters for hexagonal and other shaped bores.
+
+## Try a controlled change
+
+For a spacer, generate two lengths with the same bore. Measure them, then change only the bore. The length should remain unchanged. For a mounting-pattern tool, change one pattern size and inspect every hole's location.
+
+This small exercise reveals how the parameters relate before several custom parts depend on them. If a feature produces unexpected geometry, inspect its inputs and documentation; do not compensate with unexplained scaling or extra cuts that hide the mistake.
+
+If you need a fit trial, print a short test piece before making a complete mechanism. Record the material, printer settings, orientation, and dimension that worked. Use [Printed parts](/docs/design/printed-parts) and [Tolerances and fit](/docs/design/tolerances-and-fit) to interpret the result.
+
+## Manage versions
+
+A linked custom feature references a document version. Updating that reference can change generated geometry or introduce new inputs. Review the change before adopting it in parts already sent for manufacturing.
+
+The feature version used in a Part Studio and the version selected by your toolbar can differ. Check both when two students get different results from what appears to be the same tool. Keep the source document and chosen version in the team's CAD instructions.
+
+When updating, compare the mounting interfaces, critical dimensions, and exports. A feature that regenerates successfully can still have changed its output. Create a named version of your own document before a consequential update so the previous design remains recoverable.
+
+## Keep a manual fallback
+
+For a simple spacer or plate, a sketch and extrusion may be easier to maintain than a specialized feature. For repeated complex geometry, a custom feature can save considerable work.
+
+Choose based on the part and your team's ability to understand it. Keep the editable source, meaningful names, and manufacturing information either way. The tool should reduce repeated drawing work while leaving the physical design clear.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Add custom features and manage linked versions](https://cad.onshape.com/help/Content/PartStudio/add_custom_features.htm)
+- [Onshape: FeatureScript](https://cad.onshape.com/FsDoc/)
+- [FRCDesign: Custom feature setup](https://frcdesign.org/learning-course/course-setup/required-course-tools/featurescripts/)
+
+</footer>

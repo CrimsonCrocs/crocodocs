@@ -1,0 +1,81 @@
+---
+title: Motor mounts
+description: Design a motor plate around its real mounting face, transmission, fasteners, and service access.
+icon: phosphor:GearSix
+---
+
+A motor mount holds the motor body while its shaft drives something else. Its job includes resisting reaction torque, keeping transmission axes aligned, and giving the motor a route out when it needs replacing.
+
+Start with the motor's exact drawing and model. A gearbox, bare motor, and servo can each need a different mounting method. Use [Hardware and imports](/docs/design/hardware-and-imports) to check the part before sketching its plate.
+
+## Read the mounting face
+
+Identify the shaft axis, mounting-hole pattern, locating shoulder, and permitted screw depth. A **pilot** is a raised or recessed locating feature that can help center a component. Its fit differs from a loose screw clearance hole.
+
+Read whether a hole pattern is on a bolt circle or a rectangular grid. Four holes on a 24 mm bolt circle do not have the same coordinates as four holes at the corners of a 24 mm square.
+
+Reserve room for the motor body behind the face and the shaft connection in front. Include the connector, wiring bend, pulley flange, hub screws, and any fan or cooling requirement specified by the manufacturer.
+
+## Make a practice plate
+
+Use a new Part Studio named `Motor plate practice`, in millimeters. The dimensions below describe a dummy mounting pattern for CAD practice. Replace them with your motor's actual drawing when designing the robot.
+
+On Front, draw a rectangle **80 mm wide and 70 mm high**, with its lower-edge midpoint at the origin. Put the shaft axis at **(0, 35) mm**.
+
+Add these openings:
+
+| Feature | Center positions | Diameter |
+| --- | --- | --- |
+| Central opening | (0, 35) mm | 20 mm |
+| Motor mounting | (−12, 23), (12, 23), (−12, 47), (12, 47) mm | 4.5 mm |
+| Frame mounting | (−30, 10), (30, 10) mm | 4.5 mm |
+
+Extrude the plate region **4 mm** as a new part, leaving all seven openings clear. The four motor holes form a **24 × 24 mm square** centered on the shaft axis. The two frame holes are 60 mm apart.
+
+Keep the pattern dimensions separate from the outside outline. The motor interface may stay fixed while the plate's frame connection or edge shape changes.
+
+## Assemble the motor
+
+Insert the plate and a motor model into an Assembly. Fix the plate for the practice exercise. Create a Fastened mate between the motor's mounting face and the plate's rear mounting face, with their shaft axes aligned.
+
+Rotate the connector about its primary axis until the mounting holes line up. Inspect all holes, rather than accepting the first orientation in which the central opening looks right. Check that the motor's shaft reaches the intended hub without the motor body entering the plate.
+
+Add the actual screws or accurate simplified models. A motor can be centered correctly yet use screws that bottom out in its blind holes before clamping the plate.
+
+For an illustrative joint, a **12 mm screw** passing through a **4 mm plate** and **1 mm washer** enters the motor by **7 mm**. That is acceptable only if the motor permits that insertion and supplies enough usable thread. Compare it with the actual maximum depth, including thickness variation and the screw's tip.
+
+## Support the driven load
+
+A motor shaft can transmit torque while external bearings carry the mechanism's radial load. **Radial** means perpendicular to the shaft; **axial** means along it.
+
+A long arm or heavily loaded wheel hanging from a gearbox can create a large bending load. Place supports near the load and use a hub, belt, gears, or another suitable connection to transmit rotation. Check the gearbox's published load guidance rather than assuming every output shaft can serve as the entire joint.
+
+The mount also carries reaction torque: as the motor turns the mechanism one way, its body tends to twist the other way. Follow that load from the mounting screws into the plate and chassis. A narrow flexible tab may let the motor tilt, changing gear mesh or belt alignment.
+
+## Allow adjustment where needed
+
+For a belt or chain drive, choose the transmission geometry before adding slots. The adjustment must change the center distance in the intended direction while keeping the shafts parallel and the pulleys or sprockets in line.
+
+If the motor rotates around a pivot for tensioning, the other fastener normally needs an arc around that pivot. If it translates, use parallel straight slots or another guided adjustment. Check the complete adjustment range in the assembly, including washer coverage and tool access.
+
+After tensioning, the clamped joint must resist the operating loads. A slot by itself does not hold the motor in position. Use appropriate fasteners, contact area, and any positive adjustment or locating features your design needs.
+
+## Make replacement possible
+
+Try removing the motor in CAD. Identify which screws come out first, where the shaft coupling releases, and how the body clears the frame. Check whether the belt can be removed without dismantling a whole side of the robot.
+
+Leave access to screw heads and hub set screws in the installed state. A screwdriver needs an approach direction; an opening that only fits the screw head is not necessarily tool access.
+
+For printed mounts, consider layer direction, heat, and long-term deformation under clamp load. For a metal plate, consider stiffness, edge distances, and the manufacturing process. Use [Fastened joints](/docs/design/fastened-joints) and [Printed parts](/docs/design/printed-parts) before choosing the final details.
+
+Finish by measuring the shaft location, checking transmission alignment, and listing the motor, mount, screws, and driven connection in the BOM. Have another student explain how the motor can be replaced with the robot assembled.
+
+<footer className="article-sources">
+
+## Sources
+
+- [FRCDesign: Motor mounting plate exercise](https://frcdesign.org/learning-course/stage1/1a/section2-exercise4/)
+- [REV: UltraPlanetary load guidance](https://docs.revrobotics.com/rev-crossover-products/ultraplanetary/load-ratings)
+- [GM0: Motion mounting](https://gm0.org/en/latest/docs/common-mechanisms/power-transmission/motion-mounting.html)
+
+</footer>

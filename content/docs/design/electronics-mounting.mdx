@@ -1,0 +1,82 @@
+---
+title: Electronics mounting
+description: Design holders, cable routes, and service access for hubs, batteries, sensors, and cameras.
+icon: phosphor:Plug
+---
+
+Place the battery, hubs, connectors, and wiring in the robot layout early. They occupy real space and need access after the mechanisms are assembled. A remaining empty rectangle is not automatically a useful electronics bay.
+
+Use the actual component model or a measured envelope. Include the installed plugs and cable bends, not just the bare housing.
+
+## Choose an accessible location
+
+For each component, identify its mounting points, cooling needs, connectors, controls, and removal path. A hub that can be seen through a window may still be impossible to unplug or replace.
+
+Keep the main power switch reachable in the robot's expected poses. Plan a battery change with the intake, lift, and covers installed. Avoid a holder that depends on removing several unrelated mechanisms to release the battery.
+
+Protect electronics from direct impact, debris, moving shafts, and loose conductive parts. Use suitable standoffs or insulating arrangements where required. Follow the component's mounting and electrical guidance; do not clamp a bare board by pressing on its components.
+
+## Make a practice cradle
+
+This exercise makes an open holder for a dummy rectangular housing. In a new Part Studio named `Cradle practice`, use a **100 × 60 × 25 mm** component envelope.
+
+Leave **1 mm clearance on each horizontal side**, use **3 mm walls**, and a **3 mm base**. That gives:
+
+| Dimension | Value |
+| --- | --- |
+| Inside length | 102 mm |
+| Inside width | 62 mm |
+| Outside length | 108 mm |
+| Outside width | 68 mm |
+| Wall height above the base | 12 mm |
+
+On Top, sketch a centered **108 × 68 mm** rectangle and Extrude it 3 mm. On the base's top face, sketch the same outside rectangle and a centered **102 × 62 mm** inside rectangle. Extrude the ring-shaped wall region **12 mm using Add**.
+
+You should have one open cradle with an overall height of **15 mm**. Insert the dummy housing in an Assembly, resting on the base. Its top should be 28 mm above the cradle's underside, because the housing is 25 mm high and the base is 3 mm thick.
+
+The clearances are practice dimensions. Use a measured fit trial for the real housing and manufacturing process.
+
+## Add connectors and retention
+
+Put connector envelopes on the dummy housing where the real component has them. Cut the cradle's walls where needed for plugs, latches, and cable exits. Keep enough material to support the component and avoid sharp edges against wires.
+
+Choose a retention method, such as the manufacturer's mounting holes or a suitable strap around a rigid housing. Model its route and attachment. The side walls locate the housing laterally; they do not, by themselves, stop it lifting out.
+
+Add mounting flanges or another deliberate connection to the chassis. Include screw heads and nuts. A screw protruding through the base must not press into the component or its battery casing.
+
+Test removal with the real plug and retention hardware. Some connectors need space for a finger to release the latch before the plug can move.
+
+## Route cables
+
+A cable route needs a start, an end, support along the way, and room at each connector. Keep it away from gears, belts, chains, and sharp plate edges. Use grommets or another appropriate edge treatment where a cable passes through material.
+
+Provide **strain relief**: an attachment that prevents cable tension reaching the electrical connection. Leave enough slack for service and movement, while supporting extra cable so it cannot enter a mechanism.
+
+For a moving claw, draw the cable at both ends of travel. In the retracted pose, decide where the extra length goes. At full extension, check that the cable remains relaxed and the connector is not carrying the pull.
+
+Label routes and connectors where that helps a new student maintain the robot. Keep a path available for adding a sensor without threading its wire through an inaccessible closed frame.
+
+## Mount cameras and sensors
+
+A camera mount needs stiffness and a clear view. Check its field of view in the installed pose, including moving mechanisms that can block it. Avoid mounting it on a flexible cover that changes angle when touched.
+
+Record its reference position and orientation in CAD. The programmer needs the transform between the camera and robot: where it is and which way it points. After adjusting the mount, update that information and any required calibration.
+
+A limit switch, distance sensor, or color sensor needs a useful sensing location, access for adjustment, and protection from impact. Include its bracket, fasteners, connector, and target surface. A sensor drawn near a mechanism does not establish that it can observe the required state.
+
+## Review with the builders
+
+Walk through a battery change, a hub replacement, a camera adjustment, and a cable replacement in the full robot assembly. Check that the tools and hands can reach the relevant parts.
+
+Use [Electrical and wiring](/docs/engineering/electrical) for the electrical connections and power guidance, and [Robot packaging](/docs/design/packaging) for the whole-robot layout. Add the mounts, retention parts, and cable-management hardware to the BOM before releasing the design.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Wiring](https://gm0.org/en/latest/docs/power-and-electronics/wiring.html)
+- [REV: Control Hub](https://www.revrobotics.com/rev-31-1595/)
+- [FRCDesign: Subsystem workflow](https://frcdesign.org/learning-course/stage1/1e/introduction/)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+
+</footer>

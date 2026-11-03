@@ -1,0 +1,76 @@
+---
+title: Configurations
+description: Make a family of spacer lengths and insert the correct variant into an assembly.
+icon: phosphor:Stack
+---
+
+A **configuration** is a named variation of one model. Use it when several parts share the same modeling steps but differ in a few controlled values: spacer length, bracket offset, or rail length.
+
+A variable controls a value within the model. A configuration gives the person using that model a choice of variants. A version preserves the document's state at a point in time. These solve different problems.
+
+## Make a spacer family
+
+Create a document named `Spacer family`, in millimeters. On Top, sketch two concentric circles at the origin: **10 mm outside diameter** and **4.5 mm inside diameter**. Extrude the ring **12 mm** as a new solid, and name the feature `Spacer length` and the part `Spacer`.
+
+Measure the part. It should be one hollow cylinder with a 12 mm length. Keep the bore and outside diameter unchanged while making the length options below.
+
+## Configure the extrusion
+
+Open the **Configurations** panel on the right side of the Part Studio:
+
+1. Choose **Configure Part Studio** to create the first list input.
+2. Name the input `Length`, and enter three option names: `Short`, `Standard`, and `Long`.
+3. Choose **+ Configure features**.
+4. Open the `Spacer length` Extrude feature and select its **Depth** parameter. It should be highlighted as configurable, and a column should appear in the table.
+5. Finish the parameter selection with **Done**.
+6. Enter **8 mm**, **12 mm**, and **16 mm** in the three rows of the depth column.
+
+Select each option from the configuration controls above the feature list. The length should change while the bore stays 4.5 mm and the outside diameter stays 10 mm. If another dimension changes, check which parameter you added to the table.
+
+The option names help readers choose; the actual dimension belongs in the table and part properties. A name such as `Long` is ambiguous outside this family, so include the physical length in the description used for manufacturing or purchasing.
+
+## Insert the required variant
+
+In a new Assembly, choose Insert and expand the configured Part Studio's options. Select `Short` and insert one Spacer. Repeat with `Long`. Choose **Generate** if needed to update the insertion preview after changing the option.
+
+Measure the two instances. They should be 8 mm and 16 mm long. Right-click an instance and choose **Change configuration** to select another option later. Inspect any mates that depend on its end faces after making that change.
+
+Independently inserted instances can use different configurations. Patterned instances normally follow their seed instance's configuration. If you need different lengths, insert them independently instead of expecting one instance in a repeated pattern to stay different.
+
+## Choose the right input
+
+| Input | Useful choice |
+| --- | --- |
+| List | A controlled set of sizes, such as 8, 12, and 16 mm |
+| Checkbox | A feature that can be present or absent, such as an optional cable tab |
+| Configuration variable | A value the user enters within the model's intended range |
+
+Separate independent choices. A spacer's length and whether it has a locating tab may be separate inputs. Do not make a huge list of every combination unless those combinations need individual control.
+
+Check the combinations you offer. If one option removes a face that another feature uses, that variant may fail even though the default works. A checkbox that hides a clearance cut can also create a part that no longer assembles.
+
+## Parts lists and exports
+
+Different physical variants need distinguishable part numbers or descriptions. Two 8 mm spacers and two 16 mm spacers should not arrive at the workbench as “four spacers” with no length information.
+
+Configure the relevant properties and review the BOM. Confirm that each row identifies the correct variant and quantity. When making a drawing or export, select the intended configuration before creating the file, then open the output and measure it.
+
+Use a filename such as `spacer-10od-4p5id-16long-r1.stl`. A clear filename helps, but the controlled model, properties, and released version remain the source for its definition.
+
+## Keep the model understandable
+
+Use configurations for genuine families. If two mechanisms have different load paths, mounting methods, and feature trees, separate models may be clearer than dozens of suppression switches.
+
+Record which input controls each interface. Teammates should know that changing Length moves the spacer's end face but leaves its bore unchanged. Use [CAD teamwork](/docs/design/cad-teamwork) to coordinate updates in assemblies that depend on the family.
+
+Keep one version with all three spacer options working. In your practice Assembly, leave one Short and one Long instance so another student can check that both remain defined by the same model.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Configurations](https://cad.onshape.com/help/Content/PartStudio/configurations.htm)
+- [Onshape: Part Studio and Assembly configurations](https://cad.onshape.com/help/Content/PartStudio/part_studio_and_assembly_configurations.htm)
+- [Onshape: Bill of materials](https://cad.onshape.com/help/Content/Assembly/bill_of_material.htm)
+
+</footer>

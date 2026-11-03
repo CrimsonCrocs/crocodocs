@@ -1,0 +1,87 @@
+---
+title: Shooter layouts
+description: Lay out a flywheel, guide, object path, feeder, and supports before choosing the final launcher geometry.
+icon: phosphor:Crosshair
+---
+
+A shooter layout needs the object's path through contact and out of the robot. Place the flywheel, guide, feeder, and supports together, then check the geometry in several views. Wheel speed alone does not define a repeatable shot.
+
+Use the [Engineering flywheel guide](/docs/engineering/mechanisms/flywheels) for launcher behavior and the [projectile mathematics guide](/docs/season-topics/projectile-mathematics) for flight. This page concentrates on the CAD geometry and interfaces.
+
+## Choose the contact arrangement
+
+A single-wheel launcher may push the object against a curved or flat guide. Opposing wheels can provide a different contact and spin arrangement. Choose the geometry using the real object, available wheels, required release pose, and prototype results.
+
+Record wheel diameter, width, material, shaft connection, and the guide's contact surface. Reserve the actual motor, bearings, hubs, and transmission. Include the object entering from the transfer, with its expected position and spin variation.
+
+## Draw a practice side layout
+
+Create a document named `Shooter layout practice`, in millimeters. On Front, place the wheel axis at the origin and use:
+
+| Item | Practice value |
+| --- | --- |
+| Wheel diameter | 96 mm |
+| Ball diameter | 70 mm |
+| Nominal geometric overlap | 5 mm |
+| Ball-center distance from wheel axis | 48 + 35 − 5 = **78 mm** |
+| Guide's inside radius | 78 + 35 = **113 mm** |
+
+Draw the 96 mm wheel circle. Add a **construction circle of radius 78 mm** for the ball-center path, and an arc of **113 mm radius** for the inside guide surface.
+
+Place 70 mm ball circles with their centers on the path at several positions. They should overlap the wheel envelope by 5 mm and meet the guide at their outer radial surface. That is the nominal contact geometry; select actual compression through prototype tests with your wheel and object materials.
+
+The guide-to-wheel radial gap is **113 − 48 = 65 mm**, compared with a 70 mm object. Use the same dimensions when building the adjustable contact prototype.
+
+## Define the release direction
+
+For this practice layout, let the ball-center path run from **−150° to −60°** around the wheel, measured counterclockwise from the rightward horizontal axis. That gives **90° of contact arc** in the layout.
+
+At the −60° endpoint, the ball center is approximately **(39, −67.5) mm**. A counterclockwise tangent there points **30° above horizontal toward the right**. Draw that tangent as a construction line and extend the ball envelope along it to inspect the exit space.
+
+This is a geometric release direction to investigate. The measured shot can differ because of deformation, slip, spin, and the final guide contact. Use a test to establish the actual release behavior rather than treating the tangent as a finished calibration.
+
+Check that the guide's end and nearby plates do not clip the departing object. The ball's center can clear an edge while the ball itself still strikes it.
+
+<figure>
+  <a href="/guides/design/shooter-contact-layout.svg" target="_blank" rel="noreferrer" aria-label="Open the shooter contact layout at full size">
+    <img src="/guides/design/shooter-contact-layout.svg" alt="A 96 millimeter wheel and a 113 millimeter guide radius contact a 70 millimeter ball. The ball-center path has a 78 millimeter radius, with a tangent pointing 30 degrees above horizontal at release." width="600" height="510" loading="lazy" />
+  </a>
+  <figcaption>The dashed arc follows ball centers. The arrow shows the geometric release tangent; select the layout to view it full size.</figcaption>
+</figure>
+
+## Model a curved guide
+
+For a simple guide-shape exercise, sketch the **113 mm inside arc** and a concentric **116 mm outside arc**, spanning the chosen −150° to −60° sector. Join their endpoints with radial lines to make a closed 3 mm-thick strip.
+
+Extrude the strip to a total **80 mm width**, centered on the side-layout plane. You should have one curved guide wall. Use a separate Part Studio for the wheel and its support components so the guide does not accidentally merge with them.
+
+Add side guidance, mounting features, and the selected bearings and hubs in the complete assembly. Check the real wheel width and the object's three-dimensional contact; the side view alone cannot establish that it remains centered.
+
+For an adjustable hood, model its pivot, actuation, usable range, and sensor or reference. Changing the hood can alter the release position and contact as well as the angle. Inspect every commanded pose and the feeder connection.
+
+## Support the wheel
+
+Place bearings and structure near the loads. Include the wheel hub, shaft retention, pulley or gear, and belt plane. Check the wheel's full outer envelope, fastening hardware, balance requirements, and the manufacturer's permitted use.
+
+Leave access to tighten the hub and replace the wheel. A compact launcher is difficult to maintain if its shaft cannot be withdrawn without dismantling the whole chassis.
+
+Estimate the required speed and loading using the selected components and test results. Keep speed reduction, wheel inertia, motor operating range, and recovery between shots in the same design discussion. A large wheel model with an arbitrary motor is not a completed actuator choice.
+
+## Integrate the feed
+
+Locate a staging position before the launcher and define the gate or surface that holds the next object. Check what the transfer rollers do while it waits. Prevent a closed gate from becoming an indefinite motor stall.
+
+Agree with programmers on readiness, spacing between objects, and recovery after an incomplete feed. The feeder can limit throughput, and the launcher can limit the rate at which it produces consistent shots. Test them together instead of assigning the whole rate requirement to one subsystem.
+
+Record the measured release position and useful settings with the model revision. Use [Intake and transfer layouts](/docs/design/intake-and-transfer-layouts) for the incoming path and [Design review](/docs/design/design-review) before releasing the support and guide parts.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Alan G. Smith: Learn Onshape for FTC, shooter and mixed assemblies](https://github.com/alan412/LearnOnshapeForFTC)
+- [FRCDesign: Basic shooter course](https://frcdesign.org/learning-course/stage2/2a/introduction/)
+- [GM0: Transfer design](https://gm0.org/en/latest/docs/common-mechanisms/transfers/transfer-design.html)
+- [Onshape: Extrude](https://cad.onshape.com/help/Content/PartStudio/extrude.htm)
+
+</footer>

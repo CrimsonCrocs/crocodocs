@@ -1,0 +1,89 @@
+---
+title: Slides and lifts
+description: Lay out rail travel, moving stages, rigging, loads, and cable access before detailing a lift.
+icon: phosphor:Stack
+---
+
+A lift needs enough travel to reach its target while remaining supported and aligned. Start with the required carriage positions, then choose rails, moving stages, and a drive arrangement that can reach them.
+
+A **carriage** is the moving part that carries the mechanism. A **stage** is one section of a telescoping lift. **Stroke** is the available linear travel, which is not necessarily the rail's overall length.
+
+## Choose the rail arrangement
+
+Read the rail's actual drawing, stroke, mounting pattern, and load guidance. Check which faces may carry load and how the rail is intended to be supported. A drawer slide and a purpose-made robot slide can have different behavior and maintenance needs.
+
+In CAD, keep the fixed rail and moving sections separate when you need to represent motion. Use Slider mates along the travel direction, with limits based on the permitted stroke. Include the carriage plate, fasteners, and end fittings when measuring the useful travel.
+
+Two parallel rails can support a wide carriage, but they must be aligned. A rigid plate connecting misaligned rails may bind. Locate them from shared references, and consider how the assembly will be adjusted during construction.
+
+## Draw the travel first
+
+On a side-view layout, mark the fully retracted and fully extended carriage positions. Include the claw or other mechanism it carries, its open pose, the object, and any offset from the rail.
+
+The offset matters. A load whose center is far in front of the rail creates a bending moment. A longer extension can increase that effect even when the mass stays the same. Check the load path through the carriage, moving stages, supports, and chassis.
+
+Reserve enough overlap between stages according to the rail's guidance. The model should not create extra stroke by letting a stage leave its actual support. Add physical stops, cable anchors, and the space occupied by pulley bearings.
+
+## Understand the rigging
+
+**Rigging** is the route of the cable, belt, or chain that moves the stages. In a cascade arrangement, coupled stages can move together. In other arrangements, stages may extend in sequence or follow a different relationship.
+
+Draw each cable as a continuous route. Mark its fixed end, moving attachment, pulleys, and drum. Identify which components move relative to each other. Then move the layout through several positions and check what cable lengths change.
+
+Do not copy an FRC elevator's chain, attachment, or tubing dimensions into FTC by scale alone. Use compatible FTC hardware, the loads you estimated, and components you can manufacture and service.
+
+## Work through a two-stage example
+
+Consider a particular cascade layout in which the first moving stage travels by $x$, and the final carriage travels by $2x$ relative to the fixed frame. If each slide has **200 mm relative stroke**, the final carriage can gain **400 mm** in this arrangement.
+
+That extra travel also changes the required drive force. Suppose:
+
+| Moving item | Mass | Travel relative to frame |
+| --- | --- | --- |
+| First moving stage | 0.25 kg | $x$ |
+| Second stage and payload together | 0.60 kg | $2x$ |
+
+Ignoring friction and acceleration, the work needed to raise them is their increase in gravitational potential energy. If the primary drive takes up cable by $x$, its force is:
+
+$$
+F=9.81(0.25+2\times0.60)\approx14.22\text{ N}
+$$
+
+At a **12 mm working drum radius**, that is about **0.171 N·m** at the drum before losses. Measuring only the payload's weight would miss the stage masses and the motion ratio.
+
+To move the final carriage 400 mm in one second at constant speed, this drive would take up 200 mm of cable. At a 12 mm radius, that is about **2.65 drum revolutions**, or **159 rpm**. Real motion needs time and torque for acceleration and deceleration too.
+
+Use the actual rigging's input travel for your calculation. Moving a pulley, anchor, or drive attachment can change the relationship; “two stages” alone does not establish a 2:1 travel ratio.
+
+## Keep tension and alignment
+
+Choose pulleys, grooves, and bend diameters compatible with the cable or belt. Check that the line stays in its intended path throughout the movement. Align pulley planes and keep loose runs away from sharp edges, screws, and other moving parts.
+
+Provide a practical way to set and maintain tension. Check the attachment at each end, including how a student will replace the line. Leave room to reach the anchor and rethread it without dismantling the entire robot.
+
+A lift may need powered retraction or another deliberate return method. Gravity can be unreliable when the rail is angled, loaded unevenly, or has changing friction. Design the return path and account for the loads it introduces.
+
+## Route wires through the stroke
+
+Model the wiring to the moving claw, sensors, or wrist. Reserve a loop or cable-management arrangement that accommodates full travel without pulling on connectors or entering the pulleys.
+
+Check the fully retracted state as carefully as the extended state. Extra cable must go somewhere when the carriage comes down. Keep its bend controlled and provide strain relief near connectors.
+
+Place a home reference or limit sensor where it remains accessible and protected. Agree on the usable range and the behavior after power loss or a jam with the programmers. The physical stop and software limit should work together.
+
+## Review the complete lift
+
+In the robot assembly, check retracted height, extension envelope, carriage clearance, chassis stability, access to fasteners, and battery or electronics interference. Move the lift while the other mechanisms are in their likely poses.
+
+Build and test the rigging on a small bench setup before loading the final mechanism. Keep hands clear of supported or suspended loads and control stored energy during maintenance. Record the final cable route and attachment details in the model and assembly instructions.
+
+<footer className="article-sources">
+
+## Sources
+
+- [GM0: Linear slides](https://gm0.org/en/latest/docs/common-mechanisms/linear-motion-guide/index.html)
+- [FRCDesign: Cascade elevator](https://frcdesign.org/learning-course/stage2/2d/introduction/)
+- [Onshape: Slider mate](https://cad.onshape.com/help/Content/Assembly/slider_mate.htm)
+- [OpenStax: Conservative forces and potential energy](https://openstax.org/books/university-physics-volume-1/pages/8-2-conservative-and-non-conservative-forces)
+
+</footer>

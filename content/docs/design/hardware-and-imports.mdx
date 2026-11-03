@@ -1,0 +1,100 @@
+---
+title: Hardware and imports
+description: Find the correct hardware model, check its dimensions, and use it without copying unnecessary detail.
+icon: phosphor:Toolbox
+---
+
+Insert purchased hardware before designing the custom parts around it. The motor, bearing, shaft, and screw determine interfaces that a bracket must match. Check the exact part number; a model that looks similar can still have a different shaft or mounting face.
+
+## Choose a source
+
+Start with the manufacturer's product page, dimensional drawing, and CAD download. A native Onshape document can preserve a useful part structure. A **STEP** file is a common solid-geometry exchange format when a native document is unavailable.
+
+Team libraries and public Onshape documents can save time. Check their manufacturer, part number, configuration, and source drawing before relying on them. Keep the source link in the part's properties or team record so another student can identify it later.
+
+An **STL** contains a mesh of small faces, usually triangles. It is useful for printing, but often a poor starting point for precise mounting references. Prefer solid CAD or a dimensioned drawing for bracket design.
+
+## FTC parts library
+
+Purple Gears, **FTC 2901**, maintains an FTC parts library with components from common FTC vendors. It is useful when you want native, often configurable parts instead of importing every item separately.
+
+The team's **FTC Insert Tool** is available through the Onshape App Store. Follow its current enrollment instructions, open it in an Assembly, and search by the actual part number or component family. Select the required size or configuration, insert the part, and check its dimensions against the supplier drawing.
+
+Use the normal Onshape Insert workflow when you already have the native document. The optional app helps browse and insert library content; you do not need to build or host its GitHub source to use the published tool.
+
+## Insert a native part
+
+Open the destination Assembly and choose **Insert**. Locate the source document, select the required part or assembly, and choose the correct configuration if it has one. Insert the instance and use mates to place it.
+
+A configuration may change a rail's length, a motor's gearbox option, or a screw's size. Read its selection fields rather than accepting the first preview. After insertion, measure a known feature and compare the displayed part number with the purchase list.
+
+Use an entire subassembly when the relationship between its parts matters. Insert only the required part when the rest would add clutter. For a linear slide, the fixed rail and moving carriage may need separate instances if you want to model their movement.
+
+For standard fasteners, Onshape's **Standard content** can supply supported screw, nut, and washer families. Choose the correct standard, thread, head style, and length. A generic screw model is useful only when it matches the hardware you will buy.
+
+## Import a STEP file
+
+Download the supplier's file, then use the document's **+ → Import** command. Select the file and review the import options. Imported CAD may produce an imported tab and translated Part Studio or Assembly content, depending on the file structure and options.
+
+Find the translated solid and check:
+
+1. A known overall dimension, such as motor body diameter or rail length.
+2. The mounting-hole spacing and thread information from the drawing.
+3. The shaft diameter, profile, and protrusion.
+4. The orientation of the mounting face and the location of the origin.
+5. Whether separate moving components were combined into one rigid solid.
+
+If a known 25.4 mm dimension measures 1 mm or 645.16 mm, investigate units before continuing. Do not resize a model merely until it appears to fit. Scaling also changes every hole, shaft, and connector.
+
+In an Assembly, use mates for placement. In a Part Studio, **Transform** can reorient an imported solid when you need it as a design reference. Keep the reference transformation understandable and avoid repeatedly moving it by arbitrary offsets.
+
+## Make a simple hardware envelope
+
+An **envelope** reserves the space occupied by a component. It can omit cooling fins, logos, and screw threads while preserving the interfaces that affect your design.
+
+For a practice motor envelope, make a separate Part Studio with:
+
+- A **38 mm diameter, 60 mm-long** body cylinder.
+- A concentric **8 mm diameter shaft**, extending **20 mm** from one end.
+- A separate region for the connector and cable bend.
+
+These are teaching dimensions for a dummy component. For your motor, use its actual drawing and retain the mounting pattern, shaft shoulder, connector, and installed wire path.
+
+Rename the dummy part `Motor envelope — practice`. Give the mounting face and shaft axis clear reference geometry. That prevents someone from mistaking the simplified shape for a complete vendor model with verified fastening details.
+
+## Model the interfaces
+
+Keep detail when it changes a decision:
+
+| Component | Geometry worth preserving |
+| --- | --- |
+| Motor | Mounting face and holes, shaft, body, connector, screw-depth limits |
+| Bearing | Bore, housing diameter, width, flange, retaining features |
+| Pulley | Shaft connection, pitch diameter, flange envelope, belt width |
+| Rail | Mounting pattern, moving sections, travel limits, end fittings |
+| Hub | Board/body, connectors, mounting points, button and cable access |
+
+Detailed helical threads usually add little to a whole-robot model. A screw's head size and installed length are often more useful. Keep an accurate representation of any feature that can collide or stop a joint from assembling.
+
+## Keep updates controlled
+
+A linked component may refer to a particular document version. Check update indicators and review changes before adopting a new source version. An updated supplier model might correct a hole position that affects a manufactured plate.
+
+After updating, inspect the mounting interface, motion, and part number. Record substitutions: “same diameter motor” does not establish that the replacement uses the same screw length or electrical connection.
+
+Use [Motor mounts](/docs/design/motor-mounts), [Shaft supports](/docs/design/shaft-supports), and [Electronics mounting](/docs/design/electronics-mounting) to design around these references. Keep the team's purchased-part library separate from the custom parts it helps define.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Purple Gears, FTC 2901: FTC parts library](https://ftconshape.com/ftc-parts-library-for-onshape/)
+- [FTC Insert Tool: Onshape App Store](https://cad.onshape.com/appstore/apps/Design%20%26%20Documentation/6515cfb91574253b1b96a6ba)
+- [Purple Gears: Insert Tool source and published app link](https://github.com/Team2901/OnshapeInsertTool)
+- [Onshape: Importing files](https://cad.onshape.com/help/Content/Document/importing_files.htm)
+- [Onshape: Inserting parts and assemblies](https://cad.onshape.com/help/Content/Assembly/insert_parts_and_assemblies.htm)
+- [Onshape: Standard content](https://cad.onshape.com/help/Content/Assembly/standard_content.htm)
+- [Onshape: Transform](https://cad.onshape.com/help/Content/PartStudio/transform.htm)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+
+</footer>

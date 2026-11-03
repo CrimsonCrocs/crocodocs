@@ -1,0 +1,81 @@
+---
+title: Curved and hollow parts
+description: Use offset planes, Loft, and Shell to make an open funnel with a controlled wall thickness.
+icon: phosphor:Cube
+---
+
+Use **Loft** to connect different profiles and **Shell** to hollow the resulting solid. This exercise makes a circular funnel, introducing tools useful for guides, ducts, and transitions between mechanisms.
+
+Create a separate document named `Funnel practice`, in millimeters. You will make one part with a **100 mm outside inlet**, **60 mm outside outlet**, **50 mm height**, and **2 mm wall thickness**.
+
+## Sketch the outlet
+
+Start a sketch on Top. Draw a circle centered at the origin and dimension it to **60 mm diameter**. Accept it and name the sketch `Outlet outside`.
+
+This circle describes the outside of the part before it is hollowed. The clear opening will be smaller after Shell adds the inside wall. Keep that distinction visible when checking whether an object can pass through.
+
+## Add an offset plane
+
+A **reference plane** gives a sketch a controlled location in space. Choose **Plane**, select Top as its reference, and use an **Offset** distance of **50 mm**. Flip the direction if needed so the new plane is above Top, then accept.
+
+Rename it `Inlet plane`. Start a sketch on that plane, draw a concentric **100 mm diameter** circle, and name the sketch `Inlet outside`.
+
+Look from the side. The two circles should be parallel, share an axis, and stand 50 mm apart. If they appear on the same plane, check the plane reference and offset before continuing.
+
+## Loft the solid
+
+Accept both sketches, then choose **Loft → Solid → New**. Select the 60 mm circular region, then the 100 mm circular region as the profiles. Keep the ordinary end conditions for this straight transition and inspect the preview.
+
+The result should be one tapered solid with flat circular ends. Accept it and name the part `Practice funnel`.
+
+Loft follows the profile order. With several profiles, select them in the order the shape passes through them. A rectangle-to-circle transition can also need attention to how corners and connection points correspond. If the preview twists unexpectedly, inspect those connections instead of accepting the shape and trying to repair it with cuts.
+
+## Hollow it
+
+Choose **Shell** and select **both flat circular end faces** for removal. Set the thickness to **2 mm**, with the shell formed inward, then accept.
+
+Rotate the model and look through it from each end. It should have an open inlet, an open outlet, and a continuous tapered wall. If one end remains closed, edit the Shell face selection. If the outside grows, check the shell direction.
+
+Shell thickness is measured normal to the wall. On a sloped wall, the difference between outside and inside radii in a horizontal section is not exactly the same as that thickness. Use a section view and measure the actual clear outlet rather than subtracting a guessed per-side gap from a screenshot.
+
+<figure>
+  <a href="/guides/design/funnel-section.svg" target="_blank" rel="noreferrer" aria-label="Open the funnel section at full size">
+    <img src="/guides/design/funnel-section.svg" alt="An axial section shows the funnel's 100 millimeter outside inlet, 60 millimeter outside outlet, 50 millimeter height, and 2 millimeter inward wall." width="600" height="440" loading="lazy" />
+  </a>
+  <figcaption>The sketch circles define outside sizes; measure the clear opening after Shell. Select the section to view it full size.</figcaption>
+</figure>
+
+## Check an object
+
+Make a separate Part Studio for a **50 mm-diameter sphere envelope**. On Front, sketch a semicircle of 25 mm radius and close it with its diameter line. Revolve that closed half-circle region through 360° about the diameter, using Solid → New. Insert the sphere with the funnel into an Assembly and check the clear passage from inlet through outlet, including any mounting details you add later.
+
+For this concentric circular example, begin with the sphere centered on the funnel axis. Then try off-center approaches. A smooth CAD passage helps identify interference, while real surface friction, object shape, and flexibility determine how reliably it feeds.
+
+If the outlet is too small, change the outside profile or wall design deliberately. Do not scale the finished funnel: that would also change its height, inlet, and wall thickness.
+
+## Add mounting features
+
+Decide which robot surfaces locate the funnel and how it can be removed. Add tabs, a supported rim, or a separate holder with appropriate fasteners. Keep mounting screws and nuts out of the object path.
+
+For a tab made by Extrude Add, its volume must genuinely overlap the existing part. A sketch that only touches the funnel at one point may not create a valid joined solid. Inspect the preview and the Parts list; you should know whether you created one joined part or separate components.
+
+Add fillets where they help the loaded connection and the chosen process. Check the remaining material around holes and the tool path for tightening the fasteners. Use [Fastened joints](/docs/design/fastened-joints) to design the complete attachment.
+
+## Prepare the print
+
+Choose an orientation that balances supports, wall quality, mounting surfaces, and the object's contact path. Inspect the slicer's walls at both ends. A thin tapered edge should not disappear because it is too small for the selected process.
+
+Print a small outlet or wall trial if fit and surface behavior are uncertain. Use the actual object to check passage before committing to the full guide. Keep the editable profiles and Shell thickness easy to find so the next iteration changes the intended quantity.
+
+Use [Printed parts](/docs/design/printed-parts) for layer direction and fit trials, and [Intake and transfer layouts](/docs/design/intake-and-transfer-layouts) to integrate the guide with the mechanisms on either side.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Alan G. Smith: Learn Onshape for FTC, funnel exercise](https://github.com/alan412/LearnOnshapeForFTC)
+- [Onshape: Loft](https://cad.onshape.com/help/Content/PartStudio/loft.htm)
+- [Onshape: Shell](https://cad.onshape.com/help/Content/PartStudio/shell.htm)
+- [Onshape: Plane](https://cad.onshape.com/help/Content/PartStudio/plane.htm)
+
+</footer>

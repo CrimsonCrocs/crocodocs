@@ -1,0 +1,94 @@
+---
+title: CAD troubleshooting
+description: Find the first broken relationship in sketches, features, imports, mates, drawings, and exports.
+icon: phosphor:Wrench
+---
+
+Start with the first operation that no longer behaves correctly. Later errors often come from that earlier failure. Keep the model's intended dimensions and relationships in view while repairing it.
+
+Before a large repair, make a named version or use history to preserve the useful state. Then change one cause at a time and inspect the result.
+
+## A sketch still moves
+
+An under-constrained sketch has at least one remaining **degree of freedom**. A circle can have a fixed diameter while its center remains free to move. A dimensioned rectangle can still slide if it is not located relative to the origin.
+
+Drag the moving entity gently. Identify whether its size, position, or angle changes. Add the relationship that describes the intended behavior: Coincident to a reference, Horizontal, Vertical, Concentric, or a position dimension.
+
+Do not Fix every entity to its accidental mouse position. For the practice plate, the rectangle belongs at the origin, the holes belong on its centerline, and their spacing is a controlled dimension. Those relationships should survive a width change.
+
+Construction geometry may have deliberately free endpoints while still supplying a useful infinite direction or centerline. Distinguish that from a hole center whose position should be fixed.
+
+## A sketch turns red
+
+Look at the most recent constraint or dimension. It may duplicate a relationship already defined by a mirror, pattern, equality, or another dimension.
+
+Undo the last change and inspect the existing constraints. If a hole is mirrored about a centerline, an independent dimension on the mirrored center may be redundant. Keep the relationship that expresses the design intent and remove the conflicting instruction.
+
+A **reference dimension** reports a value determined elsewhere. It does not drive the sketch. Use it when you want a measurement without another control on the geometry.
+
+## A region will not extrude
+
+Check for gaps, overlapping segments, duplicate circles, and construction lines where the boundary should be real. Zoom into joints between lines and arcs. Apply Coincident where endpoints must meet.
+
+Inspect the selected region. Nested loops can create several selectable areas, such as the plate around its holes and the circular hole regions. Selecting all of them can fill an opening you intended to leave clear.
+
+Check the operation and direction too. New makes another part; Add needs material that joins an intended part; Remove must intersect the part you want to cut. Review the merge or affected-part scope when several solids are present.
+
+## A later feature fails
+
+Find the earliest failed feature in the list. Roll back before it and inspect the preceding geometry. An edge referenced by a later sketch may have been removed by a changed pocket or fillet.
+
+Repair the reference using a stable face, plane, axis, or layout entity where possible. Do not keep selecting a new nearby edge without checking whether it represents the same design relationship.
+
+Move cosmetic rounding later in the feature list if it repeatedly destroys references needed by functional geometry. Keep required radii in the order their purpose demands; feature order should describe the part, not just hide errors.
+
+## A linked part does not update
+
+Check what the link references: the current workspace, a named version, or another document's selected state. An updated source is not automatically the selected version in every consuming assembly.
+
+Inspect the reference or update indicator, review the change, and adopt the intended version. Then check the geometry and interfaces. If a Derived sketch updates but a mounting hole stays behind, inspect whether the hole is actually constrained to that sketch.
+
+For custom features, the toolbar's selected version and an existing feature's linked version can differ. Use [Custom features](/docs/design/custom-features) to check both.
+
+## An assembly is stuck or loose
+
+Inspect fixed instances, groups, and mates. A fixed moving part cannot respond as intended. Two mates that constrain the same relationship can remove movement or conflict.
+
+Check the mate type. Revolute allows rotation, Slider allows translation, and Cylindrical allows both along its axis. Check the connector's primary-axis direction, offset, and limits. A valid mate with the wrong connector orientation can put a part on the wrong side of a plate.
+
+Temporarily suppress one suspect mate, inspect the movement, and restore or repair it deliberately. Removing every mate at once makes it harder to identify the cause. For a linkage, remember that its closed loop already connects the parts through several joints.
+
+## An imported model is wrong
+
+Measure a known dimension. A factor of 25.4 suggests an inch/millimeter mismatch. Confirm the original file, units, and import settings before applying a scale transformation.
+
+If the file is a mesh, exact circular or planar references may not be available as expected. Look for a solid STEP or native model from the supplier. Keep a measured envelope when detailed geometry is unnecessary.
+
+Check the part number and configuration. A perfectly imported model of the wrong rail length or motor option still produces a wrong design.
+
+## The export or drawing disagrees
+
+Confirm the selected configuration, model state, and drawing reference. Update the drawing when its referenced model changes, then inspect the affected dimensions and views.
+
+For a cutting profile, check that you exported the intended planar face or sketch, with the correct units and boundaries. For a print, measure the opened mesh in the slicer. Do not repair a unit mistake by changing the robot's actual dimensions.
+
+Keep obsolete files separate from the approved manufacturing package. A corrected model is not enough if a builder still has the earlier DXF.
+
+## The model is slow
+
+Hide detail that does not help the current task, such as unnecessary thread geometry or complex repeated hardware. Use accurate simplified envelopes when their interfaces are sufficient. Organize subsystems and references so a local change does not regenerate unrelated geometry.
+
+Avoid creating large patterns merely to make the display look detailed. Keep complete manufacturing geometry where needed, while giving the whole-robot assembly a manageable representation.
+
+After a repair, repeat the edit or movement that originally failed. Check the intended dimensions, dependent parts, and export rather than accepting the disappearance of the red feature alone.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Feature and Parts lists](https://cad.onshape.com/help/Content/PartStudio/features_and_parts_lists.htm)
+- [Onshape: Sketch constraints](https://cad.onshape.com/help/Content/Sketch/working_with_constraints.htm)
+- [Onshape: Mates](https://cad.onshape.com/help/Content/Assembly/mates.htm)
+- [FRCDesign: Part Studio best practices](https://frcdesign.org/best-practices/feature-tree-setup/)
+
+</footer>

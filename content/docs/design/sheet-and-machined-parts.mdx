@@ -1,0 +1,80 @@
+---
+title: Sheet and machined parts
+description: Design flat plates, bent brackets, and machined features that your fabricator can make and inspect.
+icon: phosphor:Factory
+---
+
+Choose the material and manufacturing process before detailing every corner. A flat cut plate, bent sheet bracket, and milled block can solve the same mounting problem with different shapes, costs, and assembly methods.
+
+Talk to the person or service making the part. Their tooling, stock, minimum features, tolerances, and file requirements belong in the design from the start.
+
+## Flat plates
+
+A flat sheet part often begins as a two-dimensional profile with a constant thickness. Laser cutting, waterjet cutting, routing, and manual fabrication have different material and feature constraints.
+
+For a practice plate, use the **70 × 40 mm, two-hole** model from the beginner lessons. Its outline and holes can be exported from a planar face as DXF. The physical thickness comes from the selected stock; a 2D profile alone does not communicate material, thickness, quantity, or revision.
+
+Keep the cutting file clean. It should contain the intended boundaries without duplicate lines, dimensions, or construction geometry. Open the exported file in the receiving tool and measure a known distance before cutting.
+
+**Kerf** is the width of material removed by a cutting process. The fabricator may compensate for kerf or cutter size in their toolpath. Agree on who applies that compensation so it is not applied twice.
+
+## Material and thickness
+
+Choose stock for the loads, stiffness, impact, environment, and fabrication process. Aluminum alloy and temper affect behavior; “aluminum” is not a complete material specification. Plastics also differ in stiffness, toughness, friction, and heat response.
+
+Use available thicknesses rather than designing around a value nobody can buy locally. Measure stock where the fit depends on it. A nominal thickness can vary, and a protective coating or surface finish can affect an interface.
+
+Keep the load path in mind when shaping the outline. Leave material around mounting and bearing holes, and use crossmembers or other supports when a broad plate would otherwise flex. See [Design for manufacturing](/docs/design/design-for-manufacturing) for the worked cutout comparison.
+
+## Bending sheet
+
+A bent bracket needs a bend radius and a flat blank whose size accounts for the bend. The **neutral axis** is the layer within the material used to describe length through the bend; its position depends on the bending conditions.
+
+Do not make a flat blank by simply adding the outside flange lengths. Material stretches and compresses through the bend. Use appropriate sheet-metal modeling and the fabricator's bend data.
+
+In Onshape, sheet-metal tools define thickness, bend radius, and features such as flanges, and provide a flat view. A solid L-shaped extrusion is useful as a geometry exercise, but it does not automatically define a manufacturable bent blank.
+
+Keep holes and narrow features far enough from bends according to the process requirements. Include bend relief where needed, and check that the tooling can reach each bend. A closed shape with a seemingly simple final form can be impossible to form in the planned order.
+
+## CNC pockets and corners
+
+**CNC** means computer numerical control: a machine follows a programmed toolpath. For milling or routing, the tool's shape limits the geometry it can leave.
+
+A round end mill leaves a radius in an internal corner. A 6 mm-diameter cutter has a 3 mm radius, so it cannot create a perfectly sharp internal square corner by ordinary three-axis milling. Specify a compatible corner radius, allow a suitable relief, or change the mating part.
+
+A **dogbone relief** extends an internal corner so a square-ended mating part can seat. It changes the visible outline and removes material, so place it deliberately rather than adding it to every corner.
+
+Check pocket depth against stock thickness. A 2 mm-deep pocket in a 3 mm plate leaves only 1 mm below it. Decide whether that remaining section can carry the load and whether the process can hold the depth consistently.
+
+## Holes and threads
+
+Choose drilled, reamed, tapped, countersunk, or counterbored features according to the joint. A **reamed hole** uses a finishing operation for a more controlled diameter and surface than a rough opening alone.
+
+A cut opening may need a secondary operation for the intended bearing or shaft fit. Put that requirement on the drawing. Do not silently assume a laser-cut or routed hole will provide the same interface as a specified machined fit.
+
+For threads in thin material, consider the usable engagement after chamfers and tool lead-in. Use suitable nuts, inserts, or increased supporting thickness when the joint requires them. The [fastened-joint guide](/docs/design/fastened-joints) explains the stack and access checks.
+
+## Hold the part while making it
+
+A machine needs a way to hold the stock and the part. Discuss clamp locations, tabs, sacrificial material, and which face is machined first. A toolpath cannot occupy the same space as a clamp.
+
+Keep thin or narrow regions supported during cutting. Consider the operation that separates the finished part from the surrounding stock. A complicated pocketed shape can require more setup and handling than its final appearance suggests.
+
+Manual parts need an achievable marking, drilling, and finishing process too. Choose datum edges a student can locate and measure. Avoid requiring a precision fit that the available tools cannot reproduce reliably.
+
+## Send a complete package
+
+Include the agreed geometry file, drawing, material, thickness, quantity, units, revision, and functional tolerances. Mark any required secondary work, such as tapping or finishing a bearing seat. Ask the fabricator to raise an unclear requirement before making the batch.
+
+When the parts return, inspect the important dimensions, edge condition, and fit with actual hardware. Update CAD and drawings for any agreed correction. Keep the approved files together so a replacement uses the same definition.
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Sheet metal](https://cad.onshape.com/help/Content/PartStudio/sheet_metal_model.htm)
+- [SendCutSend: Design guidelines](https://sendcutsend.com/guidelines/)
+- [FRCDesign: Structure and manufacturing](https://frcdesign.org/design-handbook/structure/structure/)
+- [Onshape: Exporting files](https://cad.onshape.com/help/Content/File/exporting_files.htm)
+
+</footer>

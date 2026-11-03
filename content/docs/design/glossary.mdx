@@ -1,0 +1,124 @@
+---
+title: Design glossary
+description: Plain definitions of the CAD, mechanical, and manufacturing terms used in the Design handbook.
+icon: phosphor:BookOpen
+---
+
+Use these definitions when an unfamiliar word interrupts a lesson. The linked guides show the term in a complete example.
+
+## CAD
+
+| Term | Meaning |
+| --- | --- |
+| CAD | Computer-aided design: software for accurate drawings and models |
+| Document | Onshape's container for tabs, shared access, and design history |
+| Part Studio | A tab in which sketches and features define one or more parts |
+| Sketch | Geometry drawn on a plane or other supported reference |
+| Origin | The fixed reference point where the model's axes meet |
+| Plane | A flat reference surface |
+| Constraint | A relationship such as parallel, equal, or coincident |
+| Dimension | A value that controls or reports a size, angle, or distance |
+| Construction geometry | Reference geometry that does not form the solid's profile boundary |
+| Feature | A modeling operation, such as Extrude, Hole, or Fillet |
+| Extrude | Extend a flat region into a solid, or use it to add or remove material |
+| Revolve | Turn a profile around an axis to create or modify geometry |
+| Fillet | A rounded transition between faces or edges |
+| Chamfer | A bevel that replaces an edge |
+| Pattern | Repeated geometry or features arranged by a rule |
+| Mirror | Reflected geometry about a line or plane |
+| Parameter | An input controlling the model, such as depth or diameter |
+| Variable | A named value used in dimensions or other expressions |
+| Configuration | A selectable variant of one model |
+| Derived | A feature that brings reference geometry from another Part Studio or document |
+| Suppress | Temporarily exclude a feature or instance without deleting its definition |
+| Rollback | Temporarily return the feature list to an earlier point for inspection or editing |
+| FeatureScript | Onshape's language for defining custom CAD features |
+
+Start with [Onshape](/docs/design/onshape), [Sketches](/docs/design/sketches), and [Modeling features](/docs/design/modeling-features).
+
+## Assemblies
+
+| Term | Meaning |
+| --- | --- |
+| Part | One modeled solid object |
+| Instance | One use of a part or subassembly in an Assembly |
+| Subassembly | An assembly used inside another assembly |
+| Mate | A relationship defining permitted movement between instances |
+| Mate connector | A reference point and axis directions used to place and connect parts |
+| Degree of freedom | An independent way a part can move |
+| Translation | Movement without rotation |
+| Fastened mate | A mate that permits no relative movement |
+| Revolute mate | A mate that permits one rotation |
+| Slider mate | A mate that permits one translation |
+| Interference | Overlapping solid geometry between parts |
+| Pose | A position together with an orientation |
+| Envelope | The space reserved for a component, object, or movement |
+| Datum | A reference face, axis, point, or plane used to locate geometry |
+| BOM | Bill of materials: a list of parts and quantities |
+
+Use [Assemblies](/docs/design/assemblies) and [Moving assemblies](/docs/design/moving-assemblies) to practice these relationships.
+
+## Mechanics
+
+| Term | Meaning |
+| --- | --- |
+| Force | A push or pull, measured in newtons |
+| Torque | A force's turning effect about an axis, measured in newton-meters |
+| Center of mass | The point used to represent an object's mass distribution for many calculations |
+| Stiffness | Resistance to deflection under load |
+| Strength | Ability to withstand load without the relevant damage or failure |
+| Load path | The route by which forces pass through a structure |
+| Radial | Perpendicular to an axis |
+| Axial | Along an axis |
+| Shaft | A component that commonly transmits rotation and torque |
+| Live axle | An arrangement in which the shaft turns with the driven mechanism |
+| Dead axle | An arrangement in which the axle stays fixed and the mechanism rotates around it |
+| Bearing race | One of a bearing's supported inner or outer rings |
+| Retention | Features or hardware that prevent unwanted movement out of position |
+| Reduction | A transmission ratio that lowers output speed and increases ideal torque |
+| Pitch | A repeating spacing; its exact meaning depends on teeth, chain links, or screw threads |
+| Module | A metric measure of gear tooth size |
+| Backlash | Clearance between mating transmission features that allows some lost motion on reversal |
+| Stroke | The usable travel of a linear mechanism |
+| Rigging | The route and attachment of a lift's cable, belt, or chain |
+| Coupler | A link joining other moving links, or a component connecting shafts, depending on context |
+
+Use [Forces and motion](/docs/design/forces-and-motion), [Transmission layouts](/docs/design/transmission-layouts), and [Slides and lifts](/docs/design/slides-and-lifts).
+
+## Making parts
+
+| Term | Meaning |
+| --- | --- |
+| Nominal dimension | The stated target size |
+| Tolerance | Permitted variation from a stated dimension |
+| Clearance | Space between mating features |
+| Interference fit | A fit in which mating size ranges deliberately overlap |
+| Kerf | The width removed by a cutting process |
+| CNC | Computer numerical control of a machine's movement |
+| Counterbore | A larger cylindrical recess around a hole |
+| Countersink | A conical recess around a hole |
+| Tapped hole | A hole containing an internal screw thread |
+| Grip | The stack clamped between a fastener's head and nut or threaded component |
+| Preload | Tension established in a fastener by tightening |
+| Creep | Gradual deformation under sustained load |
+| Perimeter | An outer wall path in a filament print |
+| Infill | The internal pattern of a print |
+| Support | Temporary printing material beneath geometry that needs it |
+| STEP | A common exchange format for CAD geometry |
+| DXF | A drawing exchange format often used for flat cutting profiles |
+| STL | A triangular surface mesh commonly used for printing |
+| CSV | A plain-text table format, useful for exporting a BOM |
+| Version | A preserved document state |
+| Revision | An identified design issue used to distinguish approved or changed parts and files |
+
+Use [Tolerances and fit](/docs/design/tolerances-and-fit), [Fastened joints](/docs/design/fastened-joints), and [Drawings and exports](/docs/design/drawings-and-exports).
+
+<footer className="article-sources">
+
+## Sources
+
+- [Onshape: Glossary](https://cad.onshape.com/help/Content/Home/glossary.htm)
+- [FRCDesign: Design handbook](https://frcdesign.org/design-handbook/)
+- [Alan G. Smith: Learn Onshape for FTC](https://github.com/alan412/LearnOnshapeForFTC)
+
+</footer>
