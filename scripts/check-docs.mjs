@@ -37,7 +37,7 @@ for (const file of pages) {
   for (const [, raw] of links) {
     const target = raw.trim().split("#")[0];
     if (!target || /^(https?:|mailto:|tel:)/.test(target)) continue;
-    const valid = target.startsWith("/docs/")
+    const valid = target === "/docs" || target.startsWith("/docs/")
       ? pageExists(join(root, decodeURIComponent(target.slice(6))))
       : target.startsWith("/")
         ? existsSync(join(publicRoot, decodeURIComponent(target.slice(1))))
