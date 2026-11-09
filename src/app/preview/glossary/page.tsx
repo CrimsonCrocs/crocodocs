@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { GlossaryTerm } from '@/components/glossary-term';
 
@@ -22,7 +23,7 @@ export default function GlossaryPreview() {
         <p>A <GlossaryTerm term="Program Delivery Partner" definition="The organization that runs FIRST programs in a country or region." href="/docs/starter-guide/glossary">Program Delivery Partner</GlossaryTerm> helps run the program locally. This longer term checks wrapping on a narrow screen.</p>
         <p>Code such as <code>servo.setPosition(0.5)</code>, existing links, and words without a glossary definition stay unchanged.</p>
       </article>
-      <p className="mt-12 text-sm"><a className="underline" href="/docs/starter-guide/first-program">Try the real lesson</a></p>
+      <p className="mt-12 text-sm"><Link className="underline" href="/docs/starter-guide/first-program">Try the real lesson</Link></p>
     </main>
   );
 }
