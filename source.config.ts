@@ -5,6 +5,8 @@ import {
   metaSchema,
 } from 'fumadocs-mdx/config';
 import remarkDoubleBrackets from './src/lib/remark-double-brackets.js';
+import remarkGlossary from './src/lib/remark-glossary.js';
+import { dictionary } from './src/lib/dictionary';
 import remarkSeeMain from './src/lib/remark-see-main.js';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -22,7 +24,7 @@ export const docs = defineDocs({
 
 export default defineConfig({
   mdxOptions: {
-    remarkPlugins: (v) => [remarkMath, ...v, remarkDoubleBrackets, remarkSeeMain],
+    remarkPlugins: (v) => [remarkMath, ...v, remarkDoubleBrackets, [remarkGlossary, { dictionary }], remarkSeeMain],
     rehypePlugins: (v) => [rehypeKatex, ...v],
   },
 });
